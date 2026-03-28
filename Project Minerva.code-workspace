@@ -1,0 +1,92 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "rust-analyzer.cargo.target": "aarch64-unknown-linux-gnu",
+    "rust-analyzer.checkOnSave.extraArgs": ["--target", "aarch64-unknown-linux-gnu"],
+    "rust-analyzer.linkedProjects": ["./Cargo.toml"],
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "editor.formatOnSave": true,
+    "files.watcherExclude": {
+      "**/target/**": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "rust-lang.rust-analyzer",
+      "tamasfe.even-better-toml",
+      "serayuzgur.crates",
+      "ms-vscode.makefile-tools",
+      "ms-vscode-remote.remote-containers",
+      "ms-vscode-remote.remote-ssh",
+      "mkhl.direnv"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build (ARM64)",
+        "type": "shell",
+        "command": "make build",
+        "group": { "kind": "build", "isDefault": true },
+        "presentation": { "panel": "shared", "reveal": "always" },
+        "problemMatcher": "$rustc"
+      },
+      {
+        "label": "Run QEMU",
+        "type": "shell",
+        "command": "make run",
+        "group": "test",
+        "presentation": { "panel": "dedicated", "reveal": "always" },
+        "problemMatcher": []
+      },
+      {
+        "label": "Run QEMU (KVM)",
+        "type": "shell",
+        "command": "make run-kvm",
+        "group": "test",
+        "presentation": { "panel": "dedicated", "reveal": "always" },
+        "problemMatcher": []
+      },
+      {
+        "label": "SSH into QEMU",
+        "type": "shell",
+        "command": "make ssh",
+        "presentation": { "panel": "dedicated", "reveal": "always" },
+        "problemMatcher": []
+      },
+      {
+        "label": "Deploy to CM5",
+        "type": "shell",
+        "command": "make deploy",
+        "presentation": { "panel": "shared", "reveal": "always" },
+        "problemMatcher": []
+      },
+      {
+        "label": "Deploy binaries only",
+        "type": "shell",
+        "command": "make deploy-bins",
+        "presentation": { "panel": "shared", "reveal": "always" },
+        "problemMatcher": []
+      },
+      {
+        "label": "Build OS Image",
+        "type": "shell",
+        "command": "make image",
+        "presentation": { "panel": "shared", "reveal": "always" },
+        "problemMatcher": []
+      },
+      {
+        "label": "Check deps",
+        "type": "shell",
+        "command": "make check-deps",
+        "presentation": { "panel": "shared", "reveal": "always" },
+        "problemMatcher": []
+      }
+    ]
+  }
+}
