@@ -1,0 +1,281 @@
+// =============================================================================
+// radial_menu.slint — Torchform radial menu component
+//
+// Appears when L2, R2, or L2+R2 is held. Items are arranged in a circle.
+// Can be navigated with the D-pad or touched directly on the lower screen.
+// Supports up to 8 items and nested sub-radials.
+//
+// Layers:
+//   L2 held        → layer = RadialLayer.App1
+//   R2 held        → layer = RadialLayer.App2
+//   L2 + R2 held   → layer = RadialLayer.System
+// =============================================================================
+
+import { Tokens } from "tokens.slint";
+
+// A single entry in a radial menu.
+export struct RadialItem {
+    label:    string,
+    icon:     string,    // Unicode glyph or short emoji-style character
+    enabled:  bool,
+    is-nested:bool,      // True if selecting this opens a sub-radial
+}
+
+// Which trigger layer opened the menu.
+export enum RadialLayer {
+    App1,    // L2
+    App2,    // R2
+    System,  // L2 + R2
+}
+
+// Individual radial item bubble.
+component RadialBubble inherits Rectangle {
+    in property <RadialItem>  item;
+    in property <bool>        focused;
+    in property <bool>        visible-prop: true;
+
+    callback activated();
+
+    width:  Tokens.radial-item-size;
+    height: Tokens.radial-item-size;
+    border-radius: Tokens.radial-item-size / 2;
+
+    background: focused
+        ? Tokens.accent
+        : Tokens.bg-elevated;
+
+    border-width: 2px;
+    border-color: focused
+        ? Tokens.accent
+        : (item.enabled ? Tokens.border : Tokens.border-subtle);
+
+    animate background { duration: Tokens.anim-fast; }
+    animate border-color { duration: Tokens.anim-fast; }
+
+    // Drop-shadow glow when focused
+    drop-shadow-blur: focused ? Tokens.shadow-accent-blur : 0px;
+    drop-shadow-color: Tokens.shadow-accent-color;
+
+    // Icon
+    Text {
+        x: (parent.width  - self.width)  / 2;
+        y: 4px;
+        width: parent.width;
+        height: parent.height * 0.5;
+        text: item.icon;
+        font-size: Tokens.text-xl;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        color: focused ? Tokens.text-on-accent : Tokens.text-primary;
+    }
+
+    // Label
+    Text {
+        x: (parent.width  - self.width)  / 2;
+        y: parent.height * 0.5 + 2px;
+        width: parent.width;
+        height: parent.height * 0.44;
+        text: item.label;
+        font-size: Tokens.text-xs;
+        font-family: Tokens.font-sans;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+        color: focused ? Tokens.text-on-accent : Tokens.text-secondary;
+        overflow: elide;
+    }
+
+    // Nested sub-menu indicator
+    if item.is-nested: Rectangle {
+        x: parent.width - 14px;
+        y: 0px;
+        width: 12px;
+        height: 12px;
+        border-radius: 6px;
+        background: Tokens.secondary;
+        Text {
+            width: parent.width;
+            height: parent.height;
+            text: "›";
+            font-size: 9px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            color: Tokens.text-primary;
+        }
+    }
+
+    touch := TouchArea {
+        clicked => { root.activated(); }
+    }
+}
+
+// =============================================================================
+// RadialMenu — the full overlay component
+// =============================================================================
+export component RadialMenu inherits Rectangle {
+
+    in property <[RadialItem]>  items;
+    in property <int>           focused-index: 0;
+    in property <RadialLayer>   layer: RadialLayer.System;
+    in property <bool>          visible-prop: false;
+    in property <string>        title: "";
+
+    callback item-activated(int);    // index of the activated item
+    callback dismissed();
+
+    width: 100%;
+    height: 100%;
+
+    // Dim the background
+    background: Tokens.bg-overlay;
+
+    opacity: visible-prop ? 1.0 : 0.0;
+    animate opacity { duration: Tokens.anim-normal; }
+
+    // Centre panel
+    panel := Rectangle {
+        x: (parent.width  - self.width)  / 2;
+        y: (parent.height - self.height) / 2;
+        width:  Tokens.radial-radius * 2 + Tokens.radial-item-size + Tokens.space-8;
+        height: Tokens.radial-radius * 2 + Tokens.radial-item-size + Tokens.space-8 + 40px;
+        border-radius: Tokens.radius-xl;
+        background: transparent;
+
+        // Layer indicator text
+        Text {
+            x: 0px;
+            y: 0px;
+            width: parent.width;
+            height: 36px;
+            text: layer == RadialLayer.System
+                ? "System"
+                : (layer == RadialLayer.App1 ? "L2" : "R2");
+            font-size: Tokens.text-sm;
+            font-family: Tokens.font-sans;
+            font-weight: Tokens.weight-semibold;
+            color: layer == RadialLayer.System ? Tokens.accent : Tokens.text-secondary;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+
+        // Centre ring glyph
+        centre := Rectangle {
+            x: (parent.width  - self.width)  / 2;
+            y: (parent.height - self.height) / 2;
+            width:  48px;
+            height: 48px;
+            border-radius: 24px;
+            background: Tokens.bg-elevated;
+            border-width: 2px;
+            border-color: layer == RadialLayer.System ? Tokens.accent : Tokens.border;
+            Text {
+                width: parent.width;
+                height: parent.height;
+                text: layer == RadialLayer.System ? "⊕" : "◉";
+                font-size: Tokens.text-lg;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                color: layer == RadialLayer.System ? Tokens.accent : Tokens.text-secondary;
+            }
+        }
+
+        // Items are positioned by the Rust side via absolute x/y.
+        // Slint does not support computed placement loops, so the shell backend
+        // calculates each bubble's canvas position and passes them as a model.
+        // Here we render item 0–7 at fixed angular positions for the common
+        // 8-item layout. Fewer items skip higher indices.
+
+        // The angular layout formula:
+        //   angle_i = (i / n) * 2π   where n = items.length (max 8)
+        //   cx = center_x + radius * cos(angle_i)
+        //   cy = center_y + radius * sin(angle_i)
+        //
+        // Since Slint can't compute trig inline, we use a hardcoded 8-position
+        // ring (the most common case). The Rust build.rs or a custom element
+        // handles dynamic counts.
+
+        // --- Slot 0: top (0°) ---
+        RadialBubble {
+            x: (parent.width - Tokens.radial-item-size) / 2;
+            y: (parent.height - Tokens.radial-item-size) / 2 - Tokens.radial-radius;
+            item:    items[0];
+            focused: focused-index == 0;
+            visible: items.length > 0;
+            activated => { root.item-activated(0); }
+        }
+
+        // --- Slot 1: top-right (45°) ---
+        RadialBubble {
+            x: (parent.width  - Tokens.radial-item-size) / 2 + Tokens.radial-radius * 0.707;
+            y: (parent.height - Tokens.radial-item-size) / 2 - Tokens.radial-radius * 0.707;
+            item:    items[1];
+            focused: focused-index == 1;
+            visible: items.length > 1;
+            activated => { root.item-activated(1); }
+        }
+
+        // --- Slot 2: right (90°) ---
+        RadialBubble {
+            x: (parent.width  - Tokens.radial-item-size) / 2 + Tokens.radial-radius;
+            y: (parent.height - Tokens.radial-item-size) / 2;
+            item:    items[2];
+            focused: focused-index == 2;
+            visible: items.length > 2;
+            activated => { root.item-activated(2); }
+        }
+
+        // --- Slot 3: bottom-right (135°) ---
+        RadialBubble {
+            x: (parent.width  - Tokens.radial-item-size) / 2 + Tokens.radial-radius * 0.707;
+            y: (parent.height - Tokens.radial-item-size) / 2 + Tokens.radial-radius * 0.707;
+            item:    items[3];
+            focused: focused-index == 3;
+            visible: items.length > 3;
+            activated => { root.item-activated(3); }
+        }
+
+        // --- Slot 4: bottom (180°) ---
+        RadialBubble {
+            x: (parent.width - Tokens.radial-item-size) / 2;
+            y: (parent.height - Tokens.radial-item-size) / 2 + Tokens.radial-radius;
+            item:    items[4];
+            focused: focused-index == 4;
+            visible: items.length > 4;
+            activated => { root.item-activated(4); }
+        }
+
+        // --- Slot 5: bottom-left (225°) ---
+        RadialBubble {
+            x: (parent.width  - Tokens.radial-item-size) / 2 - Tokens.radial-radius * 0.707;
+            y: (parent.height - Tokens.radial-item-size) / 2 + Tokens.radial-radius * 0.707;
+            item:    items[5];
+            focused: focused-index == 5;
+            visible: items.length > 5;
+            activated => { root.item-activated(5); }
+        }
+
+        // --- Slot 6: left (270°) ---
+        RadialBubble {
+            x: (parent.width  - Tokens.radial-item-size) / 2 - Tokens.radial-radius;
+            y: (parent.height - Tokens.radial-item-size) / 2;
+            item:    items[6];
+            focused: focused-index == 6;
+            visible: items.length > 6;
+            activated => { root.item-activated(6); }
+        }
+
+        // --- Slot 7: top-left (315°) ---
+        RadialBubble {
+            x: (parent.width  - Tokens.radial-item-size) / 2 - Tokens.radial-radius * 0.707;
+            y: (parent.height - Tokens.radial-item-size) / 2 - Tokens.radial-radius * 0.707;
+            item:    items[7];
+            focused: focused-index == 7;
+            visible: items.length > 7;
+            activated => { root.item-activated(7); }
+        }
+    }
+
+    // Dismiss on tap outside the panel
+    bg-touch := TouchArea {
+        clicked => { root.dismissed(); }
+    }
+}

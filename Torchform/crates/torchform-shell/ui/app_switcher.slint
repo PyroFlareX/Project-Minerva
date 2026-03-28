@@ -1,0 +1,209 @@
+// =============================================================================
+// app_switcher.slint — Torchform app switcher
+//
+// Triggered by the Start button. Shows running apps as thumbnail cards.
+// D-pad left/right navigates. A launches/focuses; B dismisses.
+// Supports split-screen pairing (drag two apps to side-by-side mode).
+// =============================================================================
+
+import { Tokens } from "tokens.slint";
+
+export struct AppEntry {
+    id:          string,
+    title:       string,
+    icon:        string,
+    // A screenshot thumbnail would be a Slint Image; for now we use a colour swatch.
+    accent-color: color,
+    is-running:  bool,
+    tile-slot:   int,    // 0 = fullscreen, 1 = left tile, 2 = right tile
+}
+
+component AppCard inherits Rectangle {
+    in property <AppEntry> entry;
+    in property <bool>     focused;
+
+    callback activated();
+    callback close-requested();
+
+    width:  180px;
+    height: 120px;
+    border-radius: Tokens.radius-lg;
+    background: entry.accent-color;
+
+    border-width: focused ? 2px : 1px;
+    border-color: focused ? Tokens.accent : Tokens.border;
+
+    animate border-width  { duration: Tokens.anim-fast; }
+    animate border-color  { duration: Tokens.anim-fast; }
+
+    drop-shadow-offset-y: focused ? Tokens.shadow-md-offset : Tokens.shadow-sm-offset;
+    drop-shadow-blur:     focused ? Tokens.shadow-md-blur   : Tokens.shadow-sm-blur;
+    drop-shadow-color:    focused ? Tokens.shadow-accent-color : Tokens.shadow-sm-color;
+
+    // Tile-slot badge
+    if entry.tile-slot != 0: Rectangle {
+        x: Tokens.space-2;
+        y: Tokens.space-2;
+        width: 28px;
+        height: 16px;
+        border-radius: Tokens.radius-sm;
+        background: Tokens.bg-overlay;
+        Text {
+            width: parent.width;
+            height: parent.height;
+            text: entry.tile-slot == 1 ? "◧" : "◨";
+            font-size: 10px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            color: Tokens.text-primary;
+        }
+    }
+
+    // App icon
+    Text {
+        x: (parent.width - self.preferred-width) / 2;
+        y: 20px;
+        text: entry.icon;
+        font-size: Tokens.text-3xl;
+        color: Tokens.text-primary;
+    }
+
+    // Title bar at bottom
+    Rectangle {
+        x: 0px;
+        y: parent.height - self.height;
+        width: parent.width;
+        height: 32px;
+        border-radius: 0px;    // bottom corners only — not trivially expressible; full rect ok
+        background: #00000066;
+        HorizontalLayout {
+            padding-left: Tokens.space-2;
+            padding-right: Tokens.space-2;
+            alignment: center;
+            Text {
+                horizontal-stretch: 1;
+                text: entry.title;
+                font-size: Tokens.text-sm;
+                font-family: Tokens.font-sans;
+                font-weight: Tokens.weight-medium;
+                color: Tokens.text-primary;
+                overflow: elide;
+                vertical-alignment: center;
+            }
+        }
+    }
+
+    // Close button (visible when focused)
+    if focused: Rectangle {
+        x: parent.width - 26px;
+        y: 4px;
+        width: 22px;
+        height: 22px;
+        border-radius: 11px;
+        background: Tokens.error;
+        Text {
+            width: parent.width;
+            height: parent.height;
+            text: "✕";
+            font-size: 10px;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            color: Tokens.text-primary;
+        }
+        close-touch := TouchArea {
+            clicked => { root.close-requested(); }
+        }
+    }
+
+    TouchArea { clicked => { root.activated(); } }
+}
+
+// ---------------------------------------------------------------------------
+// AppSwitcher root
+// ---------------------------------------------------------------------------
+export component AppSwitcher inherits Rectangle {
+    in property <[AppEntry]>  apps;
+    in property <int>         focused-index: 0;
+    in property <bool>        visible-prop: false;
+
+    callback app-activated(int);
+    callback app-closed(int);
+    callback dismissed();
+
+    width:  100%;
+    height: 100%;
+    background: Tokens.bg-overlay;
+
+    opacity: visible-prop ? 1.0 : 0.0;
+    animate opacity { duration: Tokens.anim-normal; }
+
+    panel := Rectangle {
+        x: 0px;
+        y: parent.height - self.height;
+        width: parent.width;
+        height: 210px;
+        background: Tokens.bg-surface;
+        border-width: 0px;
+
+        // Top accent line
+        Rectangle {
+            x: 0px;
+            y: 0px;
+            width: parent.width;
+            height: 2px;
+            background: Tokens.accent;
+        }
+
+        VerticalLayout {
+            padding: Tokens.space-4;
+            spacing: Tokens.space-3;
+
+            Text {
+                text: "Running Apps";
+                font-size: Tokens.text-sm;
+                font-family: Tokens.font-sans;
+                font-weight: Tokens.weight-semibold;
+                color: Tokens.text-secondary;
+            }
+
+            HorizontalLayout {
+                spacing: Tokens.space-4;
+                alignment: start;
+
+                for app[idx] in apps: AppCard {
+                    entry:   app;
+                    focused: focused-index == idx;
+                    activated      => { root.app-activated(idx); }
+                    close-requested => { root.app-closed(idx); }
+                }
+
+                // "Launch new app" placeholder
+                Rectangle {
+                    width:  180px;
+                    height: 120px;
+                    border-radius: Tokens.radius-lg;
+                    background: Tokens.bg-elevated;
+                    border-width: 1px;
+                    border-color: Tokens.border-subtle;
+                    Text {
+                        width: parent.width;
+                        height: parent.height;
+                        text: "+ Launch";
+                        font-size: Tokens.text-sm;
+                        font-family: Tokens.font-sans;
+                        color: Tokens.text-disabled;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    TouchArea {
+                        // Triggers command palette to pick an app
+                        clicked => { root.dismissed(); }
+                    }
+                }
+            }
+        }
+    }
+
+    // Dismiss on tap outside bottom panel
+    TouchArea { clicked => { root.dismissed(); } }
+}

@@ -1,0 +1,200 @@
+// =============================================================================
+// shell.slint — Torchform upper-display shell root
+//
+// The shell overlays above the application surface on the upper 1920×1080
+// display. It hosts:
+//   - The radial menu overlay  (L2 / R2 / L2+R2)
+//   - The command palette      (Select)
+//   - The app switcher         (Start)
+//   - A minimal system status strip at the very top edge
+//
+// When no overlay is active the shell is completely transparent, letting the
+// focused application fill the entire screen.
+// =============================================================================
+
+import { Tokens }          from "tokens.slint";
+import { RadialMenu, RadialItem, RadialLayer } from "radial_menu.slint";
+import { CommandPalette, CommandEntry, VoiceState } from "command_palette.slint";
+import { AppSwitcher, AppEntry }                    from "app_switcher.slint";
+
+export {
+    RadialItem, RadialLayer,
+    CommandEntry, VoiceState,
+    AppEntry,
+}
+
+export component ShellOverlay inherits Window {
+
+    // -----------------------------------------------------------------------
+    // Radial menu
+    // -----------------------------------------------------------------------
+    in property <bool>           radial-visible: false;
+    in property <[RadialItem]>   radial-items;
+    in property <int>            radial-focused: 0;
+    in property <RadialLayer>    radial-layer: RadialLayer.System;
+
+    callback radial-item-activated(int);
+    callback radial-dismissed();
+
+    // -----------------------------------------------------------------------
+    // Command palette
+    // -----------------------------------------------------------------------
+    in property <bool>            palette-visible: false;
+    in property <[CommandEntry]>  palette-entries;
+    in property <string>          palette-query: "";
+    in property <int>             palette-focused: 0;
+    in property <VoiceState>      palette-voice: VoiceState.Idle;
+
+    callback palette-entry-activated(int);
+    callback palette-dismissed();
+    callback palette-query-changed(string);
+
+    // -----------------------------------------------------------------------
+    // App switcher
+    // -----------------------------------------------------------------------
+    in property <bool>         switcher-visible: false;
+    in property <[AppEntry]>   switcher-apps;
+    in property <int>          switcher-focused: 0;
+
+    callback switcher-app-activated(int);
+    callback switcher-app-closed(int);
+    callback switcher-dismissed();
+
+    // -----------------------------------------------------------------------
+    // Status strip
+    // -----------------------------------------------------------------------
+    in property <string>  time-str: "00:00";
+    in property <int>     battery-pct: 100;
+    in property <bool>    charging: false;
+    in property <bool>    wifi-connected: true;
+
+    // -----------------------------------------------------------------------
+    // Keyboard shortcut callbacks (desktop testing; mapped to controller grammar)
+    //   Space   → Select (palette)    Enter → Start (switcher)
+    //   Tab↓/↑  → L2 held/released    Esc   → B (back)
+    //   A       → A (confirm)         ↑↓←→  → D-pad
+    // -----------------------------------------------------------------------
+    callback key-select();
+    callback key-start();
+    callback key-l2(bool);
+    callback key-b();
+    callback key-a();
+    callback key-up();
+    callback key-down();
+    callback key-left();
+    callback key-right();
+
+    // -----------------------------------------------------------------------
+    // Root geometry — transparent, full upper screen
+    // -----------------------------------------------------------------------
+    width:      Tokens.upper-width;
+    height:     Tokens.upper-height;
+    background: transparent;
+
+    // -----------------------------------------------------------------------
+    // System status strip — top edge, always visible, low-profile
+    // -----------------------------------------------------------------------
+    status-strip := Rectangle {
+        x: 0px;
+        y: 0px;
+        width: parent.width;
+        height: 24px;
+        background: #00000088;
+
+        HorizontalLayout {
+            padding-left:  Tokens.space-4;
+            padding-right: Tokens.space-4;
+            spacing: Tokens.space-4;
+            alignment: end;
+
+            // Clock
+            Text {
+                text: time-str;
+                font-size: Tokens.text-sm;
+                font-family: Tokens.font-mono;
+                color: Tokens.text-secondary;
+                vertical-alignment: center;
+            }
+
+            // Battery
+            Text {
+                text: (charging ? "⚡ " : "") + battery-pct + "%";
+                font-size: Tokens.text-sm;
+                font-family: Tokens.font-mono;
+                color: battery-pct > 20 ? Tokens.text-secondary : Tokens.error;
+                vertical-alignment: center;
+            }
+
+            // WiFi
+            Text {
+                text: wifi-connected ? "📶" : "";
+                font-size: 12px;
+                vertical-alignment: center;
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Overlays (stacked; only one should be visible at a time)
+    // -----------------------------------------------------------------------
+
+    AppSwitcher {
+        visible:          switcher-visible;
+        apps:             switcher-apps;
+        focused-index:    switcher-focused;
+        visible-prop:     switcher-visible;
+        app-activated(i) => { root.switcher-app-activated(i); }
+        app-closed(i)    => { root.switcher-app-closed(i); }
+        dismissed        => { root.switcher-dismissed(); }
+    }
+
+    CommandPalette {
+        visible:          palette-visible;
+        entries:          palette-entries;
+        query:            palette-query;
+        focused-index:    palette-focused;
+        voice-state:      palette-voice;
+        visible-prop:     palette-visible;
+        entry-activated(i)  => { root.palette-entry-activated(i); }
+        dismissed           => { root.palette-dismissed(); }
+        query-changed(q)    => { root.palette-query-changed(q); }
+    }
+
+    RadialMenu {
+        visible:          radial-visible;
+        items:            radial-items;
+        focused-index:    radial-focused;
+        layer:            radial-layer;
+        visible-prop:     radial-visible;
+        item-activated(i) => { root.radial-item-activated(i); }
+        dismissed         => { root.radial-dismissed(); }
+    }
+
+    // -----------------------------------------------------------------------
+    // Global keyboard handler
+    // -----------------------------------------------------------------------
+    forward-focus: key-handler;
+
+    key-handler := FocusScope {
+        x: 0; y: 0;
+        width: parent.width;
+        height: parent.height;
+
+        key-pressed(event) => {
+            if event.text == " "                             { root.key-select(); accept }
+            else if event.text == Key.Return                 { root.key-start();  accept }
+            else if event.text == Key.Tab                    { root.key-l2(true); accept }
+            else if event.text == Key.Escape                 { root.key-b();      accept }
+            else if event.text == "a" || event.text == "A"  { root.key-a();      accept }
+            else if event.text == Key.UpArrow                { root.key-up();     accept }
+            else if event.text == Key.DownArrow              { root.key-down();   accept }
+            else if event.text == Key.LeftArrow              { root.key-left();   accept }
+            else if event.text == Key.RightArrow             { root.key-right();  accept }
+            else { reject }
+        }
+        key-released(event) => {
+            if event.text == Key.Tab { root.key-l2(false); accept }
+            else { reject }
+        }
+    }
+}

@@ -1,0 +1,191 @@
+// =============================================================================
+// app_files.slint — Torchform File Browser app (stub)
+//
+// A simple file-browser UI. Uses a static demo listing for now; the real
+// implementation will walk the filesystem via the Rust backend.
+// =============================================================================
+
+import { Tokens } from "tokens.slint";
+
+struct FileEntry {
+    icon:  string,
+    name:  string,
+    kind:  string,   // "dir" | "file"
+    size:  string,
+}
+
+component FileRow inherits Rectangle {
+    in property <FileEntry> entry;
+    in property <bool>      focused: false;
+
+    callback activated();
+
+    height: 44px;
+    border-radius: Tokens.radius-sm;
+    background: focused ? Tokens.bg-elevated : transparent;
+    border-width: focused ? 1px : 0px;
+    border-color: Tokens.border-focused;
+    animate background { duration: Tokens.anim-fast; }
+
+    HorizontalLayout {
+        padding-left:  Tokens.space-3;
+        padding-right: Tokens.space-3;
+        spacing: Tokens.space-3;
+        alignment: center;
+
+        Text {
+            text: entry.icon;
+            font-size: Tokens.text-lg;
+            vertical-alignment: center;
+        }
+        Text {
+            horizontal-stretch: 1;
+            text: entry.name;
+            font-size: Tokens.text-md;
+            font-family: Tokens.font-sans;
+            color: entry.kind == "dir" ? Tokens.accent : Tokens.text-primary;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+        Text {
+            text: entry.size;
+            font-size: Tokens.text-xs;
+            font-family: Tokens.font-mono;
+            color: Tokens.text-secondary;
+            vertical-alignment: center;
+        }
+    }
+    TouchArea { clicked => { root.activated(); } }
+}
+
+export component AppFiles inherits Window {
+    in property <int>           focused-row: 0;
+    in property <string>        current-path: "/home";
+    callback close-requested();
+    callback navigate(string);
+
+    title: "Files";
+    width:  640px;
+    height: 540px;
+    background: Tokens.bg-base;
+
+    // Demo directory listing
+    property <[FileEntry]> entries: [
+        { icon: "📁", name: "Documents",  kind: "dir",  size: "—"      },
+        { icon: "📁", name: "Downloads",  kind: "dir",  size: "—"      },
+        { icon: "📁", name: "Pictures",   kind: "dir",  size: "—"      },
+        { icon: "📁", name: "Music",      kind: "dir",  size: "—"      },
+        { icon: "📁", name: "Videos",     kind: "dir",  size: "—"      },
+        { icon: "📄", name: "README.md",  kind: "file", size: "4.2 KB" },
+        { icon: "📝", name: "notes.txt",  kind: "file", size: "1.1 KB" },
+        { icon: "🖼", name: "photo.jpg",  kind: "file", size: "2.3 MB" },
+    ];
+
+    VerticalLayout {
+        padding: 0px;
+
+        // Header
+        Rectangle {
+            height: 52px;
+            background: Tokens.bg-surface;
+
+            HorizontalLayout {
+                padding-left:  Tokens.space-4;
+                padding-right: Tokens.space-4;
+                alignment: center;
+
+                Text {
+                    horizontal-stretch: 1;
+                    text: "📂  " + current-path;
+                    font-size: Tokens.text-md;
+                    font-family: Tokens.font-sans;
+                    font-weight: Tokens.weight-semibold;
+                    color: Tokens.text-primary;
+                    vertical-alignment: center;
+                    overflow: elide;
+                }
+                Rectangle {
+                    width: 32px; height: 32px;
+                    border-radius: 16px;
+                    background: Tokens.bg-elevated;
+                    Text {
+                        width: parent.width; height: parent.height;
+                        text: "✕";
+                        font-size: Tokens.text-sm;
+                        color: Tokens.text-secondary;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    TouchArea { clicked => { root.close-requested(); } }
+                }
+            }
+        }
+
+        // Toolbar: path breadcrumb + sort indicator
+        Rectangle {
+            height: 32px;
+            background: Tokens.bg-elevated;
+
+            HorizontalLayout {
+                padding-left:  Tokens.space-3;
+                padding-right: Tokens.space-3;
+                alignment: center;
+
+                Text {
+                    horizontal-stretch: 1;
+                    text: "↑ Parent  ·  " + entries.length + " items";
+                    font-size: Tokens.text-xs;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-secondary;
+                    vertical-alignment: center;
+                }
+                Text {
+                    text: "Name ↑";
+                    font-size: Tokens.text-xs;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-disabled;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        // File list
+        Rectangle {
+            horizontal-stretch: 1;
+            vertical-stretch: 1;
+            background: Tokens.bg-base;
+            clip: true;
+
+            VerticalLayout {
+                padding: Tokens.space-2;
+                spacing: 2px;
+
+                for entry[idx] in entries: FileRow {
+                    entry:   entry;
+                    focused: focused-row == idx;
+                    activated => { root.navigate(entry.name); }
+                }
+            }
+        }
+
+        // Status bar
+        Rectangle {
+            height: 24px;
+            background: Tokens.bg-surface;
+
+            HorizontalLayout {
+                padding-left:  Tokens.space-3;
+                padding-right: Tokens.space-3;
+                alignment: center;
+
+                Text {
+                    text: "A=Open  B=Back  ↑↓=Navigate";
+                    font-size: Tokens.text-xs;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-disabled;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}

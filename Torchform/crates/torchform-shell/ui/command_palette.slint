@@ -1,0 +1,302 @@
+// =============================================================================
+// command_palette.slint — Torchform command palette
+//
+// Triggered by the Select button. A searchable list of commands — analogous
+// to VS Code's Ctrl+Shift+P. Text entry is supplied by the Rust backend via
+// voice input (Whisper.cpp) or the virtual keyboard on the lower screen.
+//
+// The palette appears on the upper display as a centred floating panel.
+// The lower display companion shows the virtual keyboard or voice-entry state.
+// =============================================================================
+
+import { Tokens } from "tokens.slint";
+
+export struct CommandEntry {
+    id:          string,
+    label:       string,
+    description: string,
+    category:    string,
+    icon:        string,
+    shortcut:    string,     // Display hint, e.g. "L2 → ☆"
+}
+
+export enum VoiceState {
+    Idle,
+    Listening,
+    Processing,
+    Error,
+}
+
+// ---------------------------------------------------------------------------
+// Single command row
+// ---------------------------------------------------------------------------
+component CommandRow inherits Rectangle {
+    in property <CommandEntry> entry;
+    in property <bool>         focused;
+
+    callback activated();
+
+    height: 52px;
+    border-radius: Tokens.radius-md;
+    background: focused ? Tokens.primary.with-alpha(0.13) : transparent;
+    animate background { duration: Tokens.anim-fast; }
+
+    // Focus accent bar
+    if focused: Rectangle {
+        x: 0px;
+        y: (parent.height - self.height) / 2;
+        width: 3px;
+        height: parent.height - Tokens.space-2;
+        border-radius: 2px;
+        background: Tokens.accent;
+    }
+
+    HorizontalLayout {
+        x: Tokens.space-3;
+        y: 0px;
+        width: parent.width - Tokens.space-3;
+        height: parent.height;
+        spacing: Tokens.space-3;
+        alignment: center;
+
+        // Icon
+        Text {
+            width: 28px;
+            height: parent.height;
+            text: entry.icon;
+            font-size: Tokens.text-lg;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            color: focused ? Tokens.accent : Tokens.text-secondary;
+        }
+
+        // Label + description
+        VerticalLayout {
+            alignment: center;
+            spacing: 2px;
+
+            Text {
+                text: entry.label;
+                font-size: Tokens.text-md;
+                font-family: Tokens.font-sans;
+                font-weight: Tokens.weight-medium;
+                color: focused ? Tokens.text-primary : Tokens.text-primary;
+            }
+            Text {
+                text: entry.description;
+                font-size: Tokens.text-xs;
+                font-family: Tokens.font-sans;
+                color: Tokens.text-secondary;
+                overflow: elide;
+            }
+        }
+
+        // Spacer
+        Rectangle { horizontal-stretch: 1; }
+
+        // Category chip
+        Rectangle {
+            width: cat-text.preferred-width + Tokens.space-3;
+            height: 20px;
+            border-radius: Tokens.radius-sm;
+            background: Tokens.bg-elevated;
+            cat-text := Text {
+                x: Tokens.space-2;
+                width: self.preferred-width;
+                height: parent.height;
+                text: entry.category;
+                font-size: Tokens.text-xs;
+                font-family: Tokens.font-sans;
+                color: Tokens.text-secondary;
+                vertical-alignment: center;
+            }
+        }
+
+        // Shortcut hint
+        if entry.shortcut != "": Text {
+            width: self.preferred-width;
+            height: parent.height;
+            text: entry.shortcut;
+            font-size: Tokens.text-xs;
+            font-family: Tokens.font-mono;
+            color: Tokens.text-disabled;
+            vertical-alignment: center;
+        }
+
+        Rectangle { width: Tokens.space-3; }
+    }
+
+    TouchArea { clicked => { root.activated(); } }
+}
+
+// ---------------------------------------------------------------------------
+// CommandPalette root
+// ---------------------------------------------------------------------------
+export component CommandPalette inherits Rectangle {
+    in property <[CommandEntry]> entries;
+    in property <string>         query;          // Set by Rust (voice / vkbd)
+    in property <int>            focused-index: 0;
+    in property <bool>           visible-prop: false;
+    in property <VoiceState>     voice-state: VoiceState.Idle;
+
+    callback query-changed(string);   // User typed (virtual kbd / voice)
+    callback entry-activated(int);    // User confirmed focused-index
+    callback dismissed();
+
+    width:  100%;
+    height: 100%;
+    background: Tokens.bg-overlay;
+
+    opacity: visible-prop ? 1.0 : 0.0;
+    animate opacity { duration: Tokens.anim-normal; }
+
+    panel := Rectangle {
+        x: (parent.width - self.width) / 2;
+        y: parent.height * 0.1;
+        width: min(parent.width - Tokens.space-16, 800px);
+        height: min(parent.height * 0.75, 560px);
+        border-radius: Tokens.radius-lg;
+        background: Tokens.bg-elevated;
+        border-width: 1px;
+        border-color: Tokens.border;
+        drop-shadow-offset-x: 0px;
+        drop-shadow-offset-y: Tokens.shadow-md-offset;
+        drop-shadow-blur: Tokens.shadow-md-blur;
+        drop-shadow-color: Tokens.shadow-md-color;
+
+        VerticalLayout {
+            padding: Tokens.space-4;
+            spacing: Tokens.space-3;
+
+            // -----------------------------------------------------------------
+            // Search bar (display-only — input comes from Rust backend)
+            // -----------------------------------------------------------------
+            search-bar := Rectangle {
+                height: 48px;
+                border-radius: Tokens.radius-md;
+                background: Tokens.bg-surface;
+                border-width: 1px;
+                border-color: Tokens.border-focused;
+
+                HorizontalLayout {
+                    padding-left: Tokens.space-4;
+                    padding-right: Tokens.space-3;
+                    spacing: Tokens.space-3;
+                    alignment: center;
+
+                    // Search icon
+                    Text {
+                        width: 20px;
+                        text: "🔍";
+                        font-size: Tokens.text-md;
+                        vertical-alignment: center;
+                    }
+
+                    // Query text / placeholder
+                    Text {
+                        horizontal-stretch: 1;
+                        text: query == "" ? "Type a command…" : query;
+                        font-size: Tokens.text-md;
+                        font-family: Tokens.font-mono;
+                        color: query == "" ? Tokens.text-disabled : Tokens.text-primary;
+                        vertical-alignment: center;
+                        overflow: elide;
+                    }
+
+                    // Voice state indicator
+                    if voice-state != VoiceState.Idle: Rectangle {
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 14px;
+                        background: voice-state == VoiceState.Listening
+                            ? Tokens.error
+                            : Tokens.accent-dim;
+                        Text {
+                            width: parent.width;
+                            height: parent.height;
+                            text: voice-state == VoiceState.Listening ? "🎙" : "⏳";
+                            font-size: 12px;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+            }
+
+            // -----------------------------------------------------------------
+            // Results list
+            // -----------------------------------------------------------------
+            results-scroll := Rectangle {
+                vertical-stretch: 1;
+                clip: true;
+
+                VerticalLayout {
+                    spacing: Tokens.space-1;
+
+                    for entry[idx] in entries: CommandRow {
+                        entry:   entry;
+                        focused: focused-index == idx;
+                        activated => { root.entry-activated(idx); }
+                    }
+
+                    if entries.length == 0: Rectangle {
+                        height: 80px;
+                        Text {
+                            width: parent.width;
+                            height: parent.height;
+                            text: query == "" ? "Start typing to search…" : "No results for \"" + query + "\"";
+                            font-size: Tokens.text-sm;
+                            font-family: Tokens.font-sans;
+                            color: Tokens.text-disabled;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+            }
+
+            // -----------------------------------------------------------------
+            // Footer — input hint bar
+            // -----------------------------------------------------------------
+            Rectangle {
+                height: 28px;
+                background: transparent;
+                HorizontalLayout {
+                    spacing: Tokens.space-6;
+                    alignment: center;
+                    Text {
+                        text: "D-pad ↑↓ navigate";
+                        font-size: Tokens.text-xs;
+                        font-family: Tokens.font-sans;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        text: "A confirm";
+                        font-size: Tokens.text-xs;
+                        font-family: Tokens.font-sans;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        text: "B dismiss";
+                        font-size: Tokens.text-xs;
+                        font-family: Tokens.font-sans;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        text: "Select → voice";
+                        font-size: Tokens.text-xs;
+                        font-family: Tokens.font-sans;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+    }
+
+    // Dismiss on tap outside panel
+    TouchArea { clicked => { root.dismissed(); } }
+}

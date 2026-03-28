@@ -1,0 +1,29 @@
+[package]
+name    = "torchform-compositor"
+version = "0.1.0"
+edition = "2021"
+description = "Torchform Wayland compositor — dual-display, controller-first"
+
+[[bin]]
+name = "torchform-compositor"
+path = "src/main.rs"
+
+[dependencies]
+# Wayland compositor framework
+smithay            = { workspace = true }
+wayland-server     = { workspace = true }
+calloop            = { workspace = true }
+drm                = { workspace = true }
+udev               = { workspace = true }
+input              = { workspace = true }
+libseat            = { workspace = true }
+
+# Async / util
+tokio              = { workspace = true }
+anyhow             = { workspace = true }
+thiserror          = { workspace = true }
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }
+serde              = { workspace = true }
+serde_json         = { workspace = true }
+toml               = { workspace = true }

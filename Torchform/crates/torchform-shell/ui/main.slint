@@ -1,0 +1,34 @@
+// main.slint — single compilation entry point
+// Imports and re-exports all public types from all display and app slint files
+// so that slint_build only needs one compile call and include_modules!() sees
+// everything in one generated module.
+
+import { ShellOverlay, RadialItem, RadialLayer, CommandEntry, VoiceState, AppEntry }
+    from "shell.slint";
+import { LowerScreen, LowerContext, StatusPanel, VirtualKeyboard }
+    from "lower_screen.slint";
+import { TorchformEmulator }
+    from "emulator.slint";
+import { AppSettings }
+    from "app_settings.slint";
+import { AppFiles }
+    from "app_files.slint";
+
+export {
+    // Shell overlay (standalone two-window mode)
+    ShellOverlay,
+    RadialItem, RadialLayer,
+    CommandEntry, VoiceState,
+    AppEntry,
+
+    // Lower companion screen (standalone mode)
+    LowerScreen,
+    LowerContext,
+
+    // Combined emulator window (default mode)
+    TorchformEmulator,
+
+    // Stub apps
+    AppSettings,
+    AppFiles,
+}

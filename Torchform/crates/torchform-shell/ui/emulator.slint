@@ -1,0 +1,333 @@
+// =============================================================================
+// emulator.slint — Torchform DE hardware emulator frame
+//
+// Presents both physical displays in a single desktop window, styled to look
+// like the handheld device hardware (dark bezel, screen insets).
+//
+//   ┌──────────────────────────── 768px ─────────────────────────────┐
+//   │  Torchform DE · Emulator          [Space=Palette  Tab=Radial…] │ 28px title
+//   ├────────────────── UPPER DISPLAY (768×432) ─────────────────────┤
+//   │                                                                 │
+//   │   Shell overlay — radial / palette / switcher / status strip   │ 432px
+//   │                                                                 │
+//   ├──────────────── frame divider (8px) ────────────────────────────┤
+//   │        ┌──────── LOWER DISPLAY (640×480) ────────┐              │
+//   │        │  Idle: status  │  Keyboard: QWERTY      │              │ 480px
+//   │        └────────────────────────────────────────-┘              │
+//   └─────────────────────────────────────────────────────────────────┘
+//     Total: 768 × 950px — fits on a 1080p monitor with taskbar.
+//
+// The upper screen crops the 1920×1080 logical coordinate space to 768×432;
+// overlays (radial ring, palette panel, switcher) centre themselves in
+// whatever parent Rectangle they live in, so they look correct at this size.
+// =============================================================================
+
+import { Tokens } from "tokens.slint";
+import { RadialMenu, RadialItem, RadialLayer } from "radial_menu.slint";
+import { CommandPalette, CommandEntry, VoiceState } from "command_palette.slint";
+import { AppSwitcher, AppEntry } from "app_switcher.slint";
+import { StatusPanel, VirtualKeyboard, LowerContext } from "lower_screen.slint";
+
+export component TorchformEmulator inherits Window {
+
+    // -----------------------------------------------------------------------
+    // Shell-overlay properties (mirrors ShellOverlay)
+    // -----------------------------------------------------------------------
+    in property <bool>            radial-visible:  false;
+    in property <[RadialItem]>    radial-items;
+    in property <int>             radial-focused:  0;
+    in property <RadialLayer>     radial-layer:    RadialLayer.System;
+
+    callback radial-item-activated(int);
+    callback radial-dismissed();
+
+    in property <bool>            palette-visible: false;
+    in property <[CommandEntry]>  palette-entries;
+    in property <string>          palette-query:   "";
+    in property <int>             palette-focused: 0;
+    in property <VoiceState>      palette-voice:   VoiceState.Idle;
+
+    callback palette-entry-activated(int);
+    callback palette-dismissed();
+    callback palette-query-changed(string);
+
+    in property <bool>          switcher-visible: false;
+    in property <[AppEntry]>    switcher-apps;
+    in property <int>           switcher-focused: 0;
+
+    callback switcher-app-activated(int);
+    callback switcher-app-closed(int);
+    callback switcher-dismissed();
+
+    // Status strip (upper display)
+    in property <string>  time-str:      "00:00";
+    in property <int>     battery-pct:   100;
+    in property <bool>    charging:      false;
+    in property <bool>    wifi-connected: true;
+
+    // -----------------------------------------------------------------------
+    // Lower-screen properties (mirrors LowerScreen)
+    // -----------------------------------------------------------------------
+    in property <LowerContext> context: LowerContext.Idle;
+
+    in property <string>  lower-time-str:           "00:00";
+    in property <string>  lower-date-str:            "Sat 1 Jan";
+    in property <int>     lower-battery-pct:         100;
+    in property <bool>    lower-charging:            false;
+    in property <bool>    lower-wifi-connected:      true;
+    in property <bool>    lower-cellular-connected:  false;
+    in property <bool>    lower-vpn-active:          false;
+    in property <int>     lower-notification-count:  0;
+
+    callback lower-key-pressed(string);
+    callback lower-backspace();
+    callback lower-submit();
+
+    // -----------------------------------------------------------------------
+    // Keyboard shortcut callbacks (same mapping as ShellOverlay)
+    // -----------------------------------------------------------------------
+    callback key-select();
+    callback key-start();
+    callback key-l2(bool);
+    callback key-b();
+    callback key-a();
+    callback key-up();
+    callback key-down();
+    callback key-left();
+    callback key-right();
+
+    // -----------------------------------------------------------------------
+    // Window geometry
+    // -----------------------------------------------------------------------
+    property <length> upper-h:    432px;
+    property <length> lower-h:    480px;
+    property <length> title-h:     28px;
+    property <length> divider-h:    8px;
+    property <length> bottom-pad:   2px;
+    property <length> lower-x:    (self.width - 640px) / 2;
+
+    title: "Torchform DE — Emulator";
+    width:  768px;
+    height: title-h + upper-h + divider-h + lower-h + bottom-pad;
+    background: #1a1a20;
+
+    // -----------------------------------------------------------------------
+    // Title / hint bar
+    // -----------------------------------------------------------------------
+    Rectangle {
+        x: 0; y: 0;
+        width: parent.width;
+        height: root.title-h;
+        background: #0e0e13;
+
+        HorizontalLayout {
+            padding-left:  12px;
+            padding-right:  8px;
+            alignment: center;
+
+            Text {
+                horizontal-stretch: 1;
+                text: "Torchform DE  ·  Emulator";
+                font-size: 11px;
+                font-family: Tokens.font-sans;
+                color: #5060a0;
+                vertical-alignment: center;
+            }
+            Text {
+                text: "Space=Palette  Tab=Radial  Enter=Switcher  Esc=Back  A=OK  ↑↓←→=D-pad";
+                font-size: 9px;
+                font-family: Tokens.font-mono;
+                color: #303858;
+                vertical-alignment: center;
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Upper display — shell overlay (768 × 432, ~0.4× of physical 1920×1080)
+    // Overlays centre inside this rectangle, so radial / palette / switcher
+    // all look correct without any coordinate remapping.
+    // -----------------------------------------------------------------------
+    Rectangle {
+        x: 0;
+        y: root.title-h;
+        width: 768px;
+        height: root.upper-h;
+        background: Tokens.bg-base;
+        clip: true;
+
+        // Status strip
+        Rectangle {
+            x: 0; y: 0;
+            width: parent.width;
+            height: 20px;
+            background: #00000088;
+
+            HorizontalLayout {
+                padding-left:  Tokens.space-3;
+                padding-right: Tokens.space-3;
+                spacing:       Tokens.space-3;
+                alignment: end;
+
+                Text {
+                    text: time-str;
+                    font-size: Tokens.text-xs;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-secondary;
+                    vertical-alignment: center;
+                }
+                Text {
+                    text: (charging ? "⚡ " : "") + battery-pct + "%";
+                    font-size: Tokens.text-xs;
+                    font-family: Tokens.font-mono;
+                    color: battery-pct > 20 ? Tokens.text-secondary : Tokens.error;
+                    vertical-alignment: center;
+                }
+                Text {
+                    text: wifi-connected ? "📶" : "";
+                    font-size: 10px;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        // App switcher
+        AppSwitcher {
+            visible:          switcher-visible;
+            apps:             switcher-apps;
+            focused-index:    switcher-focused;
+            visible-prop:     switcher-visible;
+            app-activated(i) => { root.switcher-app-activated(i); }
+            app-closed(i)    => { root.switcher-app-closed(i); }
+            dismissed        => { root.switcher-dismissed(); }
+        }
+
+        // Command palette
+        CommandPalette {
+            visible:           palette-visible;
+            entries:           palette-entries;
+            query:             palette-query;
+            focused-index:     palette-focused;
+            voice-state:       palette-voice;
+            visible-prop:      palette-visible;
+            entry-activated(i) => { root.palette-entry-activated(i); }
+            dismissed          => { root.palette-dismissed(); }
+            query-changed(q)   => { root.palette-query-changed(q); }
+        }
+
+        // Radial menu
+        RadialMenu {
+            visible:          radial-visible;
+            items:            radial-items;
+            focused-index:    radial-focused;
+            layer:            radial-layer;
+            visible-prop:     radial-visible;
+            item-activated(i) => { root.radial-item-activated(i); }
+            dismissed         => { root.radial-dismissed(); }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Hardware divider / bezel between the two screens
+    // -----------------------------------------------------------------------
+    Rectangle {
+        x: 0;
+        y: root.title-h + root.upper-h;
+        width: parent.width;
+        height: root.divider-h;
+        background: #0c0c10;
+
+        // Subtle accent line at the lower edge of the upper screen
+        Rectangle {
+            x: root.lower-x;
+            y: root.divider-h - 1px;
+            width: 640px;
+            height: 1px;
+            background: #252840;
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Lower display — companion 3.5" screen (640 × 480, native size)
+    // Centred in the 768px-wide bezel.
+    // -----------------------------------------------------------------------
+    Rectangle {
+        x: root.lower-x;
+        y: root.title-h + root.upper-h + root.divider-h;
+        width: 640px;
+        height: root.lower-h;
+        background: Tokens.lower-bg;
+        clip: true;
+
+        if context == LowerContext.Idle: StatusPanel {
+            time-str:           root.lower-time-str;
+            date-str:           root.lower-date-str;
+            battery-pct:        root.lower-battery-pct;
+            charging:           root.lower-charging;
+            wifi-connected:     root.lower-wifi-connected;
+            cellular-connected: root.lower-cellular-connected;
+            vpn-active:         root.lower-vpn-active;
+            notification-count: root.lower-notification-count;
+        }
+
+        if context == LowerContext.Keyboard: VirtualKeyboard {
+            key-pressed(k) => { root.lower-key-pressed(k); }
+            backspace      => { root.lower-backspace(); }
+            submit         => { root.lower-submit(); }
+        }
+
+        if context == LowerContext.RadialMenu: Rectangle {
+            width: parent.width; height: parent.height;
+            background: Tokens.lower-bg;
+            Text {
+                width: parent.width; height: parent.height;
+                text: "▲  Use the radial menu on the upper display  ▲";
+                font-size: Tokens.text-sm;
+                color: Tokens.text-disabled;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+
+        if context == LowerContext.AppContext: Rectangle {
+            width: parent.width; height: parent.height;
+            background: Tokens.lower-bg;
+            Text {
+                width: parent.width; height: parent.height;
+                text: "App companion view";
+                font-size: Tokens.text-sm;
+                color: Tokens.text-disabled;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Global keyboard handler — receives key events for the whole window
+    // -----------------------------------------------------------------------
+    forward-focus: key-handler;
+
+    key-handler := FocusScope {
+        x: 0; y: 0;
+        width: parent.width;
+        height: parent.height;
+
+        key-pressed(event) => {
+            if event.text == " "                             { root.key-select(); accept }
+            else if event.text == Key.Return                 { root.key-start();  accept }
+            else if event.text == Key.Tab                    { root.key-l2(true); accept }
+            else if event.text == Key.Escape                 { root.key-b();      accept }
+            else if event.text == "a" || event.text == "A"  { root.key-a();      accept }
+            else if event.text == Key.UpArrow                { root.key-up();     accept }
+            else if event.text == Key.DownArrow              { root.key-down();   accept }
+            else if event.text == Key.LeftArrow              { root.key-left();   accept }
+            else if event.text == Key.RightArrow             { root.key-right();  accept }
+            else { reject }
+        }
+        key-released(event) => {
+            if event.text == Key.Tab { root.key-l2(false); accept }
+            else { reject }
+        }
+    }
+}

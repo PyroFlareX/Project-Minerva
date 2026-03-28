@@ -1,0 +1,152 @@
+// =============================================================================
+// tokens.slint — Torchform Design System
+//
+// Single source of truth for all visual tokens across Torchform and every
+// Minerva application. Import this file; never define colours, radii, spacing,
+// or typography inline in component files.
+//
+// Usage:
+//   import { Tokens } from "tokens.slint";
+//   background: Tokens.bg-base;
+//   font-size: Tokens.text-md;
+// =============================================================================
+
+export global Tokens {
+
+    // -------------------------------------------------------------------------
+    // Colour palette
+    // -------------------------------------------------------------------------
+
+    // Backgrounds
+    out property <color> bg-base:        #0d0f14;  // Primary display background
+    out property <color> bg-surface:     #161a22;  // Card / panel surfaces
+    out property <color> bg-elevated:    #1e2330;  // Elevated surfaces (modals, radial menus)
+    out property <color> bg-overlay:     #0d0f14cc;// Semi-transparent overlay (40% alpha)
+
+    // Brand / accent — Minerva electric teal
+    out property <color> accent:         #00d4ff;  // Primary accent (matches compositor teal)
+    out property <color> accent-dim:     #0099bb;  // Dimmed/inactive accent
+    out property <color> accent-glow:    #00d4ff44;// Subtle teal glow (for focus rings)
+
+    // Semantic colours
+    out property <color> primary:        #5b9cf6;  // Interactive primary (buttons, links)
+    out property <color> primary-hover:  #7ab3ff;  // Primary hover state
+    out property <color> secondary:      #8a6fdb;  // Secondary interactive elements
+    out property <color> success:        #3dd68c;  // Success / confirmed
+    out property <color> warning:        #f7b731;  // Warning / caution
+    out property <color> error:          #f74040;  // Error / destructive
+
+    // Text
+    out property <color> text-primary:   #e8eaf0;  // Main body text
+    out property <color> text-secondary: #8c92a4;  // Subdued / label text
+    out property <color> text-disabled:  #4a5068;  // Disabled / placeholder
+    out property <color> text-on-accent: #000000;  // Text placed on accent colour
+    out property <color> text-on-primary:#ffffff;  // Text placed on primary colour
+
+    // Borders & dividers
+    out property <color> border:         #2a2f3d;  // Standard border
+    out property <color> border-focused: #00d4ff;  // Focused element ring (accent)
+    out property <color> border-subtle:  #1d2230;  // Very subtle separator
+
+    // Lower screen specific (3.5" companion display — smaller, darker palette)
+    out property <color> lower-bg:       #0a0c11;
+    out property <color> lower-surface:  #12151c;
+    out property <color> lower-accent:   #00d4ff;
+
+    // -------------------------------------------------------------------------
+    // Spacing scale (base unit = 4px)
+    // -------------------------------------------------------------------------
+
+    out property <length> space-1:   4px;
+    out property <length> space-2:   8px;
+    out property <length> space-3:  12px;
+    out property <length> space-4:  16px;
+    out property <length> space-5:  20px;
+    out property <length> space-6:  24px;
+    out property <length> space-8:  32px;
+    out property <length> space-10: 40px;
+    out property <length> space-12: 48px;
+    out property <length> space-16: 64px;
+
+    // -------------------------------------------------------------------------
+    // Border radius scale
+    // -------------------------------------------------------------------------
+
+    out property <length> radius-sm:  4px;
+    out property <length> radius-md:  8px;
+    out property <length> radius-lg: 14px;
+    out property <length> radius-xl: 22px;
+    out property <length> radius-full: 9999px;  // Pill / circle elements
+
+    // -------------------------------------------------------------------------
+    // Typography
+    //
+    // Font: system font stack with Inter as preferred sans-serif.
+    // All sizes in logical pixels — Slint scales for physical DPI.
+    // -------------------------------------------------------------------------
+
+    out property <string> font-sans:  "Inter, DejaVu Sans, sans-serif";
+    out property <string> font-mono:  "JetBrains Mono, DejaVu Sans Mono, monospace";
+
+    // Size scale
+    out property <length> text-xs:   11px;
+    out property <length> text-sm:   13px;
+    out property <length> text-md:   15px;   // Base body
+    out property <length> text-lg:   18px;
+    out property <length> text-xl:   22px;
+    out property <length> text-2xl:  28px;
+    out property <length> text-3xl:  36px;
+
+    // Weights (font-weight values passed as int)
+    out property <int> weight-regular: 400;
+    out property <int> weight-medium:  500;
+    out property <int> weight-semibold:600;
+    out property <int> weight-bold:    700;
+
+    // -------------------------------------------------------------------------
+    // Elevation / shadow
+    //
+    // At 393 PPI the upper display is Retina-class, so subtle drop shadows are
+    // visible. Values are Slint drop-shadow offsets and blur radii.
+    // -------------------------------------------------------------------------
+
+    // shadow-sm: barely perceptible lift — cards, toggles
+    out property <length> shadow-sm-offset:  2px;
+    out property <length> shadow-sm-blur:    6px;
+    out property <color>  shadow-sm-color:   #00000066;
+
+    // shadow-md: modal panels, radial menus
+    out property <length> shadow-md-offset:  4px;
+    out property <length> shadow-md-blur:   16px;
+    out property <color>  shadow-md-color:   #000000aa;
+
+    // shadow-accent: teal glow ring for focused interactive elements
+    out property <length> shadow-accent-offset: 0px;
+    out property <length> shadow-accent-blur:   10px;
+    out property <color>  shadow-accent-color:  #00d4ff55;
+
+    // -------------------------------------------------------------------------
+    // Animation durations
+    // -------------------------------------------------------------------------
+
+    out property <duration> anim-fast:   80ms;
+    out property <duration> anim-normal:160ms;
+    out property <duration> anim-slow:  320ms;
+
+    // -------------------------------------------------------------------------
+    // Display geometry constants
+    //
+    // Upper (primary)  — 1920 × 1080, 5.5"  393 PPI
+    // Lower (companion)— 640  × 480,  3.5"  ~229 PPI (preferred minimum)
+    // -------------------------------------------------------------------------
+
+    out property <length> upper-width:  1920px;
+    out property <length> upper-height: 1080px;
+    out property <length> lower-width:   640px;
+    out property <length> lower-height:  480px;
+
+    // Radial menu geometry
+    out property <length> radial-radius:    160px;  // Orbit radius for items
+    out property <length> radial-item-size:  72px;  // Diameter of each item bubble
+    out property <int>    radial-max-items:    8;
+}

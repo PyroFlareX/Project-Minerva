@@ -1,0 +1,439 @@
+// =============================================================================
+// lower_screen.slint — Torchform lower 3.5" companion display
+//
+// Rendered on the 640×480 lower touchscreen. Content switches automatically
+// based on the active context on the upper screen.
+//
+// Contexts:
+//   Idle         — system status: time, battery, network, notifications, quick toggles
+//   AppSwitcher  — thumbnail grid of running apps (mirrors AppSwitcher)
+//   Keyboard     — virtual keyboard for text entry (command palette / voice fallback)
+//   RadialMenu   — touch targets for the active radial menu
+//   AppContext   — app-defined companion content (forwarded from upper-screen app)
+// =============================================================================
+
+import { Tokens } from "tokens.slint";
+
+export enum LowerContext {
+    Idle,
+    AppSwitcher,
+    Keyboard,
+    RadialMenu,
+    AppContext,
+}
+
+// ---------------------------------------------------------------------------
+// Status bar shown in Idle context
+// ---------------------------------------------------------------------------
+export component StatusPanel inherits Rectangle {
+    in property <string>  time-str:    "00:00";
+    in property <string>  date-str:    "Sat 1 Jan";
+    in property <int>     battery-pct: 100;
+    in property <bool>    charging:    false;
+    in property <bool>    wifi-connected: true;
+    in property <bool>    cellular-connected: false;
+    in property <bool>    vpn-active:  false;
+    in property <int>     notification-count: 0;
+
+    width:  Tokens.lower-width;
+    height: Tokens.lower-height;
+    background: Tokens.lower-bg;
+
+    VerticalLayout {
+        padding: Tokens.space-4;
+        spacing: Tokens.space-4;
+
+        // Time + date
+        VerticalLayout {
+            alignment: center;
+            spacing: Tokens.space-1;
+            Text {
+                text: time-str;
+                font-size: 48px;
+                font-family: Tokens.font-sans;
+                font-weight: Tokens.weight-bold;
+                color: Tokens.text-primary;
+                horizontal-alignment: center;
+            }
+            Text {
+                text: date-str;
+                font-size: Tokens.text-md;
+                font-family: Tokens.font-sans;
+                color: Tokens.text-secondary;
+                horizontal-alignment: center;
+            }
+        }
+
+        // Divider
+        Rectangle {
+            height: 1px;
+            background: Tokens.border-subtle;
+        }
+
+        // Status icons row
+        HorizontalLayout {
+            spacing: Tokens.space-4;
+            alignment: center;
+
+            // Battery
+            Rectangle {
+                width: 60px;
+                height: 32px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.lower-surface;
+                HorizontalLayout {
+                    padding: Tokens.space-2;
+                    spacing: 4px;
+                    alignment: center;
+                    Text {
+                        text: charging ? "⚡" : (battery-pct > 20 ? "🔋" : "🪫");
+                        font-size: 14px;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        text: battery-pct + "%";
+                        font-size: Tokens.text-sm;
+                        font-family: Tokens.font-mono;
+                        color: battery-pct > 20 ? Tokens.text-primary : Tokens.error;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+
+            // WiFi
+            Rectangle {
+                width: 36px;
+                height: 32px;
+                border-radius: Tokens.radius-sm;
+                background: wifi-connected ? Tokens.lower-surface : transparent;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: wifi-connected ? "📶" : "✕";
+                    font-size: 16px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    color: wifi-connected ? Tokens.text-primary : Tokens.text-disabled;
+                }
+            }
+
+            // Cellular
+            if cellular-connected: Rectangle {
+                width: 36px;
+                height: 32px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.lower-surface;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: "📡";
+                    font-size: 14px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+
+            // VPN
+            if vpn-active: Rectangle {
+                width: 36px;
+                height: 32px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.lower-surface;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: "🔒";
+                    font-size: 14px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    color: Tokens.success;
+                }
+            }
+
+            // Notifications
+            if notification-count > 0: Rectangle {
+                width: 48px;
+                height: 32px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.lower-surface;
+                HorizontalLayout {
+                    padding: Tokens.space-2;
+                    spacing: 3px;
+                    alignment: center;
+                    Text {
+                        text: "🔔";
+                        font-size: 13px;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        text: notification-count > 99 ? "99+" : notification-count;
+                        font-size: Tokens.text-sm;
+                        font-family: Tokens.font-mono;
+                        color: Tokens.accent;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+
+        // Quick toggles
+        HorizontalLayout {
+            spacing: Tokens.space-3;
+            alignment: center;
+
+            for label in ["WiFi", "BT", "Cell", "VPN", "Sound"]: Rectangle {
+                width: 80px;
+                height: 40px;
+                border-radius: Tokens.radius-md;
+                background: Tokens.lower-surface;
+                border-width: 1px;
+                border-color: Tokens.border-subtle;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: label;
+                    font-size: Tokens.text-sm;
+                    font-family: Tokens.font-sans;
+                    color: Tokens.text-secondary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Virtual keyboard (basic QWERTY, sent key-by-key to shell backend)
+// ---------------------------------------------------------------------------
+export component VirtualKeyboard inherits Rectangle {
+    callback key-pressed(string);
+    callback backspace();
+    callback submit();
+
+    width:  Tokens.lower-width;
+    height: Tokens.lower-height;
+    background: Tokens.lower-bg;
+
+    property <[string]> row1: ["q","w","e","r","t","y","u","i","o","p"];
+    property <[string]> row2: ["a","s","d","f","g","h","j","k","l"];
+    property <[string]> row3: ["z","x","c","v","b","n","m"];
+
+    VerticalLayout {
+        padding: Tokens.space-3;
+        spacing: Tokens.space-2;
+        alignment: end;
+
+        // Row 1
+        HorizontalLayout {
+            spacing: 4px;
+            alignment: center;
+            for k in row1: Rectangle {
+                width: 54px;
+                height: 40px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.lower-surface;
+                border-width: 1px;
+                border-color: Tokens.border-subtle;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: k;
+                    font-size: Tokens.text-md;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-primary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                TouchArea { clicked => { root.key-pressed(k); } }
+            }
+        }
+
+        // Row 2
+        HorizontalLayout {
+            spacing: 4px;
+            alignment: center;
+            for k in row2: Rectangle {
+                width: 54px;
+                height: 40px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.lower-surface;
+                border-width: 1px;
+                border-color: Tokens.border-subtle;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: k;
+                    font-size: Tokens.text-md;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-primary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                TouchArea { clicked => { root.key-pressed(k); } }
+            }
+        }
+
+        // Row 3 + backspace
+        HorizontalLayout {
+            spacing: 4px;
+            alignment: center;
+            for k in row3: Rectangle {
+                width: 54px;
+                height: 40px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.lower-surface;
+                border-width: 1px;
+                border-color: Tokens.border-subtle;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: k;
+                    font-size: Tokens.text-md;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-primary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                TouchArea { clicked => { root.key-pressed(k); } }
+            }
+            // Backspace
+            Rectangle {
+                width: 70px;
+                height: 40px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.lower-surface;
+                border-width: 1px;
+                border-color: Tokens.border-subtle;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: "⌫";
+                    font-size: Tokens.text-lg;
+                    color: Tokens.text-secondary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                TouchArea { clicked => { root.backspace(); } }
+            }
+        }
+
+        // Space + submit
+        HorizontalLayout {
+            spacing: 4px;
+            alignment: center;
+            Rectangle {
+                width: 300px;
+                height: 40px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.lower-surface;
+                border-width: 1px;
+                border-color: Tokens.border-subtle;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: "SPACE";
+                    font-size: Tokens.text-sm;
+                    font-family: Tokens.font-sans;
+                    color: Tokens.text-disabled;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                TouchArea { clicked => { root.key-pressed(" "); } }
+            }
+            Rectangle {
+                width: 100px;
+                height: 40px;
+                border-radius: Tokens.radius-sm;
+                background: Tokens.accent;
+                Text {
+                    width: parent.width;
+                    height: parent.height;
+                    text: "↵";
+                    font-size: Tokens.text-lg;
+                    color: Tokens.text-on-accent;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+                TouchArea { clicked => { root.submit(); } }
+            }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// LowerScreen root — switches between context panels
+// ---------------------------------------------------------------------------
+export component LowerScreen inherits Window {
+    in property <LowerContext> context: LowerContext.Idle;
+
+    // StatusPanel props
+    in property <string>  time-str:    "00:00";
+    in property <string>  date-str:    "Sat 1 Jan";
+    in property <int>     battery-pct: 100;
+    in property <bool>    charging:    false;
+    in property <bool>    wifi-connected: true;
+    in property <bool>    cellular-connected: false;
+    in property <bool>    vpn-active:  false;
+    in property <int>     notification-count: 0;
+
+    // Keyboard callbacks
+    callback key-pressed(string);
+    callback backspace();
+    callback submit();
+
+    width:  Tokens.lower-width;
+    height: Tokens.lower-height;
+    background: Tokens.lower-bg;
+
+    // Idle / status
+    if context == LowerContext.Idle: StatusPanel {
+        time-str:             root.time-str;
+        date-str:             root.date-str;
+        battery-pct:          root.battery-pct;
+        charging:             root.charging;
+        wifi-connected:       root.wifi-connected;
+        cellular-connected:   root.cellular-connected;
+        vpn-active:           root.vpn-active;
+        notification-count:   root.notification-count;
+    }
+
+    // Virtual keyboard
+    if context == LowerContext.Keyboard: VirtualKeyboard {
+        key-pressed(k) => { root.key-pressed(k); }
+        backspace      => { root.backspace(); }
+        submit         => { root.submit(); }
+    }
+
+    // Placeholder: radial menu touch version (reuses radial_menu.slint in practice)
+    if context == LowerContext.RadialMenu: Rectangle {
+        width: parent.width;
+        height: parent.height;
+        background: Tokens.lower-bg;
+        Text {
+            width: parent.width;
+            height: parent.height;
+            text: "Radial menu — see radial_menu.slint";
+            font-size: Tokens.text-sm;
+            color: Tokens.text-disabled;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    // App context placeholder (filled by each app's companion component)
+    if context == LowerContext.AppContext: Rectangle {
+        width: parent.width;
+        height: parent.height;
+        background: Tokens.lower-bg;
+        Text {
+            width: parent.width;
+            height: parent.height;
+            text: "App companion view";
+            font-size: Tokens.text-sm;
+            color: Tokens.text-disabled;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+}

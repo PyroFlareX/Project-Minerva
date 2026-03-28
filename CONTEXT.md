@@ -686,6 +686,8 @@ Minerva workspaces are **named contexts** (conceptually similar to VS Code works
 - Environment variables and project paths
 - Per-workspace settings overrides
 
+A workspace may be a coding project with some terminals up, it could be a game, it may be a wikipedia scrolling session. It could be a communication workspace with my discord, signal, and SMS open. A group of applications used together and shown on the screen and manipulated as a group is a workspace.
+
 ZFS snapshots are used for user data backup, not for per-workspace snapshotting.
 
 ### 17.5 Networking
@@ -747,6 +749,7 @@ Two options are under consideration:
 **Option B — Subcrate within Minerva OS:** Torchform lives inside the `Minerva OS/crates/` directory as part of the workspace. Tighter coupling with OS services, shared build system.
 
 Both options are viable. The decision should be made based on whether Torchform will ever be used outside of Minerva.
+Prefer to have it as a separate project.
 
 ### 18.2 Technology Stack
 
@@ -847,6 +850,7 @@ All apps are Slint + Rust. All import `tokens.slint` for consistent theming. All
 | Web Browser | Search the web with a feasible and mostly featured browser, optionally behind Tor | Design phase |
 | Media Viewing | Access remote/local media library (books, music, video) and allows playback | Design phase |
 | CAD | Design Projects, view models, and edit them | Design phase |
+| Camera | To have video calls, scan QR codes, take pictures | Design phase |
 
 ### 19.2 App Design Constraints
 
