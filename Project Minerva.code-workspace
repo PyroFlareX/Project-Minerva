@@ -22,7 +22,8 @@
     "editor.formatOnSave": true,
     "files.watcherExclude": {
       "**/target/**": true
-    }
+    },
+    "claudeCode.usePythonEnvironment": false
   },
   "extensions": {
     "recommendations": [

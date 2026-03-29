@@ -1,1 +1,22 @@
 This file is to be disregarded by anything relating to AI context searches.
+
+PROMPT:
+In regards to the Torchform DE: Instead of making all the programs (the shell widgets, radials, options, controls, etc) hardcoded, make them loaded from the configuration files. This includes the:
+Settings menu options
+Radial content (make the number dynamic, not just capped to 8)
+
+The cell service, wifi connection, battery levels, notifications, audio levels, and clock widgets. These widgets should be separate items or scripts that are loaded by the shell and configured into a location.
+
+There should also be sound haptic feedback when going through these menus. 
+
+Create a list of goals to accomplish, and iterate through completing and debugging these tests until they are completed. Come back with design questions if need be, but otherwise create and pass tests until the features are completed.
+
+PROMPT:
+
+CONTEXT.md
+For the Torchform IDE,  it launches the programs (like thunar) as separate windows instead of launching the custom made utilities in Slint within the composited emulated windows.
+Would it be possible to place the programs in the existing emulated window?
+
+Also, plan out the programs that need to be made and composited in (file manager, camera app, on screen keyboard for lower screen, web browser wrapper (around braveo firefox or chrome or smth, maybe webkit), VLC media viewer, networking manager, and a settings editor that modifies a settings.toml or similar in the system to modify all other configuration files on the device itself), create a launching script for how to get 3rd party programs to run (for emulators and glfw programs, etc).
+
+PROMPT:
