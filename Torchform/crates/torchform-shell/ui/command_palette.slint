@@ -9,7 +9,6 @@
 // The lower display companion shows the virtual keyboard or voice-entry state.
 // =============================================================================
 
-import { ScrollView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 
 export struct CommandEntry {
@@ -225,21 +224,26 @@ export component CommandPalette inherits Rectangle {
             }
 
             // -----------------------------------------------------------------
-            // Results list — scrollable, driven by focused-index
+            // Results list — clip rect with a translated VerticalLayout.
+            // Row stride = 52px height + 4px spacing = 56px.
+            // The layout's y is driven reactively by focused-index so the
+            // focused row stays centred; clamped to never scroll past the ends.
+            // (Using a plain Rectangle+y instead of ScrollView avoids the
+            //  in-out viewport-y binding being broken by Slint's scroll logic.)
             // -----------------------------------------------------------------
-            results-scroll := ScrollView {
+            results-scroll := Rectangle {
                 vertical-stretch: 1;
-                // Row height 52px + spacing 4px = 56px stride.
-                // Bind viewport-y to keep the focused row centred; clamp to valid range.
-                property <length> row-stride: 52px + Tokens.space-1;
-                viewport-y: max(
-                    min(0px, self.height - entries.length * row-stride),
-                    min(0px, -(focused-index * row-stride
-                                - (self.height - row-stride) / 2))
-                );
+                clip: true;
 
                 VerticalLayout {
                     spacing: Tokens.space-1;
+                    width: parent.width;
+                    // y < 0  → content pulled up (scrolled down)
+                    // Clamp: never go below top (0) or past bottom of content.
+                    y: min(0px, max(
+                        parent.height - entries.length * 56px,
+                        (parent.height - 56px) / 2 - focused-index * 56px
+                    ));
 
                     for entry[idx] in entries: CommandRow {
                         entry:   entry;

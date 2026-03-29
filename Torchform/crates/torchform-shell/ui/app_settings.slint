@@ -70,13 +70,10 @@ component SectionHeader inherits Text {
     vertical-alignment: center;
 }
 
-export component AppSettings inherits Window {
+export component AppSettings inherits Rectangle {
     in property <int> focused-row: 0;
     callback close-requested();
 
-    title: "Settings";
-    width:  640px;
-    height: 540px;
     background: Tokens.bg-base;
 
     VerticalLayout {

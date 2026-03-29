@@ -33,7 +33,9 @@ use tracing::info;
 use palette::PaletteState;
 use radial::{Direction, MenuLayer, RadialMenuState, system_radial_items};
 use workspace::WorkspaceManager;
-use apps::AppManager;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ActiveApp { Settings, Files }
 
 // ---------------------------------------------------------------------------
 // Input events — arrive from torchform-inputd (Unix socket) in production;
@@ -70,6 +72,10 @@ struct ShellApp {
     stick_x:             f32,
     stick_y:             f32,
     radial_stick_active: bool,
+    active_app:          Option<ActiveApp>,
+    settings_row:        i32,
+    files_row:           i32,
+    files_path:          String,
 }
 
 impl ShellApp {
@@ -81,6 +87,10 @@ impl ShellApp {
             stick_x:             0.0,
             stick_y:             0.0,
             radial_stick_active: false,
+            active_app:          None,
+            settings_row:        0,
+            files_row:           0,
+            files_path:          "/home".into(),
         }
     }
 }
@@ -194,30 +204,23 @@ fn make_palette_entries(state: &PaletteState) -> slint::ModelRc<CommandEntry> {
 
 fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
     let emu = TorchformEmulator::new()?;
+    let app = Rc::new(RefCell::new(ShellApp::new()));
 
-    let app     = Rc::new(RefCell::new(ShellApp::new()));
-    let app_mgr = Rc::new(RefCell::new(AppManager::new()));
-
-    // --- Gamepad channel (background thread → Slint Timer) -----------------
     let (gp_tx, gp_rx) = mpsc::channel::<ShellEvent>();
     spawn_gamepad_thread(gp_tx);
 
-    // --- Macro: dispatch a ShellEvent from a key callback ------------------
     macro_rules! key_cb {
         ($event:expr) => {{
-            let emu2    = emu.as_weak();
-            let app2    = app.clone();
-            let mgr2    = app_mgr.clone();
+            let emu2 = emu.as_weak();
+            let app2 = app.clone();
             move || {
                 if let Some(e) = emu2.upgrade() {
-                    emu_handle_event(&mut app2.borrow_mut(), $event,
-                                     &e, &mut mgr2.borrow_mut());
+                    emu_handle_event(&mut app2.borrow_mut(), $event, &e);
                 }
             }
         }};
     }
 
-    // --- Wire keyboard callbacks -------------------------------------------
     emu.on_key_select(key_cb!(ShellEvent::ButtonSelect));
     emu.on_key_start (key_cb!(ShellEvent::ButtonStart));
     emu.on_key_b     (key_cb!(ShellEvent::ButtonB));
@@ -226,54 +229,43 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
     emu.on_key_down  (key_cb!(ShellEvent::DpadDown));
     emu.on_key_left  (key_cb!(ShellEvent::DpadLeft));
     emu.on_key_right (key_cb!(ShellEvent::DpadRight));
-    // Tab has a bool param (pressed/released)
     emu.on_key_l2({
-        let emu2 = emu.as_weak();
-        let app2 = app.clone();
-        let mgr2 = app_mgr.clone();
+        let emu2 = emu.as_weak(); let app2 = app.clone();
         move |held| {
             if let Some(e) = emu2.upgrade() {
-                emu_handle_event(&mut app2.borrow_mut(), ShellEvent::L2Held(held),
-                                 &e, &mut mgr2.borrow_mut());
+                emu_handle_event(&mut app2.borrow_mut(), ShellEvent::L2Held(held), &e);
             }
         }
     });
 
-    // --- Wire analog stick simulation keys (IJKL — for desktop radial testing) ---
     emu.on_key_stick_n(key_cb!(ShellEvent::StickMoved { x:  0.0, y: -0.8 }));
     emu.on_key_stick_s(key_cb!(ShellEvent::StickMoved { x:  0.0, y:  0.8 }));
     emu.on_key_stick_w(key_cb!(ShellEvent::StickMoved { x: -0.8, y:  0.0 }));
     emu.on_key_stick_e(key_cb!(ShellEvent::StickMoved { x:  0.8, y:  0.0 }));
     emu.on_key_stick_release(key_cb!(ShellEvent::StickMoved { x: 0.0, y: 0.0 }));
 
-    // --- Wire overlay dismiss callbacks ------------------------------------
-    emu.on_radial_dismissed({
-        let emu2 = emu.as_weak(); let app2 = app.clone(); let mgr2 = app_mgr.clone();
-        move || {
-            if let Some(e) = emu2.upgrade() {
-                emu_handle_event(&mut app2.borrow_mut(), ShellEvent::ButtonB,
-                                 &e, &mut mgr2.borrow_mut());
-            }
-        }
-    });
-    emu.on_palette_dismissed({
-        let emu2 = emu.as_weak(); let app2 = app.clone(); let mgr2 = app_mgr.clone();
-        move || {
-            if let Some(e) = emu2.upgrade() {
-                emu_handle_event(&mut app2.borrow_mut(), ShellEvent::ButtonB,
-                                 &e, &mut mgr2.borrow_mut());
-            }
-        }
-    });
+    emu.on_radial_dismissed(key_cb!(ShellEvent::ButtonB));
+    emu.on_palette_dismissed(key_cb!(ShellEvent::ButtonB));
+    emu.on_app_closed(key_cb!(ShellEvent::ButtonB));
     emu.on_switcher_dismissed({
         let emu2 = emu.as_weak();
         move || { emu2.upgrade().map(|e| e.set_switcher_visible(false)); }
     });
+    emu.on_app_files_navigate({
+        let emu2 = emu.as_weak(); let app2 = app.clone();
+        move |name| {
+            if let Some(e) = emu2.upgrade() {
+                let mut a = app2.borrow_mut();
+                let new_path = format!("{}/{}", a.files_path, name);
+                a.files_path = new_path.clone();
+                e.set_app_files_path(new_path.into());
+                info!("Files navigate → {}", a.files_path);
+            }
+        }
+    });
 
-    // --- Palette query changed (virtual keyboard + voice) ------------------
     emu.on_palette_query_changed({
-        let emu2 = emu.as_weak();
-        let app2 = app.clone();
+        let emu2 = emu.as_weak(); let app2 = app.clone();
         move |q| {
             if let Some(e) = emu2.upgrade() {
                 if let Ok(mut a) = app2.try_borrow_mut() {
@@ -284,8 +276,6 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
             }
         }
     });
-
-    // --- Lower keyboard callbacks ------------------------------------------
     emu.on_lower_key_pressed({
         let emu2 = emu.as_weak(); let app2 = app.clone();
         move |k| {
@@ -311,27 +301,15 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
             }
         }
     });
-    emu.on_lower_submit({
-        let emu2 = emu.as_weak(); let app2 = app.clone(); let mgr2 = app_mgr.clone();
-        move || {
-            if let Some(e) = emu2.upgrade() {
-                emu_handle_event(&mut app2.borrow_mut(), ShellEvent::ButtonA,
-                                 &e, &mut mgr2.borrow_mut());
-            }
-        }
-    });
+    emu.on_lower_submit(key_cb!(ShellEvent::ButtonA));
 
-    // --- Gamepad polling timer (8 ms = ~125 Hz) ----------------------------
     let gp_timer = slint::Timer::default();
     gp_timer.start(slint::TimerMode::Repeated, Duration::from_millis(8), {
-        let emu2 = emu.as_weak();
-        let app2 = app.clone();
-        let mgr2 = app_mgr.clone();
+        let emu2 = emu.as_weak(); let app2 = app.clone();
         move || {
             while let Ok(event) = gp_rx.try_recv() {
                 if let Some(e) = emu2.upgrade() {
-                    emu_handle_event(&mut app2.borrow_mut(), event,
-                                     &e, &mut mgr2.borrow_mut());
+                    emu_handle_event(&mut app2.borrow_mut(), event, &e);
                 }
             }
         }
@@ -377,12 +355,31 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
     Ok(())
 }
 
+fn emu_apply_apps(emu: &TorchformEmulator, app: &ShellApp) {
+    match app.active_app {
+        Some(ActiveApp::Settings) => {
+            emu.set_app_settings_visible(true);
+            emu.set_app_settings_focused_row(app.settings_row);
+            emu.set_app_files_visible(false);
+        }
+        Some(ActiveApp::Files) => {
+            emu.set_app_settings_visible(false);
+            emu.set_app_files_visible(true);
+            emu.set_app_files_focused_row(app.files_row);
+            emu.set_app_files_path(app.files_path.clone().into());
+        }
+        None => {
+            emu.set_app_settings_visible(false);
+            emu.set_app_files_visible(false);
+        }
+    }
+}
+
 // Emulator-specific event handler
 fn emu_handle_event(
     app: &mut ShellApp,
     event: ShellEvent,
     emu: &TorchformEmulator,
-    app_mgr: &mut AppManager,
 ) {
     match event {
         ShellEvent::L2Held(true) | ShellEvent::R2Held(true) => {
@@ -429,6 +426,18 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 app.palette.move_up();
                 emu.set_palette_focused(app.palette.focused_index as i32);
+            } else if app.active_app.is_some() {
+                match app.active_app {
+                    Some(ActiveApp::Settings) => {
+                        app.settings_row = (app.settings_row - 1).max(0);
+                        emu.set_app_settings_focused_row(app.settings_row);
+                    }
+                    Some(ActiveApp::Files) => {
+                        app.files_row = (app.files_row - 1).max(0);
+                        emu.set_app_files_focused_row(app.files_row);
+                    }
+                    None => {}
+                }
             }
         }
         ShellEvent::DpadDown => {
@@ -438,6 +447,18 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 app.palette.move_down();
                 emu.set_palette_focused(app.palette.focused_index as i32);
+            } else if app.active_app.is_some() {
+                match app.active_app {
+                    Some(ActiveApp::Settings) => {
+                        app.settings_row += 1;
+                        emu.set_app_settings_focused_row(app.settings_row);
+                    }
+                    Some(ActiveApp::Files) => {
+                        app.files_row += 1;
+                        emu.set_app_files_focused_row(app.files_row);
+                    }
+                    None => {}
+                }
             }
         }
         ShellEvent::DpadLeft => {
@@ -463,13 +484,24 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 if let Some(id) = app.palette.focused_id() {
                     info!("Command: {id}");
-                    // Try launching an app window from the command
-                    if let Err(e) = app_mgr.launch(&id) {
-                        tracing::warn!("App launch failed: {e}");
+                    if !apps::try_launch_external(&id) {
+                        match id {
+                            "app.settings" | "settings" | "open-settings" => {
+                                app.active_app = Some(ActiveApp::Settings);
+                                app.settings_row = 0;
+                            }
+                            "app.files" | "file-manager" | "open-files" => {
+                                app.active_app = Some(ActiveApp::Files);
+                                app.files_row = 0;
+                                app.files_path = "/home".into();
+                            }
+                            _ => {}
+                        }
                     }
                 }
                 app.palette.close();
                 emu.set_palette_visible(false);
+                emu_apply_apps(emu, app);
                 emu.set_context(LowerContext::Idle);
             }
         }
@@ -481,6 +513,10 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 app.palette.close();
                 emu.set_palette_visible(false);
+                emu.set_context(LowerContext::Idle);
+            } else if app.active_app.is_some() {
+                app.active_app = None;
+                emu_apply_apps(emu, app);
                 emu.set_context(LowerContext::Idle);
             } else {
                 emu.set_switcher_visible(false);
@@ -535,8 +571,7 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     shell.window().set_size(slint::LogicalSize::new(1280.0, 720.0));
     lower.window().set_size(slint::LogicalSize::new(640.0, 480.0));
 
-    let app     = Rc::new(RefCell::new(ShellApp::new()));
-    let app_mgr = Rc::new(RefCell::new(AppManager::new()));
+    let app = Rc::new(RefCell::new(ShellApp::new()));
 
     // --- Gamepad channel ---------------------------------------------------
     let (gp_tx, gp_rx) = mpsc::channel::<ShellEvent>();
@@ -546,11 +581,10 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     macro_rules! sa_cb {
         ($event:expr) => {{
             let s = shell.as_weak(); let l = lower.as_weak();
-            let a = app.clone(); let m = app_mgr.clone();
+            let a = app.clone();
             move || {
                 if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                    sa_handle_event(&mut a.borrow_mut(), $event,
-                                    &sh, &lo, &mut m.borrow_mut());
+                    sa_handle_event(&mut a.borrow_mut(), $event, &sh, &lo);
                 }
             }
         }};
@@ -567,11 +601,10 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     shell.on_key_right (sa_cb!(ShellEvent::DpadRight));
     shell.on_key_l2({
         let s = shell.as_weak(); let l = lower.as_weak();
-        let a = app.clone(); let m = app_mgr.clone();
+        let a = app.clone();
         move |held| {
             if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                sa_handle_event(&mut a.borrow_mut(), ShellEvent::L2Held(held),
-                                &sh, &lo, &mut m.borrow_mut());
+                sa_handle_event(&mut a.borrow_mut(), ShellEvent::L2Held(held), &sh, &lo);
             }
         }
     });
@@ -586,21 +619,19 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     // --- Overlay callbacks -------------------------------------------------
     shell.on_radial_dismissed({
         let s = shell.as_weak(); let l = lower.as_weak();
-        let a = app.clone(); let m = app_mgr.clone();
+        let a = app.clone();
         move || {
             if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                sa_handle_event(&mut a.borrow_mut(), ShellEvent::ButtonB,
-                                &sh, &lo, &mut m.borrow_mut());
+                sa_handle_event(&mut a.borrow_mut(), ShellEvent::ButtonB, &sh, &lo);
             }
         }
     });
     shell.on_palette_dismissed({
         let s = shell.as_weak(); let l = lower.as_weak();
-        let a = app.clone(); let m = app_mgr.clone();
+        let a = app.clone();
         move || {
             if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                sa_handle_event(&mut a.borrow_mut(), ShellEvent::ButtonB,
-                                &sh, &lo, &mut m.borrow_mut());
+                sa_handle_event(&mut a.borrow_mut(), ShellEvent::ButtonB, &sh, &lo);
             }
         }
     });
@@ -649,11 +680,10 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     });
     lower.on_submit({
         let s = shell.as_weak(); let l = lower.as_weak();
-        let a = app.clone(); let m = app_mgr.clone();
+        let a = app.clone();
         move || {
             if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                sa_handle_event(&mut a.borrow_mut(), ShellEvent::ButtonA,
-                                &sh, &lo, &mut m.borrow_mut());
+                sa_handle_event(&mut a.borrow_mut(), ShellEvent::ButtonA, &sh, &lo);
             }
         }
     });
@@ -671,12 +701,11 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     let gp_timer = slint::Timer::default();
     gp_timer.start(slint::TimerMode::Repeated, Duration::from_millis(8), {
         let s = shell.as_weak(); let l = lower.as_weak();
-        let a = app.clone(); let m = app_mgr.clone();
+        let a = app.clone();
         move || {
             while let Ok(event) = gp_rx.try_recv() {
                 if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                    sa_handle_event(&mut a.borrow_mut(), event,
-                                    &sh, &lo, &mut m.borrow_mut());
+                    sa_handle_event(&mut a.borrow_mut(), event, &sh, &lo);
                 }
             }
         }
@@ -720,12 +749,31 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     Ok(())
 }
 
+fn sa_apply_apps(shell: &ShellOverlay, app: &ShellApp) {
+    match app.active_app {
+        Some(ActiveApp::Settings) => {
+            shell.set_app_settings_visible(true);
+            shell.set_app_settings_focused_row(app.settings_row);
+            shell.set_app_files_visible(false);
+        }
+        Some(ActiveApp::Files) => {
+            shell.set_app_settings_visible(false);
+            shell.set_app_files_visible(true);
+            shell.set_app_files_focused_row(app.files_row);
+            shell.set_app_files_path(app.files_path.clone().into());
+        }
+        None => {
+            shell.set_app_settings_visible(false);
+            shell.set_app_files_visible(false);
+        }
+    }
+}
+
 fn sa_handle_event(
     app: &mut ShellApp,
     event: ShellEvent,
     shell: &ShellOverlay,
     lower: &LowerScreen,
-    app_mgr: &mut AppManager,
 ) {
     match event {
         ShellEvent::L2Held(true) | ShellEvent::R2Held(true) => {
@@ -771,6 +819,18 @@ fn sa_handle_event(
             } else if app.palette.visible {
                 app.palette.move_up();
                 shell.set_palette_focused(app.palette.focused_index as i32);
+            } else if app.active_app.is_some() {
+                match app.active_app {
+                    Some(ActiveApp::Settings) => {
+                        app.settings_row = (app.settings_row - 1).max(0);
+                        shell.set_app_settings_focused_row(app.settings_row);
+                    }
+                    Some(ActiveApp::Files) => {
+                        app.files_row = (app.files_row - 1).max(0);
+                        shell.set_app_files_focused_row(app.files_row);
+                    }
+                    None => {}
+                }
             }
         }
         ShellEvent::DpadDown => {
@@ -780,6 +840,18 @@ fn sa_handle_event(
             } else if app.palette.visible {
                 app.palette.move_down();
                 shell.set_palette_focused(app.palette.focused_index as i32);
+            } else if app.active_app.is_some() {
+                match app.active_app {
+                    Some(ActiveApp::Settings) => {
+                        app.settings_row += 1;
+                        shell.set_app_settings_focused_row(app.settings_row);
+                    }
+                    Some(ActiveApp::Files) => {
+                        app.files_row += 1;
+                        shell.set_app_files_focused_row(app.files_row);
+                    }
+                    None => {}
+                }
             }
         }
         ShellEvent::DpadLeft => {
@@ -805,12 +877,24 @@ fn sa_handle_event(
             } else if app.palette.visible {
                 if let Some(id) = app.palette.focused_id() {
                     info!("Command: {id}");
-                    if let Err(e) = app_mgr.launch(&id) {
-                        tracing::warn!("App launch failed: {e}");
+                    if !apps::try_launch_external(&id) {
+                        match id {
+                            "app.settings" | "settings" | "open-settings" => {
+                                app.active_app = Some(ActiveApp::Settings);
+                                app.settings_row = 0;
+                            }
+                            "app.files" | "file-manager" | "open-files" => {
+                                app.active_app = Some(ActiveApp::Files);
+                                app.files_row = 0;
+                                app.files_path = "/home".into();
+                            }
+                            _ => {}
+                        }
                     }
                 }
                 app.palette.close();
                 shell.set_palette_visible(false);
+                sa_apply_apps(shell, app);
                 lower.set_context(LowerContext::Idle);
             }
         }
@@ -822,6 +906,10 @@ fn sa_handle_event(
             } else if app.palette.visible {
                 app.palette.close();
                 shell.set_palette_visible(false);
+                lower.set_context(LowerContext::Idle);
+            } else if app.active_app.is_some() {
+                app.active_app = None;
+                sa_apply_apps(shell, app);
                 lower.set_context(LowerContext::Idle);
             } else {
                 shell.set_switcher_visible(false);

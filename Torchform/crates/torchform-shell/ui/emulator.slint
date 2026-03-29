@@ -27,6 +27,8 @@ import { RadialMenu, RadialItem, RadialLayer } from "radial_menu.slint";
 import { CommandPalette, CommandEntry, VoiceState } from "command_palette.slint";
 import { AppSwitcher, AppEntry } from "app_switcher.slint";
 import { StatusPanel, VirtualKeyboard, LowerContext } from "lower_screen.slint";
+import { AppSettings } from "app_settings.slint";
+import { AppFiles }    from "app_files.slint";
 
 export component TorchformEmulator inherits Window {
 
@@ -58,6 +60,15 @@ export component TorchformEmulator inherits Window {
     callback switcher-app-activated(int);
     callback switcher-app-closed(int);
     callback switcher-dismissed();
+
+    // Embedded app panels (shown in upper display, below all overlays)
+    in property <bool>   app-settings-visible: false;
+    in property <int>    app-settings-focused-row: 0;
+    in property <bool>   app-files-visible: false;
+    in property <int>    app-files-focused-row: 0;
+    in property <string> app-files-path: "/home";
+    callback app-closed();
+    callback app-files-navigate(string);
 
     // Status strip (upper display)
     in property <string>  time-str:      "00:00";
@@ -195,6 +206,22 @@ export component TorchformEmulator inherits Window {
                     vertical-alignment: center;
                 }
             }
+        }
+
+        // Embedded app panels (fill upper display; overlays render on top)
+        if app-settings-visible: AppSettings {
+            x: 0; y: 0;
+            width: parent.width; height: parent.height;
+            focused-row: app-settings-focused-row;
+            close-requested => { root.app-closed(); }
+        }
+        if app-files-visible: AppFiles {
+            x: 0; y: 0;
+            width: parent.width; height: parent.height;
+            current-path: app-files-path;
+            focused-row: app-files-focused-row;
+            close-requested => { root.app-closed(); }
+            navigate(name) => { root.app-files-navigate(name); }
         }
 
         // App switcher

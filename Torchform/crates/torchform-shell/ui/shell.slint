@@ -16,6 +16,8 @@ import { Tokens }          from "tokens.slint";
 import { RadialMenu, RadialItem, RadialLayer } from "radial_menu.slint";
 import { CommandPalette, CommandEntry, VoiceState } from "command_palette.slint";
 import { AppSwitcher, AppEntry }                    from "app_switcher.slint";
+import { AppSettings } from "app_settings.slint";
+import { AppFiles }    from "app_files.slint";
 
 export {
     RadialItem, RadialLayer,
@@ -59,6 +61,15 @@ export component ShellOverlay inherits Window {
     callback switcher-app-activated(int);
     callback switcher-app-closed(int);
     callback switcher-dismissed();
+
+    // Embedded app panels
+    in property <bool>   app-settings-visible: false;
+    in property <int>    app-settings-focused-row: 0;
+    in property <bool>   app-files-visible: false;
+    in property <int>    app-files-focused-row: 0;
+    in property <string> app-files-path: "/home";
+    callback app-closed();
+    callback app-files-navigate(string);
 
     // -----------------------------------------------------------------------
     // Status strip
@@ -143,6 +154,22 @@ export component ShellOverlay inherits Window {
     // -----------------------------------------------------------------------
     // Overlays (stacked; only one should be visible at a time)
     // -----------------------------------------------------------------------
+
+    // App panels — below all overlays
+    if app-settings-visible: AppSettings {
+        x: 0; y: 0;
+        width: parent.width; height: parent.height;
+        focused-row: app-settings-focused-row;
+        close-requested => { root.app-closed(); }
+    }
+    if app-files-visible: AppFiles {
+        x: 0; y: 0;
+        width: parent.width; height: parent.height;
+        current-path: app-files-path;
+        focused-row: app-files-focused-row;
+        close-requested => { root.app-closed(); }
+        navigate(name) => { root.app-files-navigate(name); }
+    }
 
     AppSwitcher {
         visible:          switcher-visible;

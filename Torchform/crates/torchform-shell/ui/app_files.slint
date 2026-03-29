@@ -58,15 +58,12 @@ component FileRow inherits Rectangle {
     TouchArea { clicked => { root.activated(); } }
 }
 
-export component AppFiles inherits Window {
+export component AppFiles inherits Rectangle {
     in property <int>           focused-row: 0;
     in property <string>        current-path: "/home";
     callback close-requested();
     callback navigate(string);
 
-    title: "Files";
-    width:  640px;
-    height: 540px;
     background: Tokens.bg-base;
 
     // Demo directory listing
