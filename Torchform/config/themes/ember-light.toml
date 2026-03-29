@@ -1,0 +1,47 @@
+# =============================================================================
+# Torchform Theme — Ember Light
+#
+# A warm off-white light theme with amber accent.
+# Reference from config.toml:
+#
+#   [theme]
+#   theme_file = "~/.config/torchform/themes/ember-light.toml"
+# =============================================================================
+
+name = "Ember Light"
+
+[colors]
+bg_base        = "#f5f0e8"
+bg_surface     = "#ede8dc"
+bg_elevated    = "#e4ddd0"
+bg_overlay     = "#f5f0e8cc"
+
+accent         = "#d4640a"
+accent_dim     = "#a84f08"
+accent_glow    = "#d4640a33"
+
+primary        = "#2563eb"
+primary_hover  = "#1d4ed8"
+secondary      = "#7c3aed"
+
+success        = "#16a34a"
+warning        = "#ca8a04"
+error          = "#dc2626"
+
+text_primary   = "#1a1008"
+text_secondary = "#5c4a30"
+text_disabled  = "#a89878"
+text_on_accent = "#ffffff"
+text_on_primary = "#ffffff"
+
+border         = "#c8bfaf"
+border_focused = "#d4640a"
+border_subtle  = "#ddd5c5"
+
+lower_bg       = "#ede8dc"
+lower_surface  = "#e4ddd0"
+lower_accent   = "#d4640a"
+
+[typography]
+font_sans = "Inter, DejaVu Sans, sans-serif"
+font_mono = "JetBrains Mono, DejaVu Sans Mono, monospace"

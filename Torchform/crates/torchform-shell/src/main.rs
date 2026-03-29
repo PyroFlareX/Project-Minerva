@@ -16,6 +16,7 @@
 // Demo overlays: radial | palette | switcher | idle
 // =============================================================================
 
+mod config;
 mod palette;
 mod radial;
 mod workspace;
@@ -66,6 +67,7 @@ pub enum ShellEvent {
 // ---------------------------------------------------------------------------
 
 struct ShellApp {
+    config:     config::TorchformConfig,
     radial:     RadialMenuState,
     palette:    PaletteState,
     workspaces: WorkspaceManager,
@@ -79,8 +81,9 @@ struct ShellApp {
 }
 
 impl ShellApp {
-    fn new() -> Self {
+    fn new(cfg: config::TorchformConfig) -> Self {
         Self {
+            config:              cfg,
             radial:              RadialMenuState::new(),
             palette:             PaletteState::new(),
             workspaces:          WorkspaceManager::new(),
@@ -203,8 +206,10 @@ fn make_palette_entries(state: &PaletteState) -> slint::ModelRc<CommandEntry> {
 // ---------------------------------------------------------------------------
 
 fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
+    let cfg = config::TorchformConfig::load();
     let emu = TorchformEmulator::new()?;
-    let app = Rc::new(RefCell::new(ShellApp::new()));
+    apply_theme_emu(&emu, &cfg.theme.resolve());
+    let app = Rc::new(RefCell::new(ShellApp::new(cfg)));
 
     let (gp_tx, gp_rx) = mpsc::channel::<ShellEvent>();
     spawn_gamepad_thread(gp_tx);
@@ -329,9 +334,10 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         emu.set_battery_pct(87);
         emu.set_wifi_connected(true);
 
+        let radial_slots = a.config.radial.system.slots.clone();
         match demo_mode {
             Some("radial") => {
-                a.radial.open(MenuLayer::System, system_radial_items());
+                a.radial.open(MenuLayer::System, system_radial_items(&radial_slots));
                 emu_apply_radial(&emu, &a.radial);
                 emu.set_context(LowerContext::RadialMenu);
             }
@@ -384,7 +390,7 @@ fn emu_handle_event(
     match event {
         ShellEvent::L2Held(true) | ShellEvent::R2Held(true) => {
             if !app.radial.visible {
-                app.radial.open(MenuLayer::System, system_radial_items());
+                app.radial.open(MenuLayer::System, system_radial_items(&app.config.radial.system.slots));
                 app.radial_stick_active = false;
                 emu_apply_radial(emu, &app.radial);
                 emu.set_context(LowerContext::RadialMenu);
@@ -484,7 +490,7 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 if let Some(id) = app.palette.focused_id() {
                     info!("Command: {id}");
-                    if !apps::try_launch_external(&id) {
+                    if !apps::try_launch_external(id, &app.config.apps) {
                         match id {
                             "app.settings" | "settings" | "open-settings" => {
                                 app.active_app = Some(ActiveApp::Settings);
@@ -561,6 +567,76 @@ fn emu_apply_palette(emu: &TorchformEmulator, state: &PaletteState) {
 }
 
 // ---------------------------------------------------------------------------
+// Theme application — push resolved theme values to Slint's Tokens global
+// ---------------------------------------------------------------------------
+
+fn apply_theme_emu(emu: &TorchformEmulator, theme: &config::ResolvedTheme) {
+    use config::parse_color as c;
+    let t = emu.global::<Tokens>();
+    let col = &theme.colors;
+    t.set_bg_base(c(&col.bg_base));
+    t.set_bg_surface(c(&col.bg_surface));
+    t.set_bg_elevated(c(&col.bg_elevated));
+    t.set_bg_overlay(c(&col.bg_overlay));
+    t.set_accent(c(&col.accent));
+    t.set_accent_dim(c(&col.accent_dim));
+    t.set_accent_glow(c(&col.accent_glow));
+    t.set_primary(c(&col.primary));
+    t.set_primary_hover(c(&col.primary_hover));
+    t.set_secondary(c(&col.secondary));
+    t.set_success(c(&col.success));
+    t.set_warning(c(&col.warning));
+    t.set_error(c(&col.error));
+    t.set_text_primary(c(&col.text_primary));
+    t.set_text_secondary(c(&col.text_secondary));
+    t.set_text_disabled(c(&col.text_disabled));
+    t.set_text_on_accent(c(&col.text_on_accent));
+    t.set_text_on_primary(c(&col.text_on_primary));
+    t.set_border(c(&col.border));
+    t.set_border_focused(c(&col.border_focused));
+    t.set_border_subtle(c(&col.border_subtle));
+    t.set_lower_bg(c(&col.lower_bg));
+    t.set_lower_surface(c(&col.lower_surface));
+    t.set_lower_accent(c(&col.lower_accent));
+    t.set_font_sans(theme.typography.font_sans.clone().into());
+    t.set_font_mono(theme.typography.font_mono.clone().into());
+    info!("Theme applied: {}", theme.name);
+}
+
+fn apply_theme_shell(shell: &ShellOverlay, theme: &config::ResolvedTheme) {
+    use config::parse_color as c;
+    let t = shell.global::<Tokens>();
+    let col = &theme.colors;
+    t.set_bg_base(c(&col.bg_base));
+    t.set_bg_surface(c(&col.bg_surface));
+    t.set_bg_elevated(c(&col.bg_elevated));
+    t.set_bg_overlay(c(&col.bg_overlay));
+    t.set_accent(c(&col.accent));
+    t.set_accent_dim(c(&col.accent_dim));
+    t.set_accent_glow(c(&col.accent_glow));
+    t.set_primary(c(&col.primary));
+    t.set_primary_hover(c(&col.primary_hover));
+    t.set_secondary(c(&col.secondary));
+    t.set_success(c(&col.success));
+    t.set_warning(c(&col.warning));
+    t.set_error(c(&col.error));
+    t.set_text_primary(c(&col.text_primary));
+    t.set_text_secondary(c(&col.text_secondary));
+    t.set_text_disabled(c(&col.text_disabled));
+    t.set_text_on_accent(c(&col.text_on_accent));
+    t.set_text_on_primary(c(&col.text_on_primary));
+    t.set_border(c(&col.border));
+    t.set_border_focused(c(&col.border_focused));
+    t.set_border_subtle(c(&col.border_subtle));
+    t.set_lower_bg(c(&col.lower_bg));
+    t.set_lower_surface(c(&col.lower_surface));
+    t.set_lower_accent(c(&col.lower_accent));
+    t.set_font_sans(theme.typography.font_sans.clone().into());
+    t.set_font_mono(theme.typography.font_mono.clone().into());
+    info!("Theme applied: {}", theme.name);
+}
+
+// ---------------------------------------------------------------------------
 // Standalone mode — separate ShellOverlay (upper) + LowerScreen (lower)
 // ---------------------------------------------------------------------------
 
@@ -571,7 +647,9 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     shell.window().set_size(slint::LogicalSize::new(1280.0, 720.0));
     lower.window().set_size(slint::LogicalSize::new(640.0, 480.0));
 
-    let app = Rc::new(RefCell::new(ShellApp::new()));
+    let cfg = config::TorchformConfig::load();
+    apply_theme_shell(&shell, &cfg.theme.resolve());
+    let app = Rc::new(RefCell::new(ShellApp::new(cfg)));
 
     // --- Gamepad channel ---------------------------------------------------
     let (gp_tx, gp_rx) = mpsc::channel::<ShellEvent>();
@@ -723,9 +801,10 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         shell.set_battery_pct(87);
         shell.set_wifi_connected(true);
 
+        let radial_slots = a.config.radial.system.slots.clone();
         match demo_mode {
             Some("radial") => {
-                a.radial.open(MenuLayer::System, system_radial_items());
+                a.radial.open(MenuLayer::System, system_radial_items(&radial_slots));
                 sa_apply_radial(&shell, &a.radial);
                 lower.set_context(LowerContext::RadialMenu);
             }
@@ -778,7 +857,7 @@ fn sa_handle_event(
     match event {
         ShellEvent::L2Held(true) | ShellEvent::R2Held(true) => {
             if !app.radial.visible {
-                app.radial.open(MenuLayer::System, system_radial_items());
+                app.radial.open(MenuLayer::System, system_radial_items(&app.config.radial.system.slots));
                 app.radial_stick_active = false;
                 sa_apply_radial(shell, &app.radial);
                 lower.set_context(LowerContext::RadialMenu);
@@ -877,7 +956,7 @@ fn sa_handle_event(
             } else if app.palette.visible {
                 if let Some(id) = app.palette.focused_id() {
                     info!("Command: {id}");
-                    if !apps::try_launch_external(&id) {
+                    if !apps::try_launch_external(id, &app.config.apps) {
                         match id {
                             "app.settings" | "settings" | "open-settings" => {
                                 app.active_app = Some(ActiveApp::Settings);

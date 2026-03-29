@@ -110,10 +110,24 @@ impl RadialMenuState {
 }
 
 // ---------------------------------------------------------------------------
-// Default system radial items
+// System radial items — built from config, falling back to built-in defaults
 // ---------------------------------------------------------------------------
 
-pub fn system_radial_items() -> Vec<MenuItem> {
+/// Build the system radial item list from config slots.
+/// If the config has no slots defined, returns the built-in defaults.
+pub fn system_radial_items(slots: &[crate::config::RadialSlotConfig]) -> Vec<MenuItem> {
+    if slots.is_empty() {
+        return default_radial_items();
+    }
+    slots.iter().take(SLOT_COUNT).map(|s| MenuItem {
+        label:     s.label.clone(),
+        icon:      s.icon.clone(),
+        enabled:   s.enabled,
+        is_nested: s.nested,
+    }).collect()
+}
+
+fn default_radial_items() -> Vec<MenuItem> {
     vec![
         MenuItem { label: "Brightness".into(), icon: "☀".into(),  enabled: true,  is_nested: true },
         MenuItem { label: "Volume".into(),     icon: "🔊".into(),  enabled: true,  is_nested: true },

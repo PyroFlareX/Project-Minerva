@@ -1,0 +1,214 @@
+# =============================================================================
+# Torchform DE — Configuration
+#
+# Default location: config/torchform.toml (dev / repo)
+# System location:  /etc/torchform/config.toml
+# User location:    ~/.config/torchform/config.toml
+#
+# The shell merges in priority order: user > system > dev > built-in defaults.
+# Any section or key can be omitted to inherit the built-in default value.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# [general]
+# -----------------------------------------------------------------------------
+
+[general]
+
+# Demo overlay to open on launch. One of: "radial", "palette", "switcher",
+# "idle", or "" (empty = palette, the default).
+demo_mode = ""
+
+# Path to user data directory (app state, file browser root, etc.)
+# Supports ~ expansion.
+data_dir = "~/.local/share/torchform"
+
+
+# -----------------------------------------------------------------------------
+# [theme]
+#
+# To use an external theme file instead of inlining colours here, set
+# `theme_file` to a path. The file must be a TOML file with the same
+# [colors] and [typography] sections as this one. theme_file takes precedence
+# over inline [theme.colors] / [theme.typography] if both are present.
+# -----------------------------------------------------------------------------
+
+[theme]
+
+# Name shown in the Settings UI
+name = "Minerva Dark"
+
+# Optional: path to a .toml theme file (overrides inline colors/typography)
+# theme_file = "~/.config/torchform/themes/my-theme.toml"
+
+[theme.colors]
+# ---- Backgrounds ----
+bg_base        = "#0d0f14"    # Primary display background
+bg_surface     = "#161a22"    # Card / panel surfaces
+bg_elevated    = "#1e2330"    # Elevated surfaces (modals, radial menus)
+bg_overlay     = "#0d0f14cc"  # Semi-transparent overlay (80% alpha)
+
+# ---- Brand accent — Minerva electric teal ----
+accent         = "#00d4ff"    # Primary accent
+accent_dim     = "#0099bb"    # Dimmed / inactive accent
+accent_glow    = "#00d4ff44"  # Subtle teal glow (focus rings)
+
+# ---- Interactive ----
+primary        = "#5b9cf6"    # Buttons, links
+primary_hover  = "#7ab3ff"    # Button hover state
+secondary      = "#8a6fdb"    # Secondary elements
+
+# ---- Semantic ----
+success        = "#3dd68c"
+warning        = "#f7b731"
+error          = "#f74040"
+
+# ---- Text ----
+text_primary   = "#e8eaf0"    # Main body text
+text_secondary = "#8c92a4"    # Subdued / label text
+text_disabled  = "#4a5068"    # Disabled / placeholder
+text_on_accent = "#000000"    # Text placed on accent colour
+text_on_primary = "#ffffff"   # Text placed on primary colour
+
+# ---- Borders & dividers ----
+border         = "#2a2f3d"
+border_focused = "#00d4ff"
+border_subtle  = "#1d2230"
+
+# ---- Lower companion display ----
+lower_bg       = "#0a0c11"
+lower_surface  = "#12151c"
+lower_accent   = "#00d4ff"
+
+[theme.typography]
+# Font stacks — first available font wins
+font_sans = "Inter, DejaVu Sans, sans-serif"
+font_mono = "JetBrains Mono, DejaVu Sans Mono, monospace"
+
+
+# -----------------------------------------------------------------------------
+# [icons]
+#
+# Override the icon for any palette command ID or system action.
+# Values are Unicode characters (emoji) or single-char glyphs.
+# Any command not listed here uses the icon defined in palette.rs.
+# -----------------------------------------------------------------------------
+
+[icons]
+# "app.settings" = "⚙"
+# "app.files"    = "📁"
+# "sys.sleep"    = "💤"
+
+
+# -----------------------------------------------------------------------------
+# [apps]
+#
+# Maps each built-in command ID to the external Wayland binary to spawn on
+# the real DE. On the emulator / Docker the binary won't be found, so the
+# built-in stub panel is shown instead.
+#
+# Set to "" to always use the stub (never attempt to spawn).
+# -----------------------------------------------------------------------------
+
+[apps]
+settings = "gnome-control-center"
+files    = "thunar"
+editor   = "micro"
+browser  = "firefox"
+network  = "nm-connection-editor"
+gpio     = ""                       # stub only — no standard binary
+
+
+# -----------------------------------------------------------------------------
+# [input]
+#
+# Maps shell actions to physical buttons. Valid button names:
+#   a, b, x, y, start, select, l1, r1, l2, r2, l3, r3
+#
+# Valid actions (used as keys here):
+#   palette   — open/close the command palette
+#   switcher  — open/close the app switcher
+#   confirm   — select the focused item
+#   back      — dismiss / close / back
+#   radial_l1 — open radial menu (layer 1)
+#   radial_l2 — open radial menu (layer 2)
+# -----------------------------------------------------------------------------
+
+[input]
+palette   = "select"
+switcher  = "start"
+confirm   = "a"
+back      = "b"
+radial_l1 = "l2"
+radial_l2 = "r2"
+
+
+# -----------------------------------------------------------------------------
+# [radial.system]
+#
+# The 8 slots on the system radial menu (L2 / R2 hold).
+# Slots are ordered clockwise from the top:
+#   0=top  1=top-right  2=right  3=bottom-right
+#   4=bottom  5=bottom-left  6=left  7=top-left
+#
+# action: any palette command ID (e.g. "app.settings") or built-in sys.* ID.
+# nested: true = opens a sub-menu when selected (not yet implemented).
+# enabled: false = shown greyed out; cannot be selected.
+# -----------------------------------------------------------------------------
+
+[[radial.system.slots]]
+label   = "Brightness"
+icon    = "☀"
+action  = "sys.brightness"
+nested  = true
+enabled = true
+
+[[radial.system.slots]]
+label   = "Volume"
+icon    = "🔊"
+action  = "sys.volume"
+nested  = true
+enabled = true
+
+[[radial.system.slots]]
+label   = "WiFi"
+icon    = "📶"
+action  = "sys.wifi.toggle"
+nested  = false
+enabled = true
+
+[[radial.system.slots]]
+label   = "Bluetooth"
+icon    = "⬡"
+action  = "sys.bt.toggle"
+nested  = false
+enabled = true
+
+[[radial.system.slots]]
+label   = "Cellular"
+icon    = "📡"
+action  = "sys.cellular"
+nested  = false
+enabled = true
+
+[[radial.system.slots]]
+label   = "VPN"
+icon    = "🔒"
+action  = "sys.vpn"
+nested  = false
+enabled = true
+
+[[radial.system.slots]]
+label   = "Sleep"
+icon    = "💤"
+action  = "sys.sleep"
+nested  = false
+enabled = true
+
+[[radial.system.slots]]
+label   = "Settings"
+icon    = "⚙"
+action  = "app.settings"
+nested  = false
+enabled = true

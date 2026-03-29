@@ -3,6 +3,7 @@
 // so that slint_build only needs one compile call and include_modules!() sees
 // everything in one generated module.
 
+import { Tokens } from "tokens.slint";
 import { ShellOverlay, RadialItem, RadialLayer, CommandEntry, VoiceState, AppEntry }
     from "shell.slint";
 import { LowerScreen, LowerContext, StatusPanel, VirtualKeyboard }
@@ -11,6 +12,9 @@ import { TorchformEmulator }
     from "emulator.slint";
 
 export {
+    // Design system global (exported so Rust can push theme values at startup)
+    Tokens,
+
     // Shell overlay (standalone two-window mode)
     ShellOverlay,
     RadialItem, RadialLayer,

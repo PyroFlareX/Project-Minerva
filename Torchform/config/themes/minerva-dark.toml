@@ -1,0 +1,47 @@
+# =============================================================================
+# Torchform Theme — Minerva Dark (built-in default)
+#
+# This file documents the built-in colour palette.
+# Copy it to ~/.config/torchform/themes/ and reference it from config.toml:
+#
+#   [theme]
+#   theme_file = "~/.config/torchform/themes/my-theme.toml"
+# =============================================================================
+
+name = "Minerva Dark"
+
+[colors]
+bg_base        = "#0d0f14"
+bg_surface     = "#161a22"
+bg_elevated    = "#1e2330"
+bg_overlay     = "#0d0f14cc"
+
+accent         = "#00d4ff"
+accent_dim     = "#0099bb"
+accent_glow    = "#00d4ff44"
+
+primary        = "#5b9cf6"
+primary_hover  = "#7ab3ff"
+secondary      = "#8a6fdb"
+
+success        = "#3dd68c"
+warning        = "#f7b731"
+error          = "#f74040"
+
+text_primary   = "#e8eaf0"
+text_secondary = "#8c92a4"
+text_disabled  = "#4a5068"
+text_on_accent = "#000000"
+text_on_primary = "#ffffff"
+
+border         = "#2a2f3d"
+border_focused = "#00d4ff"
+border_subtle  = "#1d2230"
+
+lower_bg       = "#0a0c11"
+lower_surface  = "#12151c"
+lower_accent   = "#00d4ff"
+
+[typography]
+font_sans = "Inter, DejaVu Sans, sans-serif"
+font_mono = "JetBrains Mono, DejaVu Sans Mono, monospace"

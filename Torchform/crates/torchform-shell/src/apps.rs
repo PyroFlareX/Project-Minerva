@@ -13,22 +13,24 @@
 //   3. If you want a built-in stub, add an AppFoo component in a new .slint
 //      file, embed it in emulator.slint / shell.slint, add an ActiveApp
 //      variant in main.rs, and route D-pad / A / B events to it.
+// Binary names come from config.toml [apps] — no hardcoded strings here.
 // =============================================================================
 
-/// Try to launch an external process for the given palette command ID.
+use crate::config::AppsConfig;
+
+/// Try to launch the external binary mapped to `command_id` in the config.
 /// Returns `true` if a process was successfully spawned (real DE path).
-/// Returns `false` if the binary was not found — caller should show the stub.
-pub fn try_launch_external(command_id: &str) -> bool {
-    match command_id {
-        "app.settings" | "settings" | "open-settings" => {
-            std::process::Command::new("gnome-control-center").spawn().is_ok()
+/// Returns `false` if the config maps no binary, or the spawn fails
+/// (binary not installed) — the caller should show the built-in stub.
+pub fn try_launch_external(command_id: &str, cfg: &AppsConfig) -> bool {
+    match cfg.binary_for(command_id) {
+        Some(binary) => {
+            let ok = std::process::Command::new(binary).spawn().is_ok();
+            if !ok {
+                tracing::debug!("Binary not found for {command_id}: {binary}");
+            }
+            ok
         }
-        "app.files" | "file-manager" | "open-files" => {
-            // Thunar is the preferred file manager for the CM5 build.
-            // Any Wayland-native file manager works; it connects to
-            // $WAYLAND_DISPLAY set by torchform-compositor.
-            std::process::Command::new("thunar").spawn().is_ok()
-        }
-        _ => false,
+        None => false,
     }
 }
