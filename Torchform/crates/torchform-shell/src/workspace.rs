@@ -41,6 +41,7 @@ pub enum TileSlot {
 // Runtime workspace state
 // ---------------------------------------------------------------------------
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct Workspace {
     pub config:       WorkspaceConfig,
@@ -69,6 +70,7 @@ impl Workspace {
     }
 
     /// Returns the app ID occupying the focused tile, if any.
+    #[allow(dead_code)]
     pub fn focused_app(&self) -> Option<&str> {
         let tile = self.config.tiles.get(self.focused_tile)?;
         Some(&tile.app_id)
@@ -99,6 +101,7 @@ impl WorkspaceManager {
         }
     }
 
+    #[allow(dead_code)]
     pub fn active(&self) -> &Workspace {
         &self.workspaces[self.active_index]
     }
@@ -108,6 +111,7 @@ impl WorkspaceManager {
     }
 
     /// Load a workspace from a TOML file.
+    #[allow(dead_code)]
     pub fn load_from_file(&mut self, path: PathBuf) -> anyhow::Result<()> {
         let text = std::fs::read_to_string(&path)?;
         let config: WorkspaceConfig = toml::from_str(&text)?;

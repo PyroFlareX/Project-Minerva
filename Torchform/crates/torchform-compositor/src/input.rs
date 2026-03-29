@@ -15,6 +15,8 @@
 //   L1 / R1            → tile switching
 // =============================================================================
 
+#![allow(dead_code)]
+
 use std::collections::HashSet;
 
 /// High-level input actions emitted by the compositor toward the shell.

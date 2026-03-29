@@ -13,9 +13,6 @@ use std::{
     time::{Duration, Instant},
 };
 
-use anyhow::{Context, Result};
-use tracing::{debug, info};
-
 // ---------------------------------------------------------------------------
 // High-level input actions emitted by the chord detector
 // ---------------------------------------------------------------------------
@@ -40,6 +37,7 @@ pub enum Action {
     DpadRepeat(DpadDir),
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Button {
     A, B, X, Y,
@@ -70,12 +68,9 @@ pub struct InputEventRaw {
     pub value: i32,
 }
 
-const EVENT_SIZE: usize = std::mem::size_of::<InputEventRaw>();
-
 // EV_ types
 const EV_KEY: u16 = 0x01;
 const EV_ABS: u16 = 0x03;
-const EV_SYN: u16 = 0x00;
 
 // ABS codes for hat switch
 const ABS_HAT0X: u16 = 0x10;

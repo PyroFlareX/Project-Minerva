@@ -83,6 +83,12 @@ export component ShellOverlay inherits Window {
     callback key-down();
     callback key-left();
     callback key-right();
+    // Analog stick simulation for desktop testing — hold Tab + IJKL
+    callback key-stick-n();
+    callback key-stick-s();
+    callback key-stick-e();
+    callback key-stick-w();
+    callback key-stick-release();
 
     // -----------------------------------------------------------------------
     // Root geometry — transparent, full upper screen
@@ -181,19 +187,27 @@ export component ShellOverlay inherits Window {
         height: parent.height;
 
         key-pressed(event) => {
-            if event.text == " "                             { root.key-select(); accept }
-            else if event.text == Key.Return                 { root.key-start();  accept }
-            else if event.text == Key.Tab                    { root.key-l2(true); accept }
-            else if event.text == Key.Escape                 { root.key-b();      accept }
-            else if event.text == "a" || event.text == "A"  { root.key-a();      accept }
-            else if event.text == Key.UpArrow                { root.key-up();     accept }
-            else if event.text == Key.DownArrow              { root.key-down();   accept }
-            else if event.text == Key.LeftArrow              { root.key-left();   accept }
-            else if event.text == Key.RightArrow             { root.key-right();  accept }
+            if event.text == " "                             { root.key-select();   accept }
+            else if event.text == Key.Return                 { root.key-start();    accept }
+            else if event.text == Key.Tab                    { root.key-l2(true);  accept }
+            else if event.text == Key.Escape                 { root.key-b();        accept }
+            else if event.text == "a" || event.text == "A"  { root.key-a();        accept }
+            else if event.text == Key.UpArrow                { root.key-up();       accept }
+            else if event.text == Key.DownArrow              { root.key-down();     accept }
+            else if event.text == Key.LeftArrow              { root.key-left();     accept }
+            else if event.text == Key.RightArrow             { root.key-right();    accept }
+            else if event.text == "i" || event.text == "I"  { root.key-stick-n();  accept }
+            else if event.text == "k" || event.text == "K"  { root.key-stick-s();  accept }
+            else if event.text == "j" || event.text == "J"  { root.key-stick-w();  accept }
+            else if event.text == "l" || event.text == "L"  { root.key-stick-e();  accept }
             else { reject }
         }
         key-released(event) => {
             if event.text == Key.Tab { root.key-l2(false); accept }
+            else if event.text == "i" || event.text == "I" ||
+                    event.text == "k" || event.text == "K" ||
+                    event.text == "j" || event.text == "J" ||
+                    event.text == "l" || event.text == "L" { root.key-stick-release(); accept }
             else { reject }
         }
     }

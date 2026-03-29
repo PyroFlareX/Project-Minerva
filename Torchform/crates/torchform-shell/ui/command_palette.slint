@@ -9,6 +9,7 @@
 // The lower display companion shows the virtual keyboard or voice-entry state.
 // =============================================================================
 
+import { ScrollView } from "std-widgets.slint";
 import { Tokens } from "tokens.slint";
 
 export struct CommandEntry {
@@ -224,11 +225,18 @@ export component CommandPalette inherits Rectangle {
             }
 
             // -----------------------------------------------------------------
-            // Results list
+            // Results list — scrollable, driven by focused-index
             // -----------------------------------------------------------------
-            results-scroll := Rectangle {
+            results-scroll := ScrollView {
                 vertical-stretch: 1;
-                clip: true;
+                // Row height 52px + spacing 4px = 56px stride.
+                // Bind viewport-y to keep the focused row centred; clamp to valid range.
+                property <length> row-stride: 52px + Tokens.space-1;
+                viewport-y: max(
+                    min(0px, self.height - entries.length * row-stride),
+                    min(0px, -(focused-index * row-stride
+                                - (self.height - row-stride) / 2))
+                );
 
                 VerticalLayout {
                     spacing: Tokens.space-1;

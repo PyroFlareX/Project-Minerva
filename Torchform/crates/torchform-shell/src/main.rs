@@ -56,6 +56,7 @@ pub enum ShellEvent {
     DpadRight,
     VoiceResult(String),
     LowerTap { x: f32, y: f32 },
+    StickMoved { x: f32, y: f32 },
 }
 
 // ---------------------------------------------------------------------------
@@ -66,14 +67,20 @@ struct ShellApp {
     radial:     RadialMenuState,
     palette:    PaletteState,
     workspaces: WorkspaceManager,
+    stick_x:             f32,
+    stick_y:             f32,
+    radial_stick_active: bool,
 }
 
 impl ShellApp {
     fn new() -> Self {
         Self {
-            radial:     RadialMenuState::new(),
-            palette:    PaletteState::new(),
-            workspaces: WorkspaceManager::new(),
+            radial:              RadialMenuState::new(),
+            palette:             PaletteState::new(),
+            workspaces:          WorkspaceManager::new(),
+            stick_x:             0.0,
+            stick_y:             0.0,
+            radial_stick_active: false,
         }
     }
 }
@@ -94,9 +101,23 @@ fn spawn_gamepad_thread(tx: mpsc::Sender<ShellEvent>) {
         };
         info!("Gamepad thread started ({} gamepads detected)",
               gilrs.gamepads().count());
+        // Track both stick axes so we always emit a combined vector.
+        let mut stick_x = 0.0f32;
+        let mut stick_y = 0.0f32;
         loop {
             while let Some(ev) = gilrs.next_event() {
-                let shell_ev = map_gilrs_event(ev.event);
+                use gilrs::{Axis, EventType};
+                let shell_ev = match ev.event {
+                    EventType::AxisChanged(Axis::LeftStickX, v, _) => {
+                        stick_x = v;
+                        Some(ShellEvent::StickMoved { x: stick_x, y: stick_y })
+                    }
+                    EventType::AxisChanged(Axis::LeftStickY, v, _) => {
+                        stick_y = v;
+                        Some(ShellEvent::StickMoved { x: stick_x, y: stick_y })
+                    }
+                    other => map_gilrs_event(other),
+                };
                 if let Some(se) = shell_ev {
                     if tx.send(se).is_err() { return; }
                 }
@@ -217,6 +238,13 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
             }
         }
     });
+
+    // --- Wire analog stick simulation keys (IJKL — for desktop radial testing) ---
+    emu.on_key_stick_n(key_cb!(ShellEvent::StickMoved { x:  0.0, y: -0.8 }));
+    emu.on_key_stick_s(key_cb!(ShellEvent::StickMoved { x:  0.0, y:  0.8 }));
+    emu.on_key_stick_w(key_cb!(ShellEvent::StickMoved { x: -0.8, y:  0.0 }));
+    emu.on_key_stick_e(key_cb!(ShellEvent::StickMoved { x:  0.8, y:  0.0 }));
+    emu.on_key_stick_release(key_cb!(ShellEvent::StickMoved { x: 0.0, y: 0.0 }));
 
     // --- Wire overlay dismiss callbacks ------------------------------------
     emu.on_radial_dismissed({
@@ -360,14 +388,24 @@ fn emu_handle_event(
         ShellEvent::L2Held(true) | ShellEvent::R2Held(true) => {
             if !app.radial.visible {
                 app.radial.open(MenuLayer::System, system_radial_items());
+                app.radial_stick_active = false;
                 emu_apply_radial(emu, &app.radial);
                 emu.set_context(LowerContext::RadialMenu);
             }
         }
         ShellEvent::L2Held(false) | ShellEvent::R2Held(false) => {
-            app.radial.close();
-            emu_apply_radial(emu, &app.radial);
-            emu.set_context(LowerContext::Idle);
+            if app.radial.visible {
+                if app.radial_stick_active {
+                    if let Some(item) = app.radial.focused_item() {
+                        info!("Radial stick-select: {}", item.label);
+                    }
+                }
+                // If stick was not pointing, dismiss without action.
+                app.radial.close();
+                app.radial_stick_active = false;
+                emu_apply_radial(emu, &app.radial);
+                emu.set_context(LowerContext::Idle);
+            }
         }
         ShellEvent::ButtonSelect => {
             if app.palette.visible {
@@ -446,6 +484,15 @@ fn emu_handle_event(
                 emu.set_context(LowerContext::Idle);
             } else {
                 emu.set_switcher_visible(false);
+            }
+        }
+        ShellEvent::StickMoved { x, y } => {
+            app.stick_x = x;
+            app.stick_y = y;
+            if app.radial.visible {
+                let active = app.radial.update_from_stick(x, y);
+                app.radial_stick_active = active;
+                emu.set_radial_focused(app.radial.focused_index as i32);
             }
         }
         ShellEvent::VoiceResult(text) => {
@@ -528,6 +575,13 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
             }
         }
     });
+
+    // --- Analog stick simulation keys (IJKL) ---------------------------------
+    shell.on_key_stick_n(sa_cb!(ShellEvent::StickMoved { x:  0.0, y: -0.8 }));
+    shell.on_key_stick_s(sa_cb!(ShellEvent::StickMoved { x:  0.0, y:  0.8 }));
+    shell.on_key_stick_w(sa_cb!(ShellEvent::StickMoved { x: -0.8, y:  0.0 }));
+    shell.on_key_stick_e(sa_cb!(ShellEvent::StickMoved { x:  0.8, y:  0.0 }));
+    shell.on_key_stick_release(sa_cb!(ShellEvent::StickMoved { x: 0.0, y: 0.0 }));
 
     // --- Overlay callbacks -------------------------------------------------
     shell.on_radial_dismissed({
@@ -677,14 +731,23 @@ fn sa_handle_event(
         ShellEvent::L2Held(true) | ShellEvent::R2Held(true) => {
             if !app.radial.visible {
                 app.radial.open(MenuLayer::System, system_radial_items());
+                app.radial_stick_active = false;
                 sa_apply_radial(shell, &app.radial);
                 lower.set_context(LowerContext::RadialMenu);
             }
         }
         ShellEvent::L2Held(false) | ShellEvent::R2Held(false) => {
-            app.radial.close();
-            sa_apply_radial(shell, &app.radial);
-            lower.set_context(LowerContext::Idle);
+            if app.radial.visible {
+                if app.radial_stick_active {
+                    if let Some(item) = app.radial.focused_item() {
+                        info!("Radial stick-select: {}", item.label);
+                    }
+                }
+                app.radial.close();
+                app.radial_stick_active = false;
+                sa_apply_radial(shell, &app.radial);
+                lower.set_context(LowerContext::Idle);
+            }
         }
         ShellEvent::ButtonSelect => {
             if app.palette.visible {
@@ -762,6 +825,15 @@ fn sa_handle_event(
                 lower.set_context(LowerContext::Idle);
             } else {
                 shell.set_switcher_visible(false);
+            }
+        }
+        ShellEvent::StickMoved { x, y } => {
+            app.stick_x = x;
+            app.stick_y = y;
+            if app.radial.visible {
+                let active = app.radial.update_from_stick(x, y);
+                app.radial_stick_active = active;
+                shell.set_radial_focused(app.radial.focused_index as i32);
             }
         }
         ShellEvent::VoiceResult(text) => {

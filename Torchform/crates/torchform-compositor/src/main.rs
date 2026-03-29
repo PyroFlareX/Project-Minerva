@@ -203,7 +203,7 @@ fn run_udev() -> Result<()> {
     let mut event_loop: EventLoop<'static, TorchState> =
         EventLoop::try_new().context("create event loop")?;
 
-    let mut display: Display<TorchState> =
+    let display: Display<TorchState> =
         Display::new().context("create Wayland display")?;
 
     let listening_socket = ListeningSocketSource::new_auto()

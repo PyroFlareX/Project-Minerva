@@ -111,6 +111,7 @@ impl VirtualGamepad {
     }
 
     /// Write right stick position as ABS_RX/RY.
+    #[allow(dead_code)]
     pub fn set_right_stick(&mut self, nx: f32, ny: f32) -> Result<()> {
         let ix = (nx * 32767.0) as i32;
         let iy = (ny * 32767.0) as i32;
@@ -125,6 +126,7 @@ impl VirtualGamepad {
     }
 
     /// Write D-pad as ABS_HAT0X/Y.
+    #[allow(dead_code)]
     pub fn set_dpad(&mut self, x: i32, y: i32) -> Result<()> {
         self.device
             .position(&uinput::event::absolute::Hat::X0, x)

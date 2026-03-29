@@ -20,7 +20,6 @@ mod uinput;
 
 use std::{
     fs::File,
-    io::Read,
     path::Path,
     time::Duration,
 };
@@ -72,7 +71,7 @@ fn find_gamepad_evdev() -> Option<String> {
         if !Path::new(&path).exists() {
             continue;
         }
-        if let Ok(file) = File::open(&path) {
+        if let Ok(_file) = File::open(&path) {
             // Check for BTN_A (0x130) via EVIOCGBIT ioctl
             // Simplified: just return the first event device found
             // In production use the evdev crate for proper capability checks

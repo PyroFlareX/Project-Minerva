@@ -23,6 +23,7 @@ pub enum Direction {
 }
 
 /// Which trigger layer opened the menu.
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MenuLayer {
     App1,    // L2 alone
@@ -86,6 +87,25 @@ impl RadialMenuState {
     /// Returns the item at the currently focused slot, if any.
     pub fn focused_item(&self) -> Option<&MenuItem> {
         self.items.get(self.focused_index)
+    }
+
+    /// Update the focused slot from an analog stick position.
+    /// `x` and `y` are normalised [-1.0, 1.0]; Y is screen-coords (up = negative).
+    /// Returns true if the stick is past the deadzone (a direction is held).
+    pub fn update_from_stick(&mut self, x: f32, y: f32) -> bool {
+        const DEADZONE: f32 = 0.3;
+        let mag = (x * x + y * y).sqrt();
+        if self.items.is_empty() || mag < DEADZONE {
+            return false;
+        }
+        let count = self.items.len().min(SLOT_COUNT);
+        // atan2(y, x): right=0, up=-π/2 (screen coords: up = negative y).
+        // Shift +π/2 so slot 0 (top) is at angle 0 and rotation is clockwise.
+        let angle = y.atan2(x) + std::f32::consts::FRAC_PI_2;
+        let angle = (angle + 2.0 * std::f32::consts::PI) % (2.0 * std::f32::consts::PI);
+        self.focused_index =
+            ((angle * count as f32 / (2.0 * std::f32::consts::PI)) + 0.5) as usize % count;
+        true
     }
 }
 

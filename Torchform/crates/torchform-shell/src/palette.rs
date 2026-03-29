@@ -99,6 +99,7 @@ impl PaletteState {
     }
 
     /// Register additional commands (e.g. from loaded apps).
+    #[allow(dead_code)]
     pub fn register(&mut self, cmds: impl IntoIterator<Item = PaletteEntry>) {
         self.registry.extend(cmds);
     }

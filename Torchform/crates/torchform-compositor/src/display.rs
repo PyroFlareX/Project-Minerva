@@ -64,6 +64,7 @@ impl DisplayConfig {
 /// Wrapper around a Smithay `Output` with Torchform metadata.
 pub struct TorchOutput {
     pub output: Output,
+    #[allow(dead_code)]
     pub role:   DisplayRole,
 }
 

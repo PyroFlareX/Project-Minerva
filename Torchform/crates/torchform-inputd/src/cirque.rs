@@ -10,16 +10,10 @@
 // or absolute axis events and synthesise a virtual joystick via uinput.
 // =============================================================================
 
-use std::{
-    fs::File,
-    io::Read,
-    os::unix::io::AsRawFd,
-    path::Path,
-    time::Duration,
-};
+use std::fs::File;
 
 use anyhow::{Context, Result};
-use tracing::{debug, info, warn};
+use tracing::info;
 
 // ---------------------------------------------------------------------------
 // Pinnacle register map (SPI mode, ADDR | 0xA0 for read, 0x80 for write)
@@ -50,6 +44,7 @@ mod regs {
 }
 
 /// A decoded absolute-mode sample from the Pinnacle controller.
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub struct CirqueSample {
     /// X coordinate — 0..2047 (0 = left edge, 2047 = right edge)
@@ -110,7 +105,6 @@ impl CirqueSpi {
 
     /// Read a single Pinnacle register.
     fn read_reg(&mut self, addr: u8) -> Result<u8> {
-        use std::io::{Read, Write};
         use spidev::SpidevTransfer;
 
         // Pinnacle SPI read: send ADDR | 0xA0, then 3 filler bytes, read 1 byte
@@ -124,7 +118,7 @@ impl CirqueSpi {
     /// Write a single Pinnacle register.
     #[allow(dead_code)]
     fn write_reg(&mut self, addr: u8, val: u8) -> Result<()> {
-        use std::io::Write;
+        use std::io::Write as _;
         let buf = [addr | 0x80, val];
         self.dev.write_all(&buf).context("SPI write")?;
         Ok(())
@@ -146,7 +140,7 @@ impl CirqueSpi {
 
         // Read the 6-byte absolute packet
         let b0 = self.read_reg(regs::PACKET_BYTE_0)?;
-        let b1 = self.read_reg(regs::PACKET_BYTE_1)?;
+        let _b1 = self.read_reg(regs::PACKET_BYTE_1)?;  // reserved byte — must be read to advance pointer
         let b2 = self.read_reg(regs::PACKET_BYTE_2)?;
         let b3 = self.read_reg(regs::PACKET_BYTE_3)?;
         let b4 = self.read_reg(regs::PACKET_BYTE_4)?;
@@ -172,10 +166,12 @@ impl CirqueSpi {
 
 /// Reads relative axis events from the kernel-provided evdev node.
 /// The cirque_pinnacle driver exposes the pad as a relative mouse.
+#[allow(dead_code)]
 pub struct CirqueEvdev {
     file: File,
 }
 
+#[allow(dead_code)]
 impl CirqueEvdev {
     pub fn open(path: &str) -> Result<Self> {
         let file = File::open(path)

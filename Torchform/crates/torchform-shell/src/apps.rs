@@ -14,18 +14,34 @@ use tracing::info;
 use crate::{AppSettings, AppFiles};
 
 /// Maps a palette command-id to a launchable app.
+///
+/// On the real DE (CM5 with compositor), external processes are spawned and
+/// inherit `WAYLAND_DISPLAY` from the compositor. In the emulator / Docker,
+/// the Slint stub windows are shown as a fallback.
+///
+/// To add a new app: add a new entry in `palette.rs::default_commands()`,
+/// then match its id here. Use `std::process::Command::new("binary").spawn()`
+/// for real apps; fall back to a Slint stub if the binary is not found.
 pub fn launch_from_command(
     settings: &mut Option<AppSettings>,
     files:    &mut Option<AppFiles>,
     command_id: &str,
 ) -> Result<bool> {
     match command_id {
-        "settings" | "open-settings" => {
-            open_settings(settings)?;
+        "app.settings" | "settings" | "open-settings" => {
+            // Prefer a native settings app on the real DE
+            if std::process::Command::new("gnome-control-center").spawn().is_err() {
+                open_settings(settings)?;
+            }
             Ok(true)
         }
-        "file-manager" | "open-files" => {
-            open_files(files)?;
+        "app.files" | "file-manager" | "open-files" => {
+            // Thunar is the preferred file manager for the CM5 build.
+            // Any Wayland-native file manager works; it connects to $WAYLAND_DISPLAY
+            // set by torchform-compositor.  Falls back to the stub in emulator/Docker.
+            if std::process::Command::new("thunar").spawn().is_err() {
+                open_files(files)?;
+            }
             Ok(true)
         }
         _ => Ok(false),

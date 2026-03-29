@@ -18,7 +18,6 @@ use smithay::{
         Seat, SeatHandler, SeatState,
         pointer::CursorImageStatus,
     },
-    output::Output,
     reexports::{
         calloop::{EventLoop, LoopHandle},
         wayland_server::{
@@ -27,7 +26,7 @@ use smithay::{
             protocol::wl_surface::WlSurface,
         },
     },
-    utils::{Logical, Point, Rectangle, Size, Serial, SERIAL_COUNTER},
+    utils::{Logical, Point, Rectangle, Size, Serial},
     wayland::{
         buffer::BufferHandler,
         compositor::{
@@ -50,7 +49,7 @@ use smithay::{
 };
 
 use crate::{
-    display::{DisplayRole, TorchOutput},
+    display::TorchOutput,
     input::ChordTracker,
 };
 
@@ -75,15 +74,15 @@ impl TorchWindow {
     pub fn geometry(&self, output_size: Size<i32, Logical>) -> Rectangle<i32, Logical> {
         match self.tile {
             TileAssignment::Fullscreen => {
-                Rectangle::from_loc_and_size((0, 0), output_size)
+                Rectangle::new((0, 0).into(), output_size)
             }
             TileAssignment::Left => {
                 let w = output_size.w / 2;
-                Rectangle::from_loc_and_size((0, 0), (w, output_size.h))
+                Rectangle::new((0, 0).into(), (w, output_size.h).into())
             }
             TileAssignment::Right => {
                 let w = output_size.w / 2;
-                Rectangle::from_loc_and_size((w, 0), (w, output_size.h))
+                Rectangle::new((w, 0).into(), (w, output_size.h).into())
             }
         }
     }
@@ -93,6 +92,7 @@ impl TorchWindow {
 // Central compositor state
 // ---------------------------------------------------------------------------
 
+#[allow(dead_code)]
 pub struct TorchState {
     pub display_handle:    DisplayHandle,
     pub loop_handle:       LoopHandle<'static, Self>,
@@ -214,6 +214,7 @@ impl TorchState {
         tracing::info!("Window unmapped. remaining={}", self.windows.len());
     }
 
+    #[allow(dead_code)]
     pub fn cycle_tile_focus(&mut self) {
         if self.windows.len() > 1 {
             self.focused_tile = 1 - self.focused_tile;
