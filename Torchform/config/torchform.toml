@@ -55,9 +55,9 @@ accent_dim     = "#0099bb"    # Dimmed / inactive accent
 accent_glow    = "#00d4ff44"  # Subtle teal glow (focus rings)
 
 # ---- Interactive ----
-primary        = "#5b9cf6"    # Buttons, links
-primary_hover  = "#7ab3ff"    # Button hover state
-secondary      = "#8a6fdb"    # Secondary elements
+primary        = "#da3d28"    # Buttons, links
+primary_hover  = "#ffa47ad3"    # Button hover state
+secondary      = "#7a2e0b"    # Secondary elements
 
 # ---- Semantic ----
 success        = "#3dd68c"

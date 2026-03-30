@@ -53,16 +53,22 @@ impl Default for TorchformConfig {
 pub struct GeneralConfig {
     /// Demo overlay to show on launch ("radial" | "palette" | "switcher" |
     /// "idle" | "").
-    pub demo_mode: String,
+    pub demo_mode:  String,
     /// Root for user data. `~` is expanded.
-    pub data_dir:  String,
+    pub data_dir:   String,
+    /// Display brightness 0–100.
+    pub brightness: Option<u8>,
+    /// Master volume 0–100.
+    pub volume:     Option<u8>,
 }
 
 impl Default for GeneralConfig {
     fn default() -> Self {
         Self {
-            demo_mode: String::new(),
-            data_dir:  "~/.local/share/torchform".into(),
+            demo_mode:  String::new(),
+            data_dir:   "~/.local/share/torchform".into(),
+            brightness: None,
+            volume:     None,
         }
     }
 }
@@ -257,6 +263,8 @@ pub struct AppsConfig {
     pub media:    String,
     /// Binary to spawn for "app.keyboard". Empty = always stub (native).
     pub keyboard: String,
+    /// Binary to spawn for "app.terminal" (e.g. "foot", "alacritty").
+    pub terminal: String,
 }
 
 impl Default for AppsConfig {
@@ -271,6 +279,7 @@ impl Default for AppsConfig {
             camera:   String::new(),
             media:    "vlc".into(),
             keyboard: String::new(),
+            terminal: "foot".into(),
         }
     }
 }
@@ -289,6 +298,7 @@ impl AppsConfig {
             "app.camera"   | "camera"                      => &self.camera,
             "app.media"    | "media-player"                => &self.media,
             "app.keyboard" | "keyboard"                    => &self.keyboard,
+            "app.terminal" | "terminal"                    => &self.terminal,
             _                                               => return None,
         };
         if s.is_empty() { None } else { Some(s.as_str()) }
@@ -457,6 +467,7 @@ struct SaveableApps<'a> {
     camera:   &'a str,
     media:    &'a str,
     keyboard: &'a str,
+    terminal: &'a str,
 }
 
 impl<'a> From<&'a TorchformConfig> for SaveableConfig<'a> {
@@ -473,10 +484,20 @@ impl<'a> From<&'a TorchformConfig> for SaveableConfig<'a> {
                 camera:   &c.apps.camera,
                 media:    &c.apps.media,
                 keyboard: &c.apps.keyboard,
+                terminal: &c.apps.terminal,
             },
             launch:  &c.launch,
             radial:  &c.radial,
         }
+    }
+}
+
+/// Returns the canonical user config path for saving.
+pub fn user_config_path() -> PathBuf {
+    if let Some(home) = std::env::var_os("HOME") {
+        PathBuf::from(home).join(".config/torchform/config.toml")
+    } else {
+        PathBuf::from("config/torchform.toml")
     }
 }
 

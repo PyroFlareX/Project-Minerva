@@ -21,6 +21,7 @@ mod palette;
 mod radial;
 mod workspace;
 mod apps;
+mod audio;
 
 // All Slint-generated types land here: ShellOverlay, LowerScreen,
 // TorchformEmulator, AppSettings, AppFiles, RadialItem, RadialLayer,
@@ -44,6 +45,7 @@ enum ActiveApp {
     MediaPlayer,
     Network,
     Keyboard,
+    Terminal,
 }
 
 // ---------------------------------------------------------------------------
@@ -287,10 +289,53 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         move |name| {
             if let Some(e) = emu2.upgrade() {
                 let mut a = app2.borrow_mut();
-                let new_path = format!("{}/{}", a.files_path, name);
-                a.files_path = new_path.clone();
-                e.set_app_files_path(new_path.into());
-                info!("Files navigate → {}", a.files_path);
+                let candidate = format!("{}/{}", a.files_path.trim_end_matches('/'), name);
+                if std::path::Path::new(&candidate).is_dir() {
+                    a.files_path = candidate.clone();
+                    a.set_row(ActiveApp::Files, 0);
+                    e.set_app_files_path(candidate.clone().into());
+                    e.set_app_files_entries(fs_read_dir(&candidate));
+                    e.set_app_files_focused_row(0);
+                }
+                // File: no-op for now (future: open in editor)
+            }
+        }
+    });
+    emu.on_app_files_navigate_parent({
+        let emu2 = emu.as_weak(); let app2 = app.clone();
+        move || {
+            if let Some(e) = emu2.upgrade() {
+                let mut a = app2.borrow_mut();
+                let parent = std::path::Path::new(&a.files_path)
+                    .parent()
+                    .map(|p| p.to_string_lossy().into_owned())
+                    .unwrap_or_else(|| "/".into());
+                a.files_path = parent.clone();
+                a.set_row(ActiveApp::Files, 0);
+                e.set_app_files_path(parent.clone().into());
+                e.set_app_files_entries(fs_read_dir(&parent));
+                e.set_app_files_focused_row(0);
+            }
+        }
+    });
+    emu.on_app_settings_setting_activated({
+        let emu2 = emu.as_weak(); let app2 = app.clone();
+        move |key| {
+            if let Some(e) = emu2.upgrade() {
+                let mut a = app2.borrow_mut();
+                match key.as_str() {
+                    "display.brightness" => {
+                        let cur = a.config.general.brightness.unwrap_or(80);
+                        a.config.general.brightness = Some(if cur >= 100 { 20 } else { cur + 20 });
+                    }
+                    "audio.volume" => {
+                        let cur = a.config.general.volume.unwrap_or(65);
+                        a.config.general.volume = Some(if cur >= 100 { 0 } else { cur + 10 });
+                    }
+                    _ => {}
+                }
+                let _ = a.config.save(&config::user_config_path());
+                e.set_app_settings_entries(make_settings_entries(&a.config));
             }
         }
     });
@@ -359,6 +404,8 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         emu.set_time_str("14:32".into());
         emu.set_battery_pct(87);
         emu.set_wifi_connected(true);
+        emu.set_workspace_name(a.workspaces.active_name().into());
+        emu.set_workspace_index(a.workspaces.active_index as i32);
 
         let radial_slots = a.config.radial.system.slots.clone();
         match demo_mode {
@@ -395,6 +442,92 @@ fn emu_hide_all_apps(emu: &TorchformEmulator) {
     emu.set_app_media_visible(false);
     emu.set_app_network_visible(false);
     emu.set_app_keyboard_visible(false);
+    emu.set_app_terminal_visible(false);
+}
+
+// ---------------------------------------------------------------------------
+// Filesystem helpers — build Slint model from a real directory listing
+// ---------------------------------------------------------------------------
+
+fn fs_read_dir(path: &str) -> slint::ModelRc<FileEntry> {
+    let mut items: Vec<(bool, String, u64)> = match std::fs::read_dir(path) {
+        Ok(rd) => rd.filter_map(|e| e.ok()).map(|e| {
+            let meta   = e.metadata().ok();
+            let is_dir = meta.as_ref().map_or(false, |m| m.is_dir());
+            let size   = meta.as_ref().map_or(0u64, |m| m.len());
+            (is_dir, e.file_name().to_string_lossy().into_owned(), size)
+        }).collect(),
+        Err(e) => {
+            tracing::warn!("read_dir({path}): {e}");
+            vec![]
+        }
+    };
+    // Dirs first, then alpha
+    items.sort_by(|a, b| b.0.cmp(&a.0).then(a.1.cmp(&b.1)));
+
+    let entries: Vec<FileEntry> = items.into_iter().map(|(is_dir, name, size)| {
+        if is_dir {
+            FileEntry { icon: "📁".into(), name: name.into(), kind: "dir".into(), size: "—".into() }
+        } else {
+            FileEntry {
+                icon: file_icon(&name),
+                size: format_size(size).into(),
+                kind: "file".into(),
+                name: name.into(),
+            }
+        }
+    }).collect();
+    Rc::new(slint::VecModel::from(entries)).into()
+}
+
+fn file_icon(name: &str) -> slint::SharedString {
+    match name.rsplit('.').next().unwrap_or("") {
+        "rs" | "toml" | "json" | "yaml" | "yml" | "md" => "📝",
+        "png" | "jpg" | "jpeg" | "gif" | "webp"        => "🖼",
+        "mp3" | "ogg" | "flac" | "wav"                 => "🎵",
+        "mp4" | "mkv" | "webm" | "mov"                 => "🎬",
+        "pdf"                                           => "📄",
+        "zip" | "tar" | "gz" | "xz" | "zst"            => "📦",
+        _                                               => "📄",
+    }.into()
+}
+
+fn format_size(bytes: u64) -> String {
+    const KB: u64 = 1024;
+    const MB: u64 = KB * 1024;
+    const GB: u64 = MB * 1024;
+    if bytes >= GB      { format!("{:.1} GB", bytes as f64 / GB as f64) }
+    else if bytes >= MB { format!("{:.1} MB", bytes as f64 / MB as f64) }
+    else if bytes >= KB { format!("{:.1} KB", bytes as f64 / KB as f64) }
+    else                { format!("{} B", bytes) }
+}
+
+// ---------------------------------------------------------------------------
+// Settings model — builds a flat [SettingsEntry] array from TorchformConfig
+// ---------------------------------------------------------------------------
+
+fn make_settings_entries(cfg: &config::TorchformConfig) -> slint::ModelRc<SettingsEntry> {
+    let brightness = cfg.general.brightness.unwrap_or(80);
+    let volume     = cfg.general.volume.unwrap_or(65);
+
+    let rows: Vec<SettingsEntry> = vec![
+        SettingsEntry { kind: "header".into(), icon: "".into(), label: "DISPLAY".into(),    value: "".into(), key: "".into() },
+        SettingsEntry { kind: "row".into(),    icon: "🔆".into(), label: "Brightness".into(),  value: format!("{brightness}%").into(), key: "display.brightness".into() },
+        SettingsEntry { kind: "row".into(),    icon: "🌙".into(), label: "Night Mode".into(),  value: "Off".into(), key: "display.night_mode".into() },
+        SettingsEntry { kind: "row".into(),    icon: "📐".into(), label: "Resolution".into(),  value: "1920×1080".into(), key: "display.resolution".into() },
+        SettingsEntry { kind: "header".into(), icon: "".into(), label: "AUDIO".into(),      value: "".into(), key: "".into() },
+        SettingsEntry { kind: "row".into(),    icon: "🔊".into(), label: "Volume".into(),      value: format!("{volume}%").into(), key: "audio.volume".into() },
+        SettingsEntry { kind: "row".into(),    icon: "🎧".into(), label: "Output".into(),      value: "Built-in".into(), key: "audio.output".into() },
+        SettingsEntry { kind: "header".into(), icon: "".into(), label: "CONNECTIVITY".into(), value: "".into(), key: "".into() },
+        SettingsEntry { kind: "row".into(),    icon: "📶".into(), label: "Wi-Fi".into(),       value: "Connected".into(), key: "network.wifi".into() },
+        SettingsEntry { kind: "row".into(),    icon: "🔵".into(), label: "Bluetooth".into(),   value: "On".into(), key: "network.bluetooth".into() },
+        SettingsEntry { kind: "row".into(),    icon: "📡".into(), label: "Cellular".into(),    value: "Off".into(), key: "network.cellular".into() },
+        SettingsEntry { kind: "header".into(), icon: "".into(), label: "SYSTEM".into(),     value: "".into(), key: "".into() },
+        SettingsEntry { kind: "row".into(),    icon: "🛡".into(), label: "VPN".into(),         value: "Off".into(), key: "network.vpn".into() },
+        SettingsEntry { kind: "row".into(),    icon: "🔋".into(), label: "Battery".into(),     value: "87%".into(), key: "system.battery".into() },
+        SettingsEntry { kind: "row".into(),    icon: "ℹ".into(), label: "About".into(),       value: "v0.1.0".into(), key: "system.about".into() },
+    ];
+    Rc::new(slint::VecModel::from(rows)).into()
 }
 
 fn emu_apply_apps(emu: &TorchformEmulator, app: &ShellApp) {
@@ -403,11 +536,13 @@ fn emu_apply_apps(emu: &TorchformEmulator, app: &ShellApp) {
         Some(ActiveApp::Settings) => {
             emu.set_app_settings_visible(true);
             emu.set_app_settings_focused_row(app.row(ActiveApp::Settings));
+            emu.set_app_settings_entries(make_settings_entries(&app.config));
         }
         Some(ActiveApp::Files) => {
             emu.set_app_files_visible(true);
             emu.set_app_files_focused_row(app.row(ActiveApp::Files));
             emu.set_app_files_path(app.files_path.clone().into());
+            emu.set_app_files_entries(fs_read_dir(&app.files_path));
         }
         Some(ActiveApp::Camera) => {
             emu.set_app_camera_visible(true);
@@ -427,6 +562,9 @@ fn emu_apply_apps(emu: &TorchformEmulator, app: &ShellApp) {
         }
         Some(ActiveApp::Keyboard) => {
             emu.set_app_keyboard_visible(true);
+        }
+        Some(ActiveApp::Terminal) => {
+            emu.set_app_terminal_visible(true);
         }
         None => {}
     }
@@ -477,6 +615,7 @@ fn emu_handle_event(
             emu.set_switcher_visible(vis);
         }
         ShellEvent::DpadUp => {
+            audio::play(audio::SoundCue::Nav);
             if app.radial.visible {
                 app.radial.navigate(Direction::Up);
                 emu.set_radial_focused(app.radial.focused_index as i32);
@@ -489,6 +628,7 @@ fn emu_handle_event(
             }
         }
         ShellEvent::DpadDown => {
+            audio::play(audio::SoundCue::Nav);
             if app.radial.visible {
                 app.radial.navigate(Direction::Down);
                 emu.set_radial_focused(app.radial.focused_index as i32);
@@ -513,6 +653,7 @@ fn emu_handle_event(
             }
         }
         ShellEvent::ButtonA => {
+            audio::play(audio::SoundCue::Confirm);
             if app.radial.visible {
                 if let Some(item) = app.radial.focused_item() {
                     info!("Radial activated: {}", item.label);
@@ -553,6 +694,10 @@ fn emu_handle_event(
                             "app.keyboard" | "keyboard" => {
                                 app.active_app = Some(ActiveApp::Keyboard);
                             }
+                            "app.terminal" | "terminal" => {
+                                app.active_app = Some(ActiveApp::Terminal);
+                                app.set_row(ActiveApp::Terminal, 0);
+                            }
                             _ => {}
                         }
                     }
@@ -564,6 +709,7 @@ fn emu_handle_event(
             }
         }
         ShellEvent::ButtonB => {
+            audio::play(audio::SoundCue::Cancel);
             if app.radial.visible {
                 app.radial.close();
                 emu_apply_radial(emu, &app.radial);
@@ -595,8 +741,15 @@ fn emu_handle_event(
                 emu_apply_palette(emu, &app.palette);
             }
         }
-        ShellEvent::L1Pressed | ShellEvent::R1Pressed => {
-            app.workspaces.active_mut().cycle_focus();
+        ShellEvent::L1Pressed => {
+            app.workspaces.switch_prev();
+            emu.set_workspace_name(app.workspaces.active_name().into());
+            emu.set_workspace_index(app.workspaces.active_index as i32);
+        }
+        ShellEvent::R1Pressed => {
+            app.workspaces.switch_next();
+            emu.set_workspace_name(app.workspaces.active_name().into());
+            emu.set_workspace_index(app.workspaces.active_index as i32);
         }
         ShellEvent::LowerTap { x, y } => {
             info!("Lower tap at ({x:.0}, {y:.0})");
@@ -888,19 +1041,22 @@ fn sa_hide_all_apps(shell: &ShellOverlay) {
     shell.set_app_media_visible(false);
     shell.set_app_network_visible(false);
     shell.set_app_keyboard_visible(false);
+    shell.set_app_terminal_visible(false);
 }
 
 fn sa_apply_apps(shell: &ShellOverlay, app: &ShellApp) {
     sa_hide_all_apps(shell);
     match app.active_app {
-        Some(ActiveApp::Settings) => {
-            shell.set_app_settings_visible(true);
-            shell.set_app_settings_focused_row(app.row(ActiveApp::Settings));
-        }
         Some(ActiveApp::Files) => {
             shell.set_app_files_visible(true);
             shell.set_app_files_focused_row(app.row(ActiveApp::Files));
             shell.set_app_files_path(app.files_path.clone().into());
+            shell.set_app_files_entries(fs_read_dir(&app.files_path));
+        }
+        Some(ActiveApp::Settings) => {
+            shell.set_app_settings_visible(true);
+            shell.set_app_settings_focused_row(app.row(ActiveApp::Settings));
+            shell.set_app_settings_entries(make_settings_entries(&app.config));
         }
         Some(ActiveApp::Camera) => {
             shell.set_app_camera_visible(true);
@@ -920,6 +1076,9 @@ fn sa_apply_apps(shell: &ShellOverlay, app: &ShellApp) {
         }
         Some(ActiveApp::Keyboard) => {
             shell.set_app_keyboard_visible(true);
+        }
+        Some(ActiveApp::Terminal) => {
+            shell.set_app_terminal_visible(true);
         }
         None => {}
     }
@@ -1045,6 +1204,10 @@ fn sa_handle_event(
                             "app.keyboard" | "keyboard" => {
                                 app.active_app = Some(ActiveApp::Keyboard);
                             }
+                            "app.terminal" | "terminal" => {
+                                app.active_app = Some(ActiveApp::Terminal);
+                                app.set_row(ActiveApp::Terminal, 0);
+                            }
                             _ => {}
                         }
                     }
@@ -1087,8 +1250,11 @@ fn sa_handle_event(
                 sa_apply_palette(shell, &app.palette);
             }
         }
-        ShellEvent::L1Pressed | ShellEvent::R1Pressed => {
-            app.workspaces.active_mut().cycle_focus();
+        ShellEvent::L1Pressed => {
+            app.workspaces.switch_prev();
+        }
+        ShellEvent::R1Pressed => {
+            app.workspaces.switch_next();
         }
         ShellEvent::LowerTap { x, y } => {
             info!("Lower tap at ({x:.0}, {y:.0})");

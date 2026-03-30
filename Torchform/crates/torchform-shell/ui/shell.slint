@@ -16,13 +16,14 @@ import { Tokens }          from "tokens.slint";
 import { RadialMenu, RadialItem, RadialLayer } from "radial_menu.slint";
 import { CommandPalette, CommandEntry, VoiceState } from "command_palette.slint";
 import { AppSwitcher, AppEntry }                    from "app_switcher.slint";
-import { AppSettings }       from "app_settings.slint";
-import { AppFiles }          from "app_files.slint";
+import { AppSettings, SettingsEntry } from "app_settings.slint";
+import { AppFiles, FileEntry } from "app_files.slint";
 import { AppFileManager }    from "app_file_manager.slint";
 import { AppCamera }         from "app_camera.slint";
 import { AppWebBrowser }     from "app_web_browser.slint";
 import { AppMediaPlayer }    from "app_media_player.slint";
 import { AppNetworkManager } from "app_network_manager.slint";
+import { AppTerminal }       from "app_terminal.slint";
 
 export {
     RadialItem, RadialLayer,
@@ -68,11 +69,13 @@ export component ShellOverlay inherits Window {
     callback switcher-dismissed();
 
     // Embedded app panels
-    in property <bool>   app-settings-visible: false;
-    in property <int>    app-settings-focused-row: 0;
-    in property <bool>   app-files-visible: false;
-    in property <int>    app-files-focused-row: 0;
-    in property <string> app-files-path: "/home";
+    in property <bool>             app-settings-visible: false;
+    in property <int>              app-settings-focused-row: 0;
+    in property <[SettingsEntry]>  app-settings-entries;
+    in property <bool>         app-files-visible: false;
+    in property <int>          app-files-focused-row: 0;
+    in property <string>       app-files-path: "/home";
+    in property <[FileEntry]>  app-files-entries;
     in property <bool>   app-camera-visible: false;
     in property <int>    app-camera-focused-row: 0;
     in property <bool>   app-browser-visible: false;
@@ -83,8 +86,11 @@ export component ShellOverlay inherits Window {
     in property <bool>   app-network-visible: false;
     in property <int>    app-network-focused-row: 0;
     in property <bool>   app-keyboard-visible: false;
+    in property <bool>   app-terminal-visible: false;
     callback app-closed();
+    callback app-settings-setting-activated(string);
     callback app-files-navigate(string);
+    callback app-files-navigate-parent();
 
     // -----------------------------------------------------------------------
     // Status strip
@@ -175,15 +181,19 @@ export component ShellOverlay inherits Window {
         x: 0; y: 0;
         width: parent.width; height: parent.height;
         focused-row: app-settings-focused-row;
-        close-requested => { root.app-closed(); }
+        entries:     app-settings-entries;
+        close-requested          => { root.app-closed(); }
+        setting-activated(key)   => { root.app-settings-setting-activated(key); }
     }
     if app-files-visible: AppFiles {
         x: 0; y: 0;
         width: parent.width; height: parent.height;
-        current-path: app-files-path;
-        focused-row: app-files-focused-row;
-        close-requested => { root.app-closed(); }
-        navigate(name) => { root.app-files-navigate(name); }
+        current-path:  app-files-path;
+        focused-row:   app-files-focused-row;
+        entries:       app-files-entries;
+        close-requested   => { root.app-closed(); }
+        navigate(name)    => { root.app-files-navigate(name); }
+        navigate-parent   => { root.app-files-navigate-parent(); }
     }
     if app-camera-visible: AppCamera {
         x: 0; y: 0;
@@ -208,6 +218,11 @@ export component ShellOverlay inherits Window {
         x: 0; y: 0;
         width: parent.width; height: parent.height;
         focused-row: app-network-focused-row;
+        close-requested => { root.app-closed(); }
+    }
+    if app-terminal-visible: AppTerminal {
+        x: 0; y: 0;
+        width: parent.width; height: parent.height;
         close-requested => { root.app-closed(); }
     }
     if app-keyboard-visible: Rectangle {

@@ -1,13 +1,15 @@
 // =============================================================================
-// app_files.slint — Torchform File Browser app (stub)
+// app_files.slint — Torchform File Browser
 //
-// A simple file-browser UI. Uses a static demo listing for now; the real
-// implementation will walk the filesystem via the Rust backend.
+// Entries are pushed from the Rust backend via `entries` in-property.
+// Navigation callbacks: navigate(name) for entering dirs, navigate-parent()
+// for going up. The backend resolves paths and calls fs_read_dir() each time.
 // =============================================================================
 
 import { Tokens } from "tokens.slint";
+import { ListView } from "std-widgets.slint";
 
-struct FileEntry {
+export struct FileEntry {
     icon:  string,
     name:  string,
     kind:  string,   // "dir" | "file"
@@ -59,24 +61,15 @@ component FileRow inherits Rectangle {
 }
 
 export component AppFiles inherits Rectangle {
-    in property <int>           focused-row: 0;
+    in property <int>           focused-row:  0;
     in property <string>        current-path: "/home";
+    in property <[FileEntry]>   entries;
+
     callback close-requested();
     callback navigate(string);
+    callback navigate-parent();
 
     background: Tokens.bg-base;
-
-    // Demo directory listing
-    property <[FileEntry]> entries: [
-        { icon: "📁", name: "Documents",  kind: "dir",  size: "—"      },
-        { icon: "📁", name: "Downloads",  kind: "dir",  size: "—"      },
-        { icon: "📁", name: "Pictures",   kind: "dir",  size: "—"      },
-        { icon: "📁", name: "Music",      kind: "dir",  size: "—"      },
-        { icon: "📁", name: "Videos",     kind: "dir",  size: "—"      },
-        { icon: "📄", name: "README.md",  kind: "file", size: "4.2 KB" },
-        { icon: "📝", name: "notes.txt",  kind: "file", size: "1.1 KB" },
-        { icon: "🖼", name: "photo.jpg",  kind: "file", size: "2.3 MB" },
-    ];
 
     VerticalLayout {
         padding: 0px;
@@ -91,6 +84,23 @@ export component AppFiles inherits Rectangle {
                 padding-right: Tokens.space-4;
                 alignment: center;
 
+                // Up button
+                Rectangle {
+                    width: 32px; height: 32px;
+                    border-radius: Tokens.radius-sm;
+                    background: Tokens.bg-elevated;
+                    Text {
+                        width: parent.width; height: parent.height;
+                        text: "↑";
+                        font-size: Tokens.text-md;
+                        color: Tokens.text-secondary;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    TouchArea { clicked => { root.navigate-parent(); } }
+                }
+
+                // Path
                 Text {
                     horizontal-stretch: 1;
                     text: "📂  " + current-path;
@@ -100,7 +110,10 @@ export component AppFiles inherits Rectangle {
                     color: Tokens.text-primary;
                     vertical-alignment: center;
                     overflow: elide;
+                    padding-left: Tokens.space-3;
                 }
+
+                // Close button
                 Rectangle {
                     width: 32px; height: 32px;
                     border-radius: 16px;
@@ -118,9 +131,9 @@ export component AppFiles inherits Rectangle {
             }
         }
 
-        // Toolbar: path breadcrumb + sort indicator
+        // Toolbar
         Rectangle {
-            height: 32px;
+            height: 28px;
             background: Tokens.bg-elevated;
 
             HorizontalLayout {
@@ -130,7 +143,7 @@ export component AppFiles inherits Rectangle {
 
                 Text {
                     horizontal-stretch: 1;
-                    text: "↑ Parent  ·  " + entries.length + " items";
+                    text: entries.length + " items";
                     font-size: Tokens.text-xs;
                     font-family: Tokens.font-mono;
                     color: Tokens.text-secondary;
@@ -146,22 +159,17 @@ export component AppFiles inherits Rectangle {
             }
         }
 
-        // File list
-        Rectangle {
+        // File list — ListView enables scrolling
+        ListView {
             horizontal-stretch: 1;
-            vertical-stretch: 1;
-            background: Tokens.bg-base;
-            clip: true;
+            vertical-stretch:   1;
 
-            VerticalLayout {
-                padding: Tokens.space-2;
-                spacing: 2px;
-
-                for entry[idx] in entries: FileRow {
-                    entry:   entry;
-                    focused: focused-row == idx;
-                    activated => { root.navigate(entry.name); }
-                }
+            for entry[idx] in entries: FileRow {
+                entry:   entry;
+                focused: focused-row == idx;
+                width:   parent.width - Tokens.space-2 * 2;
+                x:       Tokens.space-2;
+                activated => { root.navigate(entry.name); }
             }
         }
 
@@ -176,7 +184,7 @@ export component AppFiles inherits Rectangle {
                 alignment: center;
 
                 Text {
-                    text: "A=Open  B=Back  ↑↓=Navigate";
+                    text: "A=Open  B=Up  ↑↓=Navigate";
                     font-size: Tokens.text-xs;
                     font-family: Tokens.font-mono;
                     color: Tokens.text-disabled;

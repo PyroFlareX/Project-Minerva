@@ -88,17 +88,35 @@ pub struct WorkspaceManager {
 
 impl WorkspaceManager {
     pub fn new() -> Self {
-        // Start with a single default workspace
-        let default = WorkspaceConfig {
-            name:   "Default".into(),
-            layout: LayoutMode::Fullscreen,
-            tiles:  Vec::new(),
-            env:    Default::default(),
-        };
+        let make = |name: &str| Workspace::from_config(
+            WorkspaceConfig {
+                name:   name.into(),
+                layout: LayoutMode::Fullscreen,
+                tiles:  Vec::new(),
+                env:    Default::default(),
+            },
+            PathBuf::new(),
+        );
         Self {
-            workspaces:   vec![Workspace::from_config(default, PathBuf::new())],
+            workspaces:   vec![make("Work"), make("Media"), make("Dev"), make("Comms")],
             active_index: 0,
         }
+    }
+
+    pub fn switch_next(&mut self) {
+        self.active_index = (self.active_index + 1) % self.workspaces.len();
+    }
+
+    pub fn switch_prev(&mut self) {
+        self.active_index = if self.active_index == 0 {
+            self.workspaces.len() - 1
+        } else {
+            self.active_index - 1
+        };
+    }
+
+    pub fn active_name(&self) -> &str {
+        &self.workspaces[self.active_index].config.name
     }
 
     #[allow(dead_code)]

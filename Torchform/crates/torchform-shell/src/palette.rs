@@ -184,6 +184,14 @@ fn default_commands() -> Vec<PaletteEntry> {
             shortcut:    "".into(),
         },
         PaletteEntry {
+            id:          "app.terminal".into(),
+            label:       "Terminal".into(),
+            description: "Shell terminal emulator (foot / alacritty)".into(),
+            category:    "App".into(),
+            icon:        "⬛".into(),
+            shortcut:    "".into(),
+        },
+        PaletteEntry {
             id:          "sys.brightness.up".into(),
             label:       "Brightness Up".into(),
             description: "Increase display brightness".into(),

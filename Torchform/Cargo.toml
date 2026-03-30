@@ -64,6 +64,9 @@ slint-build    = { version = "1" }
 # Linux uinput (virtual input device)
 uinput         = { version = "0.1.3" }
 
+# Audio feedback
+rodio          = { version = "0.22", default-features = false, features = ["playback", "vorbis"] }
+
 # SPI (Cirque trackpad)
 spidev         = { version = "0.6" }
 

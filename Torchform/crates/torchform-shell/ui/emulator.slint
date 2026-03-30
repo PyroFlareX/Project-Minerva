@@ -27,13 +27,14 @@ import { RadialMenu, RadialItem, RadialLayer } from "radial_menu.slint";
 import { CommandPalette, CommandEntry, VoiceState } from "command_palette.slint";
 import { AppSwitcher, AppEntry } from "app_switcher.slint";
 import { StatusPanel, VirtualKeyboard, LowerContext } from "lower_screen.slint";
-import { AppSettings }      from "app_settings.slint";
-import { AppFiles }         from "app_files.slint";
+import { AppSettings, SettingsEntry } from "app_settings.slint";
+import { AppFiles, FileEntry } from "app_files.slint";
 import { AppFileManager }   from "app_file_manager.slint";
 import { AppCamera }        from "app_camera.slint";
 import { AppWebBrowser }    from "app_web_browser.slint";
 import { AppMediaPlayer }   from "app_media_player.slint";
 import { AppNetworkManager } from "app_network_manager.slint";
+import { AppTerminal }       from "app_terminal.slint";
 
 export component TorchformEmulator inherits Window {
 
@@ -67,11 +68,13 @@ export component TorchformEmulator inherits Window {
     callback switcher-dismissed();
 
     // Embedded app panels (shown in upper display, below all overlays)
-    in property <bool>   app-settings-visible: false;
-    in property <int>    app-settings-focused-row: 0;
-    in property <bool>   app-files-visible: false;
-    in property <int>    app-files-focused-row: 0;
-    in property <string> app-files-path: "/home";
+    in property <bool>              app-settings-visible: false;
+    in property <int>               app-settings-focused-row: 0;
+    in property <[SettingsEntry]>   app-settings-entries;
+    in property <bool>         app-files-visible: false;
+    in property <int>          app-files-focused-row: 0;
+    in property <string>       app-files-path: "/home";
+    in property <[FileEntry]>  app-files-entries;
     // Camera
     in property <bool>   app-camera-visible: false;
     in property <int>    app-camera-focused-row: 0;
@@ -87,15 +90,21 @@ export component TorchformEmulator inherits Window {
     in property <int>    app-network-focused-row: 0;
     // On-screen keyboard (lower-screen companion; upper shows placeholder)
     in property <bool>   app-keyboard-visible: false;
+    // Terminal
+    in property <bool>   app-terminal-visible: false;
 
     callback app-closed();
+    callback app-settings-setting-activated(string);
     callback app-files-navigate(string);
+    callback app-files-navigate-parent();
 
     // Status strip (upper display)
-    in property <string>  time-str:      "00:00";
-    in property <int>     battery-pct:   100;
-    in property <bool>    charging:      false;
-    in property <bool>    wifi-connected: true;
+    in property <string>  time-str:        "00:00";
+    in property <int>     battery-pct:     100;
+    in property <bool>    charging:        false;
+    in property <bool>    wifi-connected:  true;
+    in property <string>  workspace-name:  "Work";
+    in property <int>     workspace-index: 0;
 
     // -----------------------------------------------------------------------
     // Lower-screen properties (mirrors LowerScreen)
@@ -205,8 +214,28 @@ export component TorchformEmulator inherits Window {
                 padding-left:  Tokens.space-3;
                 padding-right: Tokens.space-3;
                 spacing:       Tokens.space-3;
-                alignment: end;
+                alignment: center;
 
+                // Workspace dots — left side
+                HorizontalLayout {
+                    horizontal-stretch: 1;
+                    spacing: 4px;
+                    alignment: start;
+                    Rectangle { width: 6px; height: 6px; border-radius: 3px; background: workspace-index == 0 ? Tokens.accent : Tokens.text-disabled; }
+                    Rectangle { width: 6px; height: 6px; border-radius: 3px; background: workspace-index == 1 ? Tokens.accent : Tokens.text-disabled; }
+                    Rectangle { width: 6px; height: 6px; border-radius: 3px; background: workspace-index == 2 ? Tokens.accent : Tokens.text-disabled; }
+                    Rectangle { width: 6px; height: 6px; border-radius: 3px; background: workspace-index == 3 ? Tokens.accent : Tokens.text-disabled; }
+                    Text {
+                        text: workspace-name;
+                        font-size: Tokens.text-xs;
+                        font-family: Tokens.font-mono;
+                        color: Tokens.text-secondary;
+                        vertical-alignment: center;
+                        padding-left: 4px;
+                    }
+                }
+
+                // Right-aligned status items
                 Text {
                     text: time-str;
                     font-size: Tokens.text-xs;
@@ -234,15 +263,19 @@ export component TorchformEmulator inherits Window {
             x: 0; y: 0;
             width: parent.width; height: parent.height;
             focused-row: app-settings-focused-row;
-            close-requested => { root.app-closed(); }
+            entries:     app-settings-entries;
+            close-requested          => { root.app-closed(); }
+            setting-activated(key)   => { root.app-settings-setting-activated(key); }
         }
         if app-files-visible: AppFiles {
             x: 0; y: 0;
             width: parent.width; height: parent.height;
-            current-path: app-files-path;
-            focused-row: app-files-focused-row;
-            close-requested => { root.app-closed(); }
-            navigate(name) => { root.app-files-navigate(name); }
+            current-path:  app-files-path;
+            focused-row:   app-files-focused-row;
+            entries:       app-files-entries;
+            close-requested   => { root.app-closed(); }
+            navigate(name)    => { root.app-files-navigate(name); }
+            navigate-parent   => { root.app-files-navigate-parent(); }
         }
         if app-camera-visible: AppCamera {
             x: 0; y: 0;
@@ -267,6 +300,11 @@ export component TorchformEmulator inherits Window {
             x: 0; y: 0;
             width: parent.width; height: parent.height;
             focused-row: app-network-focused-row;
+            close-requested => { root.app-closed(); }
+        }
+        if app-terminal-visible: AppTerminal {
+            x: 0; y: 0;
+            width: parent.width; height: parent.height;
             close-requested => { root.app-closed(); }
         }
         if app-keyboard-visible: Rectangle {
