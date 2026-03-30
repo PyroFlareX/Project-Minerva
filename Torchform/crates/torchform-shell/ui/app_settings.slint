@@ -71,8 +71,21 @@ component SectionHeader inherits Text {
 }
 
 export component AppSettings inherits Rectangle {
-    in property <int> focused-row: 0;
+    in property <int>    focused-row:       0;
+    // Live values pushed by Rust backend (empty = show placeholder)
+    in property <string> brightness-value:  "80%";
+    in property <string> volume-value:      "65%";
+    in property <string> wifi-value:        "Connected";
+    in property <string> bt-value:          "On";
+    in property <string> cellular-value:    "Off";
+    in property <string> vpn-value:         "Off";
+    in property <string> battery-value:     "87%";
+    // Active sub-section ("" = show list, "display" | "audio" | etc. = sub-panel)
+    in property <string> active-section:    "";
+
     callback close-requested();
+    // Fired when user activates a row — passes the setting key
+    callback setting-activated(string);
 
     background: Tokens.bg-base;
 
@@ -92,12 +105,13 @@ export component AppSettings inherits Rectangle {
 
                 Text {
                     horizontal-stretch: 1;
-                    text: "⚙  Settings";
+                    text: active-section == "" ? "⚙  Settings" : ("⚙  Settings › " + active-section);
                     font-size: Tokens.text-xl;
                     font-family: Tokens.font-sans;
                     font-weight: Tokens.weight-semibold;
                     color: Tokens.text-primary;
                     vertical-alignment: center;
+                    overflow: elide;
                 }
                 Rectangle {
                     width: 32px; height: 32px;
@@ -128,23 +142,67 @@ export component AppSettings inherits Rectangle {
                 spacing: Tokens.space-1;
 
                 SectionHeader { label: "DISPLAY"; }
-                SettingsRow { icon: "🔆"; label: "Brightness";   value: "80%";    focused: focused-row == 0; }
-                SettingsRow { icon: "🌙"; label: "Night Mode";   value: "Off";    focused: focused-row == 1; }
-                SettingsRow { icon: "📐"; label: "Resolution";   value: "1920×1080"; focused: focused-row == 2; }
+                SettingsRow {
+                    icon: "🔆"; label: "Brightness"; value: brightness-value;
+                    focused: focused-row == 0;
+                    activated => { root.setting-activated("display.brightness"); }
+                }
+                SettingsRow {
+                    icon: "🌙"; label: "Night Mode"; value: "Off";
+                    focused: focused-row == 1;
+                    activated => { root.setting-activated("display.night_mode"); }
+                }
+                SettingsRow {
+                    icon: "📐"; label: "Resolution"; value: "1920×1080";
+                    focused: focused-row == 2;
+                    activated => { root.setting-activated("display.resolution"); }
+                }
 
                 SectionHeader { label: "AUDIO"; }
-                SettingsRow { icon: "🔊"; label: "Volume";       value: "65%";    focused: focused-row == 3; }
-                SettingsRow { icon: "🎧"; label: "Output";       value: "Built-in"; focused: focused-row == 4; }
+                SettingsRow {
+                    icon: "🔊"; label: "Volume"; value: volume-value;
+                    focused: focused-row == 3;
+                    activated => { root.setting-activated("audio.volume"); }
+                }
+                SettingsRow {
+                    icon: "🎧"; label: "Output"; value: "Built-in";
+                    focused: focused-row == 4;
+                    activated => { root.setting-activated("audio.output"); }
+                }
 
                 SectionHeader { label: "CONNECTIVITY"; }
-                SettingsRow { icon: "📶"; label: "Wi-Fi";        value: "Connected"; focused: focused-row == 5; }
-                SettingsRow { icon: "🔵"; label: "Bluetooth";    value: "On";     focused: focused-row == 6; }
-                SettingsRow { icon: "📡"; label: "Cellular";     value: "Off";    focused: focused-row == 7; }
+                SettingsRow {
+                    icon: "📶"; label: "Wi-Fi"; value: wifi-value;
+                    focused: focused-row == 5;
+                    activated => { root.setting-activated("network.wifi"); }
+                }
+                SettingsRow {
+                    icon: "🔵"; label: "Bluetooth"; value: bt-value;
+                    focused: focused-row == 6;
+                    activated => { root.setting-activated("network.bluetooth"); }
+                }
+                SettingsRow {
+                    icon: "📡"; label: "Cellular"; value: cellular-value;
+                    focused: focused-row == 7;
+                    activated => { root.setting-activated("network.cellular"); }
+                }
 
                 SectionHeader { label: "SYSTEM"; }
-                SettingsRow { icon: "🛡";  label: "VPN";         value: "Off";    focused: focused-row == 8; }
-                SettingsRow { icon: "🔋"; label: "Battery";      value: "87%";    focused: focused-row == 9; }
-                SettingsRow { icon: "ℹ"; label: "About";        value: "v0.1.0"; focused: focused-row == 10; }
+                SettingsRow {
+                    icon: "🛡"; label: "VPN"; value: vpn-value;
+                    focused: focused-row == 8;
+                    activated => { root.setting-activated("network.vpn"); }
+                }
+                SettingsRow {
+                    icon: "🔋"; label: "Battery"; value: battery-value;
+                    focused: focused-row == 9;
+                    activated => { root.setting-activated("system.battery"); }
+                }
+                SettingsRow {
+                    icon: "ℹ"; label: "About"; value: "v0.1.0";
+                    focused: focused-row == 10;
+                    activated => { root.setting-activated("system.about"); }
+                }
             }
         }
     }

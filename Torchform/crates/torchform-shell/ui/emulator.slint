@@ -27,8 +27,13 @@ import { RadialMenu, RadialItem, RadialLayer } from "radial_menu.slint";
 import { CommandPalette, CommandEntry, VoiceState } from "command_palette.slint";
 import { AppSwitcher, AppEntry } from "app_switcher.slint";
 import { StatusPanel, VirtualKeyboard, LowerContext } from "lower_screen.slint";
-import { AppSettings } from "app_settings.slint";
-import { AppFiles }    from "app_files.slint";
+import { AppSettings }      from "app_settings.slint";
+import { AppFiles }         from "app_files.slint";
+import { AppFileManager }   from "app_file_manager.slint";
+import { AppCamera }        from "app_camera.slint";
+import { AppWebBrowser }    from "app_web_browser.slint";
+import { AppMediaPlayer }   from "app_media_player.slint";
+import { AppNetworkManager } from "app_network_manager.slint";
 
 export component TorchformEmulator inherits Window {
 
@@ -67,6 +72,22 @@ export component TorchformEmulator inherits Window {
     in property <bool>   app-files-visible: false;
     in property <int>    app-files-focused-row: 0;
     in property <string> app-files-path: "/home";
+    // Camera
+    in property <bool>   app-camera-visible: false;
+    in property <int>    app-camera-focused-row: 0;
+    // Web browser
+    in property <bool>   app-browser-visible: false;
+    in property <int>    app-browser-focused-row: 0;
+    in property <string> app-browser-url: "about:blank";
+    // Media player
+    in property <bool>   app-media-visible: false;
+    in property <int>    app-media-focused-row: 0;
+    // Network manager
+    in property <bool>   app-network-visible: false;
+    in property <int>    app-network-focused-row: 0;
+    // On-screen keyboard (lower-screen companion; upper shows placeholder)
+    in property <bool>   app-keyboard-visible: false;
+
     callback app-closed();
     callback app-files-navigate(string);
 
@@ -222,6 +243,44 @@ export component TorchformEmulator inherits Window {
             focused-row: app-files-focused-row;
             close-requested => { root.app-closed(); }
             navigate(name) => { root.app-files-navigate(name); }
+        }
+        if app-camera-visible: AppCamera {
+            x: 0; y: 0;
+            width: parent.width; height: parent.height;
+            focused-row: app-camera-focused-row;
+            close-requested => { root.app-closed(); }
+        }
+        if app-browser-visible: AppWebBrowser {
+            x: 0; y: 0;
+            width: parent.width; height: parent.height;
+            focused-row: app-browser-focused-row;
+            url: app-browser-url;
+            close-requested => { root.app-closed(); }
+        }
+        if app-media-visible: AppMediaPlayer {
+            x: 0; y: 0;
+            width: parent.width; height: parent.height;
+            focused-row: app-media-focused-row;
+            close-requested => { root.app-closed(); }
+        }
+        if app-network-visible: AppNetworkManager {
+            x: 0; y: 0;
+            width: parent.width; height: parent.height;
+            focused-row: app-network-focused-row;
+            close-requested => { root.app-closed(); }
+        }
+        if app-keyboard-visible: Rectangle {
+            x: 0; y: 0;
+            width: parent.width; height: parent.height;
+            background: Tokens.bg-base;
+            Text {
+                width: parent.width; height: parent.height;
+                text: "⌨  On-Screen Keyboard active on lower display";
+                font-size: Tokens.text-sm;
+                color: Tokens.text-disabled;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
         }
 
         // App switcher

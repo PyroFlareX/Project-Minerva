@@ -1,0 +1,123 @@
+// =============================================================================
+// app_camera.slint — Torchform Camera app (stub)
+//
+// Upper display: viewfinder (black placeholder) + shutter button.
+// Real camera pipeline (libcamera / v4l2) wired in a later milestone.
+// =============================================================================
+
+import { Tokens } from "tokens.slint";
+
+export component AppCamera inherits Rectangle {
+    in property <int>    focused-row:     0;
+    in property <string> last-capture:    "";
+
+    callback close-requested();
+    callback capture();
+
+    background: #000000;
+
+    VerticalLayout {
+        padding: 0px;
+
+        // Header
+        Rectangle {
+            height: 44px;
+            background: #00000099;
+
+            HorizontalLayout {
+                padding-left:  Tokens.space-4;
+                padding-right: Tokens.space-4;
+                alignment: center;
+
+                Text {
+                    horizontal-stretch: 1;
+                    text: "📷  Camera";
+                    font-size: Tokens.text-md;
+                    font-family: Tokens.font-sans;
+                    color: #ffffff;
+                    vertical-alignment: center;
+                }
+                Rectangle {
+                    width: 32px; height: 32px;
+                    border-radius: 16px;
+                    background: #ffffff22;
+                    Text {
+                        width: parent.width; height: parent.height;
+                        text: "✕";
+                        font-size: Tokens.text-sm;
+                        color: #ffffff99;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    TouchArea { clicked => { root.close-requested(); } }
+                }
+            }
+        }
+
+        // Viewfinder placeholder
+        Rectangle {
+            horizontal-stretch: 1;
+            vertical-stretch: 1;
+            background: #0a0a0a;
+
+            Text {
+                width: parent.width;
+                height: parent.height;
+                text: "[ Camera preview — hardware only ]";
+                font-size: Tokens.text-sm;
+                font-family: Tokens.font-mono;
+                color: #333333;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+
+            // Last capture thumbnail strip
+            if last-capture != "": Rectangle {
+                x: parent.width - 80px - Tokens.space-3;
+                y: parent.height - 80px - Tokens.space-3;
+                width: 80px;
+                height: 80px;
+                border-radius: Tokens.radius-md;
+                background: Tokens.bg-surface;
+                border-width: 2px;
+                border-color: Tokens.accent;
+                Text {
+                    width: parent.width; height: parent.height;
+                    text: "🖼";
+                    font-size: 32px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        // Shutter bar
+        Rectangle {
+            height: 72px;
+            background: #00000099;
+
+            HorizontalLayout {
+                alignment: center;
+                spacing: Tokens.space-5;
+
+                // Shutter button
+                Rectangle {
+                    width: 56px; height: 56px;
+                    border-radius: 28px;
+                    background: focused-row == 0 ? Tokens.accent : #ffffff;
+                    border-width: 3px;
+                    border-color: focused-row == 0 ? Tokens.accent-glow : #cccccc;
+                    Text {
+                        width: parent.width; height: parent.height;
+                        text: "●";
+                        font-size: 28px;
+                        color: #000000;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                    TouchArea { clicked => { root.capture(); } }
+                }
+            }
+        }
+    }
+}

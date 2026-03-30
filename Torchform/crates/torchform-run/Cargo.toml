@@ -1,0 +1,16 @@
+[package]
+name        = "torchform-run"
+version     = "0.1.0"
+edition     = "2021"
+description = "Torchform launcher — sets Wayland env vars and exec()s apps with optional config overrides"
+
+[[bin]]
+name = "torchform-run"
+path = "src/main.rs"
+
+[dependencies]
+anyhow      = { workspace = true }
+tracing     = { workspace = true }
+tracing-subscriber = { workspace = true }
+serde       = { workspace = true }
+toml        = { workspace = true }

@@ -11,7 +11,7 @@
 // =============================================================================
 
 use std::{collections::HashMap, path::PathBuf};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use anyhow::Result;
 
 // ---------------------------------------------------------------------------
@@ -27,6 +27,7 @@ pub struct TorchformConfig {
     pub apps:       AppsConfig,
     pub input:      InputConfig,
     pub radial:     RadialConfig,
+    pub launch:     LaunchConfig,
 }
 
 impl Default for TorchformConfig {
@@ -38,6 +39,7 @@ impl Default for TorchformConfig {
             apps:    AppsConfig::default(),
             input:   InputConfig::default(),
             radial:  RadialConfig::default(),
+            launch:  LaunchConfig::default(),
         }
     }
 }
@@ -46,7 +48,7 @@ impl Default for TorchformConfig {
 // [general]
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct GeneralConfig {
     /// Demo overlay to show on launch ("radial" | "palette" | "switcher" |
@@ -249,6 +251,12 @@ pub struct AppsConfig {
     pub network:  String,
     /// Binary to spawn for "app.gpio". Empty = stub only.
     pub gpio:     String,
+    /// Binary to spawn for "app.camera". Empty = stub only.
+    pub camera:   String,
+    /// Binary to spawn for "app.media". Empty = stub only.
+    pub media:    String,
+    /// Binary to spawn for "app.keyboard". Empty = always stub (native).
+    pub keyboard: String,
 }
 
 impl Default for AppsConfig {
@@ -260,6 +268,9 @@ impl Default for AppsConfig {
             browser:  "firefox".into(),
             network:  "nm-connection-editor".into(),
             gpio:     String::new(),
+            camera:   String::new(),
+            media:    "vlc".into(),
+            keyboard: String::new(),
         }
     }
 }
@@ -275,10 +286,42 @@ impl AppsConfig {
             "app.browser"  | "browser"                     => &self.browser,
             "app.network"  | "network"                     => &self.network,
             "app.gpio"     | "gpio"                        => &self.gpio,
+            "app.camera"   | "camera"                      => &self.camera,
+            "app.media"    | "media-player"                => &self.media,
+            "app.keyboard" | "keyboard"                    => &self.keyboard,
             _                                               => return None,
         };
         if s.is_empty() { None } else { Some(s.as_str()) }
     }
+}
+
+// ---------------------------------------------------------------------------
+// [launch]
+// ---------------------------------------------------------------------------
+
+/// Global launch configuration: environment variables injected into every
+/// spawned process, and per-app overrides.
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct LaunchConfig {
+    /// Environment variables applied to every spawned app process.
+    pub env: HashMap<String, String>,
+    /// Per-app overrides keyed by app-id (e.g. "app.browser") or binary name.
+    pub apps: HashMap<String, AppLaunchOverride>,
+}
+
+/// Per-app launch override — all fields are optional.
+#[derive(Debug, Clone, Deserialize, Default, Serialize)]
+#[serde(default)]
+pub struct AppLaunchOverride {
+    /// Override the binary to launch (instead of the [apps] config value).
+    pub binary: Option<String>,
+    /// Extra arguments to pass.
+    pub args:   Vec<String>,
+    /// Extra environment variables for this app only (merged over global env).
+    pub env:    HashMap<String, String>,
+    /// Launch mode hint: "wayland" | "sdl" | "gl" | "retroarch" | "kiosk"
+    pub mode:   Option<String>,
 }
 
 // ---------------------------------------------------------------------------
@@ -313,19 +356,19 @@ impl Default for InputConfig {
 // [radial]
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Deserialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default)]
 pub struct RadialConfig {
     pub system: RadialLayerConfig,
 }
 
-#[derive(Debug, Clone, Deserialize, Default)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 #[serde(default)]
 pub struct RadialLayerConfig {
     pub slots: Vec<RadialSlotConfig>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(default)]
 pub struct RadialSlotConfig {
     pub label:   String,
@@ -373,6 +416,67 @@ impl TorchformConfig {
     fn load_from(path: &PathBuf) -> Result<Self> {
         let text = std::fs::read_to_string(path)?;
         Ok(toml::from_str(&text)?)
+    }
+
+    /// Serialise the current config back to TOML and write it to `path`.
+    /// Creates parent directories if needed.
+    pub fn save(&self, path: &PathBuf) -> Result<()> {
+        // We serialise only the fields that are safe to round-trip. We build
+        // a minimal serde-compatible wrapper rather than deriving Serialize on
+        // the full struct (which would pull in slint types).
+        use std::io::Write;
+        let text = toml::to_string_pretty(&SaveableConfig::from(self))?;
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let mut f = std::fs::File::create(path)?;
+        f.write_all(text.as_bytes())?;
+        tracing::info!("Config saved to {}", path.display());
+        Ok(())
+    }
+}
+
+/// A Serialize-able subset of TorchformConfig for writing back to disk.
+/// Only includes fields the user would edit (not theme colors inline).
+#[derive(Serialize)]
+struct SaveableConfig<'a> {
+    general: &'a GeneralConfig,
+    apps:    SaveableApps<'a>,
+    launch:  &'a LaunchConfig,
+    radial:  &'a RadialConfig,
+}
+
+#[derive(Serialize)]
+struct SaveableApps<'a> {
+    settings: &'a str,
+    files:    &'a str,
+    editor:   &'a str,
+    browser:  &'a str,
+    network:  &'a str,
+    gpio:     &'a str,
+    camera:   &'a str,
+    media:    &'a str,
+    keyboard: &'a str,
+}
+
+impl<'a> From<&'a TorchformConfig> for SaveableConfig<'a> {
+    fn from(c: &'a TorchformConfig) -> Self {
+        SaveableConfig {
+            general: &c.general,
+            apps:    SaveableApps {
+                settings: &c.apps.settings,
+                files:    &c.apps.files,
+                editor:   &c.apps.editor,
+                browser:  &c.apps.browser,
+                network:  &c.apps.network,
+                gpio:     &c.apps.gpio,
+                camera:   &c.apps.camera,
+                media:    &c.apps.media,
+                keyboard: &c.apps.keyboard,
+            },
+            launch:  &c.launch,
+            radial:  &c.radial,
+        }
     }
 }
 

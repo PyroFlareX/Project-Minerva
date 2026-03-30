@@ -4,6 +4,7 @@ members = [
     "crates/torchform-compositor",
     "crates/torchform-shell",
     "crates/torchform-inputd",
+    "crates/torchform-run",
 ]
 
 # ---------------------------------------------------------------------------

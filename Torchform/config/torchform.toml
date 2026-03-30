@@ -118,6 +118,9 @@ editor   = "micro"
 browser  = "firefox"
 network  = "nm-connection-editor"
 gpio     = ""                       # stub only — no standard binary
+camera   = ""                       # stub only — use libcamera on hardware
+media    = "vlc"                    # or "mpv"
+keyboard = ""                       # always native stub
 
 
 # -----------------------------------------------------------------------------
@@ -212,3 +215,37 @@ icon    = "⚙"
 action  = "app.settings"
 nested  = false
 enabled = true
+
+
+# -----------------------------------------------------------------------------
+# [launch]
+#
+# Environment variables and per-app overrides for spawned processes.
+#
+# [launch.env]  — applied to EVERY spawned process (Wayland clients, etc.)
+# [launch.apps.<id>] — per-app override: binary, args, env, mode
+#
+# mode hints: "wayland" | "sdl" | "gl" | "retroarch" | "kiosk"
+# -----------------------------------------------------------------------------
+
+[launch.env]
+SDL_VIDEODRIVER        = "wayland"
+QT_QPA_PLATFORM        = "wayland"
+GDK_BACKEND            = "wayland"
+MOZ_ENABLE_WAYLAND     = "1"
+EGL_PLATFORM           = "wayland"
+CLUTTER_BACKEND        = "wayland"
+
+# Example: per-app override for RetroArch
+# [launch.apps.retroarch]
+# binary = "retroarch"
+# args   = ["-L", "/usr/lib/libretro/snes9x_libretro.so"]
+# mode   = "retroarch"
+# [launch.apps.retroarch.env]
+# LIBRETRO_DIRECTORY = "/usr/lib/libretro"
+
+# Example: override browser to Chromium in kiosk mode
+# [launch.apps."app.browser"]
+# binary = "chromium"
+# args   = ["--ozone-platform=wayland", "--kiosk"]
+# mode   = "kiosk"

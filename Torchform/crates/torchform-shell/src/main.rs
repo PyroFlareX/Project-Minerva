@@ -27,7 +27,7 @@ mod apps;
 // CommandEntry, VoiceState, AppEntry, LowerContext.
 slint::include_modules!();
 
-use std::{rc::Rc, cell::RefCell, env, sync::mpsc, time::Duration};
+use std::{collections::HashMap, rc::Rc, cell::RefCell, env, sync::mpsc, time::Duration};
 use anyhow::Result;
 use tracing::info;
 
@@ -35,8 +35,16 @@ use palette::PaletteState;
 use radial::{Direction, MenuLayer, RadialMenuState, system_radial_items};
 use workspace::WorkspaceManager;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ActiveApp { Settings, Files }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum ActiveApp {
+    Settings,
+    Files,
+    Camera,
+    WebBrowser,
+    MediaPlayer,
+    Network,
+    Keyboard,
+}
 
 // ---------------------------------------------------------------------------
 // Input events — arrive from torchform-inputd (Unix socket) in production;
@@ -75,8 +83,9 @@ struct ShellApp {
     stick_y:             f32,
     radial_stick_active: bool,
     active_app:          Option<ActiveApp>,
-    settings_row:        i32,
-    files_row:           i32,
+    /// Focused row index per app (replaces flat settings_row / files_row).
+    app_rows:            HashMap<ActiveApp, i32>,
+    /// Per-app string state (e.g. current path for the file manager).
     files_path:          String,
 }
 
@@ -91,10 +100,27 @@ impl ShellApp {
             stick_y:             0.0,
             radial_stick_active: false,
             active_app:          None,
-            settings_row:        0,
-            files_row:           0,
+            app_rows:            HashMap::new(),
             files_path:          "/home".into(),
         }
+    }
+
+    fn row(&self, app: ActiveApp) -> i32 {
+        *self.app_rows.get(&app).unwrap_or(&0)
+    }
+
+    fn set_row(&mut self, app: ActiveApp, row: i32) {
+        self.app_rows.insert(app, row);
+    }
+
+    fn nav_up(&mut self, app: ActiveApp) {
+        let r = (self.row(app) - 1).max(0);
+        self.set_row(app, r);
+    }
+
+    fn nav_down(&mut self, app: ActiveApp) {
+        let r = self.row(app) + 1;
+        self.set_row(app, r);
     }
 }
 
@@ -361,23 +387,48 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
     Ok(())
 }
 
+fn emu_hide_all_apps(emu: &TorchformEmulator) {
+    emu.set_app_settings_visible(false);
+    emu.set_app_files_visible(false);
+    emu.set_app_camera_visible(false);
+    emu.set_app_browser_visible(false);
+    emu.set_app_media_visible(false);
+    emu.set_app_network_visible(false);
+    emu.set_app_keyboard_visible(false);
+}
+
 fn emu_apply_apps(emu: &TorchformEmulator, app: &ShellApp) {
+    emu_hide_all_apps(emu);
     match app.active_app {
         Some(ActiveApp::Settings) => {
             emu.set_app_settings_visible(true);
-            emu.set_app_settings_focused_row(app.settings_row);
-            emu.set_app_files_visible(false);
+            emu.set_app_settings_focused_row(app.row(ActiveApp::Settings));
         }
         Some(ActiveApp::Files) => {
-            emu.set_app_settings_visible(false);
             emu.set_app_files_visible(true);
-            emu.set_app_files_focused_row(app.files_row);
+            emu.set_app_files_focused_row(app.row(ActiveApp::Files));
             emu.set_app_files_path(app.files_path.clone().into());
         }
-        None => {
-            emu.set_app_settings_visible(false);
-            emu.set_app_files_visible(false);
+        Some(ActiveApp::Camera) => {
+            emu.set_app_camera_visible(true);
+            emu.set_app_camera_focused_row(app.row(ActiveApp::Camera));
         }
+        Some(ActiveApp::WebBrowser) => {
+            emu.set_app_browser_visible(true);
+            emu.set_app_browser_focused_row(app.row(ActiveApp::WebBrowser));
+        }
+        Some(ActiveApp::MediaPlayer) => {
+            emu.set_app_media_visible(true);
+            emu.set_app_media_focused_row(app.row(ActiveApp::MediaPlayer));
+        }
+        Some(ActiveApp::Network) => {
+            emu.set_app_network_visible(true);
+            emu.set_app_network_focused_row(app.row(ActiveApp::Network));
+        }
+        Some(ActiveApp::Keyboard) => {
+            emu.set_app_keyboard_visible(true);
+        }
+        None => {}
     }
 }
 
@@ -432,18 +483,9 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 app.palette.move_up();
                 emu.set_palette_focused(app.palette.focused_index as i32);
-            } else if app.active_app.is_some() {
-                match app.active_app {
-                    Some(ActiveApp::Settings) => {
-                        app.settings_row = (app.settings_row - 1).max(0);
-                        emu.set_app_settings_focused_row(app.settings_row);
-                    }
-                    Some(ActiveApp::Files) => {
-                        app.files_row = (app.files_row - 1).max(0);
-                        emu.set_app_files_focused_row(app.files_row);
-                    }
-                    None => {}
-                }
+            } else if let Some(active) = app.active_app {
+                app.nav_up(active);
+                emu_apply_apps(emu, app);
             }
         }
         ShellEvent::DpadDown => {
@@ -453,18 +495,9 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 app.palette.move_down();
                 emu.set_palette_focused(app.palette.focused_index as i32);
-            } else if app.active_app.is_some() {
-                match app.active_app {
-                    Some(ActiveApp::Settings) => {
-                        app.settings_row += 1;
-                        emu.set_app_settings_focused_row(app.settings_row);
-                    }
-                    Some(ActiveApp::Files) => {
-                        app.files_row += 1;
-                        emu.set_app_files_focused_row(app.files_row);
-                    }
-                    None => {}
-                }
+            } else if let Some(active) = app.active_app {
+                app.nav_down(active);
+                emu_apply_apps(emu, app);
             }
         }
         ShellEvent::DpadLeft => {
@@ -490,16 +523,35 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 if let Some(id) = app.palette.focused_id() {
                     info!("Command: {id}");
-                    if !apps::try_launch_external(id, &app.config.apps) {
+                    if !apps::try_launch_external(id, &app.config.apps, &app.config.launch) {
                         match id {
                             "app.settings" | "settings" | "open-settings" => {
                                 app.active_app = Some(ActiveApp::Settings);
-                                app.settings_row = 0;
+                                app.set_row(ActiveApp::Settings, 0);
                             }
                             "app.files" | "file-manager" | "open-files" => {
                                 app.active_app = Some(ActiveApp::Files);
-                                app.files_row = 0;
+                                app.set_row(ActiveApp::Files, 0);
                                 app.files_path = "/home".into();
+                            }
+                            "app.camera" | "camera" => {
+                                app.active_app = Some(ActiveApp::Camera);
+                                app.set_row(ActiveApp::Camera, 0);
+                            }
+                            "app.browser" | "browser" => {
+                                app.active_app = Some(ActiveApp::WebBrowser);
+                                app.set_row(ActiveApp::WebBrowser, 0);
+                            }
+                            "app.media" | "media-player" => {
+                                app.active_app = Some(ActiveApp::MediaPlayer);
+                                app.set_row(ActiveApp::MediaPlayer, 0);
+                            }
+                            "app.network" | "network" => {
+                                app.active_app = Some(ActiveApp::Network);
+                                app.set_row(ActiveApp::Network, 0);
+                            }
+                            "app.keyboard" | "keyboard" => {
+                                app.active_app = Some(ActiveApp::Keyboard);
                             }
                             _ => {}
                         }
@@ -828,23 +880,48 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     Ok(())
 }
 
+fn sa_hide_all_apps(shell: &ShellOverlay) {
+    shell.set_app_settings_visible(false);
+    shell.set_app_files_visible(false);
+    shell.set_app_camera_visible(false);
+    shell.set_app_browser_visible(false);
+    shell.set_app_media_visible(false);
+    shell.set_app_network_visible(false);
+    shell.set_app_keyboard_visible(false);
+}
+
 fn sa_apply_apps(shell: &ShellOverlay, app: &ShellApp) {
+    sa_hide_all_apps(shell);
     match app.active_app {
         Some(ActiveApp::Settings) => {
             shell.set_app_settings_visible(true);
-            shell.set_app_settings_focused_row(app.settings_row);
-            shell.set_app_files_visible(false);
+            shell.set_app_settings_focused_row(app.row(ActiveApp::Settings));
         }
         Some(ActiveApp::Files) => {
-            shell.set_app_settings_visible(false);
             shell.set_app_files_visible(true);
-            shell.set_app_files_focused_row(app.files_row);
+            shell.set_app_files_focused_row(app.row(ActiveApp::Files));
             shell.set_app_files_path(app.files_path.clone().into());
         }
-        None => {
-            shell.set_app_settings_visible(false);
-            shell.set_app_files_visible(false);
+        Some(ActiveApp::Camera) => {
+            shell.set_app_camera_visible(true);
+            shell.set_app_camera_focused_row(app.row(ActiveApp::Camera));
         }
+        Some(ActiveApp::WebBrowser) => {
+            shell.set_app_browser_visible(true);
+            shell.set_app_browser_focused_row(app.row(ActiveApp::WebBrowser));
+        }
+        Some(ActiveApp::MediaPlayer) => {
+            shell.set_app_media_visible(true);
+            shell.set_app_media_focused_row(app.row(ActiveApp::MediaPlayer));
+        }
+        Some(ActiveApp::Network) => {
+            shell.set_app_network_visible(true);
+            shell.set_app_network_focused_row(app.row(ActiveApp::Network));
+        }
+        Some(ActiveApp::Keyboard) => {
+            shell.set_app_keyboard_visible(true);
+        }
+        None => {}
     }
 }
 
@@ -898,18 +975,9 @@ fn sa_handle_event(
             } else if app.palette.visible {
                 app.palette.move_up();
                 shell.set_palette_focused(app.palette.focused_index as i32);
-            } else if app.active_app.is_some() {
-                match app.active_app {
-                    Some(ActiveApp::Settings) => {
-                        app.settings_row = (app.settings_row - 1).max(0);
-                        shell.set_app_settings_focused_row(app.settings_row);
-                    }
-                    Some(ActiveApp::Files) => {
-                        app.files_row = (app.files_row - 1).max(0);
-                        shell.set_app_files_focused_row(app.files_row);
-                    }
-                    None => {}
-                }
+            } else if let Some(active) = app.active_app {
+                app.nav_up(active);
+                sa_apply_apps(shell, app);
             }
         }
         ShellEvent::DpadDown => {
@@ -919,18 +987,9 @@ fn sa_handle_event(
             } else if app.palette.visible {
                 app.palette.move_down();
                 shell.set_palette_focused(app.palette.focused_index as i32);
-            } else if app.active_app.is_some() {
-                match app.active_app {
-                    Some(ActiveApp::Settings) => {
-                        app.settings_row += 1;
-                        shell.set_app_settings_focused_row(app.settings_row);
-                    }
-                    Some(ActiveApp::Files) => {
-                        app.files_row += 1;
-                        shell.set_app_files_focused_row(app.files_row);
-                    }
-                    None => {}
-                }
+            } else if let Some(active) = app.active_app {
+                app.nav_down(active);
+                sa_apply_apps(shell, app);
             }
         }
         ShellEvent::DpadLeft => {
@@ -956,16 +1015,35 @@ fn sa_handle_event(
             } else if app.palette.visible {
                 if let Some(id) = app.palette.focused_id() {
                     info!("Command: {id}");
-                    if !apps::try_launch_external(id, &app.config.apps) {
+                    if !apps::try_launch_external(id, &app.config.apps, &app.config.launch) {
                         match id {
                             "app.settings" | "settings" | "open-settings" => {
                                 app.active_app = Some(ActiveApp::Settings);
-                                app.settings_row = 0;
+                                app.set_row(ActiveApp::Settings, 0);
                             }
                             "app.files" | "file-manager" | "open-files" => {
                                 app.active_app = Some(ActiveApp::Files);
-                                app.files_row = 0;
+                                app.set_row(ActiveApp::Files, 0);
                                 app.files_path = "/home".into();
+                            }
+                            "app.camera" | "camera" => {
+                                app.active_app = Some(ActiveApp::Camera);
+                                app.set_row(ActiveApp::Camera, 0);
+                            }
+                            "app.browser" | "browser" => {
+                                app.active_app = Some(ActiveApp::WebBrowser);
+                                app.set_row(ActiveApp::WebBrowser, 0);
+                            }
+                            "app.media" | "media-player" => {
+                                app.active_app = Some(ActiveApp::MediaPlayer);
+                                app.set_row(ActiveApp::MediaPlayer, 0);
+                            }
+                            "app.network" | "network" => {
+                                app.active_app = Some(ActiveApp::Network);
+                                app.set_row(ActiveApp::Network, 0);
+                            }
+                            "app.keyboard" | "keyboard" => {
+                                app.active_app = Some(ActiveApp::Keyboard);
                             }
                             _ => {}
                         }
