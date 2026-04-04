@@ -22,6 +22,7 @@ mod radial;
 mod workspace;
 mod apps;
 mod audio;
+mod settings;
 
 // All Slint-generated types land here: ShellOverlay, LowerScreen,
 // TorchformEmulator, AppSettings, AppFiles, RadialItem, RadialLayer,
@@ -35,6 +36,7 @@ use tracing::info;
 use palette::PaletteState;
 use radial::{Direction, MenuLayer, RadialMenuState, system_radial_items};
 use workspace::WorkspaceManager;
+use torchform_actions::{ShellAction, InputMap, RawInput};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum ActiveApp {
@@ -49,35 +51,12 @@ enum ActiveApp {
 }
 
 // ---------------------------------------------------------------------------
-// Input events — arrive from torchform-inputd (Unix socket) in production;
-// simulated via keyboard shortcuts and gilrs gamepad in development.
-// ---------------------------------------------------------------------------
-
-#[derive(Debug, Clone)]
-pub enum ShellEvent {
-    ButtonA,
-    ButtonB,
-    ButtonStart,
-    ButtonSelect,
-    L1Pressed,
-    R1Pressed,
-    L2Held(bool),
-    R2Held(bool),
-    DpadUp,
-    DpadDown,
-    DpadLeft,
-    DpadRight,
-    VoiceResult(String),
-    LowerTap { x: f32, y: f32 },
-    StickMoved { x: f32, y: f32 },
-}
-
-// ---------------------------------------------------------------------------
 // Application state (shared across both run modes)
 // ---------------------------------------------------------------------------
 
 struct ShellApp {
     config:     config::TorchformConfig,
+    input_map:  InputMap,
     radial:     RadialMenuState,
     palette:    PaletteState,
     workspaces: WorkspaceManager,
@@ -89,12 +68,16 @@ struct ShellApp {
     app_rows:            HashMap<ActiveApp, i32>,
     /// Per-app string state (e.g. current path for the file manager).
     files_path:          String,
+    /// Cached settings rows — rebuilt whenever config changes.
+    settings_rows:       Vec<settings::SettingsRowData>,
 }
 
 impl ShellApp {
     fn new(cfg: config::TorchformConfig) -> Self {
+        let settings_rows = settings::make_settings_entries(&cfg);
         Self {
             config:              cfg,
+            input_map:           InputMap::load(),
             radial:              RadialMenuState::new(),
             palette:             PaletteState::new(),
             workspaces:          WorkspaceManager::new(),
@@ -104,7 +87,12 @@ impl ShellApp {
             active_app:          None,
             app_rows:            HashMap::new(),
             files_path:          "/home".into(),
+            settings_rows,
         }
+    }
+
+    fn rebuild_settings(&mut self) {
+        self.settings_rows = settings::make_settings_entries(&self.config);
     }
 
     fn row(&self, app: ActiveApp) -> i32 {
@@ -127,10 +115,10 @@ impl ShellApp {
 }
 
 // ---------------------------------------------------------------------------
-// Gamepad thread — reads HID controllers via gilrs, sends ShellEvents
+// Gamepad thread — reads HID controllers via gilrs, maps to ShellAction
 // ---------------------------------------------------------------------------
 
-fn spawn_gamepad_thread(tx: mpsc::Sender<ShellEvent>) {
+fn spawn_gamepad_thread(tx: mpsc::Sender<ShellAction>) {
     std::thread::spawn(move || {
         let mut gilrs = match gilrs::Gilrs::new() {
             Ok(g) => g,
@@ -142,25 +130,27 @@ fn spawn_gamepad_thread(tx: mpsc::Sender<ShellEvent>) {
         };
         info!("Gamepad thread started ({} gamepads detected)",
               gilrs.gamepads().count());
+        let map = InputMap::load();
         // Track both stick axes so we always emit a combined vector.
         let mut stick_x = 0.0f32;
         let mut stick_y = 0.0f32;
         loop {
             while let Some(ev) = gilrs.next_event() {
                 use gilrs::{Axis, EventType};
-                let shell_ev = match ev.event {
+                let action = match ev.event {
                     EventType::AxisChanged(Axis::LeftStickX, v, _) => {
                         stick_x = v;
-                        Some(ShellEvent::StickMoved { x: stick_x, y: stick_y })
+                        Some(ShellAction::StickMoved { x: stick_x, y: stick_y })
                     }
                     EventType::AxisChanged(Axis::LeftStickY, v, _) => {
                         stick_y = v;
-                        Some(ShellEvent::StickMoved { x: stick_x, y: stick_y })
+                        Some(ShellAction::StickMoved { x: stick_x, y: stick_y })
                     }
-                    other => map_gilrs_event(other),
+                    other => gilrs_event_to_raw(other)
+                                .and_then(|raw| map.resolve(&RawInput::new(raw))),
                 };
-                if let Some(se) = shell_ev {
-                    if tx.send(se).is_err() { return; }
+                if let Some(a) = action {
+                    if tx.send(a).is_err() { return; }
                 }
             }
             std::thread::sleep(Duration::from_millis(4)); // 250 Hz poll
@@ -168,27 +158,28 @@ fn spawn_gamepad_thread(tx: mpsc::Sender<ShellEvent>) {
     });
 }
 
-fn map_gilrs_event(ev: gilrs::EventType) -> Option<ShellEvent> {
+/// Convert a gilrs event into a raw input name, then let InputMap resolve it.
+fn gilrs_event_to_raw(ev: gilrs::EventType) -> Option<&'static str> {
     use gilrs::{Button, EventType};
     match ev {
         EventType::ButtonPressed(btn, _) => match btn {
-            Button::South        => Some(ShellEvent::ButtonA),
-            Button::East         => Some(ShellEvent::ButtonB),
-            Button::Select       => Some(ShellEvent::ButtonSelect),
-            Button::Start        => Some(ShellEvent::ButtonStart),
-            Button::LeftTrigger  => Some(ShellEvent::L1Pressed),
-            Button::RightTrigger => Some(ShellEvent::R1Pressed),
-            Button::LeftTrigger2  => Some(ShellEvent::L2Held(true)),
-            Button::RightTrigger2 => Some(ShellEvent::R2Held(true)),
-            Button::DPadUp    => Some(ShellEvent::DpadUp),
-            Button::DPadDown  => Some(ShellEvent::DpadDown),
-            Button::DPadLeft  => Some(ShellEvent::DpadLeft),
-            Button::DPadRight => Some(ShellEvent::DpadRight),
+            Button::South         => Some("button_a"),
+            Button::East          => Some("button_b"),
+            Button::Select        => Some("button_select"),
+            Button::Start         => Some("button_start"),
+            Button::LeftTrigger   => Some("l1"),
+            Button::RightTrigger  => Some("r1"),
+            Button::LeftTrigger2  => Some("l2_hold_true"),
+            Button::RightTrigger2 => Some("r2_hold_true"),
+            Button::DPadUp        => Some("dpad_up"),
+            Button::DPadDown      => Some("dpad_down"),
+            Button::DPadLeft      => Some("dpad_left"),
+            Button::DPadRight     => Some("dpad_right"),
             _ => None,
         },
         EventType::ButtonReleased(btn, _) => match btn {
-            Button::LeftTrigger2  => Some(ShellEvent::L2Held(false)),
-            Button::RightTrigger2 => Some(ShellEvent::R2Held(false)),
+            Button::LeftTrigger2  => Some("l2_hold_false"),
+            Button::RightTrigger2 => Some("r2_hold_false"),
             _ => None,
         },
         _ => None,
@@ -239,47 +230,47 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
     apply_theme_emu(&emu, &cfg.theme.resolve());
     let app = Rc::new(RefCell::new(ShellApp::new(cfg)));
 
-    let (gp_tx, gp_rx) = mpsc::channel::<ShellEvent>();
+    let (gp_tx, gp_rx) = mpsc::channel::<ShellAction>();
     spawn_gamepad_thread(gp_tx);
 
     macro_rules! key_cb {
-        ($event:expr) => {{
+        ($action:expr) => {{
             let emu2 = emu.as_weak();
             let app2 = app.clone();
             move || {
                 if let Some(e) = emu2.upgrade() {
-                    emu_handle_event(&mut app2.borrow_mut(), $event, &e);
+                    emu_handle_event(&mut app2.borrow_mut(), $action, &e);
                 }
             }
         }};
     }
 
-    emu.on_key_select(key_cb!(ShellEvent::ButtonSelect));
-    emu.on_key_start (key_cb!(ShellEvent::ButtonStart));
-    emu.on_key_b     (key_cb!(ShellEvent::ButtonB));
-    emu.on_key_a     (key_cb!(ShellEvent::ButtonA));
-    emu.on_key_up    (key_cb!(ShellEvent::DpadUp));
-    emu.on_key_down  (key_cb!(ShellEvent::DpadDown));
-    emu.on_key_left  (key_cb!(ShellEvent::DpadLeft));
-    emu.on_key_right (key_cb!(ShellEvent::DpadRight));
+    emu.on_key_select(key_cb!(ShellAction::OpenPalette));
+    emu.on_key_start (key_cb!(ShellAction::OpenSwitcher));
+    emu.on_key_b     (key_cb!(ShellAction::Cancel));
+    emu.on_key_a     (key_cb!(ShellAction::Confirm));
+    emu.on_key_up    (key_cb!(ShellAction::NavUp));
+    emu.on_key_down  (key_cb!(ShellAction::NavDown));
+    emu.on_key_left  (key_cb!(ShellAction::NavLeft));
+    emu.on_key_right (key_cb!(ShellAction::NavRight));
     emu.on_key_l2({
         let emu2 = emu.as_weak(); let app2 = app.clone();
         move |held| {
             if let Some(e) = emu2.upgrade() {
-                emu_handle_event(&mut app2.borrow_mut(), ShellEvent::L2Held(held), &e);
+                emu_handle_event(&mut app2.borrow_mut(), ShellAction::RadialHold { held }, &e);
             }
         }
     });
 
-    emu.on_key_stick_n(key_cb!(ShellEvent::StickMoved { x:  0.0, y: -0.8 }));
-    emu.on_key_stick_s(key_cb!(ShellEvent::StickMoved { x:  0.0, y:  0.8 }));
-    emu.on_key_stick_w(key_cb!(ShellEvent::StickMoved { x: -0.8, y:  0.0 }));
-    emu.on_key_stick_e(key_cb!(ShellEvent::StickMoved { x:  0.8, y:  0.0 }));
-    emu.on_key_stick_release(key_cb!(ShellEvent::StickMoved { x: 0.0, y: 0.0 }));
+    emu.on_key_stick_n(key_cb!(ShellAction::StickMoved { x:  0.0, y: -0.8 }));
+    emu.on_key_stick_s(key_cb!(ShellAction::StickMoved { x:  0.0, y:  0.8 }));
+    emu.on_key_stick_w(key_cb!(ShellAction::StickMoved { x: -0.8, y:  0.0 }));
+    emu.on_key_stick_e(key_cb!(ShellAction::StickMoved { x:  0.8, y:  0.0 }));
+    emu.on_key_stick_release(key_cb!(ShellAction::StickMoved { x: 0.0, y: 0.0 }));
 
-    emu.on_radial_dismissed(key_cb!(ShellEvent::ButtonB));
-    emu.on_palette_dismissed(key_cb!(ShellEvent::ButtonB));
-    emu.on_app_closed(key_cb!(ShellEvent::ButtonB));
+    emu.on_radial_dismissed(key_cb!(ShellAction::Cancel));
+    emu.on_palette_dismissed(key_cb!(ShellAction::Cancel));
+    emu.on_app_closed(key_cb!(ShellAction::Cancel));
     emu.on_switcher_dismissed({
         let emu2 = emu.as_weak();
         move || { emu2.upgrade().map(|e| e.set_switcher_visible(false)); }
@@ -323,19 +314,22 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         move |key| {
             if let Some(e) = emu2.upgrade() {
                 let mut a = app2.borrow_mut();
-                match key.as_str() {
-                    "display.brightness" => {
-                        let cur = a.config.general.brightness.unwrap_or(80);
-                        a.config.general.brightness = Some(if cur >= 100 { 20 } else { cur + 20 });
-                    }
-                    "audio.volume" => {
-                        let cur = a.config.general.volume.unwrap_or(65);
-                        a.config.general.volume = Some(if cur >= 100 { 0 } else { cur + 10 });
-                    }
-                    _ => {}
-                }
-                let _ = a.config.save(&config::user_config_path());
-                e.set_app_settings_entries(make_settings_entries(&a.config));
+                let changed = settings::apply_activation(key.as_str(), &mut a.config);
+                if changed { let _ = a.config.save(&config::user_config_path()); }
+                a.rebuild_settings();
+                e.set_app_settings_entries(settings_to_slint(&a.settings_rows));
+            }
+        }
+    });
+    emu.on_app_settings_setting_adjusted({
+        let emu2 = emu.as_weak(); let app2 = app.clone();
+        move |key, delta| {
+            if let Some(e) = emu2.upgrade() {
+                let mut a = app2.borrow_mut();
+                let changed = settings::apply_adjustment(key.as_str(), delta, &mut a.config);
+                if changed { let _ = a.config.save(&config::user_config_path()); }
+                a.rebuild_settings();
+                e.set_app_settings_entries(settings_to_slint(&a.settings_rows));
             }
         }
     });
@@ -377,7 +371,7 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
             }
         }
     });
-    emu.on_lower_submit(key_cb!(ShellEvent::ButtonA));
+    emu.on_lower_submit(key_cb!(ShellAction::Confirm));
 
     let gp_timer = slint::Timer::default();
     gp_timer.start(slint::TimerMode::Repeated, Duration::from_millis(8), {
@@ -506,28 +500,22 @@ fn format_size(bytes: u64) -> String {
 // Settings model — builds a flat [SettingsEntry] array from TorchformConfig
 // ---------------------------------------------------------------------------
 
-fn make_settings_entries(cfg: &config::TorchformConfig) -> slint::ModelRc<SettingsEntry> {
-    let brightness = cfg.general.brightness.unwrap_or(80);
-    let volume     = cfg.general.volume.unwrap_or(65);
-
-    let rows: Vec<SettingsEntry> = vec![
-        SettingsEntry { kind: "header".into(), icon: "".into(), label: "DISPLAY".into(),    value: "".into(), key: "".into() },
-        SettingsEntry { kind: "row".into(),    icon: "🔆".into(), label: "Brightness".into(),  value: format!("{brightness}%").into(), key: "display.brightness".into() },
-        SettingsEntry { kind: "row".into(),    icon: "🌙".into(), label: "Night Mode".into(),  value: "Off".into(), key: "display.night_mode".into() },
-        SettingsEntry { kind: "row".into(),    icon: "📐".into(), label: "Resolution".into(),  value: "1920×1080".into(), key: "display.resolution".into() },
-        SettingsEntry { kind: "header".into(), icon: "".into(), label: "AUDIO".into(),      value: "".into(), key: "".into() },
-        SettingsEntry { kind: "row".into(),    icon: "🔊".into(), label: "Volume".into(),      value: format!("{volume}%").into(), key: "audio.volume".into() },
-        SettingsEntry { kind: "row".into(),    icon: "🎧".into(), label: "Output".into(),      value: "Built-in".into(), key: "audio.output".into() },
-        SettingsEntry { kind: "header".into(), icon: "".into(), label: "CONNECTIVITY".into(), value: "".into(), key: "".into() },
-        SettingsEntry { kind: "row".into(),    icon: "📶".into(), label: "Wi-Fi".into(),       value: "Connected".into(), key: "network.wifi".into() },
-        SettingsEntry { kind: "row".into(),    icon: "🔵".into(), label: "Bluetooth".into(),   value: "On".into(), key: "network.bluetooth".into() },
-        SettingsEntry { kind: "row".into(),    icon: "📡".into(), label: "Cellular".into(),    value: "Off".into(), key: "network.cellular".into() },
-        SettingsEntry { kind: "header".into(), icon: "".into(), label: "SYSTEM".into(),     value: "".into(), key: "".into() },
-        SettingsEntry { kind: "row".into(),    icon: "🛡".into(), label: "VPN".into(),         value: "Off".into(), key: "network.vpn".into() },
-        SettingsEntry { kind: "row".into(),    icon: "🔋".into(), label: "Battery".into(),     value: "87%".into(), key: "system.battery".into() },
-        SettingsEntry { kind: "row".into(),    icon: "ℹ".into(), label: "About".into(),       value: "v0.1.0".into(), key: "system.about".into() },
-    ];
-    Rc::new(slint::VecModel::from(rows)).into()
+fn settings_to_slint(rows: &[settings::SettingsRowData]) -> slint::ModelRc<SettingsEntry> {
+    let entries: Vec<SettingsEntry> = rows.iter().map(|r| SettingsEntry {
+        widget:        r.widget.clone().into(),
+        icon:          r.icon.clone().into(),
+        label:         r.label.clone().into(),
+        description:   r.description.clone().into(),
+        value:         r.value.clone().into(),
+        value_index:   r.value_index,
+        min:           r.min,
+        max:           r.max,
+        step:          r.step,
+        pct:           r.pct,
+        key:           r.key.clone().into(),
+        scroll_offset: r.scroll_offset,
+    }).collect();
+    Rc::new(slint::VecModel::from(entries)).into()
 }
 
 fn emu_apply_apps(emu: &TorchformEmulator, app: &ShellApp) {
@@ -536,7 +524,7 @@ fn emu_apply_apps(emu: &TorchformEmulator, app: &ShellApp) {
         Some(ActiveApp::Settings) => {
             emu.set_app_settings_visible(true);
             emu.set_app_settings_focused_row(app.row(ActiveApp::Settings));
-            emu.set_app_settings_entries(make_settings_entries(&app.config));
+            emu.set_app_settings_entries(settings_to_slint(&app.settings_rows));
         }
         Some(ActiveApp::Files) => {
             emu.set_app_files_visible(true);
@@ -573,11 +561,11 @@ fn emu_apply_apps(emu: &TorchformEmulator, app: &ShellApp) {
 // Emulator-specific event handler
 fn emu_handle_event(
     app: &mut ShellApp,
-    event: ShellEvent,
+    action: ShellAction,
     emu: &TorchformEmulator,
 ) {
-    match event {
-        ShellEvent::L2Held(true) | ShellEvent::R2Held(true) => {
+    match action {
+        ShellAction::RadialHold { held: true } => {
             if !app.radial.visible {
                 app.radial.open(MenuLayer::System, system_radial_items(&app.config.radial.system.slots));
                 app.radial_stick_active = false;
@@ -585,21 +573,20 @@ fn emu_handle_event(
                 emu.set_context(LowerContext::RadialMenu);
             }
         }
-        ShellEvent::L2Held(false) | ShellEvent::R2Held(false) => {
+        ShellAction::RadialHold { held: false } => {
             if app.radial.visible {
                 if app.radial_stick_active {
                     if let Some(item) = app.radial.focused_item() {
                         info!("Radial stick-select: {}", item.label);
                     }
                 }
-                // If stick was not pointing, dismiss without action.
                 app.radial.close();
                 app.radial_stick_active = false;
                 emu_apply_radial(emu, &app.radial);
                 emu.set_context(LowerContext::Idle);
             }
         }
-        ShellEvent::ButtonSelect => {
+        ShellAction::OpenPalette => {
             if app.palette.visible {
                 app.palette.close();
                 emu.set_palette_visible(false);
@@ -610,11 +597,11 @@ fn emu_handle_event(
                 emu.set_context(LowerContext::Keyboard);
             }
         }
-        ShellEvent::ButtonStart => {
+        ShellAction::OpenSwitcher => {
             let vis = !emu.get_switcher_visible();
             emu.set_switcher_visible(vis);
         }
-        ShellEvent::DpadUp => {
+        ShellAction::NavUp => {
             audio::play(audio::SoundCue::Nav);
             if app.radial.visible {
                 app.radial.navigate(Direction::Up);
@@ -622,12 +609,17 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 app.palette.move_up();
                 emu.set_palette_focused(app.palette.focused_index as i32);
+            } else if app.active_app == Some(ActiveApp::Settings) {
+                let cur = app.row(ActiveApp::Settings) as usize;
+                let next = settings::focus_up(cur, &app.settings_rows);
+                app.set_row(ActiveApp::Settings, next as i32);
+                emu_apply_apps(emu, app);
             } else if let Some(active) = app.active_app {
                 app.nav_up(active);
                 emu_apply_apps(emu, app);
             }
         }
-        ShellEvent::DpadDown => {
+        ShellAction::NavDown => {
             audio::play(audio::SoundCue::Nav);
             if app.radial.visible {
                 app.radial.navigate(Direction::Down);
@@ -635,24 +627,47 @@ fn emu_handle_event(
             } else if app.palette.visible {
                 app.palette.move_down();
                 emu.set_palette_focused(app.palette.focused_index as i32);
+            } else if app.active_app == Some(ActiveApp::Settings) {
+                let cur = app.row(ActiveApp::Settings) as usize;
+                let next = settings::focus_down(cur, &app.settings_rows);
+                app.set_row(ActiveApp::Settings, next as i32);
+                emu_apply_apps(emu, app);
             } else if let Some(active) = app.active_app {
                 app.nav_down(active);
                 emu_apply_apps(emu, app);
             }
         }
-        ShellEvent::DpadLeft => {
+        ShellAction::NavLeft => {
             if app.radial.visible {
                 app.radial.navigate(Direction::Left);
                 emu.set_radial_focused(app.radial.focused_index as i32);
+            } else if app.active_app == Some(ActiveApp::Settings) {
+                let row = app.row(ActiveApp::Settings) as usize;
+                if let Some(entry) = app.settings_rows.get(row) {
+                    let key = entry.key.clone();
+                    let changed = settings::apply_adjustment(&key, -1, &mut app.config);
+                    if changed { let _ = app.config.save(&config::user_config_path()); }
+                    app.rebuild_settings();
+                    emu.set_app_settings_entries(settings_to_slint(&app.settings_rows));
+                }
             }
         }
-        ShellEvent::DpadRight => {
+        ShellAction::NavRight => {
             if app.radial.visible {
                 app.radial.navigate(Direction::Right);
                 emu.set_radial_focused(app.radial.focused_index as i32);
+            } else if app.active_app == Some(ActiveApp::Settings) {
+                let row = app.row(ActiveApp::Settings) as usize;
+                if let Some(entry) = app.settings_rows.get(row) {
+                    let key = entry.key.clone();
+                    let changed = settings::apply_adjustment(&key, 1, &mut app.config);
+                    if changed { let _ = app.config.save(&config::user_config_path()); }
+                    app.rebuild_settings();
+                    emu.set_app_settings_entries(settings_to_slint(&app.settings_rows));
+                }
             }
         }
-        ShellEvent::ButtonA => {
+        ShellAction::Confirm => {
             audio::play(audio::SoundCue::Confirm);
             if app.radial.visible {
                 if let Some(item) = app.radial.focused_item() {
@@ -662,44 +677,57 @@ fn emu_handle_event(
                 emu_apply_radial(emu, &app.radial);
                 emu.set_context(LowerContext::Idle);
             } else if app.palette.visible {
-                if let Some(id) = app.palette.focused_id() {
+                if let Some(id) = app.palette.focused_id().map(|s| s.to_owned()) {
+                    let id = id.as_str();
                     info!("Command: {id}");
-                    if !apps::try_launch_external(id, &app.config.apps, &app.config.launch) {
-                        match id {
-                            "app.settings" | "settings" | "open-settings" => {
-                                app.active_app = Some(ActiveApp::Settings);
-                                app.set_row(ActiveApp::Settings, 0);
-                            }
-                            "app.files" | "file-manager" | "open-files" => {
-                                app.active_app = Some(ActiveApp::Files);
-                                app.set_row(ActiveApp::Files, 0);
-                                app.files_path = "/home".into();
-                            }
-                            "app.camera" | "camera" => {
-                                app.active_app = Some(ActiveApp::Camera);
-                                app.set_row(ActiveApp::Camera, 0);
-                            }
-                            "app.browser" | "browser" => {
-                                app.active_app = Some(ActiveApp::WebBrowser);
-                                app.set_row(ActiveApp::WebBrowser, 0);
-                            }
-                            "app.media" | "media-player" => {
-                                app.active_app = Some(ActiveApp::MediaPlayer);
-                                app.set_row(ActiveApp::MediaPlayer, 0);
-                            }
-                            "app.network" | "network" => {
-                                app.active_app = Some(ActiveApp::Network);
-                                app.set_row(ActiveApp::Network, 0);
-                            }
-                            "app.keyboard" | "keyboard" => {
-                                app.active_app = Some(ActiveApp::Keyboard);
-                            }
-                            "app.terminal" | "terminal" => {
-                                app.active_app = Some(ActiveApp::Terminal);
-                                app.set_row(ActiveApp::Terminal, 0);
-                            }
-                            _ => {}
+                    // In emulator mode, apps with built-in stubs always show the stub.
+                    // try_launch_external is only used for commands that have NO stub.
+                    let stub_shown = match id {
+                        "app.settings" | "settings" | "open-settings" => {
+                            app.active_app = Some(ActiveApp::Settings);
+                            let first = settings::focus_down(0, &app.settings_rows);
+                            app.set_row(ActiveApp::Settings, first as i32);
+                            true
                         }
+                        "app.files" | "file-manager" | "open-files" => {
+                            app.active_app = Some(ActiveApp::Files);
+                            app.set_row(ActiveApp::Files, 0);
+                            app.files_path = "/home".into();
+                            true
+                        }
+                        "app.camera" | "camera" => {
+                            app.active_app = Some(ActiveApp::Camera);
+                            app.set_row(ActiveApp::Camera, 0);
+                            true
+                        }
+                        "app.browser" | "browser" => {
+                            app.active_app = Some(ActiveApp::WebBrowser);
+                            app.set_row(ActiveApp::WebBrowser, 0);
+                            true
+                        }
+                        "app.media" | "media-player" => {
+                            app.active_app = Some(ActiveApp::MediaPlayer);
+                            app.set_row(ActiveApp::MediaPlayer, 0);
+                            true
+                        }
+                        "app.network" | "network" => {
+                            app.active_app = Some(ActiveApp::Network);
+                            app.set_row(ActiveApp::Network, 0);
+                            true
+                        }
+                        "app.keyboard" | "keyboard" => {
+                            app.active_app = Some(ActiveApp::Keyboard);
+                            true
+                        }
+                        "app.terminal" | "terminal" => {
+                            app.active_app = Some(ActiveApp::Terminal);
+                            app.set_row(ActiveApp::Terminal, 0);
+                            true
+                        }
+                        _ => false,
+                    };
+                    if !stub_shown {
+                        apps::try_launch_external(id, &app.config.apps, &app.config.launch);
                     }
                 }
                 app.palette.close();
@@ -708,7 +736,7 @@ fn emu_handle_event(
                 emu.set_context(LowerContext::Idle);
             }
         }
-        ShellEvent::ButtonB => {
+        ShellAction::Cancel => {
             audio::play(audio::SoundCue::Cancel);
             if app.radial.visible {
                 app.radial.close();
@@ -726,7 +754,7 @@ fn emu_handle_event(
                 emu.set_switcher_visible(false);
             }
         }
-        ShellEvent::StickMoved { x, y } => {
+        ShellAction::StickMoved { x, y } => {
             app.stick_x = x;
             app.stick_y = y;
             if app.radial.visible {
@@ -735,25 +763,35 @@ fn emu_handle_event(
                 emu.set_radial_focused(app.radial.focused_index as i32);
             }
         }
-        ShellEvent::VoiceResult(text) => {
+        ShellAction::VoiceResult { text } => {
             if app.palette.visible {
                 app.palette.set_query(&text);
                 emu_apply_palette(emu, &app.palette);
             }
         }
-        ShellEvent::L1Pressed => {
+        ShellAction::WorkspacePrev => {
             app.workspaces.switch_prev();
             emu.set_workspace_name(app.workspaces.active_name().into());
             emu.set_workspace_index(app.workspaces.active_index as i32);
         }
-        ShellEvent::R1Pressed => {
+        ShellAction::WorkspaceNext => {
             app.workspaces.switch_next();
             emu.set_workspace_name(app.workspaces.active_name().into());
             emu.set_workspace_index(app.workspaces.active_index as i32);
         }
-        ShellEvent::LowerTap { x, y } => {
+        ShellAction::LowerTap { x, y } => {
             info!("Lower tap at ({x:.0}, {y:.0})");
         }
+        // System actions handled at hardware level; shell logs them if received
+        ShellAction::BrightnessUp | ShellAction::BrightnessDown |
+        ShellAction::VolumeUp | ShellAction::VolumeDown |
+        ShellAction::WifiToggle | ShellAction::BluetoothToggle |
+        ShellAction::CellularToggle | ShellAction::VpnToggle |
+        ShellAction::SplitToggle | ShellAction::Sleep => {
+            info!("System action: {action:?}");
+        }
+        ShellAction::LowerKeyPress { .. } | ShellAction::LowerBackspace |
+        ShellAction::LowerSubmit | ShellAction::PadMoved { .. } => {}
     }
 }
 
@@ -857,47 +895,47 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     let app = Rc::new(RefCell::new(ShellApp::new(cfg)));
 
     // --- Gamepad channel ---------------------------------------------------
-    let (gp_tx, gp_rx) = mpsc::channel::<ShellEvent>();
+    let (gp_tx, gp_rx) = mpsc::channel::<ShellAction>();
     spawn_gamepad_thread(gp_tx);
 
     // Helper for standalone event dispatch
     macro_rules! sa_cb {
-        ($event:expr) => {{
+        ($action:expr) => {{
             let s = shell.as_weak(); let l = lower.as_weak();
             let a = app.clone();
             move || {
                 if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                    sa_handle_event(&mut a.borrow_mut(), $event, &sh, &lo);
+                    sa_handle_event(&mut a.borrow_mut(), $action, &sh, &lo);
                 }
             }
         }};
     }
 
     // --- Wire keyboard callbacks -------------------------------------------
-    shell.on_key_select(sa_cb!(ShellEvent::ButtonSelect));
-    shell.on_key_start (sa_cb!(ShellEvent::ButtonStart));
-    shell.on_key_b     (sa_cb!(ShellEvent::ButtonB));
-    shell.on_key_a     (sa_cb!(ShellEvent::ButtonA));
-    shell.on_key_up    (sa_cb!(ShellEvent::DpadUp));
-    shell.on_key_down  (sa_cb!(ShellEvent::DpadDown));
-    shell.on_key_left  (sa_cb!(ShellEvent::DpadLeft));
-    shell.on_key_right (sa_cb!(ShellEvent::DpadRight));
+    shell.on_key_select(sa_cb!(ShellAction::OpenPalette));
+    shell.on_key_start (sa_cb!(ShellAction::OpenSwitcher));
+    shell.on_key_b     (sa_cb!(ShellAction::Cancel));
+    shell.on_key_a     (sa_cb!(ShellAction::Confirm));
+    shell.on_key_up    (sa_cb!(ShellAction::NavUp));
+    shell.on_key_down  (sa_cb!(ShellAction::NavDown));
+    shell.on_key_left  (sa_cb!(ShellAction::NavLeft));
+    shell.on_key_right (sa_cb!(ShellAction::NavRight));
     shell.on_key_l2({
         let s = shell.as_weak(); let l = lower.as_weak();
         let a = app.clone();
         move |held| {
             if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                sa_handle_event(&mut a.borrow_mut(), ShellEvent::L2Held(held), &sh, &lo);
+                sa_handle_event(&mut a.borrow_mut(), ShellAction::RadialHold { held }, &sh, &lo);
             }
         }
     });
 
     // --- Analog stick simulation keys (IJKL) ---------------------------------
-    shell.on_key_stick_n(sa_cb!(ShellEvent::StickMoved { x:  0.0, y: -0.8 }));
-    shell.on_key_stick_s(sa_cb!(ShellEvent::StickMoved { x:  0.0, y:  0.8 }));
-    shell.on_key_stick_w(sa_cb!(ShellEvent::StickMoved { x: -0.8, y:  0.0 }));
-    shell.on_key_stick_e(sa_cb!(ShellEvent::StickMoved { x:  0.8, y:  0.0 }));
-    shell.on_key_stick_release(sa_cb!(ShellEvent::StickMoved { x: 0.0, y: 0.0 }));
+    shell.on_key_stick_n(sa_cb!(ShellAction::StickMoved { x:  0.0, y: -0.8 }));
+    shell.on_key_stick_s(sa_cb!(ShellAction::StickMoved { x:  0.0, y:  0.8 }));
+    shell.on_key_stick_w(sa_cb!(ShellAction::StickMoved { x: -0.8, y:  0.0 }));
+    shell.on_key_stick_e(sa_cb!(ShellAction::StickMoved { x:  0.8, y:  0.0 }));
+    shell.on_key_stick_release(sa_cb!(ShellAction::StickMoved { x: 0.0, y: 0.0 }));
 
     // --- Overlay callbacks -------------------------------------------------
     shell.on_radial_dismissed({
@@ -905,7 +943,7 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         let a = app.clone();
         move || {
             if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                sa_handle_event(&mut a.borrow_mut(), ShellEvent::ButtonB, &sh, &lo);
+                sa_handle_event(&mut a.borrow_mut(), ShellAction::Cancel, &sh, &lo);
             }
         }
     });
@@ -914,13 +952,37 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         let a = app.clone();
         move || {
             if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                sa_handle_event(&mut a.borrow_mut(), ShellEvent::ButtonB, &sh, &lo);
+                sa_handle_event(&mut a.borrow_mut(), ShellAction::Cancel, &sh, &lo);
             }
         }
     });
     shell.on_switcher_dismissed({
         let s = shell.as_weak();
         move || { s.upgrade().map(|sh| sh.set_switcher_visible(false)); }
+    });
+    shell.on_app_settings_setting_activated({
+        let s = shell.as_weak(); let a = app.clone();
+        move |key| {
+            if let Some(sh) = s.upgrade() {
+                let mut ap = a.borrow_mut();
+                let changed = settings::apply_activation(key.as_str(), &mut ap.config);
+                if changed { let _ = ap.config.save(&config::user_config_path()); }
+                ap.rebuild_settings();
+                sh.set_app_settings_entries(settings_to_slint(&ap.settings_rows));
+            }
+        }
+    });
+    shell.on_app_settings_setting_adjusted({
+        let s = shell.as_weak(); let a = app.clone();
+        move |key, delta| {
+            if let Some(sh) = s.upgrade() {
+                let mut ap = a.borrow_mut();
+                let changed = settings::apply_adjustment(key.as_str(), delta, &mut ap.config);
+                if changed { let _ = ap.config.save(&config::user_config_path()); }
+                ap.rebuild_settings();
+                sh.set_app_settings_entries(settings_to_slint(&ap.settings_rows));
+            }
+        }
     });
     shell.on_palette_query_changed({
         let s = shell.as_weak(); let a = app.clone();
@@ -966,7 +1028,7 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         let a = app.clone();
         move || {
             if let (Some(sh), Some(lo)) = (s.upgrade(), l.upgrade()) {
-                sa_handle_event(&mut a.borrow_mut(), ShellEvent::ButtonA, &sh, &lo);
+                sa_handle_event(&mut a.borrow_mut(), ShellAction::Confirm, &sh, &lo);
             }
         }
     });
@@ -1056,7 +1118,7 @@ fn sa_apply_apps(shell: &ShellOverlay, app: &ShellApp) {
         Some(ActiveApp::Settings) => {
             shell.set_app_settings_visible(true);
             shell.set_app_settings_focused_row(app.row(ActiveApp::Settings));
-            shell.set_app_settings_entries(make_settings_entries(&app.config));
+            shell.set_app_settings_entries(settings_to_slint(&app.settings_rows));
         }
         Some(ActiveApp::Camera) => {
             shell.set_app_camera_visible(true);
@@ -1086,12 +1148,12 @@ fn sa_apply_apps(shell: &ShellOverlay, app: &ShellApp) {
 
 fn sa_handle_event(
     app: &mut ShellApp,
-    event: ShellEvent,
+    action: ShellAction,
     shell: &ShellOverlay,
     lower: &LowerScreen,
 ) {
-    match event {
-        ShellEvent::L2Held(true) | ShellEvent::R2Held(true) => {
+    match action {
+        ShellAction::RadialHold { held: true } => {
             if !app.radial.visible {
                 app.radial.open(MenuLayer::System, system_radial_items(&app.config.radial.system.slots));
                 app.radial_stick_active = false;
@@ -1099,7 +1161,7 @@ fn sa_handle_event(
                 lower.set_context(LowerContext::RadialMenu);
             }
         }
-        ShellEvent::L2Held(false) | ShellEvent::R2Held(false) => {
+        ShellAction::RadialHold { held: false } => {
             if app.radial.visible {
                 if app.radial_stick_active {
                     if let Some(item) = app.radial.focused_item() {
@@ -1112,7 +1174,7 @@ fn sa_handle_event(
                 lower.set_context(LowerContext::Idle);
             }
         }
-        ShellEvent::ButtonSelect => {
+        ShellAction::OpenPalette => {
             if app.palette.visible {
                 app.palette.close();
                 shell.set_palette_visible(false);
@@ -1123,47 +1185,75 @@ fn sa_handle_event(
                 lower.set_context(LowerContext::Keyboard);
             }
         }
-        ShellEvent::ButtonStart => {
+        ShellAction::OpenSwitcher => {
             let vis = !shell.get_switcher_visible();
             shell.set_switcher_visible(vis);
         }
-        ShellEvent::DpadUp => {
+        ShellAction::NavUp => {
             if app.radial.visible {
                 app.radial.navigate(Direction::Up);
                 shell.set_radial_focused(app.radial.focused_index as i32);
             } else if app.palette.visible {
                 app.palette.move_up();
                 shell.set_palette_focused(app.palette.focused_index as i32);
+            } else if app.active_app == Some(ActiveApp::Settings) {
+                let cur = app.row(ActiveApp::Settings) as usize;
+                let next = settings::focus_up(cur, &app.settings_rows);
+                app.set_row(ActiveApp::Settings, next as i32);
+                sa_apply_apps(shell, app);
             } else if let Some(active) = app.active_app {
                 app.nav_up(active);
                 sa_apply_apps(shell, app);
             }
         }
-        ShellEvent::DpadDown => {
+        ShellAction::NavDown => {
             if app.radial.visible {
                 app.radial.navigate(Direction::Down);
                 shell.set_radial_focused(app.radial.focused_index as i32);
             } else if app.palette.visible {
                 app.palette.move_down();
                 shell.set_palette_focused(app.palette.focused_index as i32);
+            } else if app.active_app == Some(ActiveApp::Settings) {
+                let cur = app.row(ActiveApp::Settings) as usize;
+                let next = settings::focus_down(cur, &app.settings_rows);
+                app.set_row(ActiveApp::Settings, next as i32);
+                sa_apply_apps(shell, app);
             } else if let Some(active) = app.active_app {
                 app.nav_down(active);
                 sa_apply_apps(shell, app);
             }
         }
-        ShellEvent::DpadLeft => {
+        ShellAction::NavLeft => {
             if app.radial.visible {
                 app.radial.navigate(Direction::Left);
                 shell.set_radial_focused(app.radial.focused_index as i32);
+            } else if app.active_app == Some(ActiveApp::Settings) {
+                let row = app.row(ActiveApp::Settings) as usize;
+                if let Some(entry) = app.settings_rows.get(row) {
+                    let key = entry.key.clone();
+                    let changed = settings::apply_adjustment(&key, -1, &mut app.config);
+                    if changed { let _ = app.config.save(&config::user_config_path()); }
+                    app.rebuild_settings();
+                    shell.set_app_settings_entries(settings_to_slint(&app.settings_rows));
+                }
             }
         }
-        ShellEvent::DpadRight => {
+        ShellAction::NavRight => {
             if app.radial.visible {
                 app.radial.navigate(Direction::Right);
                 shell.set_radial_focused(app.radial.focused_index as i32);
+            } else if app.active_app == Some(ActiveApp::Settings) {
+                let row = app.row(ActiveApp::Settings) as usize;
+                if let Some(entry) = app.settings_rows.get(row) {
+                    let key = entry.key.clone();
+                    let changed = settings::apply_adjustment(&key, 1, &mut app.config);
+                    if changed { let _ = app.config.save(&config::user_config_path()); }
+                    app.rebuild_settings();
+                    shell.set_app_settings_entries(settings_to_slint(&app.settings_rows));
+                }
             }
         }
-        ShellEvent::ButtonA => {
+        ShellAction::Confirm => {
             if app.radial.visible {
                 if let Some(item) = app.radial.focused_item() {
                     info!("Radial activated: {}", item.label);
@@ -1172,13 +1262,15 @@ fn sa_handle_event(
                 sa_apply_radial(shell, &app.radial);
                 lower.set_context(LowerContext::Idle);
             } else if app.palette.visible {
-                if let Some(id) = app.palette.focused_id() {
+                if let Some(id) = app.palette.focused_id().map(|s| s.to_owned()) {
+                    let id = id.as_str();
                     info!("Command: {id}");
                     if !apps::try_launch_external(id, &app.config.apps, &app.config.launch) {
                         match id {
                             "app.settings" | "settings" | "open-settings" => {
                                 app.active_app = Some(ActiveApp::Settings);
-                                app.set_row(ActiveApp::Settings, 0);
+                                let first = settings::focus_down(0, &app.settings_rows);
+                                app.set_row(ActiveApp::Settings, first as i32);
                             }
                             "app.files" | "file-manager" | "open-files" => {
                                 app.active_app = Some(ActiveApp::Files);
@@ -1218,7 +1310,7 @@ fn sa_handle_event(
                 lower.set_context(LowerContext::Idle);
             }
         }
-        ShellEvent::ButtonB => {
+        ShellAction::Cancel => {
             if app.radial.visible {
                 app.radial.close();
                 sa_apply_radial(shell, &app.radial);
@@ -1235,7 +1327,7 @@ fn sa_handle_event(
                 shell.set_switcher_visible(false);
             }
         }
-        ShellEvent::StickMoved { x, y } => {
+        ShellAction::StickMoved { x, y } => {
             app.stick_x = x;
             app.stick_y = y;
             if app.radial.visible {
@@ -1244,21 +1336,26 @@ fn sa_handle_event(
                 shell.set_radial_focused(app.radial.focused_index as i32);
             }
         }
-        ShellEvent::VoiceResult(text) => {
+        ShellAction::VoiceResult { text } => {
             if app.palette.visible {
                 app.palette.set_query(&text);
                 sa_apply_palette(shell, &app.palette);
             }
         }
-        ShellEvent::L1Pressed => {
-            app.workspaces.switch_prev();
-        }
-        ShellEvent::R1Pressed => {
-            app.workspaces.switch_next();
-        }
-        ShellEvent::LowerTap { x, y } => {
+        ShellAction::WorkspacePrev => { app.workspaces.switch_prev(); }
+        ShellAction::WorkspaceNext => { app.workspaces.switch_next(); }
+        ShellAction::LowerTap { x, y } => {
             info!("Lower tap at ({x:.0}, {y:.0})");
         }
+        ShellAction::BrightnessUp | ShellAction::BrightnessDown |
+        ShellAction::VolumeUp | ShellAction::VolumeDown |
+        ShellAction::WifiToggle | ShellAction::BluetoothToggle |
+        ShellAction::CellularToggle | ShellAction::VpnToggle |
+        ShellAction::SplitToggle | ShellAction::Sleep => {
+            info!("System action: {action:?}");
+        }
+        ShellAction::LowerKeyPress { .. } | ShellAction::LowerBackspace |
+        ShellAction::LowerSubmit | ShellAction::PadMoved { .. } => {}
     }
 }
 

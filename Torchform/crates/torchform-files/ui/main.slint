@@ -1,0 +1,48 @@
+// =============================================================================
+// torchform-files/ui/main.slint — Standalone file browser window
+// =============================================================================
+
+import { Tokens }          from "../../torchform-shell/ui/tokens.slint";
+import { AppFiles, FileEntry } from "../../torchform-shell/ui/app_files.slint";
+
+export { FileEntry }
+
+export component FilesWindow inherits Window {
+    title:      "Torchform Files";
+    background: Tokens.bg-base;
+
+    in property <int>          focused-row:  0;
+    in property <string>       current-path: "/home";
+    in property <[FileEntry]>  entries;
+
+    callback navigate(string);
+    callback navigate-parent();
+    callback close-requested();
+
+    callback action-nav-up();
+    callback action-nav-down();
+    callback action-confirm();
+    callback action-cancel();
+
+    AppFiles {
+        width:  parent.width;
+        height: parent.height;
+        focused-row:   focused-row;
+        current-path:  current-path;
+        entries:       entries;
+        navigate(name)    => { root.navigate(name); }
+        navigate-parent   => { root.navigate-parent(); }
+        close-requested   => { root.close-requested(); }
+    }
+
+    forward-focus: kb;
+    kb := FocusScope {
+        key-pressed(ev) => {
+            if      ev.text == Key.UpArrow   { root.action-nav-up();   accept }
+            else if ev.text == Key.DownArrow { root.action-nav-down(); accept }
+            else if ev.text == Key.Return    { root.action-confirm();  accept }
+            else if ev.text == Key.Escape    { root.action-cancel();   accept }
+            else { reject }
+        }
+    }
+}

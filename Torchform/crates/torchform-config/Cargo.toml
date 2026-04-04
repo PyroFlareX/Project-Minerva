@@ -1,0 +1,19 @@
+[package]
+name        = "torchform-config"
+version     = "0.1.0"
+edition     = "2021"
+description = "Torchform shared config types, settings schema, and settings mutation logic"
+
+[lib]
+name = "torchform_config"
+path = "src/lib.rs"
+
+[dependencies]
+serde   = { workspace = true }
+toml    = { workspace = true }
+anyhow  = { workspace = true }
+tracing = { workspace = true }
+
+# slint is NOT a dependency here — this lib must be usable without Slint
+# (e.g. by torchform-terminal, torchform-files, future daemons).
+# The Slint SettingsEntry conversion lives in each binary's own main.rs.

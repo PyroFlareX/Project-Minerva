@@ -1,0 +1,65 @@
+// =============================================================================
+// torchform-settings/ui/main.slint
+//
+// Standalone Settings app window.
+// Imports the shared app_settings component from torchform-shell so the UI is
+// identical whether the settings panel is running embedded (stub inside shell)
+// or as a proper Wayland window (this binary).
+//
+// When running standalone the window fills the upper display (1920×1080 in
+// production; whatever the compositor assigns in windowed mode).
+// =============================================================================
+
+// Import the shell's shared UI components via relative path.
+// slint-build resolves these relative to this file's directory.
+import { Tokens }      from "../../torchform-shell/ui/tokens.slint";
+import { AppSettings, SettingsEntry }
+                       from "../../torchform-shell/ui/app_settings.slint";
+
+export { SettingsEntry }
+
+export component SettingsWindow inherits Window {
+    title:      "Torchform Settings";
+    background: Tokens.bg-base;
+
+    // The Rust backend pushes these
+    in property <int>             focused-row:  0;
+    in property <[SettingsEntry]> entries;
+
+    callback setting-activated(string);
+    callback setting-adjusted(string, int);
+    callback close-requested();
+
+    // Nav actions dispatched from the Rust action loop
+    callback action-nav-up();
+    callback action-nav-down();
+    callback action-nav-left();
+    callback action-nav-right();
+    callback action-confirm();
+    callback action-cancel();
+
+    AppSettings {
+        width:  parent.width;
+        height: parent.height;
+        focused-row:       focused-row;
+        entries:           entries;
+        setting-activated(k)    => { root.setting-activated(k); }
+        setting-adjusted(k, d)  => { root.setting-adjusted(k, d); }
+        close-requested         => { root.close-requested(); }
+    }
+
+    // Global keyboard handler for desktop / emulator testing.
+    // On hardware all input arrives via the action callbacks above.
+    forward-focus: kb;
+    kb := FocusScope {
+        key-pressed(ev) => {
+            if      ev.text == Key.UpArrow    { root.action-nav-up();    accept }
+            else if ev.text == Key.DownArrow  { root.action-nav-down();  accept }
+            else if ev.text == Key.LeftArrow  { root.action-nav-left();  accept }
+            else if ev.text == Key.RightArrow { root.action-nav-right(); accept }
+            else if ev.text == Key.Return     { root.action-confirm();   accept }
+            else if ev.text == Key.Escape     { root.action-cancel();    accept }
+            else { reject }
+        }
+    }
+}

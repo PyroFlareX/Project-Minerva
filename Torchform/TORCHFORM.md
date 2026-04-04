@@ -19,9 +19,44 @@ torchform-shell       Slint UI process — shell overlays + built-in stub apps
 torchform-compositor  Smithay Wayland compositor — two outputs, XDG tiling
 torchform-inputd      Input daemon — Cirque SPI trackpad, USB HID gamepad,
                       uinput virtual device, Unix socket to shell
+
+torchform-actions     Shared lib — ShellAction enum + InputMap keybinds (no Slint)
+torchform-config      Shared lib — TorchformConfig + settings schema (no Slint)
+torchform-settings    Standalone Settings app (Slint window, same UI as stub)
+torchform-files       Standalone File Browser app (Slint window, same UI as stub)
+torchform-terminal    Terminal launcher — writes themed config then exec()s terminal
+torchform-run         Universal app launcher — sets Wayland env, then exec()s app
 ```
 
-In production all three run as separate processes. In development, `torchform-shell` runs standalone (no compositor needed) and reads gamepad/keyboard directly via gilrs + Slint `FocusScope`.
+In production all processes run separately. In development, `torchform-shell` runs standalone (no compositor needed) and reads gamepad/keyboard directly via gilrs + Slint `FocusScope`.
+
+### Input virtualization
+
+All physical inputs are mapped to semantic `ShellAction` variants (defined in `torchform-actions`) before reaching the shell's event handlers. Raw button/axis names are never hardcoded in shell logic.
+
+The mapping is controlled by `~/.config/torchform/keybinds.toml` (or `/etc/torchform/keybinds.toml`, or `config/keybinds.toml` in the repo). If no file is found, built-in defaults are used. See `config/keybinds.toml` for the full default table.
+
+**Key `ShellAction` variants:**
+
+| Variant | Meaning |
+|---------|---------|
+| `Confirm` / `Cancel` | Accept / dismiss |
+| `NavUp` / `NavDown` / `NavLeft` / `NavRight` | D-pad direction |
+| `OpenPalette` / `OpenSwitcher` | Toggle overlays |
+| `RadialHold { held }` | Radial menu open (true) / close (false) |
+| `StickMoved { x, y }` | Analog stick (bypasses map) |
+| `WorkspacePrev` / `WorkspaceNext` | Cycle workspaces |
+| `BrightnessUp/Down`, `VolumeUp/Down`, `WifiToggle`, … | System actions |
+
+### Intended external programs
+
+| Role | Intended binary | Fallback / stub |
+|------|----------------|-----------------|
+| Terminal | `alacritty` | `kitty` (configured via `config.toml [apps] terminal`) |
+| File Manager | `torchform-files` (native Slint app) | in-shell stub |
+| Settings | `torchform-settings` (native Slint app) | in-shell stub |
+| Web Browser | Servo (embedded) | `chromium --kiosk --ozone-platform=wayland` |
+| Media Player | `mpv --player-operation-mode=pseudo-gui` | in-shell stub |
 
 ---
 
@@ -148,19 +183,35 @@ The shell connects to `$WAYLAND_DISPLAY` as a Wayland client and to `/run/torchf
 
 ```
 Torchform/
-├── Cargo.toml                    workspace
+├── Cargo.toml                    workspace (9 crates)
 ├── Makefile                      dev targets
+├── config/
+│   ├── torchform.toml            default DE config
+│   └── keybinds.toml             default input → action bindings
 ├── scripts/
 │   ├── send-input.py             mock gamepad event sender
 │   └── dev.sh                    dev helpers
 └── crates/
+    ├── torchform-actions/        ← shared lib, NO Slint dependency
+    │   └── src/
+    │       ├── lib.rs            re-exports
+    │       ├── action.rs         ShellAction enum (serde Serialize/Deserialize)
+    │       └── input_map.rs      InputMap — RawInput → ShellAction via keybinds.toml
+    ├── torchform-config/         ← shared lib, NO Slint dependency
+    │   └── src/
+    │       ├── lib.rs            re-exports
+    │       ├── config.rs         TorchformConfig — full TOML config tree
+    │       └── settings.rs       Settings schema (SCHEMA), SettingsRowData,
+    │                             apply_activation, apply_adjustment, focus helpers
     ├── torchform-shell/
     │   ├── build.rs              slint_build — compiles ui/main.slint
     │   ├── src/
-    │   │   ├── main.rs           emulator + standalone modes, gilrs, keyboard wiring
+    │   │   ├── main.rs           emulator + standalone modes; uses ShellAction
     │   │   ├── apps.rs           try_launch_external — spawns Wayland apps on real DE
     │   │   ├── palette.rs        command palette state machine + registry
     │   │   ├── radial.rs         radial menu state machine + stick navigation
+    │   │   ├── settings.rs       re-exports from torchform_config
+    │   │   ├── config.rs         re-exports from torchform_config + parse_color
     │   │   └── workspace.rs      workspace / tiling config
     │   └── ui/
     │       ├── main.slint        single compile entry point
@@ -171,8 +222,25 @@ Torchform/
     │       ├── radial_menu.slint radial overlay component
     │       ├── command_palette.slint command palette overlay
     │       ├── app_switcher.slint  app switcher overlay
-    │       ├── app_settings.slint  built-in Settings stub
-    │       └── app_files.slint     built-in Files stub
+    │       ├── app_settings.slint  Settings panel (shared by shell + torchform-settings)
+    │       └── app_files.slint     Files panel (shared by shell + torchform-files)
+    ├── torchform-settings/       ← standalone Settings Slint app
+    │   ├── build.rs
+    │   ├── ui/main.slint         SettingsWindow — embeds AppSettings from shell/ui
+    │   └── src/main.rs           full nav + activation callbacks
+    ├── torchform-files/          ← standalone File Browser Slint app
+    │   ├── build.rs
+    │   ├── ui/main.slint         FilesWindow — embeds AppFiles from shell/ui
+    │   └── src/main.rs           filesystem helpers + callbacks
+    ├── torchform-terminal/       ← terminal launcher
+    │   └── src/main.rs           writes themed alacritty.toml or kitty.conf,
+    │                             then exec()s the terminal binary
+    │   NOTE: Intended terminal: Alacritty (https://alacritty.org)
+    │         Fallback terminal:  Kitty    (https://sw.kovidgoyal.net/kitty/)
+    │         Configured via:     config.toml [apps] terminal = "alacritty"
+    ├── torchform-run/            ← universal app launcher
+    │   └── src/main.rs           sets Wayland env vars (SDL, Qt, GDK, MOZ, EGL)
+    │                             then exec()s the target binary
     ├── torchform-compositor/
     │   └── src/
     │       ├── main.rs           event loop, Winit + UDev backends
@@ -181,8 +249,9 @@ Torchform/
     │       └── input.rs          InputAction, ChordTracker, evdev mappings
     └── torchform-inputd/
         └── src/
-            ├── main.rs           input loop, SPI + evdev + socket publish
-            ├── chord.rs          ChordDetector, Action, D-pad repeat
+            ├── main.rs           input loop; translates chord::Action → ShellAction
+            │                     via InputMap, publishes JSON over Unix socket
+            ├── chord.rs          ChordDetector, low-level Action, D-pad repeat
             ├── cirque.rs         Cirque SPI driver + kernel evdev fallback
             └── uinput.rs         VirtualGamepad (uinput axes + buttons)
 ```
@@ -205,18 +274,29 @@ Torchform/
 
 ## Input grammar
 
-| Input          | Action                                    |
-|----------------|-------------------------------------------|
-| A              | Confirm / select                          |
-| B              | Back / cancel / close app                 |
-| Select         | Command palette                           |
-| Start          | App switcher                              |
-| L2 (hold)      | App radial — opens, stick steers          |
-| L2 (release)   | Activate pointed slot (if stick active)   |
-| R2 (hold)      | Same as L2                                |
-| D-pad          | Navigate focused UI element / app rows    |
-| L1 / R1        | Cycle tile focus (compositor)             |
-| Left stick     | Steer radial menu (deadzone 0.3)          |
+All physical inputs are mapped through `InputMap` (loaded from `keybinds.toml`) to `ShellAction` variants before any shell logic sees them. To remap a button, edit `~/.config/torchform/keybinds.toml`.
+
+### Default bindings
+
+| Raw input name    | `ShellAction`                   | Meaning                                   |
+|-------------------|---------------------------------|-------------------------------------------|
+| `button_a`        | `Confirm`                       | Select focused item                       |
+| `button_b`        | `Cancel`                        | Back / dismiss / close app                |
+| `button_select`   | `OpenPalette`                   | Toggle command palette                    |
+| `button_start`    | `OpenSwitcher`                  | Toggle app switcher                       |
+| `l2_hold_true`    | `RadialHold { held: true }`     | Open radial menu                          |
+| `l2_hold_false`   | `RadialHold { held: false }`    | Close radial (commit if stick active)     |
+| `r2_hold_true`    | `RadialHold { held: true }`     | Same as L2                                |
+| `r2_hold_false`   | `RadialHold { held: false }`    | Same as L2                                |
+| `dpad_up`         | `NavUp`                         | Move focus up                             |
+| `dpad_down`       | `NavDown`                       | Move focus down                           |
+| `dpad_left`       | `NavLeft`                       | Move focus left / decrease slider         |
+| `dpad_right`      | `NavRight`                      | Move focus right / increase slider        |
+| `l1`              | `WorkspacePrev`                 | Previous workspace                        |
+| `r1`              | `WorkspaceNext`                 | Next workspace                            |
+| `select_long`     | `Sleep`                         | Suspend device                            |
+| _(analog axes)_   | `StickMoved { x, y }`           | Steer radial menu (bypass map)            |
+| _(Cirque pad)_    | `PadMoved { x, y }`             | Trackpad position (bypass map)            |
 
 ---
 
@@ -423,20 +503,26 @@ All commands registered in `palette.rs::default_commands()`:
 
 ## Status
 
-| Component             | Status                                              |
-|-----------------------|-----------------------------------------------------|
-| Shell emulator window | Working — run `make run-emulator`                   |
-| Keyboard shortcuts    | Working (includes IJKL stick simulation)            |
-| HID gamepad (gilrs)   | Working in emulator mode                            |
-| Radial menu UI        | Working — stick steers, release activates/dismisses |
-| Command palette UI    | Working — D-pad + virtual keyboard, scrolls correctly |
-| App switcher UI       | Working (display only, no close/switch logic)       |
-| Settings app (stub)   | Working — opens in-frame, D-pad navigates rows      |
-| Files app (stub)      | Working — opens in-frame, D-pad navigates rows      |
-| Wayland compositor    | Builds; Winit backend functional                    |
-| DRM/KMS backend       | Stub — pending hardware integration                 |
-| Input daemon          | Builds; requires CM5 hardware                       |
-| Cirque SPI driver     | Written; requires CM5 hardware                      |
+| Component                  | Status                                                        |
+|----------------------------|---------------------------------------------------------------|
+| Shell emulator window      | Working — run `make run-emulator`                             |
+| Keyboard shortcuts         | Working (includes IJKL stick simulation)                      |
+| HID gamepad (gilrs)        | Working in emulator mode                                      |
+| Input virtualization       | Working — `ShellAction` + `InputMap` + `keybinds.toml`        |
+| Radial menu UI             | Working — stick steers, release activates/dismisses           |
+| Command palette UI         | Working — D-pad + virtual keyboard, scrolls correctly         |
+| App switcher UI            | Working (display only, no close/switch logic)                 |
+| Settings app               | Working — schema-driven, sliders/toggles/selects, scrolls     |
+| Files app                  | Working — directory navigation, icons, file sizes             |
+| torchform-terminal         | Builds — writes Alacritty/Kitty theme config, exec()s terminal|
+| torchform-settings         | Builds — standalone Slint window                              |
+| torchform-files            | Builds — standalone Slint window                              |
+| torchform-actions lib      | Working — InputMap + ShellAction, 4 unit tests                |
+| torchform-config lib       | Working — full settings schema, mutation helpers              |
+| Wayland compositor         | Builds; Winit backend functional                              |
+| DRM/KMS backend            | Stub — pending hardware integration                           |
+| Input daemon               | Builds; translates chord::Action → ShellAction via InputMap   |
+| Cirque SPI driver          | Written; requires CM5 hardware                                |
 
 ---
 

@@ -5,6 +5,11 @@ members = [
     "crates/torchform-shell",
     "crates/torchform-inputd",
     "crates/torchform-run",
+    "crates/torchform-actions",
+    "crates/torchform-config",
+    "crates/torchform-settings",
+    "crates/torchform-files",
+    "crates/torchform-terminal",
 ]
 
 # ---------------------------------------------------------------------------

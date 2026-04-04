@@ -7,9 +7,15 @@
   "settings": {
     "claudeCode.allowDangerouslySkipPermissions": false,
     // "claudeCode.environmentVariables": [
-    // 	{ "name": "ANTHROPIC_BASE_URL", "value": "http://localhost:1234" },
-    // 	{ "name": "ANTHROPIC_AUTH_TOKEN", "value": "lmstudio" }
-    // ]
+    //   {
+    //     "name": "ANTHROPIC_BASE_URL",
+    //     "value": "http://localhost:1234"
+    //   },
+    //   {
+    //     "name": "ANTHROPIC_AUTH_TOKEN",
+    //     "value": "lmstudio"
+    //   }
+    // ],
     "rust-analyzer.cargo.target": "aarch64-unknown-linux-gnu",
     "rust-analyzer.checkOnSave.extraArgs": [
       "--target",
@@ -29,11 +35,9 @@
     "recommendations": [
       "rust-lang.rust-analyzer",
       "tamasfe.even-better-toml",
-      "serayuzgur.crates",
       "ms-vscode.makefile-tools",
       "ms-vscode-remote.remote-containers",
-      "ms-vscode-remote.remote-ssh",
-      "mkhl.direnv"
+      "ms-vscode-remote.remote-ssh"
     ]
   },
   "tasks": {

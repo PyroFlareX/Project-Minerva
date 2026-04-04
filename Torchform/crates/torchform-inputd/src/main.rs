@@ -27,8 +27,9 @@ use std::{
 use anyhow::{Context, Result};
 use tracing::{debug, info, warn};
 
-use chord::{Action, ChordDetector};
+use chord::{Action, Button, DpadDir, ChordDetector};
 use cirque::CirqueSpi;
+use torchform_actions::{ShellAction, InputMap, RawInput};
 
 // ---------------------------------------------------------------------------
 // Config — paths resolved at startup
@@ -129,6 +130,7 @@ fn main() -> Result<()> {
     info!("Listening on {}", cfg.shell_socket);
 
     let mut chord = ChordDetector::new();
+    let input_map = InputMap::load();
     let mut shell_clients: Vec<std::os::unix::net::UnixStream> = Vec::new();
 
     let mut last_cirque_x = 0.0f32;
@@ -167,9 +169,9 @@ fn main() -> Result<()> {
                             vg.set_left_pad(nx, ny).ok();
                         }
 
-                        publish_action(
+                        publish_shell_action(
                             &mut shell_clients,
-                            &Action::LeftPadMoved { x: nx, y: ny },
+                            ShellAction::PadMoved { x: nx, y: ny },
                         );
                     }
                 }
@@ -204,7 +206,9 @@ fn main() -> Result<()> {
 
                     for action in actions {
                         debug!("Action: {:?}", action);
-                        publish_action(&mut shell_clients, &action);
+                        if let Some(sa) = chord_action_to_shell(&action, &input_map) {
+                            publish_shell_action(&mut shell_clients, sa);
+                        }
                     }
                 }
                 Ok(_) => {}
@@ -218,7 +222,9 @@ fn main() -> Result<()> {
         // -----------------------------------------------------------------
         let repeats = chord.tick_repeats();
         for action in repeats {
-            publish_action(&mut shell_clients, &action);
+            if let Some(sa) = chord_action_to_shell(&action, &input_map) {
+                publish_shell_action(&mut shell_clients, sa);
+            }
         }
 
         // -----------------------------------------------------------------
@@ -229,15 +235,86 @@ fn main() -> Result<()> {
 }
 
 // ---------------------------------------------------------------------------
-// Publish an action to all connected shell clients as a JSON line
+// chord::Action → ShellAction translation via InputMap
 // ---------------------------------------------------------------------------
 
-fn publish_action(clients: &mut Vec<std::os::unix::net::UnixStream>, action: &Action) {
+fn chord_action_to_shell(action: &Action, map: &InputMap) -> Option<ShellAction> {
+    match action {
+        // Button edges — look up in InputMap by raw name
+        Action::ButtonPressed(btn) => {
+            let raw = button_raw_name(btn, true);
+            map.resolve(&RawInput::new(raw))
+        }
+        Action::ButtonReleased(btn) => {
+            let raw = button_raw_name(btn, false);
+            map.resolve(&RawInput::new(raw))
+        }
+        // L2/R2 hold state changes
+        Action::L2HeldChange(held) => {
+            let key = if *held { "l2_hold_true" } else { "l2_hold_false" };
+            map.resolve(&RawInput::new(key))
+        }
+        Action::R2HeldChange(held) => {
+            let key = if *held { "r2_hold_true" } else { "r2_hold_false" };
+            map.resolve(&RawInput::new(key))
+        }
+        // System chord — not directly in InputMap; shell handles via RadialHold
+        Action::SystemChordEntered => None,
+        Action::SystemChordExited  => None,
+        // D-pad repeats — same as ButtonPressed for the direction
+        Action::DpadRepeat(dir) => {
+            let raw = match dir {
+                DpadDir::Up    => "dpad_up",
+                DpadDir::Down  => "dpad_down",
+                DpadDir::Left  => "dpad_left",
+                DpadDir::Right => "dpad_right",
+            };
+            map.resolve(&RawInput::new(raw))
+        }
+        // Analog axes — constructed directly (bypass InputMap)
+        Action::RightStickMoved { x, y } => Some(ShellAction::StickMoved { x: *x, y: *y }),
+        Action::LeftPadMoved { x, y }    => Some(ShellAction::PadMoved   { x: *x, y: *y }),
+    }
+}
+
+fn button_raw_name(btn: &Button, pressed: bool) -> &'static str {
+    // Only pressed-edge inputs are mapped in the default InputMap.
+    // Released edges are not mapped for most buttons (except L2/R2 which use
+    // separate L2HeldChange / R2HeldChange events above).
+    if !pressed { return ""; }
+    match btn {
+        Button::A           => "button_a",
+        Button::B           => "button_b",
+        Button::X           => "button_x",
+        Button::Y           => "button_y",
+        Button::L1          => "l1",
+        Button::R1          => "r1",
+        Button::L2          => "l2_hold_true",
+        Button::R2          => "r2_hold_true",
+        Button::Select      => "button_select",
+        Button::Start       => "button_start",
+        Button::DpadUp      => "dpad_up",
+        Button::DpadDown    => "dpad_down",
+        Button::DpadLeft    => "dpad_left",
+        Button::DpadRight   => "dpad_right",
+        Button::LeftPadClick => "pad_click",
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Publish a ShellAction to all connected shell clients as a JSON line
+// ---------------------------------------------------------------------------
+
+fn publish_shell_action(clients: &mut Vec<std::os::unix::net::UnixStream>, action: ShellAction) {
     use std::io::Write;
 
-    // Serialise as a simple tagged string for now.
-    // TODO: Replace with serde_json once Action derives Serialize.
-    let msg = format!("{action:?}\n");
+    let msg = match serde_json::to_string(&action) {
+        Ok(s) => format!("{s}\n"),
+        Err(e) => {
+            debug!("Failed to serialize action: {e}");
+            return;
+        }
+    };
     let bytes = msg.as_bytes();
 
     clients.retain_mut(|client| {

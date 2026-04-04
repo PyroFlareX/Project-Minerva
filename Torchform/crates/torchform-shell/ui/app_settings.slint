@@ -1,142 +1,479 @@
 // =============================================================================
 // app_settings.slint — Torchform Settings app
 //
-// Settings rows are modelled as a flat array (pushed from Rust) so ListView
-// can render them with a single `for` loop. Row kind: "header" | "row".
-// setting-activated(key) fires when the user confirms a row; the backend
-// cycles the value and re-pushes the updated entries array.
+// Each settings row is described by a SettingsEntry pushed from Rust.
+// The Rust side owns a static settings schema (SettingsDef array) that
+// describes every option — its widget type, range, allowed values, etc.
+// The UI renders the right widget per row and fires callbacks back to Rust
+// to mutate + persist values.
+//
+// Widget types (entry.widget field):
+//   "header"   — section label, not interactive
+//   "slider"   — integer 0–max in steps; left/right d-pad adjusts
+//   "toggle"   — boolean on/off; A or left/right toggles
+//   "select"   — pick from a list of strings; left/right cycles
+//   "text"     — read-only string display (e.g. firmware version)
+//   "action"   — triggers a one-shot action (e.g. Reset to defaults)
+//
+// Callbacks fired by the UI:
+//   setting-activated(key)        — A pressed on a row (action / open editor)
+//   setting-adjusted(key, delta)  — left(-1) or right(+1) d-pad on a value row
+//
+// Scrolling:
+//   Uses the same centred-scroll trick as CommandPalette. The inner
+//   VerticalLayout's y-offset is driven purely by focused-row so the
+//   selected item stays vertically centred.  No ScrollView needed.
+//
+// Row stride:  "header" = 32px,  all value rows = 60px.
+// Scroll calc uses the value-row stride (60px) but corrects for headers
+// via a per-row offset injected from Rust as entry.scroll-offset (int,
+// cumulative pixel offset from top).
 // =============================================================================
 
 import { Tokens } from "tokens.slint";
-import { ListView } from "std-widgets.slint";
 
 export struct SettingsEntry {
-    kind:  string,   // "header" | "row"
-    icon:  string,
-    label: string,
-    value: string,
-    key:   string,   // used by setting-activated callback
+    widget:        string,   // "header"|"slider"|"toggle"|"select"|"text"|"action"
+    icon:          string,
+    label:         string,
+    description:   string,   // shown as sub-label under the main label
+    value:         string,   // rendered value text (formatted by Rust)
+    value-index:   int,      // for "select": current option index
+    min:           int,      // for "slider": minimum value
+    max:           int,      // for "slider": maximum value
+    step:          int,      // for "slider": step per d-pad press
+    pct:           float,    // for "slider": 0.0–1.0 fill proportion (pre-calc by Rust)
+    key:           string,   // stable identifier — passed back in callbacks
+    // Cumulative pixel offset from the top of the list to the *top* of this row.
+    // Rust calculates this from the widget types above it (32px for header rows,
+    // 60px for all others). Used for the centred-scroll y calculation.
+    scroll-offset: int,
 }
 
+// ---------------------------------------------------------------------------
+// Slider bar sub-component
+// ---------------------------------------------------------------------------
+component SliderBar inherits Rectangle {
+    in property <float> pct;     // 0.0 – 1.0
+    in property <bool>  focused;
+
+    height: 6px;
+    border-radius: 3px;
+    background: Tokens.border;
+
+    // Filled portion
+    Rectangle {
+        x: 0px; y: 0px;
+        height: parent.height;
+        width: pct * parent.width;
+        border-radius: 3px;
+        background: focused ? Tokens.accent : Tokens.accent-dim;
+        animate background { duration: Tokens.anim-fast; }
+        animate width { duration: Tokens.anim-fast; }
+    }
+
+    // Thumb
+    Rectangle {
+        x: pct * (parent.width - self.width);
+        y: (parent.height - self.height) / 2;
+        width: 12px;
+        height: 12px;
+        border-radius: 6px;
+        background: focused ? Tokens.accent : Tokens.text-disabled;
+        animate background { duration: Tokens.anim-fast; }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Toggle pill sub-component
+// ---------------------------------------------------------------------------
+component TogglePill inherits Rectangle {
+    in property <bool> on;
+    in property <bool> focused;
+
+    width: 44px;
+    height: 24px;
+    border-radius: 12px;
+    background: on ? (focused ? Tokens.accent : Tokens.accent-dim) : Tokens.bg-elevated;
+    border-width: 1px;
+    border-color: on ? Tokens.accent : Tokens.border;
+    animate background { duration: Tokens.anim-fast; }
+
+    // Knob
+    Rectangle {
+        x: on ? parent.width - self.width - 3px : 3px;
+        y: (parent.height - self.height) / 2;
+        width: 18px;
+        height: 18px;
+        border-radius: 9px;
+        background: on ? Tokens.text-on-accent : Tokens.text-disabled;
+        animate x { duration: Tokens.anim-normal; }
+        animate background { duration: Tokens.anim-fast; }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// A single settings row — header or value widget
+// ---------------------------------------------------------------------------
+component SettingsRow inherits Rectangle {
+    in property <SettingsEntry> entry;
+    in property <bool>          focused;
+
+    callback activated();
+    callback adjusted(int);  // -1 or +1
+
+    height: entry.widget == "header" ? 32px : 60px;
+
+    // ---- Header row --------------------------------------------------------
+    if entry.widget == "header": Rectangle {
+        width: parent.width;
+        height: parent.height;
+        background: transparent;
+
+        HorizontalLayout {
+            padding-left:  Tokens.space-4;
+            padding-right: Tokens.space-4;
+            alignment: center;
+
+            Text {
+                horizontal-stretch: 1;
+                text: entry.label;
+                font-size: Tokens.text-xs;
+                font-family: Tokens.font-sans;
+                font-weight: Tokens.weight-semibold;
+                color: Tokens.accent-dim;
+                letter-spacing: 1.2px;
+                vertical-alignment: center;
+            }
+        }
+
+        // Bottom divider line
+        Rectangle {
+            x: Tokens.space-4;
+            y: parent.height - 1px;
+            width: parent.width - Tokens.space-8;
+            height: 1px;
+            background: Tokens.border-subtle;
+        }
+    }
+
+    // ---- Value rows --------------------------------------------------------
+    if entry.widget != "header": Rectangle {
+        width: parent.width;
+        height: parent.height;
+        border-radius: Tokens.radius-md;
+        background: focused ? Tokens.bg-elevated : transparent;
+        animate background { duration: Tokens.anim-fast; }
+
+        // Left accent bar when focused
+        if focused: Rectangle {
+            x: 0px;
+            y: (parent.height - self.height) / 2;
+            width: 3px;
+            height: parent.height - Tokens.space-2;
+            border-radius: 2px;
+            background: Tokens.accent;
+        }
+
+        HorizontalLayout {
+            x: Tokens.space-3;
+            y: 0px;
+            width: parent.width - Tokens.space-3;
+            height: parent.height;
+            spacing: Tokens.space-3;
+            alignment: center;
+
+            // Icon
+            Text {
+                width: 28px;
+                text: entry.icon;
+                font-size: Tokens.text-lg;
+                color: focused ? Tokens.accent : Tokens.text-secondary;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+
+            // Label + description column
+            VerticalLayout {
+                horizontal-stretch: 1;
+                alignment: center;
+                spacing: 2px;
+
+                Text {
+                    text: entry.label;
+                    font-size: Tokens.text-md;
+                    font-family: Tokens.font-sans;
+                    font-weight: Tokens.weight-medium;
+                    color: entry.widget == "action" && focused ? Tokens.warning : Tokens.text-primary;
+                    overflow: elide;
+                }
+                if entry.description != "": Text {
+                    text: entry.description;
+                    font-size: Tokens.text-xs;
+                    font-family: Tokens.font-sans;
+                    color: Tokens.text-secondary;
+                    overflow: elide;
+                }
+            }
+
+            // Right-side widget area
+            // ---- slider ----
+            if entry.widget == "slider": VerticalLayout {
+                width: 160px;
+                alignment: center;
+                spacing: Tokens.space-1;
+
+                Text {
+                    text: entry.value;
+                    font-size: Tokens.text-sm;
+                    font-family: Tokens.font-mono;
+                    color: focused ? Tokens.accent : Tokens.text-secondary;
+                    horizontal-alignment: right;
+                }
+                SliderBar {
+                    pct: entry.pct;
+                    focused: focused;
+                }
+                if focused: HorizontalLayout {
+                    alignment: center;
+                    spacing: Tokens.space-3;
+                    Text {
+                        text: "◀";
+                        font-size: 9px;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        text: "d-pad";
+                        font-size: 9px;
+                        font-family: Tokens.font-mono;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        text: "▶";
+                        font-size: 9px;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+
+            // ---- toggle ----
+            if entry.widget == "toggle": TogglePill {
+                on: entry.value == "true";
+                focused: focused;
+            }
+
+            // ---- select ----
+            if entry.widget == "select": HorizontalLayout {
+                alignment: center;
+                spacing: Tokens.space-2;
+
+                if focused: Text {
+                    text: "◀";
+                    font-size: Tokens.text-sm;
+                    color: Tokens.accent-dim;
+                    vertical-alignment: center;
+                }
+                Rectangle {
+                    height: 26px;
+                    border-radius: Tokens.radius-sm;
+                    background: focused ? Tokens.bg-surface : transparent;
+                    border-width: focused ? 1px : 0px;
+                    border-color: Tokens.border-focused;
+
+                    HorizontalLayout {
+                        padding-left: Tokens.space-2;
+                        padding-right: Tokens.space-2;
+                        alignment: center;
+                        Text {
+                            text: entry.value;
+                            font-size: Tokens.text-sm;
+                            font-family: Tokens.font-mono;
+                            color: focused ? Tokens.text-primary : Tokens.text-secondary;
+                            vertical-alignment: center;
+                        }
+                    }
+                }
+                if focused: Text {
+                    text: "▶";
+                    font-size: Tokens.text-sm;
+                    color: Tokens.accent-dim;
+                    vertical-alignment: center;
+                }
+            }
+
+            // ---- text (read-only) ----
+            if entry.widget == "text": Text {
+                text: entry.value;
+                font-size: Tokens.text-sm;
+                font-family: Tokens.font-mono;
+                color: Tokens.text-secondary;
+                vertical-alignment: center;
+            }
+
+            // ---- action ----
+            if entry.widget == "action": Rectangle {
+                height: 28px;
+                border-radius: Tokens.radius-sm;
+                background: focused ? Tokens.warning.with-alpha(0.15) : transparent;
+                border-width: focused ? 1px : 0px;
+                border-color: Tokens.warning;
+                animate background { duration: Tokens.anim-fast; }
+
+                HorizontalLayout {
+                    padding-left: Tokens.space-3;
+                    padding-right: Tokens.space-3;
+                    alignment: center;
+                    Text {
+                        text: entry.value != "" ? entry.value : "Run";
+                        font-size: Tokens.text-sm;
+                        font-family: Tokens.font-sans;
+                        color: Tokens.warning;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+
+            Rectangle { width: Tokens.space-3; }
+        }
+
+        TouchArea {
+            clicked => { root.activated(); }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// AppSettings root component
+// ---------------------------------------------------------------------------
 export component AppSettings inherits Rectangle {
     in property <int>              focused-row: 0;
     in property <[SettingsEntry]>  entries;
-    in property <string>           active-section: "";
 
     callback close-requested();
     callback setting-activated(string);
+    callback setting-adjusted(string, int);  // key, delta (-1 or +1)
 
     background: Tokens.bg-base;
 
     VerticalLayout {
         padding: 0px;
 
-        // Header bar
+        // ---- Header bar ----------------------------------------------------
         Rectangle {
             height: 52px;
             background: Tokens.bg-surface;
+            border-width: 0px;
+            border-color: transparent;
+
+            // Bottom border
+            Rectangle {
+                x: 0px;
+                y: parent.height - 1px;
+                width: parent.width;
+                height: 1px;
+                background: Tokens.border-subtle;
+            }
 
             HorizontalLayout {
                 padding-left:  Tokens.space-4;
                 padding-right: Tokens.space-4;
                 alignment: center;
 
+                // Back hint
+                Rectangle {
+                    width: 32px; height: 32px;
+                    border-radius: Tokens.radius-md;
+                    background: Tokens.bg-elevated;
+                    Text {
+                        width: parent.width; height: parent.height;
+                        text: "B";
+                        font-size: 9px;
+                        font-family: Tokens.font-mono;
+                        color: Tokens.text-disabled;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+
+                Rectangle { width: Tokens.space-3; }
+
                 Text {
                     horizontal-stretch: 1;
-                    text: active-section == "" ? "⚙  Settings" : ("⚙  Settings › " + active-section);
+                    text: "⚙  Settings";
                     font-size: Tokens.text-xl;
                     font-family: Tokens.font-sans;
                     font-weight: Tokens.weight-semibold;
                     color: Tokens.text-primary;
                     vertical-alignment: center;
-                    overflow: elide;
                 }
-                Rectangle {
-                    width: 32px; height: 32px;
-                    border-radius: 16px;
-                    background: Tokens.bg-elevated;
+
+                // Hint strip
+                HorizontalLayout {
+                    spacing: Tokens.space-4;
+                    alignment: end;
                     Text {
-                        width: parent.width; height: parent.height;
-                        text: "✕";
-                        font-size: Tokens.text-sm;
-                        color: Tokens.text-secondary;
-                        horizontal-alignment: center;
+                        text: "↑↓ navigate";
+                        font-size: Tokens.text-xs;
+                        font-family: Tokens.font-mono;
+                        color: Tokens.text-disabled;
                         vertical-alignment: center;
                     }
-                    TouchArea { clicked => { root.close-requested(); } }
+                    Text {
+                        text: "◀▶ adjust";
+                        font-size: Tokens.text-xs;
+                        font-family: Tokens.font-mono;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        text: "A confirm";
+                        font-size: Tokens.text-xs;
+                        font-family: Tokens.font-mono;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
                 }
             }
         }
 
-        // Scrollable list — one `for` loop required by ListView
-        ListView {
-            horizontal-stretch: 1;
-            vertical-stretch:   1;
+        // ---- Scrollable content --------------------------------------------
+        // The outer Rectangle clips; the inner VerticalLayout translates.
+        // y is driven by the focused row's cumulative scroll-offset so that row
+        // sits at (clip-height / 2), clamped so content never slides past ends.
+        content-clip := Rectangle {
+            vertical-stretch: 1;
+            clip: true;
 
-            for entry[idx] in entries: Rectangle {
+            content-list := VerticalLayout {
                 width: parent.width;
-                height: entry.kind == "header" ? 28px : 52px;
 
-                // Section header row
-                if entry.kind == "header": Rectangle {
-                    width: parent.width; height: parent.height;
-                    background: transparent;
-                    Text {
-                        text: entry.label;
-                        font-size: Tokens.text-xs;
-                        font-family: Tokens.font-sans;
-                        font-weight: Tokens.weight-semibold;
-                        color: Tokens.text-secondary;
-                        x: Tokens.space-4;
-                        y: (parent.height - self.height) / 2;
-                    }
-                }
+                // y = clamp such that focused row centre = clip centre.
+                // entry.scroll-offset is the top of the focused row in list coords.
+                // For header rows (32px): centre = offset + 16px
+                // For value rows (60px): centre = offset + 30px
+                // We want: y + row_centre = clip_height / 2
+                // → y = clip_height/2 - (offset + half_height)
+                // Clamped: never > 0 (can't pull list down past top)
+                //          never < clip_height - total_content_height
+                //
+                // Since Slint can't compute total height dynamically in expressions,
+                // we rely on the clip rect clamping visually at the bottom.
+                y: min(0px,
+                    (content-clip.height / 2)
+                    - (entries[focused-row].scroll-offset * 1px)
+                    - (entries[focused-row].widget == "header" ? 16px : 30px)
+                );
+                animate y { duration: Tokens.anim-normal; easing: ease-in-out; }
 
-                // Settings row
-                if entry.kind == "row": Rectangle {
-                    width: parent.width; height: parent.height;
-                    border-radius: Tokens.radius-md;
-                    background: (focused-row == idx) ? Tokens.bg-elevated : transparent;
-                    border-width: (focused-row == idx) ? 1px : 0px;
-                    border-color: Tokens.border-focused;
-                    animate background { duration: Tokens.anim-fast; }
-
-                    HorizontalLayout {
-                        padding-left:  Tokens.space-4;
-                        padding-right: Tokens.space-4;
-                        spacing: Tokens.space-3;
-                        alignment: center;
-
-                        Text {
-                            text: entry.icon;
-                            font-size: Tokens.text-lg;
-                            vertical-alignment: center;
-                        }
-                        Text {
-                            horizontal-stretch: 1;
-                            text: entry.label;
-                            font-size: Tokens.text-md;
-                            font-family: Tokens.font-sans;
-                            color: Tokens.text-primary;
-                            vertical-alignment: center;
-                        }
-                        Text {
-                            text: entry.value;
-                            font-size: Tokens.text-sm;
-                            font-family: Tokens.font-mono;
-                            color: Tokens.text-secondary;
-                            vertical-alignment: center;
-                        }
-                        Text {
-                            text: "›";
-                            font-size: Tokens.text-lg;
-                            color: Tokens.text-disabled;
-                            vertical-alignment: center;
-                        }
-                    }
-                    TouchArea {
-                        clicked => { root.setting-activated(entry.key); }
-                    }
+                for entry[idx] in entries: SettingsRow {
+                    width: parent.width;
+                    entry: entry;
+                    focused: idx == focused-row && entry.widget != "header";
+                    activated  => { root.setting-activated(entry.key); }
+                    adjusted(d) => { root.setting-adjusted(entry.key, d); }
                 }
             }
         }

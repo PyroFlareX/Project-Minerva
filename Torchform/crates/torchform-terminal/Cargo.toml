@@ -1,0 +1,21 @@
+[package]
+name        = "torchform-terminal"
+version     = "0.1.0"
+edition     = "2021"
+description = "Torchform terminal launcher — configures and exec()s Alacritty with Torchform theming"
+
+# Intended terminal emulator: Alacritty (https://alacritty.org)
+# Fallback: Kitty (https://sw.kovidgoyal.net/kitty/)
+# The binary name is configurable in config.toml [apps] terminal = "alacritty"
+# This crate writes the theme config, then exec()s the binary so it
+# replaces this process entirely — no orphan processes.
+
+[[bin]]
+name = "torchform-terminal"
+path = "src/main.rs"
+
+[dependencies]
+torchform-config  = { path = "../torchform-config" }
+anyhow             = { workspace = true }
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }

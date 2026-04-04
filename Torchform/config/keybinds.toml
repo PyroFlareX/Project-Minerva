@@ -1,0 +1,70 @@
+# =============================================================================
+# Torchform keybinds — input to action mapping
+#
+# This file maps named raw inputs to named ShellActions.
+# Copy to ~/.config/torchform/keybinds.toml to override for your user.
+#
+# Raw input names:
+#   button_a, button_b, button_x, button_y
+#   button_select, button_start
+#   l1, r1                       (shoulder bumpers — digital)
+#   l2_hold_true, l2_hold_false  (trigger held / released)
+#   r2_hold_true, r2_hold_false
+#   dpad_up, dpad_down, dpad_left, dpad_right
+#   select_long                  (held Select for ~1 s)
+#   l2_r2_brightness_up, l2_r2_brightness_down
+#   l2_r2_volume_up, l2_r2_volume_down
+#   l2_r2_wifi, l2_r2_bt
+#
+# Action names:
+#   confirm, cancel
+#   open_palette, open_switcher
+#   radial_hold_true, radial_hold_false
+#   nav_up, nav_down, nav_left, nav_right
+#   workspace_prev, workspace_next
+#   brightness_up, brightness_down
+#   volume_up, volume_down
+#   wifi_toggle, bluetooth_toggle, cellular_toggle, vpn_toggle
+#   split_toggle, sleep
+#   lower_backspace, lower_submit
+#
+# To disable a binding: remove the line (or comment it out with #).
+# To swap two actions: exchange their values.
+# Unknown action names are silently ignored with a log warning.
+# =============================================================================
+
+[binds]
+
+# --- Face buttons -----------------------------------------------------------
+button_a      = "confirm"
+button_b      = "cancel"
+button_select = "open_palette"
+button_start  = "open_switcher"
+
+# --- Shoulder triggers — radial menu ----------------------------------------
+# Both L2 and R2 open the radial menu (either trigger works).
+# Change to "radial_hold_true" / "radial_hold_false" only on one trigger
+# if you want the other to do something different.
+l2_hold_true  = "radial_hold_true"
+l2_hold_false = "radial_hold_false"
+r2_hold_true  = "radial_hold_true"
+r2_hold_false = "radial_hold_false"
+
+# --- D-pad ------------------------------------------------------------------
+dpad_up    = "nav_up"
+dpad_down  = "nav_down"
+dpad_left  = "nav_left"
+dpad_right = "nav_right"
+
+# --- Shoulder bumpers — workspace cycling -----------------------------------
+l1 = "workspace_prev"
+r1 = "workspace_next"
+
+# --- Long-press / chord system actions --------------------------------------
+select_long           = "sleep"
+l2_r2_brightness_up   = "brightness_up"
+l2_r2_brightness_down = "brightness_down"
+l2_r2_volume_up       = "volume_up"
+l2_r2_volume_down     = "volume_down"
+l2_r2_wifi            = "wifi_toggle"
+l2_r2_bt              = "bluetooth_toggle"

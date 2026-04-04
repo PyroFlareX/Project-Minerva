@@ -95,6 +95,7 @@ export component TorchformEmulator inherits Window {
 
     callback app-closed();
     callback app-settings-setting-activated(string);
+    callback app-settings-setting-adjusted(string, int);
     callback app-files-navigate(string);
     callback app-files-navigate-parent();
 
@@ -264,8 +265,9 @@ export component TorchformEmulator inherits Window {
             width: parent.width; height: parent.height;
             focused-row: app-settings-focused-row;
             entries:     app-settings-entries;
-            close-requested          => { root.app-closed(); }
-            setting-activated(key)   => { root.app-settings-setting-activated(key); }
+            close-requested            => { root.app-closed(); }
+            setting-activated(key)     => { root.app-settings-setting-activated(key); }
+            setting-adjusted(key, d)   => { root.app-settings-setting-adjusted(key, d); }
         }
         if app-files-visible: AppFiles {
             x: 0; y: 0;

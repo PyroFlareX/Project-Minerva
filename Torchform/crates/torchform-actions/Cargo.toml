@@ -1,0 +1,14 @@
+[package]
+name        = "torchform-actions"
+version     = "0.1.0"
+edition     = "2021"
+description = "Torchform shared action types and input-to-action keybind config"
+
+[lib]
+name = "torchform_actions"
+path = "src/lib.rs"
+
+[dependencies]
+serde  = { workspace = true }
+toml   = { workspace = true }
+anyhow = { workspace = true }

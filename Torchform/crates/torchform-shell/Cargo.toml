@@ -12,6 +12,8 @@ path  = "src/main.rs"
 slint-build = { workspace = true }
 
 [dependencies]
+torchform-config   = { path = "../torchform-config" }
+torchform-actions  = { path = "../torchform-actions" }
 slint              = { workspace = true }
 tokio              = { workspace = true }
 anyhow             = { workspace = true }
