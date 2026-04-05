@@ -166,3 +166,35 @@ clean:
 clean-docker:
 	docker rmi $(DOCKER_IMAGE) 2>/dev/null || true
 	docker volume rm torchform-cargo-registry torchform-cargo-git 2>/dev/null || true
+
+# ---------------------------------------------------------------------------
+# Minerva device streaming
+# ---------------------------------------------------------------------------
+MINERVA_HOST ?= Minerva
+
+.PHONY: stream-dev stream-dev-remote remote-build remote-test
+stream-dev:
+	@bash scripts/stream-dev-local.sh
+
+# Run the capture+stream pipeline on the device (SSH).
+# Useful for testing the device side without the local emulator.
+stream-dev-remote:
+	@rsync -avz scripts/stream-dev-remote.sh $(MINERVA_HOST):~/stream-dev-remote.sh
+	@ssh $(MINERVA_HOST) "sh ~/stream-dev-remote.sh"
+
+# Build torchform-shell for aarch64-musl, copy the binary and config files to
+# the device.  Does not start any streaming — just deploys and smoke-tests.
+# Sync source to the device and build natively (avoids cross-compilation).
+# Binary ends up at ~/torchform-dev/target/release/torchform-shell.
+remote-build:
+	rsync -avz --exclude target/ --exclude .git/ \
+	    . $(MINERVA_HOST):~/torchform-dev/
+	ssh -t $(MINERVA_HOST) "cd ~/torchform-dev && cargo build --release -p torchform-shell"
+
+remote-test:
+	cross build --target aarch64-unknown-linux-musl --release -p torchform-shell
+	rsync -avz target/aarch64-unknown-linux-musl/release/torchform-shell \
+	    $(MINERVA_HOST):~/torchform
+	rsync -avz scripts/stream-dev-remote.sh $(MINERVA_HOST):~/stream-dev-remote.sh
+	rsync -avz config/ $(MINERVA_HOST):~/.config/torchform/
+	ssh $(MINERVA_HOST) "~/torchform --help 2>&1 | head -3 || echo '[remote-test] binary present'"

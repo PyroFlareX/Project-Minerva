@@ -1,0 +1,15 @@
+[package]
+name        = "minerva-emulator"
+version     = "0.1.0"
+edition     = "2021"
+description = "Minerva hardware emulator — dual-screen desktop window with optional live stream from device"
+
+[[bin]]
+name = "minerva-emulator"
+path = "src/main.rs"
+
+[build-dependencies]
+slint-build = { workspace = true }
+
+[dependencies]
+slint = { workspace = true }

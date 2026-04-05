@@ -1,0 +1,90 @@
+// =============================================================================
+// emulator.slint — Minerva hardware emulator window
+//
+// Shows both physical Minerva displays in a single desktop window.
+//
+//   Upper display: 1080 × 1920 logical pixels (rendered at 540 × 960 — 0.5×)
+//   Lower display:  800 ×  480 logical pixels (rendered at 800 × 480 — 1.0×)
+//
+// In stream-mode the host sets upper-frame / lower-frame each frame; without
+// stream-mode both slots show a placeholder gradient.
+// =============================================================================
+
+export component MinervaEmulator inherits Window {
+
+    // Live frame feeds — set from Rust when --stream-mode is active.
+    // In Rust: component.set_upper_frame(img) / component.set_lower_frame(img)
+    in property <image> upper-frame;
+    in property <image> lower-frame;
+
+    title:      "Minerva — Emulator";
+    width:      540px;
+    height:     960px + 480px + 8px;   // upper + divider + lower
+    background: #111118;
+
+    // -------------------------------------------------------------------------
+    // Upper display (1080×1920 rendered at 540×960)
+    // -------------------------------------------------------------------------
+    Rectangle {
+        x: 0; y: 0;
+        width: 540px;
+        height: 960px;
+        background: #0d0d14;
+        clip: true;
+
+        if upper-frame.width > 0: Image {
+            x: 0; y: 0;
+            width: parent.width;
+            height: parent.height;
+            source: upper-frame;
+            image-fit: fill;
+        }
+        if upper-frame.width == 0: Text {
+            width: parent.width;
+            height: parent.height;
+            text: "Upper display\n1080 × 1920\n(no stream)";
+            font-size: 14px;
+            color: #30304a;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Divider
+    // -------------------------------------------------------------------------
+    Rectangle {
+        x: 0; y: 960px;
+        width: 540px;
+        height: 8px;
+        background: #0a0a0f;
+    }
+
+    // -------------------------------------------------------------------------
+    // Lower display (800×480 rendered at 540×324, centred)
+    // -------------------------------------------------------------------------
+    Rectangle {
+        x: 0; y: 960px + 8px;
+        width: 540px;
+        height: 480px;
+        background: #10101a;
+        clip: true;
+
+        if lower-frame.width > 0: Image {
+            x: 0; y: 0;
+            width: parent.width;
+            height: parent.height;
+            source: lower-frame;
+            image-fit: fill;
+        }
+        if lower-frame.width == 0: Text {
+            width: parent.width;
+            height: parent.height;
+            text: "Lower display\n800 × 480\n(no stream)";
+            font-size: 13px;
+            color: #30304a;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+}

@@ -10,6 +10,7 @@ members = [
     "crates/torchform-settings",
     "crates/torchform-files",
     "crates/torchform-terminal",
+    "crates/minerva-emulator",
 ]
 
 # ---------------------------------------------------------------------------
