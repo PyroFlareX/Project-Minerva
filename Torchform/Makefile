@@ -218,19 +218,26 @@ VNC_PORT ?= 5900
 
 remote-vnc:
 	@echo ">> Killing any stale cage/wayvnc on $(MINERVA_HOST) and local tunnel..."
-	-ssh $(MINERVA_HOST) "pkill -f wayvnc; pkill -f cage; sleep 1; rm -rf /tmp/xdg-vnc" 2>/dev/null; true
+	-ssh $(MINERVA_HOST) "pkill -9 -f wayvnc; pkill -9 -f cage; sleep 2; rm -rf /tmp/xdg-vnc" 2>/dev/null; true
 	-pkill -f "ssh -L $(VNC_PORT)" 2>/dev/null; true
 	@sleep 1
 	@echo ">> Starting cage + wayvnc on $(MINERVA_HOST)..."
 	ssh $(MINERVA_HOST) "bash -c ' \
 	    export XDG_RUNTIME_DIR=/tmp/xdg-vnc; \
+	    rm -rf \$$XDG_RUNTIME_DIR; \
 	    mkdir -p \$$XDG_RUNTIME_DIR && chmod 700 \$$XDG_RUNTIME_DIR; \
-	    export WLR_BACKENDS=drm; \
+	    export WLR_BACKENDS=headless; \
+	    export WLR_HEADLESS_OUTPUTS=1; \
 	    export DISPLAY=; \
 	    cage -d -- ./torchform-dev/target/release/torchform-shell --standalone & \
-	    sleep 3 && \
-	    WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/tmp/xdg-vnc \
-	    wayvnc 127.0.0.1 $(VNC_PORT) \
+	    CAGE_PID=\$$!; \
+	    sleep 3; \
+	    if kill -0 \$$CAGE_PID 2>/dev/null; then \
+	        WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/tmp/xdg-vnc \
+	        wayvnc 127.0.0.1 $(VNC_PORT); \
+	    else \
+	        echo "ERROR: cage exited early"; \
+	    fi \
 	'" &
 	@echo ">> Waiting for VNC to start..."
 	@sleep 5
