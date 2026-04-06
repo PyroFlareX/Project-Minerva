@@ -78,6 +78,32 @@ sudo apt-get install \
     pkg-config build-essential
 ```
 
+
+**Alpine Linux (on-device / aarch64):**
+```sh
+# One-time setup — install build deps
+apk add --no-cache \
+    rust \
+    clang \ #or gcc
+    libalsa-dev \ 
+    eudev-dev \
+    libinput-dev \
+    mesa-dev \
+    libdrm-dev \
+    wayland-dev \
+    libx11-dev \
+    libxcb-dev \
+    libevdev-dev \
+    libseat-dev
+
+# Then build normally
+cargo build --release -p torchform-shell
+```
+
+> **Note:** Alpine ships `eudev` (not systemd's `libudev`). The package `eudev-dev` provides
+> `libudev.pc` and satisfies the `libudev-sys` crate. If `apk` reports `libseat-dev` not found,
+> try `seatd-dev` instead.
+
 **Docker (no host libs needed):**
 ```sh
 make dev-build      # build the dev image (one-time, ~5 min)

@@ -172,7 +172,10 @@ clean-docker:
 # ---------------------------------------------------------------------------
 MINERVA_HOST ?= Minerva
 
-.PHONY: stream-dev stream-dev-remote remote-build remote-test
+.PHONY: stream-dev stream-dev-remote remote-build remote-test setup-local
+setup-local:
+	@bash scripts/setup-local.sh
+
 stream-dev:
 	@bash scripts/stream-dev-local.sh
 
@@ -189,7 +192,7 @@ stream-dev-remote:
 remote-build:
 	rsync -avz --exclude target/ --exclude .git/ \
 	    . $(MINERVA_HOST):~/torchform-dev/
-	ssh -t $(MINERVA_HOST) "cd ~/torchform-dev && cargo build --release -p torchform-shell"
+	ssh -t $(MINERVA_HOST) "cd ~/torchform-dev && PATH=\"\$$HOME/.cargo/bin:\$$PATH\" cargo build --release -p torchform-shell"
 
 remote-test:
 	cross build --target aarch64-unknown-linux-musl --release -p torchform-shell
