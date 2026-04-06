@@ -229,9 +229,11 @@ remote-vnc:
 	    export WLR_BACKENDS=headless; \
 	    export WLR_HEADLESS_OUTPUTS=1; \
 	    export DISPLAY=; \
-	    cage -d -- ./torchform-dev/target/release/torchform-shell --standalone & \
+	    SLINT_BACKEND=winit-software cage -d -- ./torchform-dev/target/release/torchform-shell & \
 	    CAGE_PID=\$$!; \
-	    sleep 3; \
+	    sleep 2; \
+	    WAYLAND_DISPLAY=wayland-0 wlr-randr --output HEADLESS-1 --custom-mode 768x950 2>/dev/null || true; \
+	    sleep 1; \
 	    if kill -0 \$$CAGE_PID 2>/dev/null; then \
 	        WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/tmp/xdg-vnc \
 	        wayvnc 127.0.0.1 $(VNC_PORT); \

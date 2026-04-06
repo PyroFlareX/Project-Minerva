@@ -143,7 +143,7 @@ fn spawn_gamepad_thread(tx: mpsc::Sender<ShellAction>) {
                         Some(ShellAction::StickMoved { x: stick_x, y: stick_y })
                     }
                     EventType::AxisChanged(Axis::LeftStickY, v, _) => {
-                        stick_y = v;
+                        stick_y = -v; // gilrs Y+ = up, shell Y+ = down
                         Some(ShellAction::StickMoved { x: stick_x, y: stick_y })
                     }
                     other => gilrs_event_to_raw(other)
