@@ -61,6 +61,11 @@ help:
 	@echo "    make dev-build           Build the dev Docker image"
 	@echo "    make dev                 Enter the dev container interactively"
 	@echo ""
+	@echo "  Device (Minerva):"
+	@echo "    make remote-vnc          Run shell on device, view via VNC (gvncviewer)"
+	@echo "    make remote-vnc-kill     Kill remote cage/wayvnc and local tunnel"
+	@echo "    make remote-build        Sync + build on device natively"
+	@echo ""
 	@echo "  Keyboard shortcuts in shell window:"
 	@echo "    Space    → Select (command palette toggle)"
 	@echo "    Enter    → Start  (app switcher)"
@@ -192,7 +197,7 @@ stream-dev-remote:
 remote-build:
 	rsync -avz --exclude target/ --exclude .git/ \
 	    . $(MINERVA_HOST):~/torchform-dev/
-	ssh -t $(MINERVA_HOST) "cd ~/torchform-dev && PATH=\"\$$HOME/.cargo/bin:\$$PATH\" cargo build --release -p torchform-shell"
+	ssh -t $(MINERVA_HOST) "cd ~/torchform-dev && PATH=\"\$$HOME/.cargo/bin:\$$PATH\" RUSTFLAGS=\"-C target-feature=-crt-static\" cargo build --release -p torchform-shell"
 
 remote-test:
 	cross build --target aarch64-unknown-linux-musl --release -p torchform-shell
@@ -201,3 +206,39 @@ remote-test:
 	rsync -avz scripts/stream-dev-remote.sh $(MINERVA_HOST):~/stream-dev-remote.sh
 	rsync -avz config/ $(MINERVA_HOST):~/.config/torchform/
 	ssh $(MINERVA_HOST) "~/torchform --help 2>&1 | head -3 || echo '[remote-test] binary present'"
+
+# ---------------------------------------------------------------------------
+# Remote VNC — run shell on device via cage+wayvnc, view locally via gvncviewer
+#   make remote-vnc              connect to Minerva (default)
+#   make remote-vnc MINERVA_HOST=MinervaLocal
+# ---------------------------------------------------------------------------
+VNC_PORT ?= 5900
+
+.PHONY: remote-vnc remote-vnc-kill
+
+remote-vnc:
+	@echo ">> Killing any stale cage/wayvnc on $(MINERVA_HOST) and local tunnel..."
+	-ssh $(MINERVA_HOST) "pkill -f wayvnc; pkill -f cage; sleep 1; rm -rf /tmp/xdg-vnc" 2>/dev/null; true
+	-pkill -f "ssh -L $(VNC_PORT)" 2>/dev/null; true
+	@sleep 1
+	@echo ">> Starting cage + wayvnc on $(MINERVA_HOST)..."
+	ssh $(MINERVA_HOST) "bash -c ' \
+	    export XDG_RUNTIME_DIR=/tmp/xdg-vnc; \
+	    mkdir -p \$$XDG_RUNTIME_DIR && chmod 700 \$$XDG_RUNTIME_DIR; \
+	    export WLR_BACKENDS=drm; \
+	    export DISPLAY=; \
+	    cage -d -- ./torchform-dev/target/release/torchform-shell --standalone & \
+	    sleep 3 && \
+	    WAYLAND_DISPLAY=wayland-0 XDG_RUNTIME_DIR=/tmp/xdg-vnc \
+	    wayvnc 127.0.0.1 $(VNC_PORT) \
+	'" &
+	@echo ">> Waiting for VNC to start..."
+	@sleep 5
+	@echo ">> Opening SSH tunnel and gvncviewer..."
+	ssh -L $(VNC_PORT):localhost:$(VNC_PORT) $(MINERVA_HOST) -N &
+	@sleep 1
+	gvncviewer localhost::$(VNC_PORT)
+
+remote-vnc-kill:
+	-ssh $(MINERVA_HOST) "pkill -f wayvnc; pkill -f cage" 2>/dev/null; true
+	-pkill -f "ssh -L $(VNC_PORT)" 2>/dev/null; true
