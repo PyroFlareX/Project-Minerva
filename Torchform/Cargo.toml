@@ -18,7 +18,7 @@ members = [
 # ---------------------------------------------------------------------------
 [workspace.dependencies]
 # Async runtime
-tokio          = { version = "1",   features = ["full"] }
+tokio          = { version = "1",   features = ["rt", "macros"] }
 
 # Serialisation
 serde          = { version = "1",   features = ["derive"] }
@@ -79,8 +79,19 @@ spidev         = { version = "0.6" }
 # Gamepad / HID controller input (cross-platform, works in Docker via evdev)
 gilrs          = { version = "0.10" }
 
+[profile.dev]
+opt-level     = 0
+incremental   = true
+debug         = 1            # line tables only — faster linking than full DWARF
+codegen-units = 256
+
 [profile.release]
 opt-level     = 3
 lto           = true
 codegen-units = 1
 strip         = true
+
+[profile.release-dev]
+inherits      = "release"
+lto           = "thin"
+codegen-units = 16

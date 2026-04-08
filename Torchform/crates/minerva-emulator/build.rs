@@ -1,4 +1,6 @@
 fn main() {
+    println!("cargo:rerun-if-changed=emulator.slint");
+
     let config = slint_build::CompilerConfiguration::new()
         .with_style("fluent-dark".into());
 
