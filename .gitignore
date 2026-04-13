@@ -84,3 +84,4 @@ __pycache__/
 logs/
 *.lock
 Notes/scratchpad.txt
+Minerva-Hardware/~CM5IO.kicad_pcb.lck
