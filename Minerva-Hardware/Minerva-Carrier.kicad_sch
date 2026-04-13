@@ -2455,7 +2455,7 @@
 				(offset 1.016)
 			)
 			(exclude_from_sim no)
-			(in_bom yes)
+			(in_bom no)
 			(on_board yes)
 			(property "Reference" "H"
 				(at 0 5.08 0)
@@ -4002,114 +4002,6 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 22.86 180.975 0)
-		(unit 1)
-		(exclude_from_sim yes)
-		(in_bom no)
-		(on_board yes)
-		(dnp yes)
-		(uuid "00000000-0000-0000-0000-00005e3b1a1d")
-		(property "Reference" "H4"
-			(at 25.4 179.832 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "MountingHole"
-			(at 25.4 182.118 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "CM5IO:MountingHole_2.7mm_M2.5_DIN965"
-			(at 22.86 180.975 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 22.86 180.975 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 22.86 180.975 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field4" "nf"
-			(at 22.86 180.975 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field5" "nf"
-			(at 22.86 180.975 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field6" "nf"
-			(at 22.86 180.975 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field7" "nf"
-			(at 22.86 180.975 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Part Description" "M2.5 mounting hole"
-			(at 22.86 180.975 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(instances
-			(project "CM5IO"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-					(reference "H4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Mechanical:MountingHole")
 		(at 22.86 175.895 0)
 		(unit 1)
 		(exclude_from_sim yes)
@@ -4153,7 +4045,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Mounting Hole without connection"
 			(at 22.86 175.895 0)
 			(effects
 				(font
@@ -4261,7 +4153,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Mounting Hole without connection"
 			(at 22.86 170.815 0)
 			(effects
 				(font
@@ -4325,114 +4217,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Mechanical:MountingHole")
-		(at 22.86 165.735 0)
-		(unit 1)
-		(exclude_from_sim yes)
-		(in_bom no)
-		(on_board yes)
-		(dnp yes)
-		(uuid "00000000-0000-0000-0000-00005e3b2f75")
-		(property "Reference" "H1"
-			(at 25.4 164.592 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "MountingHole"
-			(at 25.4 166.878 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "CM5IO:MountingHole_2.7mm_M2.5_DIN965"
-			(at 22.86 165.735 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 22.86 165.735 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 22.86 165.735 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field4" "nf"
-			(at 22.86 165.735 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field5" "nf"
-			(at 22.86 165.735 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field6" "nf"
-			(at 22.86 165.735 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field7" "nf"
-			(at 22.86 165.735 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Part Description" "M2.5 mounting hole"
-			(at 22.86 165.735 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(instances
-			(project "CM5IO"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-					(reference "H1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:Battery")
 		(at 107.95 162.56 0)
 		(unit 1)
@@ -4478,7 +4262,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "5000 mAh Battery"
+		(property "Description" "Multiple-cell battery"
 			(at 107.95 162.56 0)
 			(effects
 				(font
@@ -4521,7 +4305,7 @@
 			(uuid "b782e334-c4de-455a-a77e-fd38c5011a10")
 		)
 		(instances
-			(project ""
+			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "BT2")
 					(unit 1)
@@ -4591,7 +4375,7 @@
 			(uuid "0d8db052-8af6-4fb7-a668-e54053bf2988")
 		)
 		(instances
-			(project ""
+			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "L2")
 					(unit 1)
@@ -4724,7 +4508,7 @@
 			(uuid "bafa1f43-3276-47cb-a86b-5ec115778f17")
 		)
 		(instances
-			(project ""
+			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "R2")
 					(unit 1)
@@ -4898,7 +4682,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM155R71C104KA88-01.pdf"
+		(property "Datasheet" "~"
 			(at 83.82 76.2 0)
 			(effects
 				(font
@@ -4907,7 +4691,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor"
 			(at 83.82 76.2 0)
 			(effects
 				(font
@@ -5054,7 +4838,7 @@
 			(uuid "990f5f14-ffa3-423d-ab73-f14a80c1f20c")
 		)
 		(instances
-			(project ""
+			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "D4")
 					(unit 1)
@@ -5189,7 +4973,7 @@
 			(uuid "def4c2e1-ff7e-44ea-bcd9-4d99b3b9cac2")
 		)
 		(instances
-			(project ""
+			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "C5")
 					(unit 1)
@@ -5255,7 +5039,7 @@
 			(uuid "5f0126b6-c1bd-4bf6-9f89-c5d4a4f720a1")
 		)
 		(instances
-			(project ""
+			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "#PWR04")
 					(unit 1)
@@ -5307,7 +5091,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "USB 2.0-only 16P Type-C Receptacle connector"
 			(at 46.99 59.69 0)
 			(effects
 				(font
@@ -5448,7 +5232,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://fscdn.rohm.com/en/products/databook/datasheet/passive/resistor/chip_resistor/mcr-e.pdf"
+		(property "Datasheet" "~"
 			(at 87.63 48.26 0)
 			(effects
 				(font
@@ -5457,7 +5241,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor"
 			(at 87.63 48.26 0)
 			(effects
 				(font
@@ -5597,7 +5381,7 @@
 			(uuid "889e2aed-7f75-4056-8014-657a34186862")
 		)
 		(instances
-			(project ""
+			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "C1")
 					(unit 1)
@@ -5746,7 +5530,7 @@
 			(uuid "32f624ea-6bda-4a95-8293-6eb17bf76572")
 		)
 		(instances
-			(project ""
+			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "U1")
 					(unit 1)
@@ -5790,7 +5574,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://search.murata.co.jp/Ceramy/image/img/A01X/G101/ENG/GRM155R71C104KA88-01.pdf"
+		(property "Datasheet" "~"
 			(at 72.39 76.2 0)
 			(effects
 				(font
@@ -5799,7 +5583,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Unpolarized capacitor"
 			(at 72.39 76.2 0)
 			(effects
 				(font
@@ -6019,7 +5803,7 @@
 			(uuid "b47de403-0499-4604-85dd-783f0fd637d8")
 		)
 		(instances
-			(project ""
+			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "Q2")
 					(unit 1)
