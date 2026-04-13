@@ -3867,177 +3867,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Connector_Generic:Conn_01x03"
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "J"
-				(at 0 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "Conn_01x03"
-				(at 0 -5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "connector"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "Connector*:*_1x??_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "Conn_01x03_1_1"
-				(rectangle
-					(start -1.27 3.81)
-					(end 1.27 -3.81)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(rectangle
-					(start -1.27 2.667)
-					(end 0 2.413)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 -2.413)
-					(end 0 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin passive line
-					(at -5.08 2.54 0)
-					(length 3.81)
-					(name "Pin_1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 3.81)
-					(name "Pin_2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 -2.54 0)
-					(length 3.81)
-					(name "Pin_3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Connector_Generic:Conn_01x04"
 			(pin_names
 				(offset 1.016)
@@ -6026,6 +5855,15 @@
 					(hide yes)
 				)
 			)
+			(property "Sim.Pins" "1=K 2=A"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
 			(property "ki_keywords" "LED diode"
 				(at 0 0 0)
 				(effects
@@ -6253,180 +6091,6 @@
 					(at 0 -3.81 90)
 					(length 1.27)
 					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
-		(symbol "LED_1"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "D"
-				(at 0 2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "LED"
-				(at 0 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Light emitting diode"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "LED diode"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "LED* LED_SMD:* LED_THT:*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "LED_1_0_1"
-				(polyline
-					(pts
-						(xy -3.048 -0.762) (xy -4.572 -2.286) (xy -3.81 -2.286) (xy -4.572 -2.286) (xy -4.572 -1.524)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.778 -0.762) (xy -3.302 -2.286) (xy -2.54 -2.286) (xy -3.302 -2.286) (xy -3.302 -1.524)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.27 0) (xy 1.27 0)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.27 -1.27) (xy -1.27 1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 -1.27) (xy 1.27 1.27) (xy -1.27 0) (xy 1.27 -1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "LED_1_1_1"
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "K"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "A"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -6760,17 +6424,6 @@
 		)
 		(uuid "b5d2e634-ae67-44e3-9681-20c69bab0eff")
 	)
-	(text "Not Fitted header"
-		(exclude_from_sim no)
-		(at 132.715 123.825 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "b8fcd648-8385-4e85-ba16-e9b058ae3ba3")
-	)
 	(text "Force RPIBOOT = Jumper Pins 1-2 \n"
 		(exclude_from_sim no)
 		(at 56.515 162.56 0)
@@ -7016,12 +6669,6 @@
 		(uuid "d348d117-4b9d-47d4-9150-4630fb2e9cf8")
 	)
 	(junction
-		(at 101.6 134.62)
-		(diameter 1.016)
-		(color 0 0 0 0)
-		(uuid "d98ff9ae-e1f8-4424-8c9a-9e8a74700dc5")
-	)
-	(junction
 		(at 101.6 49.53)
 		(diameter 1.016)
 		(color 0 0 0 0)
@@ -7070,6 +6717,10 @@
 	(no_connect
 		(at 100.33 92.71)
 		(uuid "2e085dc5-de26-4296-9571-2dbc68a17b49")
+	)
+	(no_connect
+		(at 100.33 135.89)
+		(uuid "338aa467-1461-4215-a622-2f6b1e9b5f01")
 	)
 	(no_connect
 		(at 39.37 107.95)
@@ -7124,6 +6775,10 @@
 		(uuid "c399657a-fff5-4af1-9c4f-92ee20314fd7")
 	)
 	(no_connect
+		(at 100.33 133.35)
+		(uuid "c5d5427a-5de4-4e4e-a208-ad47485dad44")
+	)
+	(no_connect
 		(at 39.37 97.79)
 		(uuid "d1b351f2-84e4-4e40-8e25-396f724e3aab")
 	)
@@ -7149,7 +6804,7 @@
 	)
 	(wire
 		(pts
-			(xy 101.6 110.49) (xy 101.6 134.62)
+			(xy 101.6 110.49) (xy 101.6 151.13)
 		)
 		(stroke
 			(width 0)
@@ -7186,16 +6841,6 @@
 			(type solid)
 		)
 		(uuid "0366978a-3e89-4bad-abec-cf07fade1137")
-	)
-	(wire
-		(pts
-			(xy 100.33 135.89) (xy 118.11 135.89)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "05e5f229-ee1b-4890-b97c-8e7ece60ba60")
 	)
 	(wire
 		(pts
@@ -7449,16 +7094,6 @@
 	)
 	(wire
 		(pts
-			(xy 102.87 133.35) (xy 102.87 130.81)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "27785605-ef8c-4fa7-8f40-8dba236a9cba")
-	)
-	(wire
-		(pts
 			(xy 24.13 67.31) (xy 39.37 67.31)
 		)
 		(stroke
@@ -7466,16 +7101,6 @@
 			(type solid)
 		)
 		(uuid "27857518-158f-4e1c-9129-c2ac0153382a")
-	)
-	(wire
-		(pts
-			(xy 104.14 133.35) (xy 118.11 133.35)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "29440566-f617-45c7-8f5f-efafe2f0d24b")
 	)
 	(wire
 		(pts
@@ -8059,26 +7684,6 @@
 	)
 	(wire
 		(pts
-			(xy 104.14 134.62) (xy 104.14 133.35)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "7bd5b512-af4d-43db-aa46-0fc231d1db36")
-	)
-	(wire
-		(pts
-			(xy 101.6 134.62) (xy 101.6 151.13)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "7cb4adc7-e689-43cd-a738-0ba18c62365e")
-	)
-	(wire
-		(pts
 			(xy 38.1 59.69) (xy 38.1 72.39)
 		)
 		(stroke
@@ -8269,16 +7874,6 @@
 	)
 	(wire
 		(pts
-			(xy 102.87 130.81) (xy 118.11 130.81)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "97660885-3db5-4ad6-a54d-91f2fd79e84a")
-	)
-	(wire
-		(pts
 			(xy 100.33 146.05) (xy 116.84 146.05)
 		)
 		(stroke
@@ -8346,16 +7941,6 @@
 			(type solid)
 		)
 		(uuid "9dbceeba-9770-4d28-bb56-72cb3d7824e2")
-	)
-	(wire
-		(pts
-			(xy 100.33 133.35) (xy 102.87 133.35)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "9dcf989b-04cd-40f0-a8ff-a3c29c952c7a")
 	)
 	(wire
 		(pts
@@ -9219,16 +8804,6 @@
 	)
 	(wire
 		(pts
-			(xy 101.6 134.62) (xy 104.14 134.62)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "faea1312-325a-42de-ac79-3fa8abc809f3")
-	)
-	(wire
-		(pts
 			(xy 165.1 54.61) (xy 176.53 54.61)
 		)
 		(stroke
@@ -9437,16 +9012,6 @@
 		)
 		(uuid "1feb75da-52bc-4f54-bc22-6a4b1520ccea")
 	)
-	(label "BT_nDis"
-		(at 112.8776 135.89 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "21930fd1-46a2-4b3e-9765-d207f0464a07")
-	)
 	(label "GPIO7"
 		(at 173.99 54.61 180)
 		(effects
@@ -9496,16 +9061,6 @@
 			(justify left bottom)
 		)
 		(uuid "32af351e-30db-43fd-8004-85c42f0661d4")
-	)
-	(label "WL_nDis"
-		(at 113.665 130.81 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3406438b-af44-4c6b-93b5-d0d24ae94a91")
 	)
 	(label "GPIO6"
 		(at 147.32 62.23 180)
@@ -11112,7 +10667,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x20_P2.54mm_Vertical"
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_2x20_P2.54mm_Horizontal"
 			(at 157.48 46.99 0)
 			(effects
 				(font
@@ -11121,7 +10676,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.toby.co.uk/uploads/publications/1673.pdf"
+		(property "Datasheet" "~"
 			(at 157.48 46.99 0)
 			(effects
 				(font
@@ -11130,7 +10685,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, double row, 02x20, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
 			(at 157.48 46.99 0)
 			(effects
 				(font
@@ -11618,7 +11173,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "http://optoelectronics.liteon.com/upload/download/DS22-2000-226/LTST-S270KGKT.pdf"
+		(property "Datasheet" "~"
 			(at 116.84 27.94 0)
 			(effects
 				(font
@@ -11627,7 +11182,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Light emitting diode"
 			(at 116.84 27.94 0)
 			(effects
 				(font
@@ -11690,6 +11245,15 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 116.84 27.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "fd1b2abd-acdb-456a-b12a-78be5659d6b2")
 		)
@@ -11741,7 +11305,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://fscdn.rohm.com/en/products/databook/datasheet/passive/resistor/chip_resistor/mcr-e.pdf"
+		(property "Datasheet" "~"
 			(at 116.84 40.64 0)
 			(effects
 				(font
@@ -11750,7 +11314,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor"
 			(at 116.84 40.64 0)
 			(effects
 				(font
@@ -11829,7 +11393,6 @@
 		)
 	)
 	(symbol
-		(lib_name "LED_1")
 		(lib_id "Device:LED")
 		(at 160.02 113.03 90)
 		(unit 1)
@@ -11865,7 +11428,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "http://optoelectronics.liteon.com/upload/download/DS22-2000-210/LTST-S270KRKT.pdf"
+		(property "Datasheet" "~"
 			(at 160.02 113.03 0)
 			(effects
 				(font
@@ -11874,7 +11437,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Light emitting diode"
 			(at 160.02 113.03 0)
 			(effects
 				(font
@@ -11937,6 +11500,15 @@
 				(hide yes)
 			)
 		)
+		(property "Sim.Pins" "1=K 2=A"
+			(at 160.02 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "9c352ce5-8dcd-4676-8f85-0d97597fd098")
 		)
@@ -11988,7 +11560,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://fscdn.rohm.com/en/products/databook/datasheet/passive/resistor/chip_resistor/mcr-e.pdf"
+		(property "Datasheet" "~"
 			(at 160.02 123.19 0)
 			(effects
 				(font
@@ -11997,7 +11569,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor"
 			(at 160.02 123.19 0)
 			(effects
 				(font
@@ -12111,7 +11683,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "~"
 			(at 154.94 113.03 0)
 			(effects
 				(font
@@ -12120,7 +11692,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "test point"
 			(at 154.94 118.11 0)
 			(effects
 				(font
@@ -12222,7 +11794,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://fscdn.rohm.com/en/products/databook/datasheet/passive/resistor/chip_resistor/mcr-e.pdf"
+		(property "Datasheet" "~"
 			(at 156.21 91.44 0)
 			(effects
 				(font
@@ -12231,7 +11803,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor"
 			(at 156.21 91.44 0)
 			(effects
 				(font
@@ -12345,7 +11917,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://fscdn.rohm.com/en/products/databook/datasheet/passive/resistor/chip_resistor/mcr-e.pdf"
+		(property "Datasheet" "~"
 			(at 156.21 95.25 0)
 			(effects
 				(font
@@ -12354,7 +11926,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor"
 			(at 156.21 95.25 0)
 			(effects
 				(font
@@ -12439,7 +12011,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.toby.co.uk/uploads/publications/1673.pdf"
+		(property "Datasheet" "~"
 			(at 33.02 177.8 0)
 			(effects
 				(font
@@ -12448,7 +12020,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, double row, 02x07, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
 			(at 33.02 177.8 0)
 			(effects
 				(font
@@ -12548,121 +12120,6 @@
 			(project "CM5IO"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/00000000-0000-0000-0000-00005cff706a"
 					(reference "J2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector_Generic:Conn_01x03")
-		(at 123.19 133.35 0)
-		(unit 1)
-		(exclude_from_sim yes)
-		(in_bom no)
-		(on_board yes)
-		(dnp yes)
-		(uuid "00000000-0000-0000-0000-00005e95ca2d")
-		(property "Reference" "J3"
-			(at 121.1072 125.2982 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Conn_01x03"
-			(at 121.1072 127.6096 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
-			(at 123.19 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 123.19 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 123.19 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field4" "nf"
-			(at 123.19 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field5" "nf"
-			(at 123.19 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field6" "nf"
-			(at 123.19 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Field7" "nf"
-			(at 123.19 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Part Description" "3pin 0.1\" connector"
-			(at 123.19 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "21c25529-23d9-48dd-b470-801777c483af")
-		)
-		(pin "2"
-			(uuid "5f8f5622-0fae-4eeb-bf3b-6112a55f318d")
-		)
-		(pin "3"
-			(uuid "ac2dd344-9bcd-43ef-97cf-410a56901723")
-		)
-		(instances
-			(project "CM5IO"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/00000000-0000-0000-0000-00005cff706a"
-					(reference "J3")
 					(unit 1)
 				)
 			)
@@ -12834,7 +12291,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "~"
 			(at 154.94 176.53 0)
 			(effects
 				(font
@@ -12843,7 +12300,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
 			(at 154.94 176.53 0)
 			(effects
 				(font
@@ -12954,7 +12411,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://www.mouser.co.uk/datasheet/2/240/Littelfuse-3050591.pdf"
+		(property "Datasheet" "~"
 			(at 76.2 175.26 0)
 			(effects
 				(font
@@ -13059,7 +12516,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "~"
 			(at 123.19 39.37 0)
 			(effects
 				(font
@@ -13068,7 +12525,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "test point"
 			(at 123.19 34.29 0)
 			(effects
 				(font
@@ -13170,7 +12627,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "https://fscdn.rohm.com/en/products/databook/datasheet/passive/resistor/chip_resistor/mcr-e.pdf"
+		(property "Datasheet" "~"
 			(at 135.89 163.83 0)
 			(effects
 				(font
@@ -13179,7 +12636,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "Resistor"
 			(at 135.89 163.83 0)
 			(effects
 				(font

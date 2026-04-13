@@ -1,0 +1,2 @@
+Change J4 footprint assignment from 'CM5 IO Board-rev2:M.2 M Key socket' to 'CM5 IO Board-rev2:M.2 M Key socket 2230'.
+Change J4 footprint assignment from 'CM5 IO Board-rev2:M.2 M Key socket' to 'CM5 IO Board-rev2:M.2 M Key socket 2230'.
