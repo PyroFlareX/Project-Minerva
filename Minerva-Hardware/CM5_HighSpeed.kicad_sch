@@ -5,10 +5,9 @@
 	(uuid "3457afc5-3e4f-4220-81d1-b079f653a722")
 	(paper "A4")
 	(title_block
-		(title "Compute Module 5 IO Board - CM5 - Highspeed")
+		(title "Minerva Carrier Board - CM5 - Highspeed")
+		(date "2026-04-13")
 		(rev "1")
-		(company "Copyright © 2024 Raspberry Pi Ltd.")
-		(comment 1 "www.raspberrypi.com")
 	)
 	(lib_symbols
 		(symbol "CM5IO:AP2553W6"
@@ -6521,6 +6520,10 @@
 		(uuid "ff2f00dc-dff2-4a19-af27-f5c793a8d261")
 	)
 	(no_connect
+		(at 99.06 25.4)
+		(uuid "07f1a099-23fb-458b-99f7-05ea5a55c115")
+	)
+	(no_connect
 		(at 67.31 180.34)
 		(uuid "112128db-5910-4ab6-b2d1-fff0827fb81f")
 	)
@@ -8584,16 +8587,6 @@
 		)
 		(uuid "fd34aa56-ded2-4e97-965a-a39457716f0c")
 	)
-	(wire
-		(pts
-			(xy 105.41 25.4) (xy 99.06 25.4)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "fe1ad3bd-92cc-4e1c-8cc9-a77278095945")
-	)
 	(label "DPHY1_D3_P"
 		(at 21.59 144.78 0)
 		(effects
@@ -9273,17 +9266,6 @@
 			(justify left bottom)
 		)
 		(uuid "fd146ca2-8fb8-4c71-9277-84f69bc5d3fc")
-	)
-	(hierarchical_label "USBOTG_ID"
-		(shape input)
-		(at 105.41 25.4 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "02b1295e-cf95-47ff-9c57-f8ada28f2e94")
 	)
 	(hierarchical_label "PCIE_PWR_EN"
 		(shape output)
