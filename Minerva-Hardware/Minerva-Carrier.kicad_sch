@@ -3132,6 +3132,16 @@
 	)
 	(wire
 		(pts
+			(xy 236.22 93.98) (xy 236.22 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "07ac3d42-78f4-4f01-ad28-807cbf073adc")
+	)
+	(wire
+		(pts
 			(xy 186.69 130.81) (xy 195.58 130.81)
 		)
 		(stroke
@@ -3142,7 +3152,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 96.52) (xy 180.34 111.76)
+			(xy 173.99 96.52) (xy 173.99 111.76)
 		)
 		(stroke
 			(width 0)
@@ -3412,6 +3422,16 @@
 	)
 	(wire
 		(pts
+			(xy 232.41 90.17) (xy 232.41 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "67b7eb93-c8f8-4cf8-b352-f42ff7fcbf2b")
+	)
+	(wire
+		(pts
 			(xy 80.01 162.56) (xy 80.01 167.64)
 		)
 		(stroke
@@ -3672,6 +3692,16 @@
 	)
 	(wire
 		(pts
+			(xy 186.69 90.17) (xy 232.41 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d61a6069-aa14-400a-9a8a-b9383ca14e5f")
+	)
+	(wire
+		(pts
 			(xy 69.85 92.71) (xy 69.85 101.6)
 		)
 		(stroke
@@ -3699,6 +3729,16 @@
 			(type default)
 		)
 		(uuid "e347b8ca-3125-453f-9604-2a53134070ba")
+	)
+	(wire
+		(pts
+			(xy 186.69 93.98) (xy 236.22 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4f2e225-0432-4af1-95fa-a21d6bf2e074")
 	)
 	(wire
 		(pts
@@ -4110,7 +4150,7 @@
 			)
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "H3")
 					(unit 1)
@@ -4218,7 +4258,7 @@
 			)
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "H2")
 					(unit 1)
@@ -4315,7 +4355,7 @@
 			(uuid "b782e334-c4de-455a-a77e-fd38c5011a10")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "BT2")
 					(unit 1)
@@ -4385,7 +4425,7 @@
 			(uuid "0d8db052-8af6-4fb7-a668-e54053bf2988")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "L2")
 					(unit 1)
@@ -4450,7 +4490,7 @@
 			(uuid "c7f90bb2-0431-4d78-adca-17ef654f711b")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "#PWR031")
 					(unit 1)
@@ -4518,7 +4558,7 @@
 			(uuid "bafa1f43-3276-47cb-a86b-5ec115778f17")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "R2")
 					(unit 1)
@@ -4583,7 +4623,7 @@
 			(uuid "b0585595-dd4c-4563-bb0a-7b6f00a3debc")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "#PWR05")
 					(unit 1)
@@ -4648,7 +4688,7 @@
 			(uuid "aff4c19f-1cf8-457e-98b6-d525b3e04ff9")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "#PWR032")
 					(unit 1)
@@ -4771,7 +4811,7 @@
 			(uuid "d83594dc-e88c-4a0a-8e24-5cdfbaac4255")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "C18")
 					(unit 1)
@@ -4848,7 +4888,7 @@
 			(uuid "990f5f14-ffa3-423d-ab73-f14a80c1f20c")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "D4")
 					(unit 1)
@@ -4913,7 +4953,7 @@
 			(uuid "606b352c-170d-4cb0-aaaa-cbdcdf365be5")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "#PWR03")
 					(unit 1)
@@ -4983,7 +5023,7 @@
 			(uuid "def4c2e1-ff7e-44ea-bcd9-4d99b3b9cac2")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "C5")
 					(unit 1)
@@ -5049,7 +5089,7 @@
 			(uuid "5f0126b6-c1bd-4bf6-9f89-c5d4a4f720a1")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "#PWR04")
 					(unit 1)
@@ -5198,7 +5238,7 @@
 			(uuid "50951762-fdee-419e-aeb0-b7310ba2514e")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "J11")
 					(unit 1)
@@ -5321,7 +5361,7 @@
 			(uuid "b96ce79e-de64-4bb5-8b7f-4429c99aa19f")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "R9")
 					(unit 1)
@@ -5391,7 +5431,7 @@
 			(uuid "889e2aed-7f75-4056-8014-657a34186862")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "C1")
 					(unit 1)
@@ -5540,7 +5580,7 @@
 			(uuid "32f624ea-6bda-4a95-8293-6eb17bf76572")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "U1")
 					(unit 1)
@@ -5663,7 +5703,7 @@
 			(uuid "6f6e9283-9dfc-4003-89e3-ea1d47079c07")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "C9")
 					(unit 1)
@@ -5728,7 +5768,7 @@
 			(uuid "cda5947c-c30d-4019-9c99-4366d9097258")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "#PWR02")
 					(unit 1)
@@ -5813,7 +5853,7 @@
 			(uuid "b47de403-0499-4604-85dd-783f0fd637d8")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "Q2")
 					(unit 1)
@@ -5878,7 +5918,7 @@
 			(uuid "0dbfcac6-1605-43aa-90dc-4a5b4c38b7be")
 		)
 		(instances
-			(project "CM5IO"
+			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "#PWR013")
 					(unit 1)
@@ -5981,7 +6021,7 @@
 			)
 		)
 		(pin "GPIO_VREF" output
-			(at 180.34 111.76 90)
+			(at 173.99 111.76 90)
 			(uuid "b1086f75-01ba-4188-8d36-75a9e2828ca9")
 			(effects
 				(font
@@ -6273,7 +6313,7 @@
 			)
 		)
 		(pin "GPIO_VREF" input
-			(at 180.34 96.52 270)
+			(at 173.99 96.52 270)
 			(uuid "9bb20359-0f8b-45bc-9d38-6626ed3a939d")
 			(effects
 				(font
@@ -6320,6 +6360,26 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(pin "USB-3-P" bidirectional
+			(at 186.69 90.17 0)
+			(uuid "59579637-7747-48f3-8b10-c7c4d17624ad")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "USB-3-N" bidirectional
+			(at 186.69 93.98 0)
+			(uuid "667b4482-3217-47ac-945d-c00d1cb08e00")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 			)
 		)
 		(instances
@@ -6468,6 +6528,26 @@
 		(pin "PCIE_nWAKE" output
 			(at 214.63 76.2 180)
 			(uuid "29caf48f-b190-47ea-a0b4-a078d43caa04")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MODEM_USB_N" bidirectional
+			(at 236.22 86.36 270)
+			(uuid "9475c572-a9e1-48c7-a59a-17cdb4b3e902")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MODEM_USB_P" bidirectional
+			(at 232.41 86.36 270)
+			(uuid "4952996d-90ac-4751-bb1f-3cec1a6a4d42")
 			(effects
 				(font
 					(size 1.27 1.27)
