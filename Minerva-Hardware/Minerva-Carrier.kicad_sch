@@ -3328,6 +3328,16 @@
 	)
 	(wire
 		(pts
+			(xy 236.22 93.98) (xy 236.22 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "07ac3d42-78f4-4f01-ad28-807cbf073adc")
+	)
+	(wire
+		(pts
 			(xy 186.69 130.81) (xy 195.58 130.81)
 		)
 		(stroke
@@ -3338,7 +3348,7 @@
 	)
 	(wire
 		(pts
-			(xy 180.34 96.52) (xy 180.34 111.76)
+			(xy 173.99 96.52) (xy 173.99 111.76)
 		)
 		(stroke
 			(width 0)
@@ -3608,6 +3618,16 @@
 	)
 	(wire
 		(pts
+			(xy 232.41 90.17) (xy 232.41 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "67b7eb93-c8f8-4cf8-b352-f42ff7fcbf2b")
+	)
+	(wire
+		(pts
 			(xy 80.01 162.56) (xy 80.01 167.64)
 		)
 		(stroke
@@ -3868,6 +3888,16 @@
 	)
 	(wire
 		(pts
+			(xy 186.69 90.17) (xy 232.41 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d61a6069-aa14-400a-9a8a-b9383ca14e5f")
+	)
+	(wire
+		(pts
 			(xy 69.85 92.71) (xy 69.85 101.6)
 		)
 		(stroke
@@ -3895,6 +3925,16 @@
 			(type default)
 		)
 		(uuid "e347b8ca-3125-453f-9604-2a53134070ba")
+	)
+	(wire
+		(pts
+			(xy 186.69 93.98) (xy 236.22 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e4f2e225-0432-4af1-95fa-a21d6bf2e074")
 	)
 	(wire
 		(pts
@@ -6505,7 +6545,7 @@
 			)
 		)
 		(pin "GPIO_VREF" output
-			(at 180.34 111.76 90)
+			(at 173.99 111.76 90)
 			(uuid "b1086f75-01ba-4188-8d36-75a9e2828ca9")
 			(effects
 				(font
@@ -6801,7 +6841,7 @@
 			)
 		)
 		(pin "GPIO_VREF" input
-			(at 180.34 96.52 270)
+			(at 173.99 96.52 270)
 			(uuid "9bb20359-0f8b-45bc-9d38-6626ed3a939d")
 			(effects
 				(font
@@ -6848,6 +6888,26 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(pin "USB-3-P" bidirectional
+			(at 186.69 90.17 0)
+			(uuid "59579637-7747-48f3-8b10-c7c4d17624ad")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "USB-3-N" bidirectional
+			(at 186.69 93.98 0)
+			(uuid "667b4482-3217-47ac-945d-c00d1cb08e00")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 			)
 		)
 		(instances
@@ -7000,6 +7060,26 @@
 		(pin "PCIE_nWAKE" output
 			(at 214.63 76.2 180)
 			(uuid "29caf48f-b190-47ea-a0b4-a078d43caa04")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MODEM_USB_N" bidirectional
+			(at 236.22 86.36 270)
+			(uuid "9475c572-a9e1-48c7-a59a-17cdb4b3e902")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "MODEM_USB_P" bidirectional
+			(at 232.41 86.36 270)
+			(uuid "4952996d-90ac-4751-bb1f-3cec1a6a4d42")
 			(effects
 				(font
 					(size 1.27 1.27)
