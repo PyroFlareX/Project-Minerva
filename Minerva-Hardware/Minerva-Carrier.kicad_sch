@@ -3199,7 +3199,7 @@
 	)
 	(text "Connectors\n------\nM2 MKey"
 		(exclude_from_sim no)
-		(at 228.092 41.91 0)
+		(at 234.442 62.23 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3328,16 +3328,6 @@
 	)
 	(wire
 		(pts
-			(xy 236.22 93.98) (xy 236.22 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "07ac3d42-78f4-4f01-ad28-807cbf073adc")
-	)
-	(wire
-		(pts
 			(xy 186.69 130.81) (xy 195.58 130.81)
 		)
 		(stroke
@@ -3375,6 +3365,16 @@
 			(type default)
 		)
 		(uuid "114a4fe7-c90e-4fcd-88e7-f5ec7b4ed9dd")
+	)
+	(wire
+		(pts
+			(xy 242.57 29.21) (xy 170.18 29.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "132f7332-f1f0-44f2-866f-24da2bff0d1a")
 	)
 	(wire
 		(pts
@@ -3538,6 +3538,16 @@
 	)
 	(wire
 		(pts
+			(xy 186.69 80.01) (xy 214.63 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "472bbd6b-128c-4a1b-bc8e-46504c769ae6")
+	)
+	(wire
+		(pts
 			(xy 107.95 147.32) (xy 95.25 147.32)
 		)
 		(stroke
@@ -3555,6 +3565,16 @@
 			(type solid)
 		)
 		(uuid "483f60da-14d7-4f88-8d01-3f9f30784c70")
+	)
+	(wire
+		(pts
+			(xy 172.72 34.29) (xy 172.72 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4dbc2740-62f8-4916-9a00-ad77a2fd1002")
 	)
 	(wire
 		(pts
@@ -3618,16 +3638,6 @@
 	)
 	(wire
 		(pts
-			(xy 232.41 90.17) (xy 232.41 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "67b7eb93-c8f8-4cf8-b352-f42ff7fcbf2b")
-	)
-	(wire
-		(pts
 			(xy 80.01 162.56) (xy 80.01 167.64)
 		)
 		(stroke
@@ -3665,6 +3675,16 @@
 			(type solid)
 		)
 		(uuid "71c77456-1405-42e3-95ed-69e629de0558")
+	)
+	(wire
+		(pts
+			(xy 165.1 26.67) (xy 252.73 26.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "78b995a6-4356-4fd0-8618-0960bc3bb71b")
 	)
 	(wire
 		(pts
@@ -3768,13 +3788,33 @@
 	)
 	(wire
 		(pts
-			(xy 242.57 64.77) (xy 255.27 64.77)
+			(xy 261.62 74.93) (xy 259.08 74.93)
 		)
 		(stroke
 			(width 0)
 			(type solid)
 		)
 		(uuid "909b030b-fa1a-4fe8-b1ee-422b4d9e23cf")
+	)
+	(wire
+		(pts
+			(xy 170.18 29.21) (xy 170.18 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9c15fab4-e1d0-4541-b76d-2e7423c9959e")
+	)
+	(wire
+		(pts
+			(xy 240.03 30.48) (xy 240.03 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9eb02f40-feb2-44ad-abd2-1b8c2aa0e985")
 	)
 	(wire
 		(pts
@@ -3815,6 +3855,16 @@
 			(type default)
 		)
 		(uuid "aefe3657-99e1-4c84-82fe-75ccd530c2c0")
+	)
+	(wire
+		(pts
+			(xy 162.56 25.4) (xy 162.56 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b0173d66-ead6-445f-95d0-5f8e9632983c")
 	)
 	(wire
 		(pts
@@ -3878,6 +3928,36 @@
 	)
 	(wire
 		(pts
+			(xy 172.72 30.48) (xy 240.03 30.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c08b86c1-bb7d-4799-bc3f-c435a5f37694")
+	)
+	(wire
+		(pts
+			(xy 252.73 26.67) (xy 252.73 34.29)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c3194e43-f82a-47fd-9a39-8fb156d8310c")
+	)
+	(wire
+		(pts
+			(xy 186.69 82.55) (xy 214.63 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c9350a65-7410-4c26-a1a6-a2748ae0dffa")
+	)
+	(wire
+		(pts
 			(xy 62.23 57.15) (xy 62.23 59.69)
 		)
 		(stroke
@@ -3888,13 +3968,13 @@
 	)
 	(wire
 		(pts
-			(xy 186.69 90.17) (xy 232.41 90.17)
+			(xy 165.1 34.29) (xy 165.1 26.67)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d61a6069-aa14-400a-9a8a-b9383ca14e5f")
+		(uuid "d57895e6-89a7-4038-a50b-fe4c0ae74ca0")
 	)
 	(wire
 		(pts
@@ -3928,13 +4008,23 @@
 	)
 	(wire
 		(pts
-			(xy 186.69 93.98) (xy 236.22 93.98)
+			(xy 255.27 25.4) (xy 162.56 25.4)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e4f2e225-0432-4af1-95fa-a21d6bf2e074")
+		(uuid "e4ffc8e9-aea1-4b83-9a07-630f453e1c13")
+	)
+	(wire
+		(pts
+			(xy 242.57 34.29) (xy 242.57 29.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e5335cc3-7210-443c-be54-3d564764c352")
 	)
 	(wire
 		(pts
@@ -4036,6 +4126,16 @@
 		)
 		(uuid "fc94f58d-5a47-496a-b2ea-439bb76ace34")
 	)
+	(wire
+		(pts
+			(xy 255.27 34.29) (xy 255.27 25.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fce3feaa-2cfa-4644-b6f6-b104e72409d6")
+	)
 	(label "+5v"
 		(at 72.39 72.39 0)
 		(effects
@@ -4097,7 +4197,7 @@
 		(uuid "472fd7ea-ce2f-4e97-bffc-46e1b7b99dbe")
 	)
 	(label "+5v"
-		(at 246.38 64.77 0)
+		(at 261.62 74.93 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -6891,7 +6991,7 @@
 			)
 		)
 		(pin "USB-3-P" bidirectional
-			(at 186.69 90.17 0)
+			(at 186.69 80.01 0)
 			(uuid "59579637-7747-48f3-8b10-c7c4d17624ad")
 			(effects
 				(font
@@ -6901,8 +7001,48 @@
 			)
 		)
 		(pin "USB-3-N" bidirectional
-			(at 186.69 93.98 0)
+			(at 186.69 82.55 0)
 			(uuid "667b4482-3217-47ac-945d-c00d1cb08e00")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "USB3-0-RX_N" bidirectional
+			(at 162.56 34.29 90)
+			(uuid "6e8b6f40-d444-447a-a24f-12af175f9faa")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "USB3-0-RX_P" bidirectional
+			(at 165.1 34.29 90)
+			(uuid "bf45e3fd-de12-4c1c-9830-bd4783920037")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "USB3-0-TX_N" bidirectional
+			(at 170.18 34.29 90)
+			(uuid "9f88267a-9770-4ec6-8991-0d19cf6ec2ef")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "USB3-0-TX_P" bidirectional
+			(at 172.72 34.29 90)
+			(uuid "b34fd424-6132-4ce8-accc-39ed850c8162")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6920,7 +7060,7 @@
 	)
 	(sheet
 		(at 214.63 34.29)
-		(size 27.94 52.07)
+		(size 44.45 52.07)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -7038,7 +7178,7 @@
 			)
 		)
 		(pin "+5v" input
-			(at 242.57 64.77 0)
+			(at 259.08 74.93 0)
 			(uuid "0217dfc4-fc13-4699-99ad-d9948522648e")
 			(effects
 				(font
@@ -7067,9 +7207,29 @@
 				(justify left)
 			)
 		)
-		(pin "MODEM_USB_N" bidirectional
-			(at 236.22 86.36 270)
-			(uuid "9475c572-a9e1-48c7-a59a-17cdb4b3e902")
+		(pin "W_DISABLE" output
+			(at 229.87 34.29 90)
+			(uuid "b8386bdd-e753-443d-ae30-fab778e3f1aa")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "PERST" output
+			(at 226.7012 34.29 90)
+			(uuid "3acdd170-10e0-41dd-b637-fa514a46bd11")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "MODEM_USBD_N" bidirectional
+			(at 214.63 82.55 180)
+			(uuid "1d0c949d-3d63-452b-b152-bbe7efc6c3b3")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7077,14 +7237,54 @@
 				(justify left)
 			)
 		)
-		(pin "MODEM_USB_P" bidirectional
-			(at 232.41 86.36 270)
-			(uuid "4952996d-90ac-4751-bb1f-3cec1a6a4d42")
+		(pin "MODEM_USBD_P" bidirectional
+			(at 214.63 80.01 180)
+			(uuid "f705890f-45a3-4f54-830c-eba2ae7052cd")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(pin "MODEM_USBRX_N" bidirectional
+			(at 255.27 34.29 90)
+			(uuid "f3338bef-a28c-42aa-a8f5-2c821cad948c")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "MODEM_USBRX_P" bidirectional
+			(at 252.73 34.29 90)
+			(uuid "b400aa58-82d3-4b62-b492-a5ba2a82dd33")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "MODEM_USBTX_N" bidirectional
+			(at 242.57 34.29 90)
+			(uuid "e5c426e2-cf99-447f-9317-2df18d6ada1a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "MODEM_USBTX_P" bidirectional
+			(at 240.03 34.29 90)
+			(uuid "985eef96-8fc6-465a-9d52-e680e4f12146")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 			)
 		)
 		(instances
