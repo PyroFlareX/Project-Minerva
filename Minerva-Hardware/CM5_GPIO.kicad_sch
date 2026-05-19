@@ -6841,6 +6841,10 @@
 		(uuid "fc4733a3-c200-4f8e-9f63-f3b7c6201473")
 	)
 	(no_connect
+		(at 40.64 180.34)
+		(uuid "01e5c10b-950b-4a7b-ad8a-904048e592b9")
+	)
+	(no_connect
 		(at 39.37 41.91)
 		(uuid "05de7f0b-ebb5-4040-9dcf-74588188d8de")
 	)
@@ -8176,6 +8180,16 @@
 	)
 	(wire
 		(pts
+			(xy 0.1588 2.2862) (xy 0.1588 11.1762)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aea6efdd-f912-4b03-aca7-8486d9d8e22f")
+	)
+	(wire
+		(pts
 			(xy 140.97 57.15) (xy 152.4 57.15)
 		)
 		(stroke
@@ -8863,16 +8877,6 @@
 			(type solid)
 		)
 		(uuid "f48f0041-ce42-4bd4-9cbf-e7a61f40b63d")
-	)
-	(wire
-		(pts
-			(xy 40.64 180.34) (xy 54.61 180.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f612c023-1a29-4c76-9f61-5f96b8089924")
 	)
 	(wire
 		(pts
@@ -9574,6 +9578,16 @@
 		)
 		(uuid "9c6800c7-760c-4f03-9c91-64575523dd35")
 	)
+	(label "+3.3v"
+		(at 0.1588 2.2862 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a06e8e78-f567-42e6-b645-013b1073ca31")
+	)
 	(label "nRPIBOOT"
 		(at 50.546 170.18 180)
 		(effects
@@ -10066,17 +10080,6 @@
 			(justify left)
 		)
 		(uuid "e76d8ae7-a53c-498d-a35e-6830e8905709")
-	)
-	(hierarchical_label "USBOTG"
-		(shape output)
-		(at 54.61 180.34 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "f1925da3-6d02-4d29-b13d-37e38f996a50")
 	)
 	(symbol
 		(lib_id "CM5IO:ComputeModule5-CM5")

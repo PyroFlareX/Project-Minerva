@@ -262,12 +262,12 @@
     "layer_pairs": [
       {
         "bottomLayer": 4,
-        "enabled": true,
+        "enabled": false,
         "topLayer": 0
       },
       {
         "bottomLayer": 6,
-        "enabled": true,
+        "enabled": false,
         "topLayer": 0
       },
       {
@@ -705,7 +705,7 @@
       "method": 0,
       "sort_order": 0
     },
-    "bom_export_filename": "",
+    "bom_export_filename": "BOM.txt",
     "bom_fmt_presets": [],
     "bom_fmt_settings": {
       "field_delimiter": ",",
@@ -897,7 +897,7 @@
         "uuid": "d2e469ef-08ba-421a-bf0f-150328b21723"
       }
     ],
-    "used_designators": "R13,R17-20,C19,C21-34,#PWR49-73,SW10-12",
+    "used_designators": "",
     "variants": []
   },
   "sheets": [
