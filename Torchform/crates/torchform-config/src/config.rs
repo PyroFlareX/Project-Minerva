@@ -225,15 +225,17 @@ impl Default for ThemeColors {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(default)]
 pub struct ThemeTypography {
-    pub font_sans: String,
-    pub font_mono: String,
+    pub font_sans:    String,
+    pub font_mono:    String,
+    pub font_display: String,
 }
 
 impl Default for ThemeTypography {
     fn default() -> Self {
         Self {
-            font_sans: "Inter, DejaVu Sans, sans-serif".into(),
-            font_mono: "JetBrains Mono, DejaVu Sans Mono, monospace".into(),
+            font_sans:    "Inter, DejaVu Sans, sans-serif".into(),
+            font_mono:    "JetBrains Mono, DejaVu Sans Mono, monospace".into(),
+            font_display: "Barlow Condensed, Inter, DejaVu Sans, sans-serif".into(),
         }
     }
 }

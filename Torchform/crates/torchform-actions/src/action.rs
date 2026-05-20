@@ -44,6 +44,14 @@ pub enum ShellAction {
     OpenPalette,
     /// Toggle the app switcher overlay.
     OpenSwitcher,
+    /// Toggle the Quick Settings slide-in panel (volume/brightness/toggles).
+    OpenQuickSettings,
+    /// Toggle the Notifications slide-in panel.
+    OpenNotifications,
+    /// Return to the home screen from an app.
+    GoHome,
+    /// Show the lock screen.
+    Lock,
 
     // -----------------------------------------------------------------
     // Radial menu

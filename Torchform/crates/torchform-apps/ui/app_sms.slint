@@ -1,0 +1,177 @@
+// =============================================================================
+// app_sms.slint — Torchform Messages (SMS)
+// =============================================================================
+
+import { Tokens } from "../../torchform-shell/ui/tokens.slint";
+
+export struct SmsThread {
+    index:   int,
+    name:    string,
+    preview: string,
+    time:    string,
+    unread:  int,
+}
+
+export struct SmsMessage {
+    text:     string,
+    outgoing: bool,
+    time:     string,
+}
+
+component ThreadRow inherits Rectangle {
+    in property <SmsThread> thread;
+    in property <bool>      focused;
+    callback activated();
+
+    height: 60px;
+    background: focused ? Tokens.bg-elevated : transparent;
+    border-width: focused ? 0px : 0px;
+    animate background { duration: Tokens.anim-fast; }
+
+    if focused: Rectangle { x: 0; width: 2px; height: parent.height; background: Tokens.accent; }
+
+    HorizontalLayout {
+        padding-left: 14px; padding-right: 14px; spacing: Tokens.space-3; alignment: center;
+
+        Rectangle {
+            width: 36px; height: 36px; border-radius: 18px; background: Tokens.accent-glow;
+            Text { width: parent.width; height: parent.height; text: "💬"; font-size: 16px; color: Tokens.accent; horizontal-alignment: center; vertical-alignment: center; }
+        }
+        VerticalLayout {
+            horizontal-stretch: 1; alignment: center; spacing: 2px;
+            HorizontalLayout {
+                Text { horizontal-stretch: 1; text: thread.name; font-size: Tokens.text-md; font-family: Tokens.font-sans; font-weight: Tokens.weight-semibold; color: Tokens.text-primary; overflow: elide; }
+                Text { text: thread.time; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+            }
+            Text { text: thread.preview; font-size: Tokens.text-sm; font-family: Tokens.font-sans; color: Tokens.text-secondary; overflow: elide; }
+        }
+        if thread.unread > 0: Rectangle {
+            width: 20px; height: 20px; border-radius: 10px; background: Tokens.accent;
+            Text { width: parent.width; height: parent.height; text: thread.unread; font-size: 9px; font-family: Tokens.font-mono; color: Tokens.text-on-accent; horizontal-alignment: center; vertical-alignment: center; }
+        }
+    }
+
+    Rectangle { x: 14px; y: parent.height - 1px; width: parent.width - 28px; height: 1px; background: Tokens.border-subtle; }
+    TouchArea { clicked => { root.activated(); } }
+}
+
+component MsgBubble inherits Rectangle {
+    in property <SmsMessage> msg;
+
+    height: 0px;  // sized by content via layout
+
+    HorizontalLayout {
+        padding-left: 12px; padding-right: 12px; padding-top: 4px; padding-bottom: 4px;
+        alignment: msg.outgoing ? end : start;
+
+        Rectangle {
+            border-radius: 12px;
+            background: msg.outgoing ? Tokens.accent : Tokens.bg-elevated;
+            HorizontalLayout {
+                padding-left: 10px; padding-right: 10px; padding-top: 6px; padding-bottom: 6px;
+                Text {
+                    text: msg.text; wrap: word-wrap;
+                    font-size: Tokens.text-sm; font-family: Tokens.font-sans;
+                    color: msg.outgoing ? Tokens.text-on-accent : Tokens.text-primary;
+                }
+            }
+        }
+    }
+}
+
+export component AppSms inherits Rectangle {
+    in property <int>          focused-row: 0;
+    in property <[SmsThread]>  threads;
+    in property <[SmsMessage]> messages;
+    in property <bool>         in-thread:   false;
+    in property <string>       thread-name: "";
+    in property <string>       compose-text: "";
+
+    callback close-requested();
+    callback open-thread(int);
+    callback back-to-list();
+    callback send-message(string);
+
+    background: Tokens.bg-base;
+
+    VerticalLayout {
+        padding: 0px;
+
+        Rectangle {
+            height: 52px; background: Tokens.bg-surface;
+            HorizontalLayout {
+                padding-left: Tokens.space-4; padding-right: Tokens.space-4; alignment: center;
+                if in-thread: Rectangle {
+                    width: 32px; height: 32px; border-radius: 8px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "‹"; font-size: Tokens.text-lg; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.back-to-list(); } }
+                }
+                if in-thread: Rectangle { width: Tokens.space-2; }
+                Text {
+                    horizontal-stretch: 1;
+                    text: in-thread ? thread-name : "💬  Messages";
+                    font-size: Tokens.text-xl; font-family: Tokens.font-sans; font-weight: Tokens.weight-semibold; color: Tokens.text-primary; vertical-alignment: center;
+                }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 16px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "✕"; font-size: Tokens.text-sm; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.close-requested(); } }
+                }
+            }
+        }
+
+        if !in-thread: Rectangle {
+            horizontal-stretch: 1; vertical-stretch: 1; clip: true;
+            VerticalLayout {
+                alignment: start;
+                for t in threads: ThreadRow {
+                    thread: t; focused: t.index == focused-row;
+                    activated => { root.open-thread(t.index); }
+                }
+                if threads.length == 0: Text {
+                    height: 80px; text: "No messages"; font-size: Tokens.text-md;
+                    font-family: Tokens.font-sans; color: Tokens.text-disabled;
+                    horizontal-alignment: center; vertical-alignment: center;
+                }
+            }
+        }
+
+        if in-thread: Rectangle {
+            horizontal-stretch: 1; vertical-stretch: 1; background: Tokens.bg-base; clip: true;
+            VerticalLayout {
+                alignment: end; padding: 8px; spacing: 4px;
+                for m in messages: MsgBubble { msg: m; }
+            }
+        }
+
+        if in-thread: Rectangle {
+            height: 48px; background: Tokens.bg-surface;
+            HorizontalLayout {
+                padding-left: Tokens.space-3; padding-right: Tokens.space-3; spacing: Tokens.space-2; alignment: center;
+                Rectangle {
+                    horizontal-stretch: 1; height: 34px; border-radius: Tokens.radius-md; background: Tokens.bg-elevated;
+                    HorizontalLayout {
+                        padding-left: Tokens.space-3; padding-right: Tokens.space-3; alignment: center;
+                        Text {
+                            horizontal-stretch: 1;
+                            text: compose-text != "" ? compose-text : "Type a message…";
+                            font-size: Tokens.text-sm; font-family: Tokens.font-sans;
+                            color: compose-text != "" ? Tokens.text-primary : Tokens.text-disabled;
+                            vertical-alignment: center; overflow: elide;
+                        }
+                    }
+                }
+                Rectangle {
+                    width: 36px; height: 36px; border-radius: 18px; background: Tokens.accent;
+                    Text { width: parent.width; height: parent.height; text: "➤"; font-size: 14px; color: Tokens.text-on-accent; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.send-message(compose-text); } }
+                }
+            }
+        }
+
+        Rectangle {
+            height: 24px; background: Tokens.bg-surface;
+            Text { width: parent.width; height: parent.height; text: "  ↑↓=Select  A=Open  B=Back"; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+        }
+    }
+}

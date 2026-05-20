@@ -1,0 +1,66 @@
+// =============================================================================
+// chrome/lock_screen.slint — lock screen (mirrors #lock in torchform-os.html)
+//
+// Big condensed clock, date, four PIN dots (press A four times to unlock), and
+// a blinking hint. The Konami easter egg is handled in the shell state machine.
+// =============================================================================
+
+import { Tokens } from "../tokens.slint";
+
+export component LockScreen inherits Rectangle {
+    in property <string> time-str: "00:00";
+    in property <string> date-str: "Monday, Jan 1";
+    in property <int>    pin-len: 0;
+
+    background: Tokens.bg-base;
+
+    // Subtle ambient wash
+    Rectangle {
+        width: parent.width; height: parent.height;
+        background: @radial-gradient(circle, #2a64c812 0%, transparent 55%);
+    }
+
+    VerticalLayout {
+        alignment: center;
+        spacing: 8px;
+
+        Text {
+            text: time-str;
+            font-size: 88px;
+            font-weight: Tokens.weight-bold;
+            font-family: Tokens.font-display;
+            color: Tokens.text-primary;
+            horizontal-alignment: center;
+        }
+        Text {
+            text: date-str;
+            font-size: 12px;
+            font-family: Tokens.font-mono;
+            color: Tokens.text-secondary;
+            horizontal-alignment: center;
+        }
+
+        // PIN dots
+        HorizontalLayout {
+            alignment: center;
+            spacing: 10px;
+            padding-top: 18px;
+            for i in 4: Rectangle {
+                width: 12px; height: 12px;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: i < pin-len ? Tokens.accent : Tokens.border;
+                background: i < pin-len ? Tokens.accent : transparent;
+                animate background, border-color { duration: Tokens.anim-fast; }
+            }
+        }
+
+        Text {
+            text: "Press A to unlock  ·  ↑↑↓↓←→←→BA for Konami";
+            font-size: 10px;
+            font-family: Tokens.font-mono;
+            color: Tokens.text-disabled;
+            horizontal-alignment: center;
+        }
+    }
+}

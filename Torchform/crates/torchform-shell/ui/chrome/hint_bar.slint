@@ -1,0 +1,67 @@
+// =============================================================================
+// chrome/hint_bar.slint — bottom button-hint bar (mirrors #hb / rHints)
+//
+// A context-sensitive row of {key, label} chips. The shell rebuilds the model
+// per screen/panel/app so the hints always match the current focus.
+// =============================================================================
+
+import { Tokens } from "../tokens.slint";
+
+export struct HintItem {
+    key:   string,   // e.g. "A", "ZL", "↑↓"
+    label: string,   // e.g. "Launch"
+}
+
+export component HintBar inherits Rectangle {
+    in property <[HintItem]> items;
+
+    height: 24px;
+    background: #07070fdb;
+    clip: true;
+
+    // Top hairline
+    Rectangle {
+        x: 0; y: 0;
+        width: parent.width; height: 1px;
+        background: Tokens.border-subtle;
+    }
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 14px;
+        alignment: start;
+        height: parent.height;
+
+        for hint in items: HorizontalLayout {
+            spacing: 3px;
+            alignment: center;
+            Rectangle {
+                width: max(20px, key-text.preferred-width + 6px);
+                height: 13px;
+                y: (parent.height - self.height) / 2;
+                background: Tokens.bg-elevated;
+                border-width: 1px;
+                border-color: Tokens.border;
+                border-radius: 2px;
+                key-text := Text {
+                    text: hint.key;
+                    font-size: 7px;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-secondary;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                    width: parent.width;
+                    height: parent.height;
+                }
+            }
+            Text {
+                text: hint.label;
+                font-size: 9px;
+                font-family: Tokens.font-sans;
+                color: Tokens.text-disabled;
+                vertical-alignment: center;
+            }
+        }
+    }
+}

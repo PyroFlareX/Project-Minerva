@@ -27,14 +27,23 @@ import { RadialMenu, RadialItem, RadialLayer } from "radial_menu.slint";
 import { CommandPalette, CommandEntry, VoiceState } from "command_palette.slint";
 import { AppSwitcher, AppEntry } from "app_switcher.slint";
 import { StatusPanel, VirtualKeyboard, LowerContext } from "lower_screen.slint";
-import { AppSettings, SettingsEntry } from "app_settings.slint";
-import { AppFiles, FileEntry } from "app_files.slint";
-import { AppFileManager }   from "app_file_manager.slint";
-import { AppCamera }        from "app_camera.slint";
-import { AppWebBrowser }    from "app_web_browser.slint";
-import { AppMediaPlayer }   from "app_media_player.slint";
-import { AppNetworkManager } from "app_network_manager.slint";
-import { AppTerminal }       from "app_terminal.slint";
+import { ShellScreen } from "chrome/shell_screen.slint";
+import { StatusBar } from "chrome/status_bar.slint";
+import { HintBar, HintItem } from "chrome/hint_bar.slint";
+import { LockScreen } from "chrome/lock_screen.slint";
+import { HomeScreen, HomeTile } from "chrome/home_screen.slint";
+import { AppTitleBar } from "chrome/app_window.slint";
+import { QuickSettings, QsTile } from "chrome/quick_settings.slint";
+import { Notifications, NotifEntry } from "chrome/notifications.slint";
+import { Banner } from "chrome/banner.slint";
+import { AppSettings, SettingsEntry } from "../../torchform-apps/ui/app_settings.slint";
+import { AppFiles, FileEntry } from "../../torchform-apps/ui/app_files.slint";
+import { AppFileManager }    from "../../torchform-apps/ui/app_file_manager.slint";
+import { AppCamera }         from "../../torchform-apps/ui/app_camera.slint";
+import { AppWebBrowser }     from "../../torchform-apps/ui/app_web_browser.slint";
+import { AppMediaPlayer }    from "../../torchform-apps/ui/app_media_player.slint";
+import { AppNetworkManager } from "../../torchform-apps/ui/app_network_manager.slint";
+import { AppTerminal, TermLine } from "../../torchform-apps/ui/app_terminal.slint";
 
 export component TorchformEmulator inherits Window {
 
@@ -91,7 +100,10 @@ export component TorchformEmulator inherits Window {
     // On-screen keyboard (lower-screen companion; upper shows placeholder)
     in property <bool>   app-keyboard-visible: false;
     // Terminal
-    in property <bool>   app-terminal-visible: false;
+    in property <bool>         app-terminal-visible: false;
+    in property <[TermLine]>   app-terminal-lines;
+    in property <string>       app-terminal-input: "";
+    in property <string>       app-terminal-cwd: "/home/user";
 
     callback app-closed();
     callback app-settings-setting-activated(string);
@@ -106,6 +118,61 @@ export component TorchformEmulator inherits Window {
     in property <bool>    wifi-connected:  true;
     in property <string>  workspace-name:  "Work";
     in property <int>     workspace-index: 0;
+
+    // -----------------------------------------------------------------------
+    // N3DS shell chrome (screen stack, status bar, hint bar, home, lock)
+    // -----------------------------------------------------------------------
+    in property <ShellScreen> screen: ShellScreen.Lock;
+    in property <string>      date-str: "Monday, Jan 1";
+    in property <int>         pin-len: 0;
+
+    // Status bar extras (workspace-index / time-str / battery-pct reused above)
+    in property <string> sb-app-name:    "";
+    in property <string> sb-now-playing: "";
+    in property <bool>   sb-bt:          true;
+    in property <bool>   sb-dnd:         false;
+    in property <bool>   sb-airplane:    false;
+    in property <int>    sb-notif-count: 0;
+
+    // Home screen
+    in property <[HomeTile]> home-grid-tiles;
+    in property <[HomeTile]> home-dock-tiles;
+    in property <int>        home-focus: 0;
+    callback home-tile-activated(int);
+
+    // Hint bar
+    in property <[HintItem]> hint-items;
+
+    // App title bar
+    in property <string> app-icon: "";
+    in property <string> app-name: "";
+    callback app-home-pressed();
+    callback app-switcher-pressed();
+
+    // Quick Settings panel
+    in property <bool>      qs-open: false;
+    in property <int>       qs-vol: 70;
+    in property <int>       qs-bright: 85;
+    in property <[QsTile]>  qs-tiles;
+    in property <int>       qs-focus: 0;
+    callback qs-volume-changed(int);
+    callback qs-brightness-changed(int);
+    callback qs-tile-activated(int);
+
+    // Notifications panel
+    in property <bool>          nf-open: false;
+    in property <[NotifEntry]>  nf-entries;
+    in property <int>           nf-focus: 0;
+    in property <string>        nf-count: "0 new";
+    callback nf-activated(int);
+    callback nf-clear-all();
+
+    // Banner toast
+    in property <bool>   banner-open: false;
+    in property <string> banner-icon: "";
+    in property <string> banner-app: "";
+    in property <string> banner-title: "";
+    in property <string> banner-body: "";
 
     // -----------------------------------------------------------------------
     // Lower-screen properties (mirrors LowerScreen)
@@ -133,6 +200,9 @@ export component TorchformEmulator inherits Window {
     callback key-l2(bool);
     callback key-b();
     callback key-a();
+    callback key-x();
+    callback key-quick-settings();
+    callback key-notifications();
     callback key-up();
     callback key-down();
     callback key-left();
@@ -204,158 +274,200 @@ export component TorchformEmulator inherits Window {
         background: Tokens.bg-base;
         clip: true;
 
-        // Status strip
+        // --- Screen content area (between status bar and hint bar) ---------
         Rectangle {
-            x: 0; y: 0;
+            x: 0;
+            y: 28px;
             width: parent.width;
-            height: 20px;
-            background: #00000088;
+            height: parent.height - 28px - 24px;
+            clip: true;
 
-            HorizontalLayout {
-                padding-left:  Tokens.space-3;
-                padding-right: Tokens.space-3;
-                spacing:       Tokens.space-3;
-                alignment: center;
+            // Lock screen
+            if root.screen == ShellScreen.Lock: LockScreen {
+                width: parent.width; height: parent.height;
+                time-str: root.time-str;
+                date-str: root.date-str;
+                pin-len:  root.pin-len;
+            }
 
-                // Workspace dots — left side
-                HorizontalLayout {
-                    horizontal-stretch: 1;
-                    spacing: 4px;
-                    alignment: start;
-                    Rectangle { width: 6px; height: 6px; border-radius: 3px; background: workspace-index == 0 ? Tokens.accent : Tokens.text-disabled; }
-                    Rectangle { width: 6px; height: 6px; border-radius: 3px; background: workspace-index == 1 ? Tokens.accent : Tokens.text-disabled; }
-                    Rectangle { width: 6px; height: 6px; border-radius: 3px; background: workspace-index == 2 ? Tokens.accent : Tokens.text-disabled; }
-                    Rectangle { width: 6px; height: 6px; border-radius: 3px; background: workspace-index == 3 ? Tokens.accent : Tokens.text-disabled; }
-                    Text {
-                        text: workspace-name;
-                        font-size: Tokens.text-xs;
-                        font-family: Tokens.font-mono;
-                        color: Tokens.text-secondary;
-                        vertical-alignment: center;
-                        padding-left: 4px;
+            // Home screen
+            if root.screen == ShellScreen.Home: HomeScreen {
+                width: parent.width; height: parent.height;
+                grid-tiles: root.home-grid-tiles;
+                dock-tiles: root.home-dock-tiles;
+                home-focus: root.home-focus;
+                tile-activated(i) => { root.home-tile-activated(i); }
+            }
+
+            // App screen — title bar + active app widget
+            if root.screen == ShellScreen.App: Rectangle {
+                width: parent.width; height: parent.height;
+
+                AppTitleBar {
+                    x: 0; y: 0;
+                    width: parent.width;
+                    icon: root.app-icon;
+                    name: root.app-name;
+                    home-pressed     => { root.app-home-pressed(); }
+                    switcher-pressed => { root.app-switcher-pressed(); }
+                }
+
+                // App widget area (below the 32px title bar)
+                Rectangle {
+                    x: 0; y: 32px;
+                    width: parent.width;
+                    height: parent.height - 32px;
+                    clip: true;
+
+                    if app-settings-visible: AppSettings {
+                        x: 0; y: 0;
+                        width: parent.width; height: parent.height;
+                        focused-row: app-settings-focused-row;
+                        entries:     app-settings-entries;
+                        close-requested          => { root.app-closed(); }
+                        setting-activated(key)   => { root.app-settings-setting-activated(key); }
+                        setting-adjusted(key, d) => { root.app-settings-setting-adjusted(key, d); }
+                    }
+                    if app-files-visible: AppFiles {
+                        x: 0; y: 0;
+                        width: parent.width; height: parent.height;
+                        current-path:  app-files-path;
+                        focused-row:   app-files-focused-row;
+                        entries:       app-files-entries;
+                        close-requested => { root.app-closed(); }
+                        navigate(name)  => { root.app-files-navigate(name); }
+                        navigate-parent => { root.app-files-navigate-parent(); }
+                    }
+                    if app-camera-visible: AppCamera {
+                        x: 0; y: 0;
+                        width: parent.width; height: parent.height;
+                        focused-row: app-camera-focused-row;
+                        close-requested => { root.app-closed(); }
+                    }
+                    if app-browser-visible: AppWebBrowser {
+                        x: 0; y: 0;
+                        width: parent.width; height: parent.height;
+                        focused-row: app-browser-focused-row;
+                        url: app-browser-url;
+                        close-requested => { root.app-closed(); }
+                    }
+                    if app-media-visible: AppMediaPlayer {
+                        x: 0; y: 0;
+                        width: parent.width; height: parent.height;
+                        focused-row: app-media-focused-row;
+                        close-requested => { root.app-closed(); }
+                    }
+                    if app-network-visible: AppNetworkManager {
+                        x: 0; y: 0;
+                        width: parent.width; height: parent.height;
+                        focused-row: app-network-focused-row;
+                        close-requested => { root.app-closed(); }
+                    }
+                    if app-terminal-visible: AppTerminal {
+                        x: 0; y: 0;
+                        width: parent.width; height: parent.height;
+                        lines:      app-terminal-lines;
+                        input-text: app-terminal-input;
+                        cwd:        app-terminal-cwd;
+                        close-requested => { root.app-closed(); }
+                    }
+                    if app-keyboard-visible: Rectangle {
+                        x: 0; y: 0;
+                        width: parent.width; height: parent.height;
+                        background: Tokens.bg-base;
+                        Text {
+                            width: parent.width; height: parent.height;
+                            text: "⌨  On-Screen Keyboard active on lower display";
+                            font-size: Tokens.text-sm;
+                            color: Tokens.text-disabled;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                        }
                     }
                 }
+            }
 
-                // Right-aligned status items
-                Text {
-                    text: time-str;
-                    font-size: Tokens.text-xs;
-                    font-family: Tokens.font-mono;
-                    color: Tokens.text-secondary;
-                    vertical-alignment: center;
-                }
-                Text {
-                    text: (charging ? "⚡ " : "") + battery-pct + "%";
-                    font-size: Tokens.text-xs;
-                    font-family: Tokens.font-mono;
-                    color: battery-pct > 20 ? Tokens.text-secondary : Tokens.error;
-                    vertical-alignment: center;
-                }
-                Text {
-                    text: wifi-connected ? "📶" : "";
-                    font-size: 10px;
-                    vertical-alignment: center;
-                }
+            // --- Overlays (cover the content area, above the screen) -------
+            AppSwitcher {
+                visible:          switcher-visible;
+                apps:             switcher-apps;
+                focused-index:    switcher-focused;
+                visible-prop:     switcher-visible;
+                app-activated(i) => { root.switcher-app-activated(i); }
+                app-closed(i)    => { root.switcher-app-closed(i); }
+                dismissed        => { root.switcher-dismissed(); }
+            }
+            CommandPalette {
+                visible:           palette-visible;
+                entries:           palette-entries;
+                query:             palette-query;
+                focused-index:     palette-focused;
+                voice-state:       palette-voice;
+                visible-prop:      palette-visible;
+                entry-activated(i) => { root.palette-entry-activated(i); }
+                dismissed          => { root.palette-dismissed(); }
+                query-changed(q)   => { root.palette-query-changed(q); }
+            }
+            RadialMenu {
+                visible:          radial-visible;
+                items:            radial-items;
+                focused-index:    radial-focused;
+                layer:            radial-layer;
+                visible-prop:     radial-visible;
+                item-activated(i) => { root.radial-item-activated(i); }
+                dismissed         => { root.radial-dismissed(); }
+            }
+
+            // --- Slide-in panels + banner (within the screen area) ---------
+            QuickSettings {
+                open:        root.qs-open;
+                time-str:    root.time-str;
+                vol:         root.qs-vol;
+                bright:      root.qs-bright;
+                tiles:       root.qs-tiles;
+                focus-index: root.qs-focus;
+                volume-changed(v)     => { root.qs-volume-changed(v); }
+                brightness-changed(v) => { root.qs-brightness-changed(v); }
+                tile-activated(i)     => { root.qs-tile-activated(i); }
+            }
+            Notifications {
+                open:        root.nf-open;
+                entries:     root.nf-entries;
+                focus-index: root.nf-focus;
+                count-label: root.nf-count;
+                activated(i) => { root.nf-activated(i); }
+                clear-all    => { root.nf-clear-all(); }
+            }
+            Banner {
+                open:  root.banner-open;
+                icon:  root.banner-icon;
+                app:   root.banner-app;
+                title: root.banner-title;
+                body:  root.banner-body;
             }
         }
 
-        // Embedded app panels (fill upper display; overlays render on top)
-        if app-settings-visible: AppSettings {
+        // --- Status bar (top, drawn over the content area) -----------------
+        StatusBar {
             x: 0; y: 0;
-            width: parent.width; height: parent.height;
-            focused-row: app-settings-focused-row;
-            entries:     app-settings-entries;
-            close-requested            => { root.app-closed(); }
-            setting-activated(key)     => { root.app-settings-setting-activated(key); }
-            setting-adjusted(key, d)   => { root.app-settings-setting-adjusted(key, d); }
-        }
-        if app-files-visible: AppFiles {
-            x: 0; y: 0;
-            width: parent.width; height: parent.height;
-            current-path:  app-files-path;
-            focused-row:   app-files-focused-row;
-            entries:       app-files-entries;
-            close-requested   => { root.app-closed(); }
-            navigate(name)    => { root.app-files-navigate(name); }
-            navigate-parent   => { root.app-files-navigate-parent(); }
-        }
-        if app-camera-visible: AppCamera {
-            x: 0; y: 0;
-            width: parent.width; height: parent.height;
-            focused-row: app-camera-focused-row;
-            close-requested => { root.app-closed(); }
-        }
-        if app-browser-visible: AppWebBrowser {
-            x: 0; y: 0;
-            width: parent.width; height: parent.height;
-            focused-row: app-browser-focused-row;
-            url: app-browser-url;
-            close-requested => { root.app-closed(); }
-        }
-        if app-media-visible: AppMediaPlayer {
-            x: 0; y: 0;
-            width: parent.width; height: parent.height;
-            focused-row: app-media-focused-row;
-            close-requested => { root.app-closed(); }
-        }
-        if app-network-visible: AppNetworkManager {
-            x: 0; y: 0;
-            width: parent.width; height: parent.height;
-            focused-row: app-network-focused-row;
-            close-requested => { root.app-closed(); }
-        }
-        if app-terminal-visible: AppTerminal {
-            x: 0; y: 0;
-            width: parent.width; height: parent.height;
-            close-requested => { root.app-closed(); }
-        }
-        if app-keyboard-visible: Rectangle {
-            x: 0; y: 0;
-            width: parent.width; height: parent.height;
-            background: Tokens.bg-base;
-            Text {
-                width: parent.width; height: parent.height;
-                text: "⌨  On-Screen Keyboard active on lower display";
-                font-size: Tokens.text-sm;
-                color: Tokens.text-disabled;
-                horizontal-alignment: center;
-                vertical-alignment: center;
-            }
+            width: parent.width;
+            workspace-index: root.workspace-index;
+            app-name:        root.sb-app-name;
+            time-str:        root.time-str;
+            now-playing:     root.sb-now-playing;
+            wifi:            root.wifi-connected;
+            bluetooth:       root.sb-bt;
+            dnd:             root.sb-dnd;
+            airplane:        root.sb-airplane;
+            notif-count:     root.sb-notif-count;
+            battery-pct:     root.battery-pct;
         }
 
-        // App switcher
-        AppSwitcher {
-            visible:          switcher-visible;
-            apps:             switcher-apps;
-            focused-index:    switcher-focused;
-            visible-prop:     switcher-visible;
-            app-activated(i) => { root.switcher-app-activated(i); }
-            app-closed(i)    => { root.switcher-app-closed(i); }
-            dismissed        => { root.switcher-dismissed(); }
-        }
-
-        // Command palette
-        CommandPalette {
-            visible:           palette-visible;
-            entries:           palette-entries;
-            query:             palette-query;
-            focused-index:     palette-focused;
-            voice-state:       palette-voice;
-            visible-prop:      palette-visible;
-            entry-activated(i) => { root.palette-entry-activated(i); }
-            dismissed          => { root.palette-dismissed(); }
-            query-changed(q)   => { root.palette-query-changed(q); }
-        }
-
-        // Radial menu
-        RadialMenu {
-            visible:          radial-visible;
-            items:            radial-items;
-            focused-index:    radial-focused;
-            layer:            radial-layer;
-            visible-prop:     radial-visible;
-            item-activated(i) => { root.radial-item-activated(i); }
-            dismissed         => { root.radial-dismissed(); }
+        // --- Hint bar (bottom) ---------------------------------------------
+        HintBar {
+            x: 0; y: parent.height - 24px;
+            width: parent.width;
+            items: root.hint-items;
         }
     }
 
@@ -451,6 +563,9 @@ export component TorchformEmulator inherits Window {
             else if event.text == Key.Tab                    { root.key-l2(true);  accept }
             else if event.text == Key.Escape                 { root.key-b();        accept }
             else if event.text == "a" || event.text == "A"  { root.key-a();        accept }
+            else if event.text == "x" || event.text == "X"  { root.key-x();        accept }
+            else if event.text == "z" || event.text == "Z"  { root.key-quick-settings();  accept }
+            else if event.text == "c" || event.text == "C"  { root.key-notifications();   accept }
             else if event.text == Key.UpArrow                { root.key-up();       accept }
             else if event.text == Key.DownArrow              { root.key-down();     accept }
             else if event.text == Key.LeftArrow              { root.key-left();     accept }

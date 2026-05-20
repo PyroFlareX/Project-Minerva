@@ -10,6 +10,11 @@ import { LowerScreen, LowerContext, StatusPanel, VirtualKeyboard }
     from "lower_screen.slint";
 import { TorchformEmulator }
     from "emulator.slint";
+import { ShellScreen } from "chrome/shell_screen.slint";
+import { HomeTile } from "chrome/home_screen.slint";
+import { HintItem } from "chrome/hint_bar.slint";
+import { QsTile } from "chrome/quick_settings.slint";
+import { NotifEntry } from "chrome/notifications.slint";
 
 export {
     // Design system global (exported so Rust can push theme values at startup)
@@ -27,4 +32,11 @@ export {
 
     // Combined emulator window (default mode)
     TorchformEmulator,
+
+    // N3DS shell chrome types (used by the Rust render layer)
+    ShellScreen,
+    HomeTile,
+    HintItem,
+    QsTile,
+    NotifEntry,
 }

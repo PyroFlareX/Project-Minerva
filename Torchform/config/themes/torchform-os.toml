@@ -1,0 +1,56 @@
+# =============================================================================
+# Torchform Theme — Torchform OS (N3DS-style)
+#
+# Near-black background, electric yellow accent, DM Mono + Barlow Condensed.
+# Mirrors the palette from torchform-os.html.
+#
+# To activate: set in config/torchform.toml [theme]:
+#   theme_file = "config/themes/torchform-os.toml"
+# =============================================================================
+
+name = "Torchform OS"
+
+[colors]
+# ---- Backgrounds ----
+bg_base        = "#07070f"    # Near-black base
+bg_surface     = "#0e0e1c"    # Card / panel surfaces
+bg_elevated    = "#15152a"    # Elevated surfaces (modals, menus)
+bg_overlay     = "#07070fcc"  # Semi-transparent overlay
+
+# ---- Brand accent — electric yellow ----
+accent         = "#e8ff47"    # Primary accent (yellow)
+accent_dim     = "#a8c000"    # Dimmed / inactive accent
+accent_glow    = "#e8ff4722"  # Subtle yellow glow (focus rings)
+
+# ---- Interactive ----
+primary        = "#5b9cf6"    # Informational blue
+primary_hover  = "#7ab3ff"
+secondary      = "#b088f0"    # Purple for secondary elements
+
+# ---- Semantic ----
+success        = "#3dd68c"    # Green
+warning        = "#f7b731"    # Orange
+error          = "#ff4466"    # Red
+
+# ---- Text ----
+text_primary   = "#e8eaf0"    # Main body text
+text_secondary = "#8c92a4"    # Subdued / label text
+text_disabled  = "#3a3d55"    # Disabled / placeholder
+text_on_accent = "#07070f"    # Text placed on yellow accent (must be dark)
+text_on_primary = "#ffffff"
+
+# ---- Borders & dividers ----
+border         = "#1e1e35"
+border_focused = "#e8ff47"
+border_subtle  = "#111125"
+
+# ---- Lower companion display ----
+lower_bg       = "#05050c"
+lower_surface  = "#0b0b18"
+lower_accent   = "#e8ff47"
+
+[typography]
+# Barlow Condensed as display font (headers, clock, app names)
+font_sans    = "Inter, DejaVu Sans, sans-serif"
+font_mono    = "DM Mono, JetBrains Mono, DejaVu Sans Mono, monospace"
+font_display = "Barlow Condensed, Inter, DejaVu Sans, sans-serif"

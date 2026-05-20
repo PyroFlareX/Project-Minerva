@@ -1,0 +1,75 @@
+// =============================================================================
+// chrome/app_window.slint — app title bar (mirrors #atb in torchform-os.html)
+//
+// Sits above the active app widget on the App screen: app icon + name on the
+// left, Home (⌂) and Switcher (⧉) buttons on the right. The active app widget
+// itself is placed by the host (emulator/shell), not here.
+// =============================================================================
+
+import { Tokens } from "../tokens.slint";
+
+component TitleButton inherits Rectangle {
+    in property <string> glyph;
+    callback clicked();
+    width: 24px; height: 22px;
+    border-radius: 3px;
+    background: Tokens.bg-surface;
+    border-width: 1px;
+    border-color: Tokens.border;
+    Text {
+        width: parent.width; height: parent.height;
+        text: glyph;
+        font-size: 11px;
+        font-family: Tokens.font-mono;
+        color: Tokens.text-secondary;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    TouchArea { clicked => { root.clicked(); } }
+}
+
+export component AppTitleBar inherits Rectangle {
+    in property <string> icon: "";
+    in property <string> name: "";
+    callback home-pressed();
+    callback switcher-pressed();
+
+    height: 32px;
+    background: Tokens.bg-surface;
+
+    // Bottom hairline
+    Rectangle {
+        x: 0; y: parent.height - 1px;
+        width: parent.width; height: 1px;
+        background: Tokens.border;
+    }
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 10px;
+        alignment: start;
+        height: parent.height;
+
+        Text {
+            text: icon;
+            font-size: 14px;
+            vertical-alignment: center;
+        }
+        Text {
+            horizontal-stretch: 1;
+            text: name;
+            font-size: 15px;
+            font-weight: Tokens.weight-bold;
+            font-family: Tokens.font-display;
+            color: Tokens.text-primary;
+            vertical-alignment: center;
+        }
+        HorizontalLayout {
+            spacing: 6px;
+            alignment: end;
+            TitleButton { glyph: "⌂"; clicked => { root.home-pressed(); } }
+            TitleButton { glyph: "⧉"; clicked => { root.switcher-pressed(); } }
+        }
+    }
+}

@@ -1,0 +1,181 @@
+// =============================================================================
+// chrome/home_screen.slint — home screen (mirrors #home / rHome)
+//
+// Search bar · 6-column app grid · centered dock. The shell passes the grid and
+// dock as separate models; `home-focus` is the index into the combined order
+// (grid first, then dock), so focus updates without rebuilding the models.
+// =============================================================================
+
+import { Tokens } from "../tokens.slint";
+
+export struct HomeTile {
+    index:   int,      // global focus index (grid first, then dock)
+    name:    string,
+    icon:    string,
+    bg:      color,
+    running: bool,
+}
+
+component AppTile inherits Rectangle {
+    in property <HomeTile> tile;
+    in property <bool>     focused;
+    callback activated();
+
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: focused ? Tokens.accent : transparent;
+    background: focused ? Tokens.accent-glow : transparent;
+    animate border-color, background { duration: Tokens.anim-fast; }
+
+    VerticalLayout {
+        padding: 8px;
+        spacing: 5px;
+        alignment: start;
+
+        Rectangle {
+            width: 48px; height: 48px;
+            x: (parent.width - self.width) / 2;
+            border-radius: 12px;
+            background: tile.bg;
+            border-width: 1px;
+            border-color: #ffffff10;
+            Text {
+                width: parent.width; height: parent.height;
+                text: tile.icon;
+                font-size: 22px;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+            }
+        }
+        Text {
+            text: tile.name;
+            font-size: 9px;
+            font-family: Tokens.font-sans;
+            color: Tokens.text-secondary;
+            horizontal-alignment: center;
+            width: parent.width;
+            overflow: elide;
+        }
+    }
+
+    TouchArea { clicked => { root.activated(); } }
+}
+
+component DockIcon inherits Rectangle {
+    in property <HomeTile> tile;
+    in property <bool>     focused;
+    callback activated();
+
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: focused ? Tokens.accent-glow : tile.bg;
+    border-width: focused ? 1px : (tile.running ? 1px : 0px);
+    border-color: focused ? Tokens.accent : (tile.running ? Tokens.success : transparent);
+    animate border-color, background { duration: Tokens.anim-fast; }
+
+    Text {
+        width: parent.width; height: parent.height;
+        text: tile.icon;
+        font-size: 20px;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+    TouchArea { clicked => { root.activated(); } }
+}
+
+export component HomeScreen inherits Rectangle {
+    in property <[HomeTile]> grid-tiles;
+    in property <[HomeTile]> dock-tiles;
+    in property <int>        home-focus: 0;
+
+    callback tile-activated(int);   // passes the tile's global index
+
+    background: Tokens.bg-base;
+
+    // Ambient wash
+    Rectangle {
+        width: parent.width; height: parent.height;
+        background: @radial-gradient(circle, #2a64c811 0%, transparent 55%);
+    }
+
+    VerticalLayout {
+        padding-top: 12px;
+        padding-bottom: 10px;
+        spacing: 10px;
+
+        // Search bar
+        Rectangle {
+            height: 30px;
+            x: 24px;
+            width: parent.width - 48px;
+            border-radius: 15px;
+            background: Tokens.bg-surface;
+            border-width: 1px;
+            border-color: Tokens.border;
+            HorizontalLayout {
+                padding-left: 14px;
+                padding-right: 14px;
+                spacing: 8px;
+                alignment: start;
+                Text { text: "🔍"; font-size: 11px; vertical-alignment: center; }
+                Text {
+                    horizontal-stretch: 1;
+                    text: "Search apps, files, settings…";
+                    font-size: 11px;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-disabled;
+                    vertical-alignment: center;
+                }
+                Text {
+                    text: "[Y]";
+                    font-size: 9px;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-disabled;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        // App grid (6 columns) — absolute placement per index.
+        Rectangle {
+            vertical-stretch: 1;
+            x: 24px;
+            width: parent.width - 48px;
+            property <length> gap: 8px;
+            property <length> cell-w: (self.width - 5 * self.gap) / 6;
+            property <length> cell-h: 80px;
+            for tile[i] in grid-tiles: AppTile {
+                x: mod(i, 6) * (parent.cell-w + parent.gap);
+                y: floor(i / 6) * (parent.cell-h + parent.gap);
+                width: parent.cell-w;
+                height: parent.cell-h;
+                tile: tile;
+                focused: tile.index == home-focus;
+                activated => { root.tile-activated(tile.index); }
+            }
+        }
+
+        // Dock
+        HorizontalLayout {
+            alignment: center;
+            Rectangle {
+                height: 58px;
+                width: dock-row.preferred-width + 24px;
+                border-radius: 16px;
+                background: #ffffff08;
+                border-width: 1px;
+                border-color: Tokens.border;
+                dock-row := HorizontalLayout {
+                    padding: 7px;
+                    spacing: 8px;
+                    alignment: center;
+                    for tile[i] in dock-tiles: DockIcon {
+                        tile: tile;
+                        focused: tile.index == home-focus;
+                        activated => { root.tile-activated(tile.index); }
+                    }
+                }
+            }
+        }
+    }
+}

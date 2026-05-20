@@ -1,0 +1,189 @@
+// =============================================================================
+// chrome/quick_settings.slint — right-sliding Quick Settings panel
+// (mirrors #pqs / rQs in torchform-os.html)
+//
+// Volume + brightness sliders on top, a 2-column tile grid below. Controller
+// focus moves across the tiles (A toggles); the sliders are mouse-adjustable.
+// =============================================================================
+
+import { Tokens } from "../tokens.slint";
+
+export struct QsTile {
+    index: int,
+    icon:  string,
+    name:  string,
+    value: string,
+    on:    bool,
+}
+
+// A simple click/drag track (0–100) used for volume + brightness.
+component SliderRow inherits Rectangle {
+    in property <string> label;
+    in property <string> icon;
+    in property <int>    value;
+    callback changed(int);
+
+    height: 34px;
+
+    VerticalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        spacing: 4px;
+        HorizontalLayout {
+            Text {
+                horizontal-stretch: 1;
+                text: icon + " " + label;
+                font-size: 10px;
+                font-family: Tokens.font-sans;
+                color: Tokens.text-secondary;
+                vertical-alignment: center;
+            }
+            Text {
+                text: value + "%";
+                font-size: 10px;
+                font-family: Tokens.font-mono;
+                color: Tokens.text-secondary;
+                vertical-alignment: center;
+            }
+        }
+        track := Rectangle {
+            height: 4px;
+            border-radius: 2px;
+            background: Tokens.bg-elevated;
+            Rectangle {
+                x: 0;
+                width: parent.width * (value / 100);
+                height: parent.height;
+                border-radius: 2px;
+                background: Tokens.accent;
+            }
+            ta := TouchArea {
+                clicked => { root.changed(clamp(round(self.mouse-x / track.width * 100), 0, 100)); }
+                moved => {
+                    if (self.pressed) {
+                        root.changed(clamp(round(self.mouse-x / track.width * 100), 0, 100));
+                    }
+                }
+            }
+        }
+    }
+}
+
+component QsTileBtn inherits Rectangle {
+    in property <QsTile> tile;
+    in property <bool>   focused;
+    callback activated();
+
+    border-radius: 8px;
+    background: tile.on ? Tokens.accent-glow : Tokens.bg-surface;
+    border-width: 1px;
+    border-color: focused ? Tokens.accent : (tile.on ? Tokens.accent : Tokens.border);
+    animate border-color, background { duration: Tokens.anim-fast; }
+
+    VerticalLayout {
+        padding: 10px;
+        spacing: 2px;
+        Text { text: tile.icon; font-size: 18px; }
+        Text {
+            text: tile.name;
+            font-size: 10px;
+            font-family: Tokens.font-sans;
+            color: Tokens.text-primary;
+        }
+        Text {
+            text: tile.value;
+            font-size: 9px;
+            font-family: Tokens.font-mono;
+            color: Tokens.text-secondary;
+        }
+    }
+    TouchArea { clicked => { root.activated(); } }
+}
+
+export component QuickSettings inherits Rectangle {
+    in property <bool>       open: false;
+    in property <string>     time-str: "--:--";
+    in property <int>        vol: 70;
+    in property <int>        bright: 85;
+    in property <[QsTile]>   tiles;
+    in property <int>        focus-index: 0;
+
+    callback volume-changed(int);
+    callback brightness-changed(int);
+    callback tile-activated(int);
+
+    width: 100%;
+    height: 100%;
+    // Only capture input / paint when open.
+    visible: open;
+
+    // Scrim
+    Rectangle {
+        width: parent.width; height: parent.height;
+        background: #00000066;
+    }
+
+    panel := Rectangle {
+        width: 310px;
+        height: parent.height;
+        y: 0;
+        x: open ? parent.width - self.width : parent.width;
+        animate x { duration: Tokens.anim-normal; easing: ease-out; }
+        background: #09091fF7;
+        border-width: 1px;
+        border-color: Tokens.border;
+
+        VerticalLayout {
+            padding-top: 14px;
+            spacing: 8px;
+
+            // Header
+            VerticalLayout {
+                padding-left: 16px;
+                padding-right: 16px;
+                padding-bottom: 10px;
+                spacing: 3px;
+                Text {
+                    text: "QUICK SETTINGS";
+                    font-size: 8px;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-disabled;
+                    letter-spacing: 2px;
+                }
+                Text {
+                    text: time-str;
+                    font-size: 20px;
+                    font-weight: Tokens.weight-bold;
+                    font-family: Tokens.font-display;
+                    color: Tokens.text-primary;
+                }
+            }
+
+            SliderRow {
+                label: "Volume"; icon: "🔊"; value: vol;
+                changed(v) => { root.volume-changed(v); }
+            }
+            SliderRow {
+                label: "Brightness"; icon: "☀️"; value: bright;
+                changed(v) => { root.brightness-changed(v); }
+            }
+
+            // Tile grid (2 columns, absolute placement per index)
+            Rectangle {
+                vertical-stretch: 1;
+                property <length> gap: 8px;
+                property <length> cell-w: (self.width - 28px - gap) / 2;
+                property <length> cell-h: 64px;
+                for tile[i] in tiles: QsTileBtn {
+                    x: 14px + mod(i, 2) * (parent.cell-w + parent.gap);
+                    y: 4px + floor(i / 2) * (parent.cell-h + parent.gap);
+                    width: parent.cell-w;
+                    height: parent.cell-h;
+                    tile: tile;
+                    focused: tile.index == focus-index;
+                    activated => { root.tile-activated(tile.index); }
+                }
+            }
+        }
+    }
+}

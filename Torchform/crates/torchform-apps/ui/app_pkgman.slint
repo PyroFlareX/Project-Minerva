@@ -1,0 +1,146 @@
+// =============================================================================
+// app_pkgman.slint — Torchform Package Manager
+// =============================================================================
+
+import { Tokens } from "../../torchform-shell/ui/tokens.slint";
+
+export struct PkgEntry {
+    index:     int,
+    name:      string,
+    version:   string,
+    desc:      string,
+    installed: bool,
+    update:    bool,
+}
+
+component PkgRow inherits Rectangle {
+    in property <PkgEntry> pkg;
+    in property <bool>     focused;
+    callback install();
+    callback remove();
+
+    height: 58px;
+    background: focused ? Tokens.bg-elevated : transparent;
+    border-width: focused ? 0px : 0px;
+    animate background { duration: Tokens.anim-fast; }
+
+    if focused: Rectangle { x: 0; width: 2px; height: parent.height; background: Tokens.accent; }
+
+    HorizontalLayout {
+        padding-left: 14px; padding-right: 14px; spacing: Tokens.space-3; alignment: center;
+
+        VerticalLayout {
+            horizontal-stretch: 1; alignment: center; spacing: 2px;
+            HorizontalLayout {
+                Text { horizontal-stretch: 1; text: pkg.name; font-size: Tokens.text-md; font-family: Tokens.font-sans; font-weight: Tokens.weight-semibold; color: Tokens.text-primary; overflow: elide; }
+                Text { text: pkg.version; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-secondary; vertical-alignment: center; }
+            }
+            Text { text: pkg.desc; font-size: Tokens.text-xs; font-family: Tokens.font-sans; color: Tokens.text-secondary; overflow: elide; }
+        }
+
+        Rectangle {
+            width: 72px; height: 28px; border-radius: Tokens.radius-sm;
+            background: pkg.update ? Tokens.warning.with-alpha(0.15) : (pkg.installed ? Tokens.bg-surface : Tokens.accent.with-alpha(0.15));
+            border-width: 1px;
+            border-color: pkg.update ? Tokens.warning : (pkg.installed ? Tokens.border : Tokens.accent);
+            Text {
+                width: parent.width; height: parent.height;
+                text: pkg.update ? "Update" : (pkg.installed ? "Remove" : "Install");
+                font-size: Tokens.text-xs; font-family: Tokens.font-mono;
+                color: pkg.update ? Tokens.warning : (pkg.installed ? Tokens.text-secondary : Tokens.accent);
+                horizontal-alignment: center; vertical-alignment: center;
+            }
+            TouchArea { clicked => { if (pkg.installed) { root.remove(); } else { root.install(); } } }
+        }
+    }
+
+    Rectangle { x: 0; y: parent.height - 1px; width: parent.width; height: 1px; background: Tokens.border-subtle; }
+}
+
+export component AppPkgman inherits Rectangle {
+    in property <int>        focused-row: 0;
+    in property <[PkgEntry]> packages;
+    in property <string>     filter:      "";
+    in property <bool>       loading:     false;
+    in property <int>        update-count: 0;
+
+    callback close-requested();
+    callback install-pkg(int);
+    callback remove-pkg(int);
+    callback refresh();
+    callback filter-changed(string);
+
+    background: Tokens.bg-base;
+
+    VerticalLayout {
+        padding: 0px;
+
+        Rectangle {
+            height: 52px; background: Tokens.bg-surface;
+            HorizontalLayout {
+                padding-left: Tokens.space-4; padding-right: Tokens.space-4; alignment: center;
+                Text { horizontal-stretch: 1; text: "📦  Packages"; font-size: Tokens.text-xl; font-family: Tokens.font-sans; font-weight: Tokens.weight-semibold; color: Tokens.text-primary; vertical-alignment: center; }
+                if update-count > 0: Rectangle {
+                    height: 22px; border-radius: 11px; background: Tokens.warning;
+                    HorizontalLayout { padding-left: 8px; padding-right: 8px; alignment: center;
+                        Text { text: update-count + " updates"; font-size: 9px; font-family: Tokens.font-mono; color: #000; vertical-alignment: center; }
+                    }
+                }
+                Rectangle { width: Tokens.space-2; }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 8px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "↺"; font-size: Tokens.text-lg; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.refresh(); } }
+                }
+                Rectangle { width: Tokens.space-2; }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 16px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "✕"; font-size: Tokens.text-sm; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.close-requested(); } }
+                }
+            }
+        }
+
+        Rectangle {
+            height: 38px; background: Tokens.bg-elevated;
+            HorizontalLayout {
+                padding-left: Tokens.space-3; padding-right: Tokens.space-3; spacing: Tokens.space-2; alignment: center;
+                Text { text: "🔍"; font-size: 12px; vertical-alignment: center; }
+                Text {
+                    horizontal-stretch: 1;
+                    text: filter != "" ? filter : "Search packages…";
+                    font-size: Tokens.text-sm; font-family: Tokens.font-mono;
+                    color: filter != "" ? Tokens.text-primary : Tokens.text-disabled;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        if loading: Rectangle {
+            height: 60px; background: Tokens.bg-base;
+            Text { width: parent.width; height: parent.height; text: "Refreshing package list…"; font-size: Tokens.text-sm; font-family: Tokens.font-mono; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+        }
+
+        if !loading: Rectangle {
+            horizontal-stretch: 1; vertical-stretch: 1; clip: true;
+            VerticalLayout {
+                alignment: start;
+                for p in packages: PkgRow {
+                    pkg: p; focused: p.index == focused-row;
+                    install => { root.install-pkg(p.index); }
+                    remove  => { root.remove-pkg(p.index); }
+                }
+                if packages.length == 0: Text {
+                    height: 80px; text: "No packages found";
+                    font-size: Tokens.text-md; font-family: Tokens.font-sans;
+                    color: Tokens.text-disabled; horizontal-alignment: center; vertical-alignment: center;
+                }
+            }
+        }
+
+        Rectangle {
+            height: 24px; background: Tokens.bg-surface;
+            Text { width: parent.width; height: parent.height; text: "  ↑↓=Select  A=Install/Remove  X=Refresh  B=Close"; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+        }
+    }
+}

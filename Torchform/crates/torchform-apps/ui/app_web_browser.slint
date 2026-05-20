@@ -1,0 +1,77 @@
+// =============================================================================
+// app_web_browser.slint — Torchform Browser
+// =============================================================================
+
+import { Tokens } from "../../torchform-shell/ui/tokens.slint";
+
+export component AppWebBrowser inherits Rectangle {
+    in property <int>         focused-row: 0;
+    in-out property <string>  url:         "about:blank";
+
+    callback close-requested();
+    callback navigate(string);
+    callback go-back();
+    callback go-forward();
+
+    background: Tokens.bg-base;
+
+    VerticalLayout {
+        padding: 0px;
+
+        Rectangle {
+            height: 52px; background: Tokens.bg-surface;
+            HorizontalLayout {
+                padding-left: Tokens.space-3; padding-right: Tokens.space-3;
+                spacing: Tokens.space-2; alignment: center;
+
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 8px;
+                    background: focused-row == 1 ? Tokens.bg-elevated : transparent;
+                    Text { width: parent.width; height: parent.height; text: "‹"; font-size: Tokens.text-lg; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.go-back(); } }
+                }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 8px;
+                    background: focused-row == 2 ? Tokens.bg-elevated : transparent;
+                    Text { width: parent.width; height: parent.height; text: "›"; font-size: Tokens.text-lg; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.go-forward(); } }
+                }
+                Rectangle {
+                    horizontal-stretch: 1; height: 34px; border-radius: Tokens.radius-md;
+                    background: Tokens.bg-elevated;
+                    border-width: focused-row == 0 ? 1px : 0px; border-color: Tokens.border-focused;
+                    animate border-width { duration: Tokens.anim-fast; }
+                    HorizontalLayout {
+                        padding-left: Tokens.space-3; padding-right: Tokens.space-3; alignment: center;
+                        Text {
+                            horizontal-stretch: 1; text: url != "" ? url : "Enter URL…";
+                            font-size: Tokens.text-sm; font-family: Tokens.font-mono;
+                            color: url != "" ? Tokens.text-primary : Tokens.text-disabled;
+                            vertical-alignment: center; overflow: elide;
+                        }
+                    }
+                }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 16px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "✕"; font-size: Tokens.text-sm; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.close-requested(); } }
+                }
+            }
+        }
+
+        Rectangle {
+            horizontal-stretch: 1; vertical-stretch: 1; background: #f5f5f5;
+            VerticalLayout {
+                alignment: center; spacing: Tokens.space-3;
+                Text { text: "🌐"; font-size: 48px; horizontal-alignment: center; }
+                Text { text: "Browser — emulator stub"; font-size: Tokens.text-md; font-family: Tokens.font-sans; color: #666666; horizontal-alignment: center; }
+                Text { text: "On hardware, an external browser\nwill render here as a Wayland client."; font-size: Tokens.text-sm; font-family: Tokens.font-sans; color: #999999; horizontal-alignment: center; }
+            }
+        }
+
+        Rectangle {
+            height: 24px; background: Tokens.bg-surface;
+            Text { width: parent.width; height: parent.height; text: "  ↑↓=Focus  A=Navigate  B=Back"; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+        }
+    }
+}

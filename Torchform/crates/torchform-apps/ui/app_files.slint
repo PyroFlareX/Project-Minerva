@@ -1,0 +1,103 @@
+// =============================================================================
+// app_files.slint — Torchform File Browser
+// =============================================================================
+
+import { Tokens } from "../../torchform-shell/ui/tokens.slint";
+import { ListView } from "std-widgets.slint";
+
+export struct FileEntry {
+    icon:  string,
+    name:  string,
+    kind:  string,
+    size:  string,
+}
+
+component FileRow inherits Rectangle {
+    in property <FileEntry> entry;
+    in property <bool>      focused: false;
+    callback activated();
+
+    height: 44px; border-radius: Tokens.radius-sm;
+    background: focused ? Tokens.bg-elevated : transparent;
+    border-width: focused ? 1px : 0px; border-color: Tokens.border-focused;
+    animate background { duration: Tokens.anim-fast; }
+
+    HorizontalLayout {
+        padding-left: Tokens.space-3; padding-right: Tokens.space-3;
+        spacing: Tokens.space-3; alignment: center;
+        Text { text: entry.icon; font-size: Tokens.text-lg; vertical-alignment: center; }
+        Text {
+            horizontal-stretch: 1; text: entry.name; font-size: Tokens.text-md;
+            font-family: Tokens.font-sans;
+            color: entry.kind == "dir" ? Tokens.accent : Tokens.text-primary;
+            vertical-alignment: center; overflow: elide;
+        }
+        Text { text: entry.size; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-secondary; vertical-alignment: center; }
+    }
+    TouchArea { clicked => { root.activated(); } }
+}
+
+export component AppFiles inherits Rectangle {
+    in property <int>         focused-row:  0;
+    in property <string>      current-path: "/home";
+    in property <[FileEntry]> entries;
+
+    callback close-requested();
+    callback navigate(string);
+    callback navigate-parent();
+
+    background: Tokens.bg-base;
+
+    VerticalLayout {
+        padding: 0px;
+
+        Rectangle {
+            height: 52px; background: Tokens.bg-surface;
+            HorizontalLayout {
+                padding-left: Tokens.space-4; padding-right: Tokens.space-4; alignment: center;
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: Tokens.radius-sm; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "↑"; font-size: Tokens.text-md; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.navigate-parent(); } }
+                }
+                Text {
+                    horizontal-stretch: 1; text: "📂  " + current-path;
+                    font-size: Tokens.text-md; font-family: Tokens.font-sans;
+                    font-weight: Tokens.weight-semibold; color: Tokens.text-primary;
+                    vertical-alignment: center; overflow: elide; padding-left: Tokens.space-3;
+                }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 16px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "✕"; font-size: Tokens.text-sm; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.close-requested(); } }
+                }
+            }
+        }
+
+        Rectangle {
+            height: 28px; background: Tokens.bg-elevated;
+            HorizontalLayout {
+                padding-left: Tokens.space-3; padding-right: Tokens.space-3; alignment: center;
+                Text { horizontal-stretch: 1; text: entries.length + " items"; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-secondary; vertical-alignment: center; }
+                Text { text: "Name ↑"; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+            }
+        }
+
+        ListView {
+            horizontal-stretch: 1; vertical-stretch: 1;
+            for entry[idx] in entries: FileRow {
+                entry: entry; focused: focused-row == idx;
+                width: parent.width - Tokens.space-2 * 2; x: Tokens.space-2;
+                activated => { root.navigate(entry.name); }
+            }
+        }
+
+        Rectangle {
+            height: 24px; background: Tokens.bg-surface;
+            HorizontalLayout {
+                padding-left: Tokens.space-3; padding-right: Tokens.space-3; alignment: center;
+                Text { text: "A=Open  B=Up  ↑↓=Navigate"; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+            }
+        }
+    }
+}

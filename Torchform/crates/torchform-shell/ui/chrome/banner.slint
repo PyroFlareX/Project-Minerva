@@ -1,0 +1,66 @@
+// =============================================================================
+// chrome/banner.slint — transient toast banner (mirrors #banner / showBanner)
+//
+// The shell sets `open` true and starts a Timer (in Rust) to clear it after a
+// few seconds.
+// =============================================================================
+
+import { Tokens } from "../tokens.slint";
+
+export component Banner inherits Rectangle {
+    in property <bool>   open: false;
+    in property <string> icon;
+    in property <string> app;
+    in property <string> title;
+    in property <string> body;
+
+    width: 100%;
+    height: 100%;
+    // Pass clicks through to whatever is underneath; the banner is decorative.
+    visible: open;
+
+    card := Rectangle {
+        x: (parent.width - self.width) / 2;
+        y: open ? 6px : -60px;
+        animate y { duration: Tokens.anim-normal; easing: ease-out; }
+        width: min(320px, parent.width - 40px);
+        height: content.preferred-height + 18px;
+        background: Tokens.bg-elevated;
+        border-width: 1px;
+        border-color: Tokens.border;
+        border-radius: 10px;
+        drop-shadow-offset-y: 4px;
+        drop-shadow-blur: 20px;
+        drop-shadow-color: #00000066;
+
+        content := HorizontalLayout {
+            padding: 9px;
+            spacing: 10px;
+            Text { text: icon; font-size: 18px; vertical-alignment: top; }
+            VerticalLayout {
+                horizontal-stretch: 1;
+                spacing: 1px;
+                Text {
+                    text: app;
+                    font-size: 8px;
+                    font-family: Tokens.font-mono;
+                    color: Tokens.text-secondary;
+                    letter-spacing: 1px;
+                }
+                Text {
+                    text: title;
+                    font-size: 11px;
+                    font-family: Tokens.font-sans;
+                    color: Tokens.text-primary;
+                }
+                Text {
+                    text: body;
+                    font-size: 10px;
+                    font-family: Tokens.font-sans;
+                    color: Tokens.text-secondary;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}

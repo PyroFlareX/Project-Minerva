@@ -1,0 +1,171 @@
+// =============================================================================
+// chrome/notifications.slint — left-sliding Notifications panel
+// (mirrors #pnf / rNf in torchform-os.html)
+// =============================================================================
+
+import { Tokens } from "../tokens.slint";
+
+export struct NotifEntry {
+    index: int,
+    icon:  string,
+    app:   string,
+    title: string,
+    body:  string,
+    time:  string,
+}
+
+component NotifRow inherits Rectangle {
+    in property <NotifEntry> entry;
+    in property <bool>       focused;
+    callback activated();
+
+    height: 58px;
+    background: focused ? Tokens.accent-glow : transparent;
+
+    // Focus accent bar
+    if focused: Rectangle {
+        x: 0; width: 2px; height: parent.height;
+        background: Tokens.accent;
+    }
+
+    VerticalLayout {
+        padding-left: 14px;
+        padding-right: 14px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        spacing: 2px;
+        HorizontalLayout {
+            Text {
+                horizontal-stretch: 1;
+                text: entry.icon + " " + entry.app;
+                font-size: 8px;
+                font-family: Tokens.font-mono;
+                color: Tokens.text-secondary;
+                letter-spacing: 1px;
+            }
+            Text {
+                text: entry.time;
+                font-size: 9px;
+                font-family: Tokens.font-mono;
+                color: Tokens.text-disabled;
+            }
+        }
+        Text {
+            text: entry.title;
+            font-size: 11px;
+            font-family: Tokens.font-sans;
+            color: Tokens.text-primary;
+            overflow: elide;
+        }
+        Text {
+            text: entry.body;
+            font-size: 10px;
+            font-family: Tokens.font-sans;
+            color: Tokens.text-secondary;
+            overflow: elide;
+        }
+    }
+
+    // Bottom divider
+    Rectangle {
+        x: 0; y: parent.height - 1px;
+        width: parent.width; height: 1px;
+        background: Tokens.border-subtle;
+    }
+
+    TouchArea { clicked => { root.activated(); } }
+}
+
+export component Notifications inherits Rectangle {
+    in property <bool>          open: false;
+    in property <[NotifEntry]>  entries;
+    in property <int>           focus-index: 0;
+    in property <string>        count-label: "0 new";
+
+    callback activated(int);
+    callback clear-all();
+
+    width: 100%;
+    height: 100%;
+    visible: open;
+
+    Rectangle {
+        width: parent.width; height: parent.height;
+        background: #00000066;
+    }
+
+    panel := Rectangle {
+        width: 310px;
+        height: parent.height;
+        y: 0;
+        x: open ? 0 : -self.width;
+        animate x { duration: Tokens.anim-normal; easing: ease-out; }
+        background: #09091fF7;
+        border-width: 1px;
+        border-color: Tokens.border;
+
+        VerticalLayout {
+            spacing: 0px;
+
+            // Header
+            Rectangle {
+                height: 50px;
+                HorizontalLayout {
+                    padding-left: 16px;
+                    padding-right: 16px;
+                    padding-top: 12px;
+                    VerticalLayout {
+                        horizontal-stretch: 1;
+                        spacing: 3px;
+                        Text {
+                            text: "NOTIFICATIONS";
+                            font-size: 8px;
+                            font-family: Tokens.font-mono;
+                            color: Tokens.text-disabled;
+                            letter-spacing: 2px;
+                        }
+                        Text {
+                            text: count-label;
+                            font-size: 20px;
+                            font-weight: Tokens.weight-bold;
+                            font-family: Tokens.font-display;
+                            color: Tokens.text-primary;
+                        }
+                    }
+                    Text {
+                        text: "Clear all";
+                        font-size: 10px;
+                        font-family: Tokens.font-sans;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                        TouchArea { clicked => { root.clear-all(); } }
+                    }
+                }
+            }
+            Rectangle { height: 1px; background: Tokens.border; }
+
+            // List
+            Rectangle {
+                vertical-stretch: 1;
+                clip: true;
+                VerticalLayout {
+                    alignment: start;
+                    for entry in entries: NotifRow {
+                        entry: entry;
+                        focused: entry.index == focus-index;
+                        activated => { root.activated(entry.index); }
+                    }
+                    if entries.length == 0: Text {
+                        height: 60px;
+                        text: "All clear";
+                        font-size: 11px;
+                        font-family: Tokens.font-sans;
+                        color: Tokens.text-disabled;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+    }
+}

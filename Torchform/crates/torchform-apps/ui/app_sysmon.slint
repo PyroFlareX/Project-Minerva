@@ -1,0 +1,132 @@
+// =============================================================================
+// app_sysmon.slint — Torchform System Monitor
+// Mirrors HTML A.sysmon — CPU/RAM/GPU history bars, per-core, process table.
+// =============================================================================
+
+import { Tokens } from "../../torchform-shell/ui/tokens.slint";
+
+component UsageBar inherits Rectangle {
+    in property <string> label;
+    in property <float>  pct;    // 0.0–1.0
+    in property <color>  bar-color: Tokens.accent;
+    in property <string> value-str;
+
+    height: 44px;
+
+    VerticalLayout {
+        padding-left: 14px; padding-right: 14px; padding-top: 6px; padding-bottom: 6px; spacing: 4px;
+        HorizontalLayout {
+            Text { horizontal-stretch: 1; text: label; font-size: 10px; font-family: Tokens.font-mono; color: Tokens.text-secondary; vertical-alignment: center; }
+            Text { text: value-str; font-size: 10px; font-family: Tokens.font-mono; color: bar-color; vertical-alignment: center; }
+        }
+        Rectangle {
+            height: 6px; border-radius: 3px; background: Tokens.bg-elevated;
+            Rectangle {
+                x: 0; y: 0; height: parent.height; width: parent.width * pct;
+                border-radius: 3px; background: bar-color;
+                animate width { duration: 400ms; easing: ease-out; }
+            }
+        }
+    }
+}
+
+export component AppSysmon inherits Rectangle {
+    in property <int>   focused-row: 0;
+    in property <float> cpu-pct:     0.0;
+    in property <float> ram-pct:     0.0;
+    in property <float> gpu-pct:     0.0;
+    in property <float> temp-c:      40.0;
+    in property <int>   ram-used-mb: 0;
+    in property <int>   ram-total-mb: 4096;
+    in property <string> cpu-name:   "Unknown CPU";
+    in property <[float]> core-pcts;    // per-core 0.0–1.0
+    in property <[string]> proc-names;
+    in property <[float]>  proc-cpus;
+    in property <[int]>    proc-mems;
+
+    callback close-requested();
+
+    background: Tokens.bg-base;
+
+    VerticalLayout {
+        padding: 0px;
+
+        Rectangle {
+            height: 52px; background: Tokens.bg-surface;
+            HorizontalLayout {
+                padding-left: Tokens.space-4; padding-right: Tokens.space-4; alignment: center;
+                Text { horizontal-stretch: 1; text: "📊  System Monitor"; font-size: Tokens.text-xl; font-family: Tokens.font-sans; font-weight: Tokens.weight-semibold; color: Tokens.text-primary; vertical-alignment: center; }
+                Text { text: temp-c + "°C"; font-size: Tokens.text-sm; font-family: Tokens.font-mono; color: temp-c > 80.0 ? Tokens.error : (temp-c > 60.0 ? Tokens.warning : Tokens.success); vertical-alignment: center; }
+                Rectangle { width: Tokens.space-3; }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 16px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "✕"; font-size: Tokens.text-sm; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.close-requested(); } }
+                }
+            }
+        }
+
+        Rectangle {
+            horizontal-stretch: 1; vertical-stretch: 1; background: Tokens.bg-base; clip: true;
+            VerticalLayout {
+                padding: 0px; spacing: 0px;
+
+                Rectangle { height: 8px; }
+
+                UsageBar { label: "CPU  " + cpu-name; pct: cpu-pct; value-str: round(cpu-pct * 100) + "%"; bar-color: Tokens.accent; }
+                UsageBar { label: "RAM  " + ram-used-mb + " / " + ram-total-mb + " MB"; pct: ram-pct; value-str: round(ram-pct * 100) + "%"; bar-color: #7b68ee; }
+                UsageBar { label: "GPU"; pct: gpu-pct; value-str: round(gpu-pct * 100) + "%"; bar-color: #3cb371; }
+
+                Rectangle { height: 1px; background: Tokens.border-subtle; }
+                Rectangle { height: 6px; }
+
+                // Per-core row (up to 8 cores shown)
+                Rectangle {
+                    height: 56px;
+                    property <length> cw: (self.width - 28px) / 8;
+                    for pct[i] in core-pcts: Rectangle {
+                        x: 14px + i * parent.cw; y: 6px;
+                        width: parent.cw - 3px; height: parent.height - 12px;
+                        border-radius: 3px; background: Tokens.bg-elevated;
+                        Rectangle {
+                            x: 0; y: parent.height - (parent.height * pct);
+                            width: parent.width; height: parent.height * pct;
+                            border-radius: 3px; background: Tokens.accent.with-alpha(0.7);
+                            animate height { duration: 400ms; easing: ease-out; }
+                        }
+                        Text { y: parent.height - 14px; width: parent.width; text: i; font-size: 7px; font-family: Tokens.font-mono; color: Tokens.text-disabled; horizontal-alignment: center; }
+                    }
+                }
+
+                Rectangle { height: 1px; background: Tokens.border-subtle; }
+
+                // Process table header
+                Rectangle {
+                    height: 24px; background: Tokens.bg-elevated;
+                    HorizontalLayout {
+                        padding-left: 14px; padding-right: 14px; alignment: center;
+                        Text { horizontal-stretch: 1; text: "PROCESS"; font-size: 8px; font-family: Tokens.font-mono; color: Tokens.text-disabled; letter-spacing: 1px; vertical-alignment: center; }
+                        Text { width: 48px; text: "CPU%"; font-size: 8px; font-family: Tokens.font-mono; color: Tokens.text-disabled; letter-spacing: 1px; horizontal-alignment: right; vertical-alignment: center; }
+                        Text { width: 56px; text: "MEM MB"; font-size: 8px; font-family: Tokens.font-mono; color: Tokens.text-disabled; letter-spacing: 1px; horizontal-alignment: right; vertical-alignment: center; }
+                    }
+                }
+
+                for name[i] in proc-names: Rectangle {
+                    height: 28px;
+                    background: focused-row == i ? Tokens.bg-elevated : transparent;
+                    HorizontalLayout {
+                        padding-left: 14px; padding-right: 14px; alignment: center;
+                        Text { horizontal-stretch: 1; text: name; font-size: 10px; font-family: Tokens.font-mono; color: Tokens.text-primary; vertical-alignment: center; overflow: elide; }
+                        Text { width: 48px; text: round(proc-cpus[i] * 10) / 10 + "%"; font-size: 10px; font-family: Tokens.font-mono; color: proc-cpus[i] > 50.0 ? Tokens.warning : Tokens.text-secondary; horizontal-alignment: right; vertical-alignment: center; }
+                        Text { width: 56px; text: proc-mems[i]; font-size: 10px; font-family: Tokens.font-mono; color: Tokens.text-secondary; horizontal-alignment: right; vertical-alignment: center; }
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            height: 24px; background: Tokens.bg-surface;
+            Text { width: parent.width; height: parent.height; text: "  ↑↓=Processes  B=Close"; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+        }
+    }
+}

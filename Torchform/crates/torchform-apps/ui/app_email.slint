@@ -1,0 +1,101 @@
+// =============================================================================
+// app_email.slint — Torchform Email
+// =============================================================================
+
+import { Tokens } from "../../torchform-shell/ui/tokens.slint";
+
+export struct EmailMsg {
+    index:   int,
+    from:    string,
+    subject: string,
+    preview: string,
+    time:    string,
+    read:    bool,
+}
+
+component EmailRow inherits Rectangle {
+    in property <EmailMsg> msg;
+    in property <bool>     focused;
+    callback activated();
+
+    height: 64px;
+    background: focused ? Tokens.bg-elevated : transparent;
+    animate background { duration: Tokens.anim-fast; }
+
+    if !msg.read: Rectangle { x: 0; y: 12px; width: 3px; height: parent.height - 24px; border-radius: 2px; background: Tokens.accent; }
+
+    VerticalLayout {
+        padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; spacing: 3px;
+        HorizontalLayout {
+            Text { horizontal-stretch: 1; text: msg.from; font-size: Tokens.text-sm; font-family: Tokens.font-sans; font-weight: !msg.read ? Tokens.weight-semibold : 400; color: Tokens.text-primary; overflow: elide; }
+            Text { text: msg.time; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+        }
+        Text { text: msg.subject; font-size: Tokens.text-sm; font-family: Tokens.font-sans; font-weight: !msg.read ? Tokens.weight-medium : 400; color: !msg.read ? Tokens.text-primary : Tokens.text-secondary; overflow: elide; }
+        Text { text: msg.preview; font-size: Tokens.text-xs; font-family: Tokens.font-sans; color: Tokens.text-secondary; overflow: elide; }
+    }
+
+    Rectangle { x: 0; y: parent.height - 1px; width: parent.width; height: 1px; background: Tokens.border-subtle; }
+    TouchArea { clicked => { root.activated(); } }
+}
+
+export component AppEmail inherits Rectangle {
+    in property <int>        focused-row: 0;
+    in property <[EmailMsg]> messages;
+    in property <string>     folder:      "Inbox";
+    in property <int>        unread:      0;
+
+    callback close-requested();
+    callback open-message(int);
+    callback compose();
+
+    background: Tokens.bg-base;
+
+    VerticalLayout {
+        padding: 0px;
+
+        Rectangle {
+            height: 52px; background: Tokens.bg-surface;
+            HorizontalLayout {
+                padding-left: Tokens.space-4; padding-right: Tokens.space-4; alignment: center;
+                Text { horizontal-stretch: 1; text: "✉  " + folder; font-size: Tokens.text-xl; font-family: Tokens.font-sans; font-weight: Tokens.weight-semibold; color: Tokens.text-primary; vertical-alignment: center; }
+                if unread > 0: Rectangle {
+                    width: 24px; height: 20px; border-radius: 10px; background: Tokens.accent;
+                    Text { width: parent.width; height: parent.height; text: unread; font-size: 9px; font-family: Tokens.font-mono; color: Tokens.text-on-accent; horizontal-alignment: center; vertical-alignment: center; }
+                }
+                Rectangle { width: Tokens.space-2; }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 8px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "✏"; font-size: Tokens.text-md; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.compose(); } }
+                }
+                Rectangle { width: Tokens.space-2; }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 16px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "✕"; font-size: Tokens.text-sm; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.close-requested(); } }
+                }
+            }
+        }
+
+        Rectangle {
+            horizontal-stretch: 1; vertical-stretch: 1; clip: true;
+            VerticalLayout {
+                alignment: start;
+                for m in messages: EmailRow {
+                    msg: m; focused: m.index == focused-row;
+                    activated => { root.open-message(m.index); }
+                }
+                if messages.length == 0: Text {
+                    height: 80px; text: "No messages"; font-size: Tokens.text-md;
+                    font-family: Tokens.font-sans; color: Tokens.text-disabled;
+                    horizontal-alignment: center; vertical-alignment: center;
+                }
+            }
+        }
+
+        Rectangle {
+            height: 24px; background: Tokens.bg-surface;
+            Text { width: parent.width; height: parent.height; text: "  ↑↓=Select  A=Open  X=Compose  B=Close"; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+        }
+    }
+}

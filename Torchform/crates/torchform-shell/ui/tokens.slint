@@ -65,6 +65,9 @@ export global Tokens {
 
     in-out property <string> font-sans:  "Inter, DejaVu Sans, sans-serif";
     in-out property <string> font-mono:  "JetBrains Mono, DejaVu Sans Mono, monospace";
+    // Condensed display face — big clocks, panel headers, app-bar titles, section
+    // titles. Mirrors the HTML `--cond` (Barlow Condensed) family.
+    in-out property <string> font-display: "Barlow Condensed, Inter, DejaVu Sans, sans-serif";
 
     // -------------------------------------------------------------------------
     // Spacing scale (base unit = 4px)
@@ -98,6 +101,8 @@ export global Tokens {
     // -------------------------------------------------------------------------
 
     // Size scale
+    out property <length> text-3xs:   8px;   // Hint chips, micro labels
+    out property <length> text-2xs:   9px;   // Status-bar glyphs, tile values
     out property <length> text-xs:   11px;
     out property <length> text-sm:   13px;
     out property <length> text-md:   15px;   // Base body

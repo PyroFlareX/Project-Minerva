@@ -16,6 +16,7 @@ const NAV_OGG:     &[u8] = include_bytes!("../assets/sounds/nav.ogg");
 const CONFIRM_OGG: &[u8] = include_bytes!("../assets/sounds/confirm.ogg");
 const CANCEL_OGG:  &[u8] = include_bytes!("../assets/sounds/cancel.ogg");
 
+#[derive(Debug, Clone, Copy)]
 pub enum SoundCue {
     Nav,
     Confirm,

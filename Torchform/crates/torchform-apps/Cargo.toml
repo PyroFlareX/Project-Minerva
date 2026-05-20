@@ -1,0 +1,13 @@
+[package]
+name    = "torchform-apps"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "torchform_apps"
+
+[dependencies]
+slint = { workspace = true }
+
+[build-dependencies]
+slint-build = { workspace = true }

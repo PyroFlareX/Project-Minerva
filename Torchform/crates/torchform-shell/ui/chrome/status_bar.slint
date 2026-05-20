@@ -1,0 +1,119 @@
+// =============================================================================
+// chrome/status_bar.slint — top status bar (mirrors #sb / rSb in torchform-os.html)
+//
+// Workspace dots · active-app name · centered clock · now-playing · radio
+// icons · notification dot · battery. Model-driven; drop in over any screen.
+// =============================================================================
+
+import { Tokens } from "../tokens.slint";
+
+export component StatusBar inherits Rectangle {
+    in property <int>     workspace-index: 0;
+    in property <int>     workspace-count: 3;
+    in property <string>  app-name: "";
+    in property <string>  time-str: "00:00";
+    in property <string>  now-playing: "";      // "" = nothing playing
+    in property <bool>    wifi: true;
+    in property <bool>    bluetooth: true;
+    in property <bool>    dnd: false;
+    in property <bool>    airplane: false;
+    in property <int>     notif-count: 0;
+    in property <int>     battery-pct: 87;
+
+    height: 28px;
+    background: #07070fdb;
+
+    // Bottom hairline
+    Rectangle {
+        x: 0; y: parent.height - 1px;
+        width: parent.width; height: 1px;
+        background: Tokens.border-subtle;
+    }
+
+    HorizontalLayout {
+        padding-left: 12px;
+        padding-right: 12px;
+        spacing: 10px;
+        height: parent.height;
+
+        // --- Workspace dots ---
+        HorizontalLayout {
+            spacing: 3px;
+            alignment: start;
+            for i in workspace-count: Rectangle {
+                width: 5px; height: 5px;
+                y: (parent.height - self.height) / 2;
+                border-radius: 2.5px;
+                background: i == workspace-index ? Tokens.accent : Tokens.border;
+                animate background { duration: Tokens.anim-fast; }
+            }
+        }
+
+        // --- Active-app name ---
+        Text {
+            width: 110px;
+            text: app-name;
+            font-size: 10px;
+            font-family: Tokens.font-mono;
+            color: Tokens.text-secondary;
+            vertical-alignment: center;
+            overflow: elide;
+        }
+
+        // --- Centered clock ---
+        Text {
+            horizontal-stretch: 1;
+            text: time-str;
+            font-size: 12px;
+            font-weight: Tokens.weight-medium;
+            font-family: Tokens.font-mono;
+            color: Tokens.text-primary;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+
+        // --- Right cluster ---
+        HorizontalLayout {
+            spacing: 8px;
+            alignment: end;
+
+            if now-playing != "": Text {
+                text: "♫ " + now-playing;
+                font-size: 9px;
+                font-family: Tokens.font-mono;
+                color: Tokens.accent;
+                vertical-alignment: center;
+                overflow: elide;
+                max-width: 110px;
+            }
+            Text {
+                text: airplane ? "✈" : (wifi ? "📶" : "📵");
+                font-size: 10px;
+                vertical-alignment: center;
+            }
+            if bluetooth: Text {
+                text: "📡";
+                font-size: 10px;
+                vertical-alignment: center;
+            }
+            if dnd: Text {
+                text: "🔕";
+                font-size: 10px;
+                vertical-alignment: center;
+            }
+            if notif-count > 0: Rectangle {
+                width: 6px; height: 6px;
+                y: (parent.height - self.height) / 2;
+                border-radius: 3px;
+                background: Tokens.error;
+            }
+            Text {
+                text: "🔋" + battery-pct + "%";
+                font-size: 11px;
+                font-family: Tokens.font-mono;
+                color: battery-pct > 20 ? Tokens.text-secondary : Tokens.error;
+                vertical-alignment: center;
+            }
+        }
+    }
+}

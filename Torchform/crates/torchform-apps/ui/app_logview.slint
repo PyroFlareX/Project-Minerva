@@ -1,0 +1,127 @@
+// =============================================================================
+// app_logview.slint — Torchform Log Viewer
+// =============================================================================
+
+import { Tokens } from "../../torchform-shell/ui/tokens.slint";
+
+export struct LogLine {
+    level:  string,   // "info" | "warn" | "error" | "debug"
+    source: string,
+    text:   string,
+    time:   string,
+}
+
+component LevelChip inherits Rectangle {
+    in property <string> level;
+    in property <bool>   active;
+    callback toggled();
+
+    height: 22px; border-radius: 11px;
+    background: active ? level-color() : Tokens.bg-elevated;
+    border-width: 1px;
+    border-color: active ? level-color() : Tokens.border;
+    animate background { duration: Tokens.anim-fast; }
+
+    function level-color() -> color {
+        if (level == "error") { return Tokens.error; }
+        if (level == "warn")  { return Tokens.warning; }
+        if (level == "debug") { return #8888cc; }
+        return Tokens.success;
+    }
+
+    HorizontalLayout {
+        padding-left: 8px; padding-right: 8px; alignment: center;
+        Text {
+            text: level; font-size: 8px; font-family: Tokens.font-mono;
+            color: active ? #000 : Tokens.text-secondary;
+            vertical-alignment: center;
+        }
+    }
+    TouchArea { clicked => { root.toggled(); } }
+}
+
+export component AppLogview inherits Rectangle {
+    in property <int>       focused-row: 0;
+    in property <[LogLine]> lines;
+    in property <bool>      show-info:  true;
+    in property <bool>      show-warn:  true;
+    in property <bool>      show-error: true;
+    in property <bool>      show-debug: false;
+    in property <bool>      tail-mode:  true;
+
+    callback close-requested();
+    callback toggle-level(string);
+    callback toggle-tail();
+    callback clear();
+
+    background: #0a0c0f;
+
+    VerticalLayout {
+        padding: 0px;
+
+        Rectangle {
+            height: 52px; background: #0f1116;
+            HorizontalLayout {
+                padding-left: Tokens.space-3; padding-right: Tokens.space-3; spacing: Tokens.space-2; alignment: center;
+                Text { horizontal-stretch: 1; text: "📋  Logs"; font-size: Tokens.text-xl; font-family: Tokens.font-sans; font-weight: Tokens.weight-semibold; color: Tokens.text-primary; vertical-alignment: center; }
+                LevelChip { level: "info";  active: show-info;  toggled => { root.toggle-level("info"); } }
+                LevelChip { level: "warn";  active: show-warn;  toggled => { root.toggle-level("warn"); } }
+                LevelChip { level: "error"; active: show-error; toggled => { root.toggle-level("error"); } }
+                LevelChip { level: "debug"; active: show-debug; toggled => { root.toggle-level("debug"); } }
+                Rectangle { width: Tokens.space-2; }
+                Rectangle {
+                    width: 32px; height: 32px; border-radius: 16px; background: Tokens.bg-elevated;
+                    Text { width: parent.width; height: parent.height; text: "✕"; font-size: Tokens.text-sm; color: Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+                    TouchArea { clicked => { root.close-requested(); } }
+                }
+            }
+        }
+
+        Rectangle {
+            horizontal-stretch: 1; vertical-stretch: 1; background: #0a0c0f; clip: true;
+            VerticalLayout {
+                alignment: tail-mode ? end : start;
+                padding: 8px; spacing: 1px;
+                for line in lines: Rectangle {
+                    height: 20px;
+                    HorizontalLayout {
+                        spacing: 8px; alignment: center;
+                        Text { width: 38px; text: line.time; font-size: 9px; font-family: Tokens.font-mono; color: #445; vertical-alignment: center; }
+                        Rectangle {
+                            width: 36px; height: 14px; border-radius: 7px;
+                            background: line.level == "error" ? Tokens.error.with-alpha(0.25) : (line.level == "warn" ? Tokens.warning.with-alpha(0.25) : (line.level == "debug" ? #8888cc40 : Tokens.success.with-alpha(0.15)));
+                            Text { width: parent.width; height: parent.height; text: line.level; font-size: 8px; font-family: Tokens.font-mono; color: line.level == "error" ? Tokens.error : (line.level == "warn" ? Tokens.warning : (line.level == "debug" ? #aaaaee : Tokens.success)); horizontal-alignment: center; vertical-alignment: center; }
+                        }
+                        Text { width: 70px; text: line.source; font-size: 9px; font-family: Tokens.font-mono; color: #556; vertical-alignment: center; overflow: elide; }
+                        Text { horizontal-stretch: 1; text: line.text; font-size: 10px; font-family: Tokens.font-mono; color: #ccc; vertical-alignment: center; overflow: elide; }
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            height: 28px; background: #0f1116;
+            HorizontalLayout {
+                padding-left: Tokens.space-3; padding-right: Tokens.space-3; alignment: center;
+                Text { horizontal-stretch: 1; text: lines.length + " lines"; font-size: 9px; font-family: Tokens.font-mono; color: #445; vertical-alignment: center; }
+                Rectangle {
+                    height: 20px; border-radius: 10px;
+                    background: tail-mode ? Tokens.accent.with-alpha(0.2) : transparent;
+                    border-width: 1px; border-color: tail-mode ? Tokens.accent : Tokens.border;
+                    HorizontalLayout { padding-left: 8px; padding-right: 8px; alignment: center;
+                        Text { text: "tail"; font-size: 9px; font-family: Tokens.font-mono; color: tail-mode ? Tokens.accent : Tokens.text-disabled; vertical-alignment: center; }
+                    }
+                    TouchArea { clicked => { root.toggle-tail(); } }
+                }
+                Rectangle { width: Tokens.space-2; }
+                Rectangle {
+                    height: 20px; border-radius: 10px; background: Tokens.bg-elevated; border-width: 1px; border-color: Tokens.border;
+                    HorizontalLayout { padding-left: 8px; padding-right: 8px; alignment: center;
+                        Text { text: "clear"; font-size: 9px; font-family: Tokens.font-mono; color: Tokens.text-secondary; vertical-alignment: center; }
+                    }
+                    TouchArea { clicked => { root.clear(); } }
+                }
+            }
+        }
+    }
+}
