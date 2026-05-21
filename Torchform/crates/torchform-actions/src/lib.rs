@@ -35,4 +35,4 @@ pub mod action;
 pub mod input_map;
 
 pub use action::ShellAction;
-pub use input_map::{InputMap, RawInput};
+pub use input_map::{InputMap, RawInput, ChordMap, KeybindContext, make_chord_name};

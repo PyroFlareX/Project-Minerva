@@ -15,6 +15,60 @@ use serde::{Deserialize, Serialize};
 use anyhow::Result;
 
 // ---------------------------------------------------------------------------
+// Keybind chord / hold config (loaded from keybinds.toml [[chords]] / [[holds]])
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct ChordBind {
+    pub buttons:   Vec<String>,
+    pub action:    String,
+    #[serde(default = "default_within_ms")]
+    pub within_ms: u64,
+}
+
+fn default_within_ms() -> u64 { 80 }
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct HoldBind {
+    pub buttons: Vec<String>,
+    pub action:  String,
+    #[serde(default = "default_hold_ms")]
+    pub hold_ms: u64,
+}
+
+fn default_hold_ms() -> u64 { 1000 }
+
+// ---------------------------------------------------------------------------
+// Dotfile discovery cache (stored in TorchformConfig)
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct DotfileConfig {
+    pub scan_paths: Vec<String>,
+    pub last_scan:  String,
+    pub detected:   Vec<DotfileCacheEntry>,
+}
+
+impl DotfileConfig {
+    pub fn with_defaults() -> Self {
+        Self {
+            scan_paths: vec!["~/.config".into()],
+            last_scan:  String::new(),
+            detected:   Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+pub struct DotfileCacheEntry {
+    pub path:       String,
+    pub format:     String,
+    pub size_bytes: u64,
+    pub editable:   bool,
+}
+
+// ---------------------------------------------------------------------------
 // Top-level config
 // ---------------------------------------------------------------------------
 
@@ -28,18 +82,20 @@ pub struct TorchformConfig {
     pub input:      InputConfig,
     pub radial:     RadialConfig,
     pub launch:     LaunchConfig,
+    pub dotfiles:   DotfileConfig,
 }
 
 impl Default for TorchformConfig {
     fn default() -> Self {
         Self {
-            general: GeneralConfig::default(),
-            theme:   ThemeConfig::default(),
-            icons:   HashMap::new(),
-            apps:    AppsConfig::default(),
-            input:   InputConfig::default(),
-            radial:  RadialConfig::default(),
-            launch:  LaunchConfig::default(),
+            general:  GeneralConfig::default(),
+            theme:    ThemeConfig::default(),
+            icons:    HashMap::new(),
+            apps:     AppsConfig::default(),
+            input:    InputConfig::default(),
+            radial:   RadialConfig::default(),
+            launch:   LaunchConfig::default(),
+            dotfiles: DotfileConfig::with_defaults(),
         }
     }
 }
@@ -452,10 +508,11 @@ impl TorchformConfig {
 /// Only includes fields the user would edit (not theme colors inline).
 #[derive(Serialize)]
 struct SaveableConfig<'a> {
-    general: &'a GeneralConfig,
-    apps:    SaveableApps<'a>,
-    launch:  &'a LaunchConfig,
-    radial:  &'a RadialConfig,
+    general:  &'a GeneralConfig,
+    apps:     SaveableApps<'a>,
+    launch:   &'a LaunchConfig,
+    radial:   &'a RadialConfig,
+    dotfiles: &'a DotfileConfig,
 }
 
 #[derive(Serialize)]
@@ -475,8 +532,9 @@ struct SaveableApps<'a> {
 impl<'a> From<&'a TorchformConfig> for SaveableConfig<'a> {
     fn from(c: &'a TorchformConfig) -> Self {
         SaveableConfig {
-            general: &c.general,
-            apps:    SaveableApps {
+            general:  &c.general,
+            dotfiles: &c.dotfiles,
+            apps:     SaveableApps {
                 settings: &c.apps.settings,
                 files:    &c.apps.files,
                 editor:   &c.apps.editor,
@@ -492,6 +550,46 @@ impl<'a> From<&'a TorchformConfig> for SaveableConfig<'a> {
             radial:  &c.radial,
         }
     }
+}
+
+// ---------------------------------------------------------------------------
+// KeybindFile — full structure of keybinds.toml (used by torchform-actions
+// to load chords/holds; exported so that crate can read without re-parsing)
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
+#[serde(default)]
+pub struct KeybindFile {
+    pub binds:  HashMap<String, String>,
+    pub shell:  HashMap<String, String>,
+    pub app:    HashMap<String, String>,
+    pub chords: Vec<ChordBind>,
+    pub holds:  Vec<HoldBind>,
+}
+
+impl KeybindFile {
+    pub fn load() -> Self {
+        for path in keybind_search_paths() {
+            if path.exists() {
+                if let Ok(text) = std::fs::read_to_string(&path) {
+                    if let Ok(kf) = toml::from_str::<KeybindFile>(&text) {
+                        return kf;
+                    }
+                }
+            }
+        }
+        Self::default()
+    }
+}
+
+fn keybind_search_paths() -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    if let Some(home) = std::env::var_os("HOME") {
+        paths.push(PathBuf::from(home).join(".config/torchform/keybinds.toml"));
+    }
+    paths.push(PathBuf::from("/etc/torchform/keybinds.toml"));
+    paths.push(PathBuf::from("config/keybinds.toml"));
+    paths
 }
 
 /// Returns the canonical user config path for saving.

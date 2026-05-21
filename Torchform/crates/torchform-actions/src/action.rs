@@ -52,6 +52,10 @@ pub enum ShellAction {
     GoHome,
     /// Show the lock screen.
     Lock,
+    /// Open the quick-action overlay (Switch-style home-button hold).
+    OpenQuickMenu,
+    /// Open the radial quick-action ring.
+    OpenRadial,
 
     // -----------------------------------------------------------------
     // Radial menu

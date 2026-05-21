@@ -66,8 +66,8 @@ component DockIcon inherits Rectangle {
     in property <bool>     focused;
     callback activated();
 
-    width: 44px; height: 44px;
-    border-radius: 10px;
+    width: 56px; height: 56px;
+    border-radius: 12px;
     background: focused ? Tokens.accent-glow : tile.bg;
     border-width: focused ? 1px : (tile.running ? 1px : 0px);
     border-color: focused ? Tokens.accent : (tile.running ? Tokens.success : transparent);
@@ -76,7 +76,7 @@ component DockIcon inherits Rectangle {
     Text {
         width: parent.width; height: parent.height;
         text: tile.icon;
-        font-size: 20px;
+        font-size: 24px;
         horizontal-alignment: center;
         vertical-alignment: center;
     }
@@ -136,17 +136,17 @@ export component HomeScreen inherits Rectangle {
             }
         }
 
-        // App grid (6 columns) — absolute placement per index.
+        // App grid (4 columns) — absolute placement per index.
         Rectangle {
             vertical-stretch: 1;
             x: 24px;
             width: parent.width - 48px;
-            property <length> gap: 8px;
-            property <length> cell-w: (self.width - 5 * self.gap) / 6;
-            property <length> cell-h: 80px;
+            property <length> gap: 12px;
+            property <length> cell-w: (self.width - 3 * self.gap) / 4;
+            property <length> cell-h: 110px;
             for tile[i] in grid-tiles: AppTile {
-                x: mod(i, 6) * (parent.cell-w + parent.gap);
-                y: floor(i / 6) * (parent.cell-h + parent.gap);
+                x: mod(i, 4) * (parent.cell-w + parent.gap);
+                y: floor(i / 4) * (parent.cell-h + parent.gap);
                 width: parent.cell-w;
                 height: parent.cell-h;
                 tile: tile;
@@ -159,15 +159,15 @@ export component HomeScreen inherits Rectangle {
         HorizontalLayout {
             alignment: center;
             Rectangle {
-                height: 58px;
+                height: 72px;
                 width: dock-row.preferred-width + 24px;
-                border-radius: 16px;
+                border-radius: 20px;
                 background: #ffffff08;
                 border-width: 1px;
                 border-color: Tokens.border;
                 dock-row := HorizontalLayout {
-                    padding: 7px;
-                    spacing: 8px;
+                    padding: 8px;
+                    spacing: 12px;
                     alignment: center;
                     for tile[i] in dock-tiles: DockIcon {
                         tile: tile;

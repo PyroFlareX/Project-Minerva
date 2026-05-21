@@ -22,8 +22,34 @@ use crate::audio::SoundCue;
 use crate::config::TorchformConfig;
 use crate::palette::PaletteState;
 use crate::radial::{Direction, MenuLayer, RadialMenuState, system_radial_items};
-use crate::settings::{self, SettingsRowData};
+use crate::settings::{self, SettingsRowData, SettingsSchema};
 use crate::workspace::WorkspaceManager;
+
+// ---------------------------------------------------------------------------
+// Settings sidebar helpers
+// ---------------------------------------------------------------------------
+
+/// Lightweight descriptor for one entry in the sidebar flat list.
+/// Used only inside shell.rs to drive navigation logic.
+#[derive(Debug, Clone)]
+pub struct SidebarEntryData {
+    pub is_section:   bool,
+    pub section_id:   String,
+    pub group_label:  String,
+    pub sidebar_index: usize,  // original schema section index (only valid when is_section)
+}
+
+/// Map a section id to its display group string.
+/// Must match the groups in `settings_sidebar_to_slint()` in main.rs.
+pub fn section_group(id: &str) -> String {
+    match id {
+        "display" | "audio" | "input" | "power" | "datetime" | "storage" => "SYSTEM",
+        "network" | "bluetooth" | "vpn" | "cellular" | "netmon"          => "CONNECTIVITY",
+        "security" | "permissions" | "firewall"                           => "PRIVACY",
+        "apps" | "keybinds" | "about" | "sysapps"                        => "DEVICE",
+        _                                                                  => "OTHER",
+    }.into()
+}
 
 // ---------------------------------------------------------------------------
 // Apps  (mirrors APPS_DEF / DOCK_IDS in torchform-os.html)
@@ -194,6 +220,8 @@ pub enum Panel {
     QuickSettings,
     Notifications,
     Switcher,
+    /// Quick-action overlay — Switch-style home-button hold menu.
+    QuickMenu,
 }
 
 // ---------------------------------------------------------------------------
@@ -305,11 +333,16 @@ pub struct Shell {
     pub app_id:   Option<AppId>,
     pub run_apps: Vec<AppId>,
 
-    pub home_focus: usize,
-    pub qs_focus:   usize,
-    pub nf_focus:   usize,
-    pub sw_focus:   usize,
-    pub pin_len:    usize,
+    pub home_focus:   usize,
+    pub qs_focus:     usize,
+    pub nf_focus:     usize,
+    pub sw_focus:     usize,
+    pub qm_focus:     usize,
+    pub pin_len:      usize,
+
+    // Settings two-pane state
+    pub settings_sidebar_focus: usize,   // index into sidebar entries (including group headers)
+    pub settings_sidebar_active: bool,   // true = left pane has d-pad focus
 
     pub cfg:       QuickCfg,
     pub notifs:    Vec<Notif>,
@@ -324,16 +357,18 @@ pub struct Shell {
     pub workspaces: WorkspaceManager,
 
     // Per-app focused row + the file browser path + settings rows.
-    pub app_rows:      HashMap<AppId, i32>,
-    pub files_path:    String,
-    pub settings_rows: Vec<SettingsRowData>,
+    pub app_rows:        HashMap<AppId, i32>,
+    pub files_path:      String,
+    pub settings_rows:   Vec<SettingsRowData>,
+    pub settings_schema: SettingsSchema,
 
     konami_idx: usize,
 }
 
 impl Shell {
     pub fn new(config: TorchformConfig) -> Self {
-        let settings_rows = settings::make_settings_entries(&config);
+        let schema = SettingsSchema::load();
+        let settings_rows = settings::make_settings_entries(&schema, &config);
         let cfg = QuickCfg {
             vol:    config.general.volume.map(|v| v as i32).unwrap_or(70),
             bright: config.general.brightness.map(|b| b as i32).unwrap_or(85),
@@ -345,11 +380,14 @@ impl Shell {
             panel:  None,
             app_id: None,
             run_apps: Vec::new(),
-            home_focus: 0,
-            qs_focus: 0,
-            nf_focus: 0,
-            sw_focus: 0,
-            pin_len: 0,
+            home_focus:   0,
+            qs_focus:     0,
+            nf_focus:     0,
+            sw_focus:     0,
+            qm_focus:     0,
+            pin_len:      0,
+            settings_sidebar_focus:  0,
+            settings_sidebar_active: true,
             cfg,
             notifs: seed_notifs(),
             radial:  RadialMenuState::new(),
@@ -361,6 +399,7 @@ impl Shell {
             app_rows: HashMap::new(),
             files_path: "/home".into(),
             settings_rows,
+            settings_schema: schema,
             konami_idx: 0,
         }
     }
@@ -375,7 +414,70 @@ impl Shell {
     }
 
     pub fn rebuild_settings(&mut self) {
-        self.settings_rows = settings::make_settings_entries(&self.config);
+        self.settings_rows = settings::make_settings_entries(&self.settings_schema, &self.config);
+    }
+
+    /// Index of the first non-group-header sidebar entry (the first actual section).
+    fn first_sidebar_section(&self) -> usize {
+        self.settings_schema.sections
+            .iter()
+            .enumerate()
+            .find_map(|(i, _)| {
+                // Build the same sidebar list the Slint UI sees: group headers interleaved.
+                // The first entry with a non-empty id is a real section.
+                let flat = self.sidebar_entries_flat();
+                flat.iter().position(|e: &SidebarEntryData| e.is_section && i < flat.len())
+            })
+            .unwrap_or(0)
+    }
+
+    /// Move sidebar focus up, skipping group-header rows.
+    fn sidebar_nav_up(&mut self) {
+        let flat = self.sidebar_entries_flat();
+        let mut i = self.settings_sidebar_focus;
+        loop {
+            if i == 0 { break; }
+            i -= 1;
+            if flat[i].is_section { self.settings_sidebar_focus = i; break; }
+        }
+    }
+
+    /// Move sidebar focus down, skipping group-header rows.
+    fn sidebar_nav_down(&mut self) {
+        let flat = self.sidebar_entries_flat();
+        let max = flat.len().saturating_sub(1);
+        let mut i = self.settings_sidebar_focus;
+        loop {
+            if i >= max { break; }
+            i += 1;
+            if flat[i].is_section { self.settings_sidebar_focus = i; break; }
+        }
+    }
+
+    /// The section id (and row pane data) for the currently focused sidebar entry.
+    pub fn active_section_id(&self) -> Option<String> {
+        let flat = self.sidebar_entries_flat();
+        flat.get(self.settings_sidebar_focus)
+            .filter(|e| e.is_section)
+            .map(|e| e.section_id.clone())
+    }
+
+    /// Flat list of sidebar entries in display order, including group-header rows.
+    /// This mirrors what `settings_sidebar_to_slint()` produces in main.rs.
+    pub fn sidebar_entries_flat(&self) -> Vec<SidebarEntryData> {
+        let mut out = Vec::new();
+        let mut last_group = String::new();
+        for (i, sec) in self.settings_schema.sections.iter().enumerate() {
+            let group = section_group(&sec.id);
+            if group != last_group {
+                out.push(SidebarEntryData { is_section: false, section_id: String::new(),
+                    group_label: group.clone(), sidebar_index: out.len() });
+                last_group = group;
+            }
+            out.push(SidebarEntryData { is_section: true, section_id: sec.id.clone(),
+                group_label: String::new(), sidebar_index: i });
+        }
+        out
     }
 
     fn row(&self, app: AppId) -> i32 {
@@ -400,9 +502,10 @@ impl Shell {
         self.panel  = None;
         self.app_rows.entry(app).or_insert(0);
         if app == AppId::Settings {
-            // Focus the first selectable settings row.
-            let first = settings::focus_down(0, &self.settings_rows) as i32;
-            self.set_row(AppId::Settings, first);
+            // Start in the sidebar, focused on the first section.
+            self.settings_sidebar_active = true;
+            self.settings_sidebar_focus  = self.first_sidebar_section();
+            self.set_row(AppId::Settings, 0);
         }
         if app == AppId::Files {
             self.files_path = "/home".into();
@@ -454,6 +557,7 @@ impl Shell {
             Some(Panel::QuickSettings) => self.qs_focus = 0,
             Some(Panel::Notifications) => self.nf_focus = 0,
             Some(Panel::Switcher)      => self.sw_focus = 0,
+            Some(Panel::QuickMenu)     => self.qm_focus = 0,
             None => {}
         }
     }
@@ -531,8 +635,22 @@ impl Shell {
             ShellAction::OpenQuickSettings => self.toggle_panel(Panel::QuickSettings),
             ShellAction::OpenNotifications => self.toggle_panel(Panel::Notifications),
             ShellAction::OpenSwitcher      => self.toggle_panel(Panel::Switcher),
+            ShellAction::OpenQuickMenu     => self.toggle_panel(Panel::QuickMenu),
+            ShellAction::OpenRadial => {
+                if !self.radial.visible {
+                    let items = system_radial_items(&self.config.radial.system.slots);
+                    self.radial.open(MenuLayer::System, items);
+                    self.radial_stick_active = false;
+                }
+            }
             ShellAction::GoHome => {
-                if self.screen == Screen::App { self.go_home(); }
+                // Close any open panel first.
+                if self.panel.is_some() {
+                    self.panel = None;
+                } else {
+                    // Go home from Lock, Home, or App (SELECT always exits).
+                    self.go_home();
+                }
             }
             ShellAction::Lock => {
                 self.screen = Screen::Lock;
@@ -686,19 +804,14 @@ impl Shell {
         match self.screen {
             Screen::Lock => self.lock_konami(None, true, false),
             Screen::Home => {}
-            Screen::App => {
-                // B on an app: cycle to the previous running app, else go home.
-                if self.run_apps.len() > 1 {
-                    if let Some(cur) = self.app_id {
-                        if let Some(i) = self.run_apps.iter().position(|a| *a == cur) {
-                            let prev = (i + self.run_apps.len() - 1) % self.run_apps.len();
-                            let target = self.run_apps[prev];
-                            self.resume_app(target);
-                        }
-                    }
-                } else {
-                    self.go_home();
+            Screen::App  => {
+                // Settings: B in row pane → return to sidebar
+                if self.app_id == Some(AppId::Settings) && !self.settings_sidebar_active {
+                    self.settings_sidebar_active = true;
+                    return;
                 }
+                // All other apps: B does nothing — apps manage their own back navigation.
+                // Use Select (go_home) or Start (switcher) to exit an app.
             }
         }
     }
@@ -735,6 +848,15 @@ impl Shell {
                     _ => self.sw_focus,
                 };
             }
+            Panel::QuickMenu => {
+                // 4 fixed items: Power Off, Sleep, Lock, Settings
+                let n = 4usize;
+                self.qm_focus = match dir {
+                    Nav::Up   => self.qm_focus.saturating_sub(1),
+                    Nav::Down => (self.qm_focus + 1).min(n - 1),
+                    _ => self.qm_focus,
+                };
+            }
         }
     }
 
@@ -748,6 +870,20 @@ impl Shell {
             Panel::Switcher => {
                 if let Some(app) = self.run_apps.get(self.sw_focus).copied() {
                     self.resume_app(app);
+                }
+            }
+            Panel::QuickMenu => {
+                self.panel = None;
+                match self.qm_focus {
+                    0 => fx.push(Effect::Suspend), // Power Off (stub: suspend)
+                    1 => fx.push(Effect::Suspend), // Sleep
+                    2 => {                          // Lock
+                        self.screen = Screen::Lock;
+                        self.pin_len = 0;
+                        self.konami_idx = 0;
+                    }
+                    3 => self.launch(AppId::Settings), // Settings
+                    _ => {}
                 }
             }
         }
@@ -805,26 +941,40 @@ impl Shell {
 
     fn nav_app(&mut self, app: AppId, dir: Nav, fx: &mut Vec<Effect>) {
         if app == AppId::Settings {
-            match dir {
-                Nav::Up => {
-                    let cur = self.row(AppId::Settings) as usize;
-                    let next = settings::focus_up(cur, &self.settings_rows) as i32;
-                    self.set_row(AppId::Settings, next);
+            if self.settings_sidebar_active {
+                // Sidebar pane: Up/Down navigate sections; Right enters the row pane
+                match dir {
+                    Nav::Up    => { fx.push(Effect::Sound(SoundCue::Nav)); self.sidebar_nav_up(); }
+                    Nav::Down  => { fx.push(Effect::Sound(SoundCue::Nav)); self.sidebar_nav_down(); }
+                    Nav::Right => self.settings_enter_rows(),
+                    Nav::Left  => {}
                 }
-                Nav::Down => {
-                    let cur = self.row(AppId::Settings) as usize;
-                    let next = settings::focus_down(cur, &self.settings_rows) as i32;
-                    self.set_row(AppId::Settings, next);
-                }
-                Nav::Left | Nav::Right => {
-                    let delta = if matches!(dir, Nav::Right) { 1 } else { -1 };
-                    let row = self.row(AppId::Settings) as usize;
-                    if let Some(entry) = self.settings_rows.get(row) {
-                        let key = entry.key.clone();
-                        if settings::apply_adjustment(&key, delta, &mut self.config) {
-                            fx.push(Effect::SaveConfig);
+            } else {
+                // Row pane: Up/Down navigate rows; L/R adjust values; Left returns to sidebar
+                match dir {
+                    Nav::Up => {
+                        let cur = self.row(AppId::Settings) as usize;
+                        let next = settings::focus_up(cur, &self.settings_rows) as i32;
+                        self.set_row(AppId::Settings, next);
+                        fx.push(Effect::Sound(SoundCue::Nav));
+                    }
+                    Nav::Down => {
+                        let cur = self.row(AppId::Settings) as usize;
+                        let next = settings::focus_down(cur, &self.settings_rows) as i32;
+                        self.set_row(AppId::Settings, next);
+                        fx.push(Effect::Sound(SoundCue::Nav));
+                    }
+                    Nav::Left | Nav::Right => {
+                        let delta = if matches!(dir, Nav::Right) { 1 } else { -1 };
+                        let row = self.row(AppId::Settings) as usize;
+                        if let Some(entry) = self.settings_rows.get(row) {
+                            let key = entry.key.clone();
+                            let schema_ref = self.settings_schema.clone();
+                            if settings::apply_adjustment(&key, delta, &mut self.config, &schema_ref) {
+                                fx.push(Effect::SaveConfig);
+                            }
+                            self.rebuild_settings();
                         }
-                        self.rebuild_settings();
                     }
                 }
             }
@@ -838,15 +988,57 @@ impl Shell {
         }
     }
 
+    /// Enter the row pane for the currently-focused sidebar section.
+    pub fn settings_enter_rows(&mut self) {
+        self.settings_sidebar_active = false;
+        // Load the rows for the active section
+        self.settings_switch_section();
+        self.set_row(AppId::Settings, 0);
+    }
+
+    /// Switch the active section to match `settings_sidebar_focus`.
+    /// Rebuilds `settings_rows` with only that section's rows.
+    pub fn settings_switch_section(&mut self) {
+        let flat = self.sidebar_entries_flat();
+        if let Some(entry) = flat.get(self.settings_sidebar_focus) {
+            if entry.is_section {
+                self.settings_rows = settings::make_section_entries(
+                    &self.settings_schema,
+                    &self.config,
+                    &entry.section_id,
+                );
+            }
+        }
+    }
+
     fn confirm_app(&mut self, app: AppId, fx: &mut Vec<Effect>) {
         if app == AppId::Settings {
+            if self.settings_sidebar_active {
+                // A in sidebar = enter this section's rows
+                self.settings_enter_rows();
+                fx.push(Effect::Sound(SoundCue::Confirm));
+                return;
+            }
+            // A in row pane = activate the focused row
             let row = self.row(AppId::Settings) as usize;
             if let Some(entry) = self.settings_rows.get(row) {
                 let key = entry.key.clone();
+
+                // Dotfile scan action
+                if key == "sysapps.scan" {
+                    use torchform_config::{expand_tilde, dotfiles};
+                    let root = expand_tilde("~/.config");
+                    let found = dotfiles::scan_config_dir(&root);
+                    self.config.dotfiles.detected = dotfiles::to_cache_entries(&found);
+                    fx.push(Effect::SaveConfig);
+                    self.settings_switch_section();
+                    return;
+                }
+
                 if settings::apply_activation(&key, &mut self.config) {
                     fx.push(Effect::SaveConfig);
                 }
-                self.rebuild_settings();
+                self.settings_switch_section();
             }
         }
     }
@@ -1007,16 +1199,16 @@ mod tests {
     }
 
     #[test]
-    fn back_cycles_then_goes_home() {
+    fn back_in_app_does_nothing_b_cannot_exit_apps() {
         let mut s = shell();
         s.launch(AppId::Terminal);
         s.launch(AppId::Browser);
-        // Two apps: B resumes previous.
+        // B (Cancel) does nothing while inside an app — apps handle their own back nav.
         s.handle(ShellAction::Cancel);
-        assert_eq!(s.app_id, Some(AppId::Terminal));
-        // Kill one so only one remains.
-        s.kill_app(AppId::Browser);
-        s.handle(ShellAction::Cancel);
+        assert_eq!(s.screen, Screen::App);
+        assert_eq!(s.app_id, Some(AppId::Browser));
+        // GoHome (Select) exits the app and returns to Home.
+        s.handle(ShellAction::GoHome);
         assert_eq!(s.screen, Screen::Home);
     }
 

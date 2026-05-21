@@ -276,6 +276,19 @@ input[type=range]{width:100%;height:3px;accent-color:var(--acc);cursor:pointer}
 .pk-ins{padding:2px 8px;font-size:9px;background:var(--s2);border:1px solid var(--b1);border-radius:3px;color:var(--t2);cursor:pointer;font-family:var(--mono)}
 .pk-ins:hover{border-color:var(--acc);color:var(--acc)}
 
+/* COMMAND PALETTE */
+#pal{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;padding-top:48px;background:rgba(7,7,15,.88);z-index:170;backdrop-filter:blur(4px)}
+#pal.on{display:flex}
+.pal-box{width:min(440px,92vw);background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#pal-in{width:100%;padding:12px 16px;background:transparent;border:none;border-bottom:1px solid var(--b1);color:var(--t1);font-family:var(--mono);font-size:13px;outline:none}
+#pal-in::placeholder{color:var(--t3)}
+.pal-list{max-height:260px;overflow-y:auto}
+.pal-it{padding:10px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:11px;color:var(--t2);transition:.08s}
+.pal-it.f{background:rgba(232,255,71,.08);color:var(--t1)}
+.pal-it-i{font-size:15px;width:22px;text-align:center;flex-shrink:0}
+.pal-it-n{flex:1}.pal-it-k{font-size:9px;color:var(--t3)}
+.pal-sec{padding:5px 16px 2px;font-size:8px;color:var(--t3);letter-spacing:.18em;background:var(--s2)}
+
 /* LOG VIEWER */
 #lg-w{height:100%;display:flex;flex-direction:column;background:#030309;padding:8px}
 .lg-tb{display:flex;gap:8px;margin-bottom:8px;flex-shrink:0}
@@ -328,6 +341,12 @@ input[type=range]{width:100%;height:3px;accent-color:var(--acc);cursor:pointer}
       </div>
     </div>
     <div id="banner"></div>
+    <div id="pal">
+      <div class="pal-box">
+        <input id="pal-in" placeholder="Search apps, commands…" autocomplete="off" spellcheck="false">
+        <div class="pal-list" id="pal-list"></div>
+      </div>
+    </div>
   </div>
   <div id="hb"></div>
 </div>
@@ -971,8 +990,37 @@ A.logview={
   }
 };
 
-/* NOTES stub */
-A.notes={render(){$('acnt').innerHTML=`<div style="height:100%;padding:16px;background:var(--bg)"><div style="font-family:var(--cond);font-size:20px;font-weight:700;margin-bottom:12px;color:var(--t1)">Notes</div><textarea style="width:100%;height:calc(100%-60px);background:var(--s1);border:1px solid var(--b1);color:var(--t1);font-family:var(--mono);font-size:12px;padding:10px;border-radius:6px;resize:none;outline:none;line-height:1.7" placeholder="Start typing…">## Quick notes\n\nMinerva PCB rev0.3:\n- Check BQ25798 trace widths\n- Verify USB PD resistor values\n- WWAN SIM tray alignment\n</textarea></div>`;},input(){}};
+/* ── NOTES ──────────────────────────────────── */
+A.notes={
+  notes:[
+    {title:'Minerva PCB rev0.3',body:'- Check BQ25798 trace widths\n- Verify USB PD resistor values\n- WWAN SIM tray alignment\n- CM5 edge connector keep-out zone'},
+    {title:'The Long Century stack',body:'- C++ engine core\n- AngelScript scripting\n- OpenGL + Dear ImGui\n- Rust matchmaking server\n- Binary save format'},
+    {title:'Quick refs',body:'ssh zack@minerva.local\ncargo run -p torchform-shell\ntailscale status\njourналctl -u torchformd -f'},
+    {title:'Shopping list',body:'- 0402 100nF caps ×200\n- USB-C 2.0 receptacle (Molex)\n- 5mm tactile switches ×10\n- Kapton tape'},
+  ],
+  focus:0, editing:false,
+  render(){
+    if(this.editing){
+      const n=this.notes[this.focus];
+      $('acnt').innerHTML=`<div style="height:100%;display:flex;flex-direction:column;background:var(--bg)"><div style="padding:8px 12px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;gap:8px;align-items:center;flex-shrink:0"><input id="nt-ti" style="flex:1;background:transparent;border:none;color:var(--t1);font-family:var(--cond);font-size:17px;font-weight:700;outline:none" value="${esc(n.title)}" onchange="A.notes.notes[A.notes.focus].title=this.value"><span style="font-size:9px;color:var(--t3)">[B] done</span></div><textarea id="nt-bd" style="flex:1;background:var(--bg);border:none;color:var(--t1);font-family:var(--mono);font-size:12px;padding:12px;resize:none;outline:none;line-height:1.75" oninput="A.notes.notes[A.notes.focus].body=this.value">${esc(n.body)}</textarea></div>`;
+      setTimeout(()=>{const bd=$('nt-bd');if(bd){bd.focus();bd.setSelectionRange(bd.value.length,bd.value.length);}},0);
+      return;
+    }
+    $('acnt').innerHTML=`<div style="height:100%;display:flex;background:var(--bg)"><div style="width:180px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column"><div style="padding:8px 14px 6px;font-family:var(--cond);font-size:16px;font-weight:700;color:var(--t1);border-bottom:1px solid var(--b1);display:flex;justify-content:space-between;align-items:center">Notes<span style="font-size:10px;color:var(--t3);font-family:var(--mono)">[X] new</span></div><div style="flex:1;overflow-y:auto">${this.notes.map((n,i)=>`<div style="padding:9px 14px;border-bottom:1px solid var(--b1);cursor:pointer;${this.focus===i?'background:rgba(232,255,71,.07);border-left:2px solid var(--acc)':''}"><div style="font-size:11px;color:var(--t1)">${esc(n.title)}</div><div style="font-size:9px;color:var(--t3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(n.body.split('\n')[0])}</div></div>`).join('')}</div></div><div style="flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column"><div style="font-family:var(--cond);font-size:19px;font-weight:700;color:var(--t1);margin-bottom:10px">${esc(this.notes[this.focus]?.title||'')}</div><div style="font-size:12px;color:var(--t2);line-height:1.75;white-space:pre-wrap">${esc(this.notes[this.focus]?.body||'')}</div><div style="margin-top:auto;padding-top:12px;font-size:9px;color:var(--t3)">[A] edit &nbsp; [X] new &nbsp; [↑↓] navigate</div></div></div>`;
+  },
+  newNote(){this.notes.unshift({title:'New note',body:''});this.focus=0;this.editing=true;this.render();},
+  inputB(){
+    if(this.editing){this.editing=false;this.render();return true;}
+    return false;
+  },
+  input(btn){
+    if(this.editing)return;
+    if(btn==='DU'||btn==='CU'){this.focus=Math.max(0,this.focus-1);this.render();}
+    else if(btn==='DD'||btn==='CD'){this.focus=Math.min(this.notes.length-1,this.focus+1);this.render();}
+    else if(btn==='A'){this.editing=true;this.render();}
+    else if(btn==='X'){this.newNote();}
+  }
+};
 
 /* ═══════════════════ RENDER ENGINE ═══════════════════ */
 function rSb(){
@@ -1018,16 +1066,27 @@ function rSw(){
 
 function rHints(){
   let h=[];
-  if(S.panel==='qs') h=[['ZL','Close'],['A','Toggle'],['↑↓','Navigate'],['B','Back']];
-  else if(S.panel==='nf') h=[['ZR','Close'],['A','Open'],['X','Dismiss'],['B','Back']];
+  if(P.open) h=[['↑↓','Navigate'],['A','Open'],['B','Close']];
+  else if(S.panel==='qs') h=[['ZL','Close'],['ZR','→Notifs'],['A','Toggle'],['↑↓←→','Navigate'],['B','Back']];
+  else if(S.panel==='nf') h=[['ZR','Close'],['ZL','→QS'],['A','Open'],['X','Dismiss'],['↑↓','Navigate'],['B','Back']];
   else if(S.panel==='sw') h=[['A','Resume'],['X','Close'],['L/R','Scroll'],['B','Cancel']];
-  else if(S.screen==='lock') h=[['A','Unlock']];
-  else if(S.screen==='home') h=[['A','Launch'],['ZL','Quick Settings'],['ZR','Notifications'],['START','Switcher'],['Y','Search']];
+  else if(S.screen==='lock') h=[['A','Unlock'],['↑↑↓↓←→←→BA','Konami']];
+  else if(S.screen==='home') h=[['A','Launch'],['ZL','QS'],['ZR','Notifs'],['START','Switcher'],['X/Y','Palette']];
   else if(S.screen==='app'){
-    h=[['B','Back'],['SEL','Home'],['ZL','⚙'],['ZR','🔔'],['START','Switch']];
-    if(S.appId==='terminal') h.push(['↑↓','History']);
-    if(S.appId==='browser') h.push(['L','Back'],['Y','URL']);
-    if(S.appId==='media') h.push(['A','Play'],['L/R','Skip']);
+    h=[['B','Back'],['SEL','Home'],['ZL','QS'],['ZR','Notifs'],['START','Switch'],['X','Palette']];
+    if(S.appId==='terminal') h=[['B','Back'],['↑↓ keys','History'],['D-pad ↑↓','Scroll'],['ZL','QS'],['ZR','Notifs']];
+    if(S.appId==='browser') h=[['L','Back'],['R','Fwd'],['Y/X','URL / Palette'],['B','Back'],['ZL','QS'],['ZR','Notifs']];
+    if(S.appId==='media') h=[['A','Play/Pause'],['L','Prev'],['R','Next'],['↑↓','Playlist'],['B','Back']];
+    if(S.appId==='files') h=[['A','Open'],['B','Up'],['L/R','Sidebar'],['↑↓','Navigate'],['ZL','QS']];
+    if(S.appId==='phone') h=[['L/R','Tabs'],['A','Select/Call'],['B','Delete/Back']];
+    if(S.appId==='sms') h=[['↑↓','Convos'],['A','Open'],['Y','Type'],['B','Back']];
+    if(S.appId==='email') h=[['L/R','Folders'],['↑↓','Messages'],['A','Read'],['B','Back']];
+    if(S.appId==='settings') h=[['↑↓','Sections'],['A','Toggle'],['B','Back']];
+    if(S.appId==='logview') h=[['L/R','Tabs'],['↑↓','Scroll'],['B','Back']];
+    if(S.appId==='notes'){
+      if(A.notes?.editing) h=[['B','Done editing'],['(type)','Edit note']];
+      else h=[['A','Edit'],['X','New note'],['↑↓','Navigate'],['B','Back']];
+    }
   }
   $('hb').innerHTML=h.map(([k,v])=>`<div class="hn"><span class="hk">${k}</span> ${v}</div>`).join('');
 }
@@ -1046,6 +1105,89 @@ function render(){
   if(S.panel==='sw') rSw();
   rSb(); rHints();
 }
+
+/* ═══════════════════ COMMAND PALETTE ═══════════════════ */
+const PAL_CMDS=[
+  {sec:'APPS'},{i:'⬛',n:'Terminal',k:'A',cmd:()=>launch('terminal')},
+  {i:'🌐',n:'Browser',k:'A',cmd:()=>launch('browser')},
+  {i:'📁',n:'Files',k:'A',cmd:()=>launch('files')},
+  {i:'🎵',n:'Media',k:'A',cmd:()=>launch('media')},
+  {i:'📞',n:'Phone',k:'A',cmd:()=>launch('phone')},
+  {i:'💬',n:'Messages',k:'A',cmd:()=>launch('sms')},
+  {i:'📧',n:'Email',k:'A',cmd:()=>launch('email')},
+  {i:'⚙️',n:'Settings',k:'A',cmd:()=>launch('settings')},
+  {i:'📊',n:'Monitor',k:'A',cmd:()=>launch('sysmon')},
+  {i:'📦',n:'Packages',k:'A',cmd:()=>launch('pkgman')},
+  {i:'📋',n:'Logs',k:'A',cmd:()=>launch('logview')},
+  {i:'📝',n:'Notes',k:'A',cmd:()=>launch('notes')},
+  {sec:'ACTIONS'},
+  {i:'🔒',n:'Lock screen',k:'A',cmd:()=>{S.panel=null;S.screen='lock';S.pinLen=0;render();}},
+  {i:'⌂',n:'Go home',k:'A',cmd:()=>goHome()},
+  {i:'📶',n:'Toggle Wi-Fi',k:'A',cmd:()=>{S.cfg.wifi=!S.cfg.wifi;rSb();}},
+  {i:'📡',n:'Toggle Bluetooth',k:'A',cmd:()=>{S.cfg.bt=!S.cfg.bt;rSb();}},
+  {i:'🔕',n:'Toggle Do Not Disturb',k:'A',cmd:()=>{S.cfg.dnd=!S.cfg.dnd;rSb();}},
+  {i:'✈️',n:'Toggle Airplane Mode',k:'A',cmd:()=>{S.cfg.airplane=!S.cfg.airplane;rSb();}},
+  {i:'📷',n:'Screenshot',k:'A',cmd:()=>{showBanner({icon:'📷',app:'SCREENSHOT',title:'Screenshot saved',body:'Saved to ~/Pictures/screenshots/'});}},
+];
+
+const P={
+  open:false, query:'', focus:0,
+  filtered(){
+    const q=this.query.toLowerCase();
+    return PAL_CMDS.filter(c=>!c.sec&&(!q||c.n.toLowerCase().includes(q)));
+  },
+  open_palette(){
+    this.open=true; this.query=''; this.focus=0;
+    $('pal').classList.add('on');
+    this.render();
+    setTimeout(()=>{const i=$('pal-in');if(i){i.value='';i.focus();}},0);
+  },
+  close(){
+    this.open=false;
+    $('pal').classList.remove('on');
+    const i=$('pal-in');if(i)i.blur();
+  },
+  render(){
+    const items=this.filtered();
+    const q=this.query.toLowerCase();
+    let html='';
+    let lastSec='';
+    let idx=0;
+    for(const c of PAL_CMDS){
+      if(c.sec){
+        if(!q)lastSec=c.sec;
+        continue;
+      }
+      if(q&&!c.n.toLowerCase().includes(q))continue;
+      /* section header only when not filtering */
+      if(!q&&lastSec){html+=`<div class="pal-sec">${lastSec}</div>`;lastSec='';}
+      html+=`<div class="pal-it ${this.focus===idx?'f':''}" onclick="P.pick(${idx})"><span class="pal-it-i">${c.i}</span><span class="pal-it-n">${esc(c.n)}</span><span class="pal-it-k">${c.k}</span></div>`;
+      idx++;
+    }
+    if(!html)html=`<div style="padding:14px 16px;font-size:11px;color:var(--t3)">No results</div>`;
+    $('pal-list').innerHTML=html;
+  },
+  pick(i){
+    const items=this.filtered();
+    const c=items[i];
+    if(c){this.close();c.cmd();}
+  },
+  nav(d){
+    const items=this.filtered();
+    this.focus=Math.max(0,Math.min(items.length-1,this.focus+d));
+    this.render();
+    const el=$('pal-list')?.querySelectorAll('.pal-it')[this.focus];
+    el?.scrollIntoView({block:'nearest'});
+  },
+  input(btn){
+    if(!this.open)return false;
+    if(btn==='B'||btn==='SEL'){this.close();return true;}
+    if(btn==='DU'||btn==='CU'){this.nav(-1);return true;}
+    if(btn==='DD'||btn==='CD'){this.nav(1);return true;}
+    if(btn==='A'||btn==='START'){this.pick(this.focus);return true;}
+    return true;
+  },
+};
 
 /* ═══════════════════ NAV ═══════════════════ */
 function launch(id){
@@ -1103,10 +1245,43 @@ const KM={
   Enter:'START',Backspace:'SEL',' ':'HOME',
 };
 
+/* Returns true if a shell-interactive text input is focused,
+   so the shell doesn't intercept typing inside applets. */
+function appletFocused(){
+  const el=document.activeElement;
+  if(!el)return false;
+  const tag=el.tagName;
+  /* Allow palette input to pass through — palette handles its own keys */
+  if(el.id==='pal-in')return false;
+  return tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT';
+}
+
 function handleInput(btn){
+  /* palette consumes all input when open */
+  if(P.open){P.input(btn);return;}
+
+  /* applet override — text inputs capture keyboard; D-pad always passes through for scrolling */
+  if(appletFocused()){
+    /* Escape/B always blurs input and returns control to shell */
+    if(btn==='B'||btn==='SEL'){document.activeElement?.blur();return;}
+    /* D-pad and shoulder buttons still route to the current app (for scroll/nav) */
+    const passThrough=new Set(['DU','DD','DL','DR','L','R','ZL','ZR','START']);
+    if(passThrough.has(btn)){
+      /* ZL/ZR open panels even over applet inputs */
+      if(btn==='ZL'){openPanel('qs');return;}
+      if(btn==='ZR'){openPanel('nf');return;}
+      if(btn==='START'){openPanel('sw');return;}
+      if(S.screen==='app'&&S.appId&&A[S.appId]?.input) A[S.appId].input(btn);
+    }
+    return;
+  }
+
   /* panel routing */
   if(S.panel){
-    if((btn==='ZL'&&S.panel==='qs')||(btn==='ZR'&&S.panel==='nf')||(btn==='B')){closePanel();return;}
+    /* ZL/ZR cross-toggle: pressing the opposite shoulder switches panels */
+    if(btn==='ZL'){if(S.panel==='qs')closePanel();else{S.panel=null;openPanel('qs');}return;}
+    if(btn==='ZR'){if(S.panel==='nf')closePanel();else{S.panel=null;openPanel('nf');}return;}
+    if(btn==='B'||btn==='START'&&S.panel==='sw'){closePanel();return;}
     if(S.panel==='qs'){
       const tot=8;
       if(btn==='DU'||btn==='CU')S.qsFocus=Math.max(0,S.qsFocus-2);
@@ -1124,8 +1299,9 @@ function handleInput(btn){
       rNf();rHints();return;
     }
     if(S.panel==='sw'){
-      if(btn==='DL'||btn==='L')S.swFocus=Math.max(0,S.swFocus-1);
-      else if(btn==='DR'||btn==='R')S.swFocus=Math.min(S.runApps.length-1,S.swFocus+1);
+      /* L/R and DL/DR both scroll the switcher */
+      if(btn==='DL'||btn==='L'||btn==='ZL')S.swFocus=Math.max(0,S.swFocus-1);
+      else if(btn==='DR'||btn==='R'||btn==='ZR')S.swFocus=Math.min(S.runApps.length-1,S.swFocus+1);
       else if(btn==='A'){const id=S.runApps[S.swFocus];if(id)resumeApp(id);}
       else if(btn==='X'){const id=S.runApps[S.swFocus];if(id)killApp(id);}
       rSw();rHints();return;
@@ -1133,12 +1309,15 @@ function handleInput(btn){
     return;
   }
 
-  /* global shortcuts */
+  /* global shortcuts (no panel open) */
   if(btn==='ZL'){openPanel('qs');return;}
   if(btn==='ZR'){openPanel('nf');return;}
   if(btn==='START'){openPanel('sw');return;}
   if(btn==='HOME'){S.screen='lock';S.pinLen=0;S.panel=null;render();return;}
   if(btn==='SEL'&&S.screen==='app'){goHome();return;}
+  /* X always opens palette; Y opens palette unless an app prefers to handle it */
+  if(btn==='X'&&(S.screen==='home'||S.screen==='app')){P.open_palette();return;}
+  if(btn==='Y'&&S.screen==='home'){P.open_palette();return;}
 
   /* lock screen */
   if(S.screen==='lock'){
@@ -1172,15 +1351,20 @@ function handleInput(btn){
       const all=[...grid,...dock];
       const ap=all[S.homeFocus];if(ap)launch(ap.id);
     }
-    else if(btn==='Y'){}
     rHome();rHints();return;
   }
 
-  /* app input */
+  /* app input — delegate to app first; B is handled here after app gets a chance */
   if(S.screen==='app'&&S.appId){
+    /* B: apps with editing modes consume it; otherwise shell acts */
     if(btn==='B'){
-      if(S.runApps.length>1){const i=S.runApps.indexOf(S.appId);const p=S.runApps[(i-1+S.runApps.length)%S.runApps.length];resumeApp(p);}
-      else goHome();
+      const app=A[S.appId];
+      /* If the app has an editing/sub-state, let it handle B */
+      const consumed=app?.inputB?.();
+      if(!consumed){
+        if(S.runApps.length>1){const i=S.runApps.indexOf(S.appId);const p=S.runApps[(i-1+S.runApps.length)%S.runApps.length];resumeApp(p);}
+        else goHome();
+      }
       return;
     }
     if(A[S.appId]?.input) A[S.appId].input(btn);
@@ -1190,13 +1374,22 @@ function handleInput(btn){
 const held=new Set();
 const repeatBtns=new Set(['DU','DD','DL','DR','CU','CD','CL','CR']);
 window.addEventListener('keydown',e=>{
-  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)&&!appletFocused())e.preventDefault();
   const btn=KM[e.key];if(!btn)return;
   if(!held.has(e.key)||repeatBtns.has(btn))handleInput(btn);
   held.add(e.key);
 });
 window.addEventListener('keyup',e=>held.delete(e.key));
 window.addEventListener('blur',()=>held.clear());
+
+/* pal input field wiring */
+$('pal-in').addEventListener('input',e=>{P.query=e.target.value;P.focus=0;P.render();});
+$('pal-in').addEventListener('keydown',e=>{
+  if(e.key==='ArrowUp'){e.preventDefault();P.nav(-1);}
+  else if(e.key==='ArrowDown'){e.preventDefault();P.nav(1);}
+  else if(e.key==='Enter'){e.preventDefault();P.pick(P.focus);}
+  else if(e.key==='Escape'){e.preventDefault();P.close();}
+});
 
 /* ═══════════════════ BOOT ═══════════════════ */
 setInterval(rSb,1000);

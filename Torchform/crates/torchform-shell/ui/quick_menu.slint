@@ -1,0 +1,134 @@
+// =============================================================================
+// quick_menu.slint — ZL+ZR hold overlay (Switch-style home-button hold)
+//
+// Centered dark card with 4 action items. D-pad Up/Down moves focus; A confirms.
+// B (cancel) closes it. Rendered on top of whatever screen is active.
+// =============================================================================
+
+import { Tokens } from "tokens.slint";
+
+export struct QuickMenuItem {
+    index: int,
+    icon:  string,
+    label: string,
+    key:   string,   // shell action name emitted on confirm
+}
+
+component QmItem inherits Rectangle {
+    in property <QuickMenuItem> item;
+    in property <bool>          focused;
+    callback activated();
+
+    height: 52px;
+    border-radius: Tokens.radius-md;
+    background: focused ? Tokens.accent.with-alpha(0.18) : transparent;
+    animate background { duration: Tokens.anim-fast; }
+
+    if focused: Rectangle {
+        x: 0; y: (parent.height - self.height) / 2;
+        width: 3px; height: parent.height - 12px;
+        border-radius: 2px; background: Tokens.accent;
+    }
+
+    HorizontalLayout {
+        padding-left: Tokens.space-4;
+        padding-right: Tokens.space-4;
+        spacing: Tokens.space-3;
+        alignment: center;
+
+        Text {
+            width: 32px;
+            text: item.icon;
+            font-size: Tokens.text-xl;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+            color: focused ? Tokens.accent : Tokens.text-secondary;
+        }
+        Text {
+            horizontal-stretch: 1;
+            text: item.label;
+            font-size: Tokens.text-md;
+            font-family: Tokens.font-sans;
+            font-weight: focused ? Tokens.weight-semibold : Tokens.weight-regular;
+            color: focused ? Tokens.text-primary : Tokens.text-secondary;
+            vertical-alignment: center;
+        }
+    }
+
+    TouchArea { clicked => { root.activated(); } }
+}
+
+export component QuickMenu inherits Rectangle {
+    in property <bool>             open: false;
+    in property <int>              focus-index: 0;
+    in property <[QuickMenuItem]>  items;
+
+    callback item-activated(string);   // passes item.key
+    callback close-requested();
+
+    width: 100%; height: 100%;
+    visible: open;
+
+    // Full-screen dim
+    Rectangle {
+        width: parent.width; height: parent.height;
+        background: #00000088;
+        TouchArea { clicked => { root.close-requested(); } }
+    }
+
+    // Centered card
+    card := Rectangle {
+        width: 300px;
+        height: items.length * 52px + 80px;
+        x: (parent.width  - self.width)  / 2;
+        y: (parent.height - self.height) / 2;
+        border-radius: Tokens.radius-lg;
+        background: Tokens.bg-surface;
+        border-width: 1px;
+        border-color: Tokens.border;
+        drop-shadow-blur: 32px;
+        drop-shadow-color: #000000aa;
+
+        VerticalLayout {
+            padding: Tokens.space-4;
+            spacing: Tokens.space-2;
+
+            // Header
+            Rectangle {
+                height: 36px;
+                HorizontalLayout {
+                    padding-bottom: Tokens.space-2;
+                    alignment: center;
+                    Text {
+                        horizontal-stretch: 1;
+                        text: "QUICK MENU";
+                        font-size: 9px;
+                        font-family: Tokens.font-mono;
+                        color: Tokens.text-disabled;
+                        letter-spacing: 1.5px;
+                        vertical-alignment: center;
+                    }
+                    Text {
+                        text: "B close";
+                        font-size: 9px;
+                        font-family: Tokens.font-mono;
+                        color: Tokens.text-disabled;
+                        vertical-alignment: center;
+                    }
+                }
+                Rectangle {
+                    x: 0; y: parent.height - 1px;
+                    width: parent.width; height: 1px;
+                    background: Tokens.border-subtle;
+                }
+            }
+
+            for item[i] in items: QmItem {
+                width: parent.width;
+                item: item;
+                focused: i == focus-index;
+                activated => { root.item-activated(item.key); }
+            }
+        }
+    }
+}

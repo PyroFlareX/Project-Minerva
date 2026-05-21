@@ -63,6 +63,20 @@ use anyhow::Result;
 use crate::ShellAction;
 
 // ---------------------------------------------------------------------------
+// KeybindContext — which context to resolve input in
+// ---------------------------------------------------------------------------
+
+/// Input dispatch context.  Determines which section of keybinds.toml is
+/// consulted when resolving a raw input to a ShellAction.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum KeybindContext {
+    /// No app foregrounded — home screen, panels, lock screen.
+    Shell,
+    /// An app is foregrounded.
+    App,
+}
+
+// ---------------------------------------------------------------------------
 // RawInput — a named discrete input event (no analog payloads here)
 // ---------------------------------------------------------------------------
 
@@ -81,7 +95,12 @@ impl RawInput {
 
 #[derive(Debug, Clone)]
 pub struct InputMap {
-    binds: HashMap<String, ShellAction>,
+    /// Legacy / fallback binds (from [binds] table).
+    binds:       HashMap<String, ShellAction>,
+    /// Shell-context binds (from [shell] table).  Takes precedence over `binds`.
+    shell_binds: HashMap<String, ShellAction>,
+    /// App-context binds (from [app] table).
+    app_binds:   HashMap<String, ShellAction>,
 }
 
 impl Default for InputMap {
@@ -93,8 +112,11 @@ impl Default for InputMap {
 impl InputMap {
     /// Build from the built-in defaults (no config file required).
     pub fn from_defaults() -> Self {
-        let binds = default_binds();
-        Self { binds }
+        Self {
+            binds:       default_binds(),
+            shell_binds: default_shell_binds(),
+            app_binds:   default_app_binds(),
+        }
     }
 
     /// Load from the first config file found in the standard search paths.
@@ -121,44 +143,83 @@ impl InputMap {
         let text = std::fs::read_to_string(path)?;
         let file: KeybindsFile = toml::from_str(&text)?;
 
-        // Start with defaults so missing keys still work, then override.
         let mut binds = default_binds();
         for (raw, action_name) in file.binds {
             match action_name_to_shell_action(&action_name) {
                 Some(action) => { binds.insert(raw, action); }
-                None => {
-                    tracing_log(format!("unknown action name in keybinds: {action_name:?}"));
-                }
+                None => tracing_log(format!("unknown action name in keybinds [binds]: {action_name:?}")),
             }
         }
-        Ok(Self { binds })
+
+        let mut shell_binds = default_shell_binds();
+        for (raw, action_name) in file.shell {
+            match action_name_to_shell_action(&action_name) {
+                Some(action) => { shell_binds.insert(raw, action); }
+                None => tracing_log(format!("unknown action name in keybinds [shell]: {action_name:?}")),
+            }
+        }
+
+        let mut app_binds = default_app_binds();
+        for (raw, action_name) in file.app {
+            match action_name_to_shell_action(&action_name) {
+                Some(action) => { app_binds.insert(raw, action); }
+                None => tracing_log(format!("unknown action name in keybinds [app]: {action_name:?}")),
+            }
+        }
+
+        Ok(Self { binds, shell_binds, app_binds })
     }
 
-    /// Resolve a raw discrete input to a ShellAction, if one is mapped.
-    /// Returns None for unmapped inputs (they are silently ignored).
+    /// Resolve a raw discrete input using the given context.
+    ///
+    /// - `Shell`: checks `shell_binds` first, then falls back to `binds`.
+    /// - `App`:   checks `app_binds` only (B is intentionally absent there).
+    pub fn resolve_ctx(&self, raw: &RawInput, ctx: KeybindContext) -> Option<ShellAction> {
+        match ctx {
+            KeybindContext::Shell => {
+                self.shell_binds.get(&raw.0)
+                    .or_else(|| self.binds.get(&raw.0))
+                    .cloned()
+            }
+            KeybindContext::App => {
+                self.app_binds.get(&raw.0).cloned()
+            }
+        }
+    }
+
+    /// Legacy resolve without context — uses Shell semantics.
     pub fn resolve(&self, raw: &RawInput) -> Option<ShellAction> {
-        self.binds.get(&raw.0).cloned()
+        self.resolve_ctx(raw, KeybindContext::Shell)
     }
 
     /// All current bindings (raw_name → action), sorted for display in settings.
     pub fn entries(&self) -> Vec<(String, ShellAction)> {
-        let mut v: Vec<_> = self.binds.iter()
+        let mut v: Vec<_> = self.shell_binds.iter()
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
         v.sort_by(|a, b| a.0.cmp(&b.0));
         v
     }
 
-    /// Save current bindings back to the user config path.
+    /// Save current shell bindings back to the user config path.
     pub fn save(&self) -> Result<()> {
         let path = user_config_path();
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        let raw_map: HashMap<String, String> = self.binds.iter()
+        let shell_map: HashMap<String, String> = self.shell_binds.iter()
             .map(|(k, v)| (k.clone(), shell_action_to_name(v).to_owned()))
             .collect();
-        let file = KeybindsFile { binds: raw_map };
+        let app_map: HashMap<String, String> = self.app_binds.iter()
+            .map(|(k, v)| (k.clone(), shell_action_to_name(v).to_owned()))
+            .collect();
+        let file = KeybindsFile {
+            binds: HashMap::new(),
+            shell: shell_map,
+            app:   app_map,
+            chords: Vec::new(),
+            holds:  Vec::new(),
+        };
         let text = toml::to_string_pretty(&file)?;
         std::fs::write(&path, text)?;
         Ok(())
@@ -169,10 +230,33 @@ impl InputMap {
 // TOML file shape
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Default)]
+struct ChordBindRaw {
+    buttons:   Vec<String>,
+    action:    String,
+    #[serde(default = "default_within_ms")]
+    within_ms: u64,
+}
+
+fn default_within_ms() -> u64 { 80 }
+
+#[derive(Debug, Deserialize, Serialize, Default)]
+struct HoldBindRaw {
+    buttons: Vec<String>,
+    action:  String,
+    #[serde(default = "default_hold_ms")]
+    hold_ms: u64,
+}
+
+fn default_hold_ms() -> u64 { 1000 }
+
+#[derive(Debug, Deserialize, Serialize, Default)]
 struct KeybindsFile {
-    #[serde(default)]
-    binds: HashMap<String, String>,
+    #[serde(default)] binds:  HashMap<String, String>,
+    #[serde(default)] shell:  HashMap<String, String>,
+    #[serde(default)] app:    HashMap<String, String>,
+    #[serde(default)] chords: Vec<ChordBindRaw>,
+    #[serde(default)] holds:  Vec<HoldBindRaw>,
 }
 
 // ---------------------------------------------------------------------------
@@ -182,32 +266,51 @@ struct KeybindsFile {
 fn default_binds() -> HashMap<String, ShellAction> {
     use ShellAction::*;
     let pairs: &[(&str, ShellAction)] = &[
-        // Face buttons
-        ("button_a",           Confirm),
-        ("button_b",           Cancel),
-        ("button_select",      OpenPalette),
-        ("button_start",       OpenSwitcher),
-        // Shoulder triggers — radial menu
-        ("l2_hold_true",       RadialHold { held: true }),
-        ("l2_hold_false",      RadialHold { held: false }),
-        ("r2_hold_true",       RadialHold { held: true }),
-        ("r2_hold_false",      RadialHold { held: false }),
-        // D-pad
-        ("dpad_up",            NavUp),
-        ("dpad_down",          NavDown),
-        ("dpad_left",          NavLeft),
-        ("dpad_right",         NavRight),
-        // Shoulder bumpers — workspace switching
-        ("l1",                 WorkspacePrev),
-        ("r1",                 WorkspaceNext),
-        // System shortcuts (can be rebound to any button)
-        ("select_long",        Sleep),
+        // System shortcuts that work in all contexts
         ("l2_r2_brightness_up",   BrightnessUp),
         ("l2_r2_brightness_down", BrightnessDown),
         ("l2_r2_volume_up",       VolumeUp),
         ("l2_r2_volume_down",     VolumeDown),
         ("l2_r2_wifi",            WifiToggle),
         ("l2_r2_bt",              BluetoothToggle),
+    ];
+    pairs.iter().map(|(k, v)| (k.to_string(), v.clone())).collect()
+}
+
+fn default_shell_binds() -> HashMap<String, ShellAction> {
+    use ShellAction::*;
+    let pairs: &[(&str, ShellAction)] = &[
+        ("button_a",      Confirm),
+        ("button_b",      Cancel),
+        ("button_select", GoHome),
+        ("button_start",  OpenSwitcher),
+        ("button_x",      OpenPalette),
+        ("l1",            OpenNotifications),
+        ("r1",            OpenQuickSettings),
+        ("select_long",   Lock),
+        ("l2_hold_true",  RadialHold { held: true }),
+        ("l2_hold_false", RadialHold { held: false }),
+        ("r2_hold_true",  RadialHold { held: true }),
+        ("r2_hold_false", RadialHold { held: false }),
+        ("dpad_up",       NavUp),
+        ("dpad_down",     NavDown),
+        ("dpad_left",     NavLeft),
+        ("dpad_right",    NavRight),
+    ];
+    pairs.iter().map(|(k, v)| (k.to_string(), v.clone())).collect()
+}
+
+fn default_app_binds() -> HashMap<String, ShellAction> {
+    use ShellAction::*;
+    // B is intentionally absent — apps handle their own back navigation.
+    let pairs: &[(&str, ShellAction)] = &[
+        ("button_select", GoHome),
+        ("button_start",  OpenSwitcher),
+        ("button_x",      OpenPalette),
+        ("dpad_up",       NavUp),
+        ("dpad_down",     NavDown),
+        ("dpad_left",     NavLeft),
+        ("dpad_right",    NavRight),
     ];
     pairs.iter().map(|(k, v)| (k.to_string(), v.clone())).collect()
 }
@@ -225,6 +328,8 @@ fn action_name_to_shell_action(name: &str) -> Option<ShellAction> {
         "open_switcher"        => OpenSwitcher,
         "open_quick_settings"  => OpenQuickSettings,
         "open_notifications"   => OpenNotifications,
+        "open_quick_menu"      => OpenQuickMenu,
+        "open_radial"          => OpenRadial,
         "go_home"              => GoHome,
         "lock"                 => Lock,
         "radial_hold_true"     => RadialHold { held: true },
@@ -260,6 +365,8 @@ fn shell_action_to_name(action: &ShellAction) -> &'static str {
         OpenSwitcher         => "open_switcher",
         OpenQuickSettings    => "open_quick_settings",
         OpenNotifications    => "open_notifications",
+        OpenQuickMenu        => "open_quick_menu",
+        OpenRadial           => "open_radial",
         GoHome               => "go_home",
         Lock                 => "lock",
         RadialHold { held: true }  => "radial_hold_true",
@@ -282,13 +389,76 @@ fn shell_action_to_name(action: &ShellAction) -> &'static str {
         Sleep                => "sleep",
         LowerBackspace       => "lower_backspace",
         LowerSubmit          => "lower_submit",
-        // Analog / payload variants don't have static names in the bind table
         StickMoved { .. }    => "stick_moved",
         PadMoved { .. }      => "pad_moved",
         LowerKeyPress { .. } => "lower_key_press",
         LowerTap { .. }      => "lower_tap",
         VoiceResult { .. }   => "voice_result",
     }
+}
+
+// ---------------------------------------------------------------------------
+// ChordMap — chord/hold name → ShellAction
+// ---------------------------------------------------------------------------
+
+/// Maps canonical chord names (sorted button names joined with "+") to actions.
+/// Used by torchform-inputd to resolve `ChordFired`/`HoldFired` events.
+#[derive(Debug, Clone, Default)]
+pub struct ChordMap {
+    binds: HashMap<String, ShellAction>,
+}
+
+impl ChordMap {
+    /// Build from chord + hold bind lists (from keybinds.toml).
+    fn from_config(chords: &[ChordBindRaw], holds: &[HoldBindRaw]) -> Self {
+        let mut binds = HashMap::new();
+        for c in chords {
+            let name = canonical_chord_name(&c.buttons);
+            if let Some(action) = action_name_to_shell_action(&c.action) {
+                binds.insert(name, action);
+            } else {
+                tracing_log(format!("unknown action in [[chords]]: {:?}", c.action));
+            }
+        }
+        for h in holds {
+            let name = canonical_chord_name(&h.buttons);
+            if let Some(action) = action_name_to_shell_action(&h.action) {
+                binds.insert(name, action);
+            } else {
+                tracing_log(format!("unknown action in [[holds]]: {:?}", h.action));
+            }
+        }
+        Self { binds }
+    }
+
+    /// Load from the standard keybinds.toml search paths.
+    pub fn load() -> Self {
+        for path in config_paths() {
+            if path.exists() {
+                if let Ok(text) = std::fs::read_to_string(&path) {
+                    if let Ok(file) = toml::from_str::<KeybindsFile>(&text) {
+                        return Self::from_config(&file.chords, &file.holds);
+                    }
+                }
+            }
+        }
+        Self::default()
+    }
+
+    pub fn resolve(&self, name: &str) -> Option<ShellAction> {
+        self.binds.get(name).cloned()
+    }
+}
+
+fn canonical_chord_name(buttons: &[String]) -> String {
+    let mut sorted = buttons.to_vec();
+    sorted.sort();
+    sorted.join("+")
+}
+
+/// Public convenience — call with `&[String]` button slices.
+pub fn make_chord_name(buttons: &[String]) -> String {
+    canonical_chord_name(buttons)
 }
 
 // ---------------------------------------------------------------------------
@@ -334,25 +504,31 @@ mod tests {
     #[test]
     fn default_map_resolves_basics() {
         let map = InputMap::from_defaults();
+        // Shell context (default)
         assert_eq!(map.resolve(&RawInput::new("button_a")), Some(ShellAction::Confirm));
         assert_eq!(map.resolve(&RawInput::new("button_b")), Some(ShellAction::Cancel));
         assert_eq!(map.resolve(&RawInput::new("dpad_up")),  Some(ShellAction::NavUp));
         assert_eq!(map.resolve(&RawInput::new("l2_hold_true")),
                    Some(ShellAction::RadialHold { held: true }));
         assert_eq!(map.resolve(&RawInput::new("unknown_key")), None);
+
+        // App context — B is absent (apps handle their own back nav)
+        assert_eq!(map.resolve_ctx(&RawInput::new("button_b"), KeybindContext::App), None);
+        assert_eq!(map.resolve_ctx(&RawInput::new("button_select"), KeybindContext::App), Some(ShellAction::GoHome));
     }
 
     #[test]
     fn toml_round_trip() {
         let map = InputMap::from_defaults();
-        let raw_map: std::collections::HashMap<String, String> = map.binds.iter()
+        // button_a lives in shell_binds, which save() serializes into [shell]
+        let raw_shell: std::collections::HashMap<String, String> = map.shell_binds.iter()
             .map(|(k, v)| (k.clone(), shell_action_to_name(v).to_owned()))
             .collect();
-        let file = KeybindsFile { binds: raw_map };
+        let file = KeybindsFile { shell: raw_shell, ..KeybindsFile::default() };
         let text = toml::to_string_pretty(&file).unwrap();
-        // Re-parse
+        // Re-parse — button_a must survive the round-trip in [shell]
         let file2: KeybindsFile = toml::from_str(&text).unwrap();
-        assert!(file2.binds.contains_key("button_a"));
+        assert!(file2.shell.contains_key("button_a"));
     }
 
     #[test]
@@ -367,21 +543,21 @@ mod tests {
 
     #[test]
     fn config_override_replaces_binding() {
-        // Simulate loading a config that remaps button_a → cancel
+        // Simulate loading a config that remaps button_a in [shell] context
         let toml = r#"
-[binds]
+[shell]
 button_a = "cancel"
 "#;
         let file: KeybindsFile = toml::from_str(toml).unwrap();
-        let mut binds = default_binds();
-        for (k, v) in file.binds {
+        let mut shell_binds = default_shell_binds();
+        for (k, v) in file.shell {
             if let Some(action) = action_name_to_shell_action(&v) {
-                binds.insert(k, action);
+                shell_binds.insert(k, action);
             }
         }
-        let map = InputMap { binds };
+        let map = InputMap { binds: default_binds(), shell_binds, app_binds: default_app_binds() };
         assert_eq!(map.resolve(&RawInput::new("button_a")), Some(ShellAction::Cancel));
-        // Other defaults still present
+        // Other shell defaults still present
         assert_eq!(map.resolve(&RawInput::new("button_b")), Some(ShellAction::Cancel));
     }
 }

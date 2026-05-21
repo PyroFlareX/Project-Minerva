@@ -25,7 +25,8 @@ import { AppTitleBar } from "chrome/app_window.slint";
 import { QuickSettings, QsTile } from "chrome/quick_settings.slint";
 import { Notifications, NotifEntry } from "chrome/notifications.slint";
 import { Banner } from "chrome/banner.slint";
-import { AppSettings, SettingsEntry } from "../../torchform-apps/ui/app_settings.slint";
+import { QuickMenu, QuickMenuItem } from "quick_menu.slint";
+import { AppSettings, SettingsEntry, SidebarEntry } from "../../torchform-apps/ui/app_settings.slint";
 import { AppFiles, FileEntry } from "../../torchform-apps/ui/app_files.slint";
 import { AppFileManager }    from "../../torchform-apps/ui/app_file_manager.slint";
 import { AppCamera }         from "../../torchform-apps/ui/app_camera.slint";
@@ -78,9 +79,13 @@ export component ShellOverlay inherits Window {
     callback switcher-dismissed();
 
     // Embedded app panels
-    in property <bool>             app-settings-visible: false;
-    in property <int>              app-settings-focused-row: 0;
-    in property <[SettingsEntry]>  app-settings-entries;
+    in property <bool>                app-settings-visible: false;
+    in property <int>                 app-settings-focused-row: 0;
+    in property <[SettingsEntry]>     app-settings-entries;
+    in property <[SidebarEntry]>      app-settings-sidebar-entries;
+    in property <int>                 app-settings-sidebar-focus: 0;
+    in property <bool>                app-settings-sidebar-in-focus: true;
+    in property <string>              app-settings-section-title: "Settings";
     in property <bool>         app-files-visible: false;
     in property <int>          app-files-focused-row: 0;
     in property <string>       app-files-path: "/home";
@@ -100,6 +105,7 @@ export component ShellOverlay inherits Window {
     in property <string>       app-terminal-input: "";
     in property <string>       app-terminal-cwd: "/home/user";
     callback app-closed();
+    callback app-settings-section-selected(int);
     callback app-settings-setting-activated(string);
     callback app-settings-setting-adjusted(string, int);
     callback app-files-navigate(string);
@@ -158,6 +164,13 @@ export component ShellOverlay inherits Window {
     callback nf-activated(int);
     callback nf-clear-all();
 
+    // Quick Menu overlay
+    in property <bool>              qm-open: false;
+    in property <int>               qm-focus: 0;
+    in property <[QuickMenuItem]>   qm-items;
+    callback qm-item-activated(string);
+    callback qm-close-requested();
+
     // Banner toast
     in property <bool>   banner-open: false;
     in property <string> banner-icon: "";
@@ -201,9 +214,9 @@ export component ShellOverlay inherits Window {
     // Screen content area (between status bar and hint bar)
     // -----------------------------------------------------------------------
     Rectangle {
-        x: 0; y: 28px;
+        x: 0; y: 36px;
         width: parent.width;
-        height: parent.height - 28px - 24px;
+        height: parent.height - 36px - 32px;
         clip: true;
 
         if root.screen == ShellScreen.Lock: LockScreen {
@@ -242,9 +255,14 @@ export component ShellOverlay inherits Window {
                 if app-settings-visible: AppSettings {
                     x: 0; y: 0;
                     width: parent.width; height: parent.height;
-                    focused-row: app-settings-focused-row;
-                    entries:     app-settings-entries;
+                    focused-row:         app-settings-focused-row;
+                    entries:             app-settings-entries;
+                    sidebar-entries:     app-settings-sidebar-entries;
+                    sidebar-focus:       app-settings-sidebar-focus;
+                    sidebar-in-focus:    app-settings-sidebar-in-focus;
+                    section-title:       app-settings-section-title;
                     close-requested          => { root.app-closed(); }
+                    section-selected(i)      => { root.app-settings-section-selected(i); }
                     setting-activated(key)   => { root.app-settings-setting-activated(key); }
                     setting-adjusted(key, d) => { root.app-settings-setting-adjusted(key, d); }
                 }
@@ -365,6 +383,13 @@ export component ShellOverlay inherits Window {
             title: root.banner-title;
             body:  root.banner-body;
         }
+        QuickMenu {
+            open:        root.qm-open;
+            focus-index: root.qm-focus;
+            items:       root.qm-items;
+            item-activated(key) => { root.qm-item-activated(key); }
+            close-requested     => { root.qm-close-requested(); }
+        }
     }
 
     // Status bar (top)
@@ -385,7 +410,7 @@ export component ShellOverlay inherits Window {
 
     // Hint bar (bottom)
     HintBar {
-        x: 0; y: parent.height - 24px;
+        x: 0; y: parent.height - 32px;
         width: parent.width;
         items: root.hint-items;
     }

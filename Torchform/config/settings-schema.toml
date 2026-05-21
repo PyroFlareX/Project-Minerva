@@ -1,0 +1,772 @@
+# =============================================================================
+# settings-schema.toml — Torchform Settings display schema
+#
+# This file defines the sections and rows shown in the Settings app.
+# Copy to ~/.config/torchform/settings-schema.toml to override.
+#
+# Widget types:
+#   slider   — requires min, max, step
+#   toggle   — boolean on/off
+#   select   — requires options = [...]
+#   text     — read-only display
+#   action   — press A to activate (fires apply_activation)
+#
+# Each row's `key` is the dotted path used by read_value/apply_activation/
+# apply_adjustment in settings.rs.  Keys not handled there are no-ops.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# DISPLAY
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "display"
+title = "DISPLAY"
+
+  [[section.rows]]
+  key    = "display.brightness"
+  label  = "Brightness"
+  icon   = "🔆"
+  desc   = "Screen backlight level (0–100 %)"
+  widget = "slider"
+  min    = 0
+  max    = 100
+  step   = 5
+
+  [[section.rows]]
+  key    = "display.night_mode"
+  label  = "Night Mode"
+  icon   = "🌙"
+  desc   = "Reduce blue light for low-light use"
+  widget = "toggle"
+
+  [[section.rows]]
+  key     = "display.refresh_rate"
+  label   = "Refresh Rate"
+  icon    = "⚡"
+  desc    = "Upper display refresh rate"
+  widget  = "select"
+  options = ["60 Hz", "90 Hz", "120 Hz"]
+
+  [[section.rows]]
+  key     = "display.orientation"
+  label   = "Orientation"
+  icon    = "↔"
+  desc    = "Display rotation"
+  widget  = "select"
+  options = ["Landscape", "Portrait", "Landscape (flipped)"]
+
+# ---------------------------------------------------------------------------
+# AUDIO
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "audio"
+title = "AUDIO"
+
+  [[section.rows]]
+  key    = "audio.volume"
+  label  = "Volume"
+  icon   = "🔊"
+  desc   = "Master output volume (0–100 %)"
+  widget = "slider"
+  min    = 0
+  max    = 100
+  step   = 5
+
+  [[section.rows]]
+  key    = "audio.mic_gain"
+  label  = "Mic Gain"
+  icon   = "🎙"
+  desc   = "Microphone input gain (0–100 %)"
+  widget = "slider"
+  min    = 0
+  max    = 100
+  step   = 5
+
+  [[section.rows]]
+  key     = "audio.output"
+  label   = "Output Device"
+  icon    = "🎧"
+  desc    = "Where audio is routed"
+  widget  = "select"
+  options = ["Built-in Speaker", "Headphones", "Bluetooth", "HDMI"]
+
+  [[section.rows]]
+  key    = "audio.sound_fx"
+  label  = "UI Sound Effects"
+  icon   = "🎵"
+  desc   = "Play navigation and confirmation sounds"
+  widget = "toggle"
+
+# ---------------------------------------------------------------------------
+# INPUT
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "input"
+title = "INPUT"
+
+  [[section.rows]]
+  key    = "input.remap"
+  label  = "Input Remapping"
+  icon   = "🎮"
+  desc   = "Open the keybind editor"
+  widget = "action"
+
+  [[section.rows]]
+  key    = "input.haptic"
+  label  = "Haptic Feedback"
+  icon   = "📳"
+  desc   = "Vibrate motor on button press"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "input.stick_deadzone"
+  label  = "Stick Deadzone"
+  icon   = "🕹"
+  desc   = "Analog stick dead-zone radius (0–40 %)"
+  widget = "slider"
+  min    = 0
+  max    = 40
+  step   = 2
+
+  [[section.rows]]
+  key     = "input.stick_curve"
+  label   = "Stick Curve"
+  icon    = "📈"
+  desc    = "Analog input response curve"
+  widget  = "select"
+  options = ["Linear", "Quadratic", "Cubic"]
+
+  [[section.rows]]
+  key     = "input.trigger_mode"
+  label   = "Trigger Mode"
+  icon    = "🎮"
+  desc    = "L2/R2 treated as analog or binary"
+  widget  = "select"
+  options = ["Analog", "Digital"]
+
+# ---------------------------------------------------------------------------
+# POWER
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "power"
+title = "POWER"
+
+  [[section.rows]]
+  key    = "power.battery_saver"
+  label  = "Battery Saver"
+  icon   = "🔋"
+  desc   = "Reduce performance to extend battery life"
+  widget = "toggle"
+
+  [[section.rows]]
+  key     = "power.sleep_timeout"
+  label   = "Sleep Timeout"
+  icon    = "⏱"
+  desc    = "Auto-sleep delay when idle"
+  widget  = "select"
+  options = ["30 s", "1 min", "2 min", "5 min", "Never"]
+
+  [[section.rows]]
+  key     = "power.cpu_governor"
+  label   = "CPU Governor"
+  icon    = "⚙"
+  desc    = "Kernel CPU frequency scaling policy"
+  widget  = "select"
+  options = ["Performance", "Balanced", "Power Save"]
+
+  [[section.rows]]
+  key     = "power.charging_mode"
+  label   = "Charging Mode"
+  icon    = "⚡"
+  desc    = "USB-C charge rate limiter"
+  widget  = "select"
+  options = ["Fast (up to 45 W)", "Standard (15 W)", "Trickle (5 W)"]
+
+  [[section.rows]]
+  key    = "power.usb_charge_only"
+  label  = "USB Charge Only"
+  icon   = "🔌"
+  desc   = "Disable data when connected via USB"
+  widget = "toggle"
+
+# ---------------------------------------------------------------------------
+# DATE & TIME
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "datetime"
+title = "DATE & TIME"
+
+  [[section.rows]]
+  key    = "datetime.date"
+  label  = "Date"
+  icon   = "📅"
+  desc   = "Current date"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "datetime.time"
+  label  = "Time"
+  icon   = "🕐"
+  desc   = "Current local time"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "datetime.timezone"
+  label  = "Timezone"
+  icon   = "🌍"
+  desc   = "System timezone identifier"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "datetime.24h"
+  label  = "24-Hour Time"
+  icon   = "⏰"
+  desc   = "Show time in 24-hour format"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "datetime.auto_set"
+  label  = "Auto-Set"
+  icon   = "🔄"
+  desc   = "Sync time from NTP on network connect"
+  widget = "toggle"
+
+# ---------------------------------------------------------------------------
+# STORAGE
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "storage"
+title = "STORAGE"
+
+  [[section.rows]]
+  key    = "storage.emmc"
+  label  = "Internal eMMC"
+  icon   = "💾"
+  desc   = "Built-in storage usage"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "storage.usb"
+  label  = "USB Storage"
+  icon   = "💿"
+  desc   = "Mounted USB drive usage"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "storage.cache"
+  label  = "Cache"
+  icon   = "📦"
+  desc   = "App cache usage"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "storage.tmp"
+  label  = "Temp Files"
+  icon   = "🗑"
+  desc   = "/tmp usage"
+  widget = "text"
+
+# ---------------------------------------------------------------------------
+# WI-FI
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "wifi"
+title = "WI-FI"
+
+  [[section.rows]]
+  key    = "network.wifi"
+  label  = "Wi-Fi"
+  icon   = "📶"
+  desc   = "Enable or disable the wireless radio"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "network.wifi_ssid"
+  label  = "Network"
+  icon   = "🌐"
+  desc   = "Currently connected SSID"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "network.dns"
+  label  = "DNS Servers"
+  icon   = "🔍"
+  desc   = "Configured DNS resolver addresses"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "network.wifi_auto"
+  label  = "Auto-Connect"
+  icon   = "🔗"
+  desc   = "Join known networks automatically"
+  widget = "toggle"
+
+# ---------------------------------------------------------------------------
+# BLUETOOTH
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "bluetooth"
+title = "BLUETOOTH"
+
+  [[section.rows]]
+  key    = "network.bluetooth"
+  label  = "Bluetooth"
+  icon   = "🔵"
+  desc   = "Enable or disable Bluetooth"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "network.bt_device"
+  label  = "Connected Device"
+  icon   = "🎧"
+  desc   = "Currently paired and connected device"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "network.bt_auto"
+  label  = "Auto-Connect"
+  icon   = "🔗"
+  desc   = "Reconnect to last device automatically"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "network.bt_visible"
+  label  = "Visibility"
+  icon   = "👁"
+  desc   = "Make device discoverable to others"
+  widget = "toggle"
+
+# ---------------------------------------------------------------------------
+# VPN
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "vpn"
+title = "VPN"
+
+  [[section.rows]]
+  key    = "network.vpn"
+  label  = "VPN"
+  icon   = "🛡"
+  desc   = "Connect to the configured VPN tunnel"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "network.vpn_provider"
+  label  = "Provider"
+  icon   = "🏢"
+  desc   = "VPN provider name"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "network.vpn_server"
+  label  = "Server"
+  icon   = "🖥"
+  desc   = "VPN server address or hostname"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "network.vpn_kill"
+  label  = "Kill Switch"
+  icon   = "🔒"
+  desc   = "Block traffic if VPN disconnects"
+  widget = "toggle"
+
+# ---------------------------------------------------------------------------
+# CELLULAR
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "cellular"
+title = "CELLULAR"
+
+  [[section.rows]]
+  key    = "network.cellular"
+  label  = "Cellular Data"
+  icon   = "📡"
+  desc   = "Enable or disable mobile data (LTE/5G)"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "network.roaming"
+  label  = "Data Roaming"
+  icon   = "🌍"
+  desc   = "Allow data on foreign networks"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "network.apn"
+  label  = "APN"
+  icon   = "📶"
+  desc   = "Access Point Name for mobile data"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "network.data_usage"
+  label  = "Data Usage"
+  icon   = "📊"
+  desc   = "Mobile data used this cycle"
+  widget = "text"
+
+# ---------------------------------------------------------------------------
+# NETWORK MONITOR
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "netmon"
+title = "NETWORK MONITOR"
+
+  [[section.rows]]
+  key    = "netmon.download"
+  label  = "Download"
+  icon   = "⬇"
+  desc   = "Current download speed"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "netmon.upload"
+  label  = "Upload"
+  icon   = "⬆"
+  desc   = "Current upload speed"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "netmon.latency"
+  label  = "Latency"
+  icon   = "📡"
+  desc   = "Round-trip ping to gateway"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "netmon.total_today"
+  label  = "Total Today"
+  icon   = "📈"
+  desc   = "Total data transferred today"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "netmon.per_app"
+  label  = "Per-App Monitoring"
+  icon   = "📋"
+  desc   = "Track usage per application"
+  widget = "toggle"
+
+# ---------------------------------------------------------------------------
+# SECURITY
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "security"
+title = "SECURITY"
+
+  [[section.rows]]
+  key    = "security.screen_lock"
+  label  = "Screen Lock"
+  icon   = "🔒"
+  desc   = "Require PIN / pattern to unlock"
+  widget = "toggle"
+
+  [[section.rows]]
+  key     = "security.lock_timeout"
+  label   = "Lock After"
+  icon    = "⏲"
+  desc    = "Auto-lock delay after sleep"
+  widget  = "select"
+  options = ["Immediately", "30 s", "1 min", "5 min"]
+
+  [[section.rows]]
+  key    = "security.firewall"
+  label  = "Firewall"
+  icon   = "🔥"
+  desc   = "Enable nftables packet filter"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "security.telemetry"
+  label  = "Usage Analytics"
+  icon   = "📊"
+  desc   = "Send anonymised crash reports"
+  widget = "toggle"
+
+# ---------------------------------------------------------------------------
+# APP PERMISSIONS
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "permissions"
+title = "APP PERMISSIONS"
+
+  [[section.rows]]
+  key    = "perms.camera"
+  label  = "Camera"
+  icon   = "📷"
+  desc   = "Apps with camera access"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "perms.microphone"
+  label  = "Microphone"
+  icon   = "🎙"
+  desc   = "Apps with microphone access"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "perms.location"
+  label  = "Location"
+  icon   = "📍"
+  desc   = "Apps with location access"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "perms.contacts"
+  label  = "Contacts"
+  icon   = "👤"
+  desc   = "Apps with contacts access"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "perms.notifications"
+  label  = "Notifications"
+  icon   = "🔔"
+  desc   = "Apps with notification permission"
+  widget = "text"
+
+# ---------------------------------------------------------------------------
+# FIREWALL
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "firewall"
+title = "FIREWALL"
+
+  [[section.rows]]
+  key    = "fw.enabled"
+  label  = "Firewall"
+  icon   = "🔥"
+  desc   = "Master firewall enable/disable"
+  widget = "toggle"
+
+  [[section.rows]]
+  key    = "fw.rule1"
+  label  = "Rule 1"
+  icon   = "📋"
+  desc   = "First per-app rule"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "fw.rule2"
+  label  = "Rule 2"
+  icon   = "📋"
+  desc   = "Second per-app rule"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "fw.rule3"
+  label  = "Rule 3"
+  icon   = "📋"
+  desc   = "Third per-app rule"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "fw.dns_leak"
+  label  = "Block DNS Leak"
+  icon   = "🛡"
+  desc   = "Force DNS queries through VPN"
+  widget = "toggle"
+
+# ---------------------------------------------------------------------------
+# APPS
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "apps"
+title = "APPS"
+
+  [[section.rows]]
+  key    = "apps.terminal"
+  label  = "Terminal Emulator"
+  icon   = "⬛"
+  desc   = "Binary launched by app.terminal"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "apps.browser"
+  label  = "Web Browser"
+  icon   = "🌐"
+  desc   = "Binary launched by app.browser"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "apps.editor"
+  label  = "Text Editor"
+  icon   = "✏"
+  desc   = "Binary launched by app.editor"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "apps.media"
+  label  = "Media Player"
+  icon   = "🎵"
+  desc   = "Binary launched by app.media"
+  widget = "text"
+
+# ---------------------------------------------------------------------------
+# KEYBINDS
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "keybinds"
+title = "KEYBINDS"
+
+  [[section.rows]]
+  key    = "keybinds.remap"
+  label  = "Input Remapping"
+  icon   = "🎮"
+  desc   = "Open the rebind editor (select a row, press A, then press the new button)"
+  widget = "action"
+
+  [[section.rows]]
+  key    = "keybinds.confirm"
+  label  = "Confirm"
+  icon   = "✅"
+  desc   = "button_a"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "keybinds.cancel"
+  label  = "Cancel / Back"
+  icon   = "❌"
+  desc   = "button_b (closes panels only — does not exit apps)"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "keybinds.go_home"
+  label  = "Go Home"
+  icon   = "🏠"
+  desc   = "button_select"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "keybinds.open_switcher"
+  label  = "App Switcher"
+  icon   = "⬛"
+  desc   = "button_start"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "keybinds.open_palette"
+  label  = "Command Palette"
+  icon   = "🔍"
+  desc   = "button_x"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "keybinds.open_notifications"
+  label  = "Notifications"
+  icon   = "🔔"
+  desc   = "l1"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "keybinds.open_quick_settings"
+  label  = "Quick Settings"
+  icon   = "⚙"
+  desc   = "r1"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "keybinds.workspace_next"
+  label  = "Next Workspace"
+  icon   = "➡"
+  desc   = "l1 + x (chord)"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "keybinds.open_quick_menu"
+  label  = "Quick Menu"
+  icon   = "⭐"
+  desc   = "l1 + r1 held 3 s"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "keybinds.lock"
+  label  = "Lock Screen"
+  icon   = "🔒"
+  desc   = "select_long (hold Select ~1 s)"
+  widget = "text"
+
+# ---------------------------------------------------------------------------
+# ABOUT
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "about"
+title = "ABOUT"
+
+  [[section.rows]]
+  key    = "system.firmware"
+  label  = "OS Version"
+  icon   = "ℹ"
+  desc   = "Torchform OS build identifier"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "system.kernel"
+  label  = "Kernel"
+  icon   = "🐧"
+  desc   = "Linux kernel version"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "system.hardware"
+  label  = "Hardware"
+  icon   = "💻"
+  desc   = "SoC and board revision"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "system.ram"
+  label  = "RAM"
+  icon   = "🧠"
+  desc   = "Total system memory"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "system.display_info"
+  label  = "Display"
+  icon   = "🖥"
+  desc   = "Panel model and resolution"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "system.modem"
+  label  = "Modem"
+  icon   = "📡"
+  desc   = "LTE/5G modem firmware version"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "system.hostname"
+  label  = "Hostname"
+  icon   = "🔤"
+  desc   = "Device network name"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "system.storage"
+  label  = "Storage"
+  icon   = "💾"
+  desc   = "NVMe usage summary"
+  widget = "text"
+
+  [[section.rows]]
+  key    = "system.reset_defaults"
+  label  = "Reset to Defaults"
+  icon   = "🔄"
+  desc   = "Restore all settings to factory values"
+  widget = "action"
+
+# ---------------------------------------------------------------------------
+# SYSTEM APPS (dotfile discovery — rows after sysapps.scan are dynamic)
+# ---------------------------------------------------------------------------
+[[section]]
+id    = "sysapps"
+title = "SYSTEM APPS"
+
+  [[section.rows]]
+  key    = "sysapps.scan"
+  label  = "Scan ~/.config/"
+  icon   = "🔍"
+  desc   = "Discover config files in your home directory"
+  widget = "action"

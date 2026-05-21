@@ -20,7 +20,7 @@ export component StatusBar inherits Rectangle {
     in property <int>     notif-count: 0;
     in property <int>     battery-pct: 87;
 
-    height: 28px;
+    height: 36px;
     background: #07070fdb;
 
     // Bottom hairline
@@ -38,12 +38,12 @@ export component StatusBar inherits Rectangle {
 
         // --- Workspace dots ---
         HorizontalLayout {
-            spacing: 3px;
+            spacing: 4px;
             alignment: start;
             for i in workspace-count: Rectangle {
-                width: 5px; height: 5px;
+                width: 6px; height: 6px;
                 y: (parent.height - self.height) / 2;
-                border-radius: 2.5px;
+                border-radius: 3px;
                 background: i == workspace-index ? Tokens.accent : Tokens.border;
                 animate background { duration: Tokens.anim-fast; }
             }
@@ -51,9 +51,9 @@ export component StatusBar inherits Rectangle {
 
         // --- Active-app name ---
         Text {
-            width: 110px;
+            width: 140px;
             text: app-name;
-            font-size: 10px;
+            font-size: 12px;
             font-family: Tokens.font-mono;
             color: Tokens.text-secondary;
             vertical-alignment: center;
@@ -64,7 +64,7 @@ export component StatusBar inherits Rectangle {
         Text {
             horizontal-stretch: 1;
             text: time-str;
-            font-size: 12px;
+            font-size: 15px;
             font-weight: Tokens.weight-medium;
             font-family: Tokens.font-mono;
             color: Tokens.text-primary;
@@ -74,42 +74,42 @@ export component StatusBar inherits Rectangle {
 
         // --- Right cluster ---
         HorizontalLayout {
-            spacing: 8px;
+            spacing: 10px;
             alignment: end;
 
             if now-playing != "": Text {
                 text: "♫ " + now-playing;
-                font-size: 9px;
+                font-size: 11px;
                 font-family: Tokens.font-mono;
                 color: Tokens.accent;
                 vertical-alignment: center;
                 overflow: elide;
-                max-width: 110px;
+                max-width: 140px;
             }
             Text {
                 text: airplane ? "✈" : (wifi ? "📶" : "📵");
-                font-size: 10px;
+                font-size: 13px;
                 vertical-alignment: center;
             }
             if bluetooth: Text {
                 text: "📡";
-                font-size: 10px;
+                font-size: 13px;
                 vertical-alignment: center;
             }
             if dnd: Text {
                 text: "🔕";
-                font-size: 10px;
+                font-size: 13px;
                 vertical-alignment: center;
             }
             if notif-count > 0: Rectangle {
-                width: 6px; height: 6px;
+                width: 8px; height: 8px;
                 y: (parent.height - self.height) / 2;
-                border-radius: 3px;
+                border-radius: 4px;
                 background: Tokens.error;
             }
             Text {
                 text: "🔋" + battery-pct + "%";
-                font-size: 11px;
+                font-size: 13px;
                 font-family: Tokens.font-mono;
                 color: battery-pct > 20 ? Tokens.text-secondary : Tokens.error;
                 vertical-alignment: center;

@@ -1,8 +1,20 @@
 // =============================================================================
-// app_settings.slint — Torchform Settings app
+// app_settings.slint — Torchform Settings app (canonical, used by emulator + standalone)
+//
+// Two-pane layout: left sidebar (section list) + right pane (active section rows).
+// See torchform-shell/ui/app_settings.slint for full documentation.
 // =============================================================================
 
 import { Tokens } from "../../torchform-shell/ui/tokens.slint";
+
+export struct SidebarEntry {
+    index:       int,
+    id:          string,
+    label:       string,
+    icon:        string,
+    group:       string,     // non-empty = this is a group-header row
+    is-selected: bool,
+}
 
 export struct SettingsEntry {
     widget:        string,
@@ -22,23 +34,16 @@ export struct SettingsEntry {
 component SliderBar inherits Rectangle {
     in property <float> pct;
     in property <bool>  focused;
-
-    height: 6px;
-    border-radius: 3px;
-    background: Tokens.border;
-
+    height: 6px; border-radius: 3px; background: Tokens.border;
     Rectangle {
-        x: 0px; y: 0px;
-        height: parent.height;
-        width: pct * parent.width;
+        x: 0; y: 0; height: parent.height; width: pct * parent.width;
         border-radius: 3px;
         background: focused ? Tokens.accent : Tokens.accent-dim;
         animate background { duration: Tokens.anim-fast; }
-        animate width { duration: Tokens.anim-fast; }
+        animate width      { duration: Tokens.anim-fast; }
     }
     Rectangle {
-        x: pct * (parent.width - self.width);
-        y: (parent.height - self.height) / 2;
+        x: pct * (parent.width - self.width); y: (parent.height - self.height) / 2;
         width: 12px; height: 12px; border-radius: 6px;
         background: focused ? Tokens.accent : Tokens.text-disabled;
         animate background { duration: Tokens.anim-fast; }
@@ -48,48 +53,37 @@ component SliderBar inherits Rectangle {
 component TogglePill inherits Rectangle {
     in property <bool> on;
     in property <bool> focused;
-
     width: 44px; height: 24px; border-radius: 12px;
     background: on ? (focused ? Tokens.accent : Tokens.accent-dim) : Tokens.bg-elevated;
-    border-width: 1px;
-    border-color: on ? Tokens.accent : Tokens.border;
+    border-width: 1px; border-color: on ? Tokens.accent : Tokens.border;
     animate background { duration: Tokens.anim-fast; }
-
     Rectangle {
-        x: on ? parent.width - self.width - 3px : 3px;
-        y: (parent.height - self.height) / 2;
+        x: on ? parent.width - self.width - 3px : 3px; y: (parent.height - self.height) / 2;
         width: 18px; height: 18px; border-radius: 9px;
         background: on ? Tokens.text-on-accent : Tokens.text-disabled;
-        animate x { duration: Tokens.anim-normal; }
-        animate background { duration: Tokens.anim-fast; }
+        animate x { duration: Tokens.anim-normal; } animate background { duration: Tokens.anim-fast; }
     }
 }
 
 component SettingsRow inherits Rectangle {
     in property <SettingsEntry> entry;
     in property <bool>          focused;
+    callback activated(); callback adjusted(int);
 
-    callback activated();
-    callback adjusted(int);
-
-    height: entry.widget == "header" ? 32px : 60px;
+    height: entry.widget == "header" ? 28px : 58px;
 
     if entry.widget == "header": Rectangle {
         width: parent.width; height: parent.height; background: transparent;
         HorizontalLayout {
             padding-left: Tokens.space-4; padding-right: Tokens.space-4; alignment: center;
             Text {
-                horizontal-stretch: 1;
-                text: entry.label; font-size: Tokens.text-xs; font-family: Tokens.font-sans;
+                horizontal-stretch: 1; text: entry.label;
+                font-size: Tokens.text-xs; font-family: Tokens.font-sans;
                 font-weight: Tokens.weight-semibold; color: Tokens.accent-dim;
                 letter-spacing: 1.2px; vertical-alignment: center;
             }
         }
-        Rectangle {
-            x: Tokens.space-4; y: parent.height - 1px;
-            width: parent.width - Tokens.space-8; height: 1px;
-            background: Tokens.border-subtle;
-        }
+        Rectangle { x: Tokens.space-4; y: parent.height - 1px; width: parent.width - Tokens.space-8; height: 1px; background: Tokens.border-subtle; }
     }
 
     if entry.widget != "header": Rectangle {
@@ -99,42 +93,32 @@ component SettingsRow inherits Rectangle {
         animate background { duration: Tokens.anim-fast; }
 
         if focused: Rectangle {
-            x: 0px; y: (parent.height - self.height) / 2;
-            width: 3px; height: parent.height - Tokens.space-2; border-radius: 2px;
-            background: Tokens.accent;
+            x: 0; y: (parent.height - self.height) / 2;
+            width: 3px; height: parent.height - Tokens.space-2; border-radius: 2px; background: Tokens.accent;
         }
 
         HorizontalLayout {
-            x: Tokens.space-3; y: 0px;
-            width: parent.width - Tokens.space-3; height: parent.height;
+            x: Tokens.space-3; y: 0; width: parent.width - Tokens.space-3; height: parent.height;
             spacing: Tokens.space-3; alignment: center;
 
-            Text {
-                width: 28px; text: entry.icon; font-size: Tokens.text-lg;
-                color: focused ? Tokens.accent : Tokens.text-secondary;
-                horizontal-alignment: center; vertical-alignment: center;
-            }
+            Text { width: 26px; text: entry.icon; font-size: Tokens.text-lg; color: focused ? Tokens.accent : Tokens.text-secondary; horizontal-alignment: center; vertical-alignment: center; }
+
             VerticalLayout {
                 horizontal-stretch: 1; alignment: center; spacing: 2px;
-                Text {
-                    text: entry.label; font-size: Tokens.text-md;
-                    font-family: Tokens.font-sans; font-weight: Tokens.weight-medium;
-                    color: entry.widget == "action" && focused ? Tokens.warning : Tokens.text-primary;
-                    overflow: elide;
-                }
-                if entry.description != "": Text {
-                    text: entry.description; font-size: Tokens.text-xs;
-                    font-family: Tokens.font-sans; color: Tokens.text-secondary; overflow: elide;
-                }
+                Text { text: entry.label; font-size: Tokens.text-md; font-family: Tokens.font-sans; font-weight: Tokens.weight-medium; color: entry.widget == "action" && focused ? Tokens.warning : Tokens.text-primary; overflow: elide; }
+                if entry.description != "": Text { text: entry.description; font-size: Tokens.text-xs; font-family: Tokens.font-sans; color: Tokens.text-secondary; overflow: elide; }
             }
 
             if entry.widget == "slider": VerticalLayout {
-                width: 160px; alignment: center; spacing: Tokens.space-1;
-                Text {
-                    text: entry.value; font-size: Tokens.text-sm; font-family: Tokens.font-mono;
-                    color: focused ? Tokens.accent : Tokens.text-secondary; horizontal-alignment: right;
-                }
+                width: 150px; alignment: center; spacing: Tokens.space-1;
+                Text { text: entry.value; font-size: Tokens.text-sm; font-family: Tokens.font-mono; color: focused ? Tokens.accent : Tokens.text-secondary; horizontal-alignment: right; }
                 SliderBar { pct: entry.pct; focused: focused; }
+                if focused: HorizontalLayout {
+                    alignment: center; spacing: Tokens.space-2;
+                    Text { text: "◀"; font-size: 9px; color: Tokens.text-disabled; vertical-alignment: center; }
+                    Text { text: "d-pad"; font-size: 9px; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+                    Text { text: "▶"; font-size: 9px; color: Tokens.text-disabled; vertical-alignment: center; }
+                }
             }
             if entry.widget == "toggle": TogglePill { on: entry.value == "true"; focused: focused; }
             if entry.widget == "select": HorizontalLayout {
@@ -144,31 +128,20 @@ component SettingsRow inherits Rectangle {
                     height: 26px; border-radius: Tokens.radius-sm;
                     background: focused ? Tokens.bg-surface : transparent;
                     border-width: focused ? 1px : 0px; border-color: Tokens.border-focused;
-                    HorizontalLayout {
-                        padding-left: Tokens.space-2; padding-right: Tokens.space-2; alignment: center;
-                        Text {
-                            text: entry.value; font-size: Tokens.text-sm; font-family: Tokens.font-mono;
-                            color: focused ? Tokens.text-primary : Tokens.text-secondary; vertical-alignment: center;
-                        }
+                    HorizontalLayout { padding-left: Tokens.space-2; padding-right: Tokens.space-2; alignment: center;
+                        Text { text: entry.value; font-size: Tokens.text-sm; font-family: Tokens.font-mono; color: focused ? Tokens.text-primary : Tokens.text-secondary; vertical-alignment: center; }
                     }
                 }
                 if focused: Text { text: "▶"; font-size: Tokens.text-sm; color: Tokens.accent-dim; vertical-alignment: center; }
             }
-            if entry.widget == "text": Text {
-                text: entry.value; font-size: Tokens.text-sm; font-family: Tokens.font-mono;
-                color: Tokens.text-secondary; vertical-alignment: center;
-            }
+            if entry.widget == "text": Text { text: entry.value; font-size: Tokens.text-sm; font-family: Tokens.font-mono; color: Tokens.text-secondary; vertical-alignment: center; }
             if entry.widget == "action": Rectangle {
                 height: 28px; border-radius: Tokens.radius-sm;
                 background: focused ? Tokens.warning.with-alpha(0.15) : transparent;
                 border-width: focused ? 1px : 0px; border-color: Tokens.warning;
                 animate background { duration: Tokens.anim-fast; }
-                HorizontalLayout {
-                    padding-left: Tokens.space-3; padding-right: Tokens.space-3; alignment: center;
-                    Text {
-                        text: entry.value != "" ? entry.value : "Run"; font-size: Tokens.text-sm;
-                        font-family: Tokens.font-sans; color: Tokens.warning; vertical-alignment: center;
-                    }
+                HorizontalLayout { padding-left: Tokens.space-3; padding-right: Tokens.space-3; alignment: center;
+                    Text { text: entry.value != "" ? entry.value : "Run"; font-size: Tokens.text-sm; font-family: Tokens.font-sans; color: Tokens.warning; vertical-alignment: center; }
                 }
             }
             Rectangle { width: Tokens.space-3; }
@@ -177,52 +150,152 @@ component SettingsRow inherits Rectangle {
     }
 }
 
+component SidebarItem inherits Rectangle {
+    in property <SidebarEntry> entry;
+    in property <bool>         focused;
+    callback clicked();
+
+    height: entry.group != "" ? 22px : 36px;
+    background: transparent;
+
+    if entry.group != "": Rectangle {
+        width: parent.width; height: parent.height; background: transparent;
+        Text {
+            x: Tokens.space-3; y: 0; width: parent.width - Tokens.space-3; height: parent.height;
+            text: entry.group; font-size: 8px; font-family: Tokens.font-mono;
+            color: Tokens.text-disabled; letter-spacing: 1.5px; vertical-alignment: center;
+        }
+    }
+
+    if entry.group == "": Rectangle {
+        width: parent.width; height: parent.height; border-radius: Tokens.radius-md;
+        background: entry.is-selected ? Tokens.accent.with-alpha(0.18) : (focused ? Tokens.bg-elevated : transparent);
+        animate background { duration: Tokens.anim-fast; }
+
+        if entry.is-selected: Rectangle {
+            x: 0; y: (parent.height - self.height) / 2; width: 3px; height: parent.height - 8px;
+            border-radius: 2px; background: Tokens.accent;
+        }
+
+        HorizontalLayout {
+            padding-left: Tokens.space-3; padding-right: Tokens.space-2; spacing: Tokens.space-2; alignment: center;
+            Text {
+                width: 18px; text: entry.icon; font-size: 13px;
+                color: entry.is-selected ? Tokens.accent : (focused ? Tokens.text-primary : Tokens.text-secondary);
+                vertical-alignment: center; horizontal-alignment: center;
+            }
+            Text {
+                horizontal-stretch: 1; text: entry.label; font-size: Tokens.text-sm; font-family: Tokens.font-sans;
+                font-weight: entry.is-selected ? Tokens.weight-semibold : Tokens.weight-regular;
+                color: entry.is-selected ? Tokens.accent : (focused ? Tokens.text-primary : Tokens.text-secondary);
+                vertical-alignment: center; overflow: elide;
+            }
+            if entry.is-selected: Rectangle { width: 6px; height: 6px; border-radius: 3px; background: Tokens.accent; }
+        }
+        TouchArea { clicked => { root.clicked(); } }
+    }
+}
+
 export component AppSettings inherits Rectangle {
-    in property <int>             focused-row: 0;
+    in property <[SidebarEntry]> sidebar-entries;
+    in property <int>            sidebar-focus: 0;
+    in property <bool>           sidebar-in-focus: true;
+    in property <int>            focused-row: 0;
     in property <[SettingsEntry]> entries;
+    in property <string>         section-title: "Settings";
 
     callback close-requested();
+    callback section-selected(int);
     callback setting-activated(string);
     callback setting-adjusted(string, int);
 
     background: Tokens.bg-base;
 
-    VerticalLayout {
-        padding: 0px;
+    HorizontalLayout {
+        padding: 0;
 
+        // ---- Sidebar --------------------------------------------------------
         Rectangle {
-            height: 52px; background: Tokens.bg-surface;
-            Rectangle { x: 0px; y: parent.height - 1px; width: parent.width; height: 1px; background: Tokens.border-subtle; }
-            HorizontalLayout {
-                padding-left: Tokens.space-4; padding-right: Tokens.space-4; alignment: center;
+            width: 200px; background: Tokens.bg-surface;
+            Rectangle { x: parent.width - 1px; y: 0; width: 1px; height: parent.height; background: Tokens.border-subtle; }
+
+            VerticalLayout {
+                padding: 0;
                 Rectangle {
-                    width: 32px; height: 32px; border-radius: Tokens.radius-md; background: Tokens.bg-elevated;
-                    Text { width: parent.width; height: parent.height; text: "B"; font-size: 9px; font-family: Tokens.font-mono; color: Tokens.text-disabled; horizontal-alignment: center; vertical-alignment: center; }
+                    height: 52px; background: Tokens.bg-surface;
+                    Rectangle { x: 0; y: parent.height - 1px; width: parent.width; height: 1px; background: Tokens.border-subtle; }
+                    Text {
+                        x: 0; y: 0; width: parent.width; height: parent.height;
+                        text: "⚙  SETTINGS"; font-size: 10px; font-family: Tokens.font-mono;
+                        color: Tokens.text-disabled; letter-spacing: 1.5px;
+                        horizontal-alignment: center; vertical-alignment: center;
+                    }
                 }
-                Rectangle { width: Tokens.space-3; }
-                Text {
-                    horizontal-stretch: 1; text: "⚙  Settings"; font-size: Tokens.text-xl;
-                    font-family: Tokens.font-sans; font-weight: Tokens.weight-semibold;
-                    color: Tokens.text-primary; vertical-alignment: center;
+                sidebar-clip := Rectangle {
+                    vertical-stretch: 1; clip: true;
+                    VerticalLayout {
+                        width: parent.width; padding-top: Tokens.space-2; padding-bottom: Tokens.space-2;
+                        y: min(0px, (sidebar-clip.height / 2) - (sidebar-focus * 36px) - 18px);
+                        animate y { duration: Tokens.anim-normal; easing: ease-in-out; }
+                        for se[idx] in sidebar-entries: SidebarItem {
+                            width: parent.width; entry: se;
+                            focused: sidebar-in-focus && idx == sidebar-focus && se.group == "";
+                            clicked => { root.section-selected(idx); }
+                        }
+                    }
+                }
+                Rectangle {
+                    height: 32px; background: Tokens.bg-surface;
+                    Rectangle { x: 0; y: 0; width: parent.width; height: 1px; background: Tokens.border-subtle; }
+                    HorizontalLayout {
+                        padding-left: Tokens.space-3; padding-right: Tokens.space-3; alignment: center; spacing: Tokens.space-4;
+                        Text { text: "↑↓ sections"; font-size: 9px; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+                        Text { text: "A → rows"; font-size: 9px; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+                    }
                 }
             }
         }
 
-        content-clip := Rectangle {
-            vertical-stretch: 1; clip: true;
-            content-list := VerticalLayout {
-                width: parent.width;
-                y: min(0px,
-                    (content-clip.height / 2)
-                    - (entries[focused-row].scroll-offset * 1px)
-                    - (entries[focused-row].widget == "header" ? 16px : 30px)
-                );
-                animate y { duration: Tokens.anim-normal; easing: ease-in-out; }
-                for entry[idx] in entries: SettingsRow {
-                    width: parent.width; entry: entry;
-                    focused: idx == focused-row && entry.widget != "header";
-                    activated   => { root.setting-activated(entry.key); }
-                    adjusted(d) => { root.setting-adjusted(entry.key, d); }
+        // ---- Right pane -----------------------------------------------------
+        VerticalLayout {
+            horizontal-stretch: 1; padding: 0;
+            Rectangle {
+                height: 52px; background: Tokens.bg-surface;
+                Rectangle { x: 0; y: parent.height - 1px; width: parent.width; height: 1px; background: Tokens.border-subtle; }
+                HorizontalLayout {
+                    padding-left: Tokens.space-4; padding-right: Tokens.space-4; alignment: center;
+                    Text {
+                        horizontal-stretch: 1; text: section-title;
+                        font-size: Tokens.text-xl; font-family: Tokens.font-display; font-weight: Tokens.weight-bold;
+                        color: Tokens.text-primary; vertical-alignment: center;
+                    }
+                    HorizontalLayout {
+                        spacing: Tokens.space-4; alignment: end;
+                        if !sidebar-in-focus: Text { text: "↑↓ navigate"; font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+                        if !sidebar-in-focus: Text { text: "◀▶ adjust";   font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+                        if !sidebar-in-focus: Text { text: "A confirm";   font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.text-disabled; vertical-alignment: center; }
+                        if sidebar-in-focus:  Text { text: "A → select";  font-size: Tokens.text-xs; font-family: Tokens.font-mono; color: Tokens.accent-dim;    vertical-alignment: center; }
+                    }
+                }
+            }
+            content-clip := Rectangle {
+                vertical-stretch: 1; clip: true;
+                if sidebar-in-focus: Rectangle { width: parent.width; height: parent.height; background: #00000033; z: 10; }
+                VerticalLayout {
+                    width: parent.width;
+                    y: min(0px,
+                        (content-clip.height / 2)
+                        - (entries[focused-row].scroll-offset * 1px)
+                        - (entries[focused-row].widget == "header" ? 14px : 29px)
+                    );
+                    animate y { duration: Tokens.anim-normal; easing: ease-in-out; }
+                    for entry[idx] in entries: SettingsRow {
+                        width: parent.width; entry: entry;
+                        focused: !sidebar-in-focus && idx == focused-row && entry.widget != "header";
+                        activated   => { root.setting-activated(entry.key); }
+                        adjusted(d) => { root.setting-adjusted(entry.key, d); }
+                    }
+                    Rectangle { height: content-clip.height / 2; }
                 }
             }
         }

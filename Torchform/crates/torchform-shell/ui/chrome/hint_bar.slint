@@ -15,7 +15,7 @@ export struct HintItem {
 export component HintBar inherits Rectangle {
     in property <[HintItem]> items;
 
-    height: 24px;
+    height: 32px;
     background: #07070fdb;
     clip: true;
 
@@ -34,19 +34,19 @@ export component HintBar inherits Rectangle {
         height: parent.height;
 
         for hint in items: HorizontalLayout {
-            spacing: 3px;
+            spacing: 4px;
             alignment: center;
             Rectangle {
-                width: max(20px, key-text.preferred-width + 6px);
-                height: 13px;
+                width: max(26px, key-text.preferred-width + 8px);
+                height: 17px;
                 y: (parent.height - self.height) / 2;
                 background: Tokens.bg-elevated;
                 border-width: 1px;
                 border-color: Tokens.border;
-                border-radius: 2px;
+                border-radius: 3px;
                 key-text := Text {
                     text: hint.key;
-                    font-size: 7px;
+                    font-size: 9px;
                     font-family: Tokens.font-mono;
                     color: Tokens.text-secondary;
                     horizontal-alignment: center;
@@ -57,7 +57,7 @@ export component HintBar inherits Rectangle {
             }
             Text {
                 text: hint.label;
-                font-size: 9px;
+                font-size: 11px;
                 font-family: Tokens.font-sans;
                 color: Tokens.text-disabled;
                 vertical-alignment: center;

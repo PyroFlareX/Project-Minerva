@@ -34,8 +34,13 @@ mod shell;
 slint::include_modules!();
 
 use std::{rc::Rc, cell::RefCell, env, sync::mpsc, time::Duration};
+use chrono::Local;
 use anyhow::Result;
 use tracing::info;
+
+fn now_clock() -> String { Local::now().format("%H:%M").to_string() }
+fn now_date_long() -> String { Local::now().format("%A, %b %-d").to_string() }
+fn now_date_short() -> String { Local::now().format("%a %-d %b").to_string() }
 
 use palette::PaletteState;
 use radial::RadialMenuState;
@@ -86,9 +91,13 @@ macro_rules! push_shell_render {
         ui.set_app_network_visible(false);
         ui.set_app_keyboard_visible(false);
 
-        // App-widget data
+        // App-widget data — Settings (two-pane)
         ui.set_app_settings_focused_row(*s.app_rows.get(&AppId::Settings).unwrap_or(&0));
         ui.set_app_settings_entries(settings_to_slint(&s.settings_rows));
+        ui.set_app_settings_sidebar_entries(settings_sidebar_to_slint(s));
+        ui.set_app_settings_sidebar_focus(s.settings_sidebar_focus as i32);
+        ui.set_app_settings_sidebar_in_focus(s.settings_sidebar_active);
+        ui.set_app_settings_section_title(settings_section_title(s).into());
         ui.set_app_files_path(s.files_path.clone().into());
         ui.set_app_files_focused_row(*s.app_rows.get(&AppId::Files).unwrap_or(&0));
         ui.set_app_files_entries(fs_read_dir(&s.files_path));
@@ -127,6 +136,11 @@ macro_rules! push_shell_render {
             if s.notifs.is_empty() { "All clear".into() }
             else { slint::format!("{} new", s.notifs.len()) }
         );
+        // Quick Menu overlay
+        ui.set_qm_open(s.panel == Some(shell::Panel::QuickMenu));
+        ui.set_qm_focus(s.qm_focus as i32);
+        ui.set_qm_items(build_qm_items());
+
         // (banner-* are managed transiently by the dispatch layer, not here)
     }};
 }
@@ -231,6 +245,16 @@ fn build_notifs(s: &Shell) -> slint::ModelRc<NotifEntry> {
     Rc::new(slint::VecModel::from(v)).into()
 }
 
+fn build_qm_items() -> slint::ModelRc<QuickMenuItem> {
+    let items = vec![
+        QuickMenuItem { index: 0, icon: "⏻".into(),  label: "Power Off".into(), key: "power_off".into() },
+        QuickMenuItem { index: 1, icon: "💤".into(),  label: "Sleep".into(),     key: "sleep".into()     },
+        QuickMenuItem { index: 2, icon: "🔒".into(),  label: "Lock".into(),      key: "lock".into()      },
+        QuickMenuItem { index: 3, icon: "⚙".into(),   label: "Settings".into(),  key: "settings".into()  },
+    ];
+    Rc::new(slint::VecModel::from(items)).into()
+}
+
 fn build_hints(s: &Shell) -> slint::ModelRc<HintItem> {
     let mk = |k: &str, l: &str| HintItem { key: k.into(), label: l.into() };
     let v: Vec<HintItem> = if s.radial.visible {
@@ -245,6 +269,8 @@ fn build_hints(s: &Shell) -> slint::ModelRc<HintItem> {
                 vec![mk("ZR", "Close"), mk("A", "Open"), mk("X", "Dismiss"), mk("B", "Back")],
             shell::Panel::Switcher =>
                 vec![mk("A", "Resume"), mk("X", "Close"), mk("L/R", "Scroll"), mk("B", "Cancel")],
+            shell::Panel::QuickMenu =>
+                vec![mk("↑↓", "Navigate"), mk("A", "Select"), mk("B", "Close")],
         }
     } else {
         match s.screen {
@@ -461,6 +487,68 @@ fn settings_to_slint(rows: &[settings::SettingsRowData]) -> slint::ModelRc<Setti
     Rc::new(slint::VecModel::from(entries)).into()
 }
 
+fn settings_sidebar_to_slint(s: &Shell) -> slint::ModelRc<SidebarEntry> {
+    use shell::section_group;
+    let mut entries: Vec<SidebarEntry> = Vec::new();
+    let mut last_group = String::new();
+    let active_id = s.active_section_id().unwrap_or_default();
+
+    for (i, sec) in s.settings_schema.sections.iter().enumerate() {
+        let group = section_group(&sec.id);
+        if group != last_group {
+            entries.push(SidebarEntry {
+                index:        entries.len() as i32,
+                id:           "".into(),
+                label:        group.clone().into(),
+                icon:         "".into(),
+                group:        group.clone().into(),
+                is_selected:  false,
+            });
+            last_group = group;
+        }
+        entries.push(SidebarEntry {
+            index:       i as i32,
+            id:          sec.id.clone().into(),
+            label:       sec.title.clone().into(),
+            icon:        section_icon(&sec.id).into(),
+            group:       "".into(),
+            is_selected: sec.id == active_id,
+        });
+    }
+    Rc::new(slint::VecModel::from(entries)).into()
+}
+
+fn section_icon(id: &str) -> &'static str {
+    match id {
+        "display"     => "🖥",
+        "audio"       => "🔊",
+        "input"       => "🎮",
+        "power"       => "🔋",
+        "datetime"    => "🕐",
+        "storage"     => "💾",
+        "network"     => "📶",
+        "bluetooth"   => "📡",
+        "vpn"         => "🛡",
+        "cellular"    => "📱",
+        "netmon"      => "📊",
+        "security"    => "🔒",
+        "permissions" => "🧩",
+        "firewall"    => "🧱",
+        "apps"        => "📦",
+        "keybinds"    => "🎮",
+        "about"       => "ℹ",
+        "sysapps"     => "⚙",
+        _             => "•",
+    }
+}
+
+fn settings_section_title(s: &Shell) -> String {
+    s.active_section_id()
+        .and_then(|id| s.settings_schema.sections.iter().find(|sec| sec.id == id))
+        .map(|sec| sec.title.clone())
+        .unwrap_or_else(|| "Settings".into())
+}
+
 // ===========================================================================
 // Emulator mode — one combined 768×950 window
 // ===========================================================================
@@ -648,6 +736,26 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
             }
         }
     });
+    emu.on_qm_item_activated({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move |key| {
+            if let Some(e) = e.upgrade() {
+                let idx = match key.as_str() {
+                    "power_off" => 0, "sleep" => 1, "lock" => 2, "settings" => 3, _ => return,
+                };
+                sh.borrow_mut().qm_focus = idx;
+                dispatch_emu(&sh, ShellAction::Confirm, &e);
+            }
+        }
+    });
+    emu.on_qm_close_requested({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(e) = e.upgrade() {
+                dispatch_emu(&sh, ShellAction::Cancel, &e);
+            }
+        }
+    });
 
     emu.on_palette_query_changed({
         let e = emu.as_weak(); let sh = shell.clone();
@@ -661,6 +769,18 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         }
     });
 
+    emu.on_app_settings_section_selected({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move |sidebar_idx| {
+            if let Some(e) = e.upgrade() {
+                let mut s = sh.borrow_mut();
+                s.settings_sidebar_focus = sidebar_idx as usize;
+                s.settings_enter_rows();
+                drop(s);
+                render_emu(&e, &sh.borrow());
+            }
+        }
+    });
     emu.on_app_settings_setting_activated({
         let e = emu.as_weak(); let sh = shell.clone();
         move |key| {
@@ -670,7 +790,7 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
                     if settings::apply_activation(key.as_str(), &mut s.config) {
                         let _ = s.config.save(&config::user_config_path());
                     }
-                    s.rebuild_settings();
+                    s.settings_switch_section();
                 }
                 render_emu(&e, &sh.borrow());
             }
@@ -682,7 +802,8 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
             if let Some(e) = e.upgrade() {
                 {
                     let mut s = sh.borrow_mut();
-                    if settings::apply_adjustment(key.as_str(), delta, &mut s.config) {
+                    let schema = s.settings_schema.clone();
+                    if settings::apply_adjustment(key.as_str(), delta, &mut s.config, &schema) {
                         let _ = s.config.save(&config::user_config_path());
                     }
                     s.rebuild_settings();
@@ -760,11 +881,11 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
     });
 
     // --- Initial state -----------------------------------------------------
-    emu.set_time_str("14:32".into());
-    emu.set_date_str("Saturday, Mar 28".into());
+    emu.set_time_str(now_clock().into());
+    emu.set_date_str(now_date_long().into());
     emu.set_battery_pct(87);
-    emu.set_lower_time_str("14:32".into());
-    emu.set_lower_date_str("Sat 28 Mar".into());
+    emu.set_lower_time_str(now_clock().into());
+    emu.set_lower_date_str(now_date_short().into());
     emu.set_lower_battery_pct(87);
     emu.set_lower_wifi_connected(true);
     emu.set_lower_notification_count(3);
@@ -782,7 +903,23 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         _                => render_emu(&emu, &shell.borrow()),
     }
 
+    // Live clock — update every second
+    let clock_timer = slint::Timer::default();
+    clock_timer.start(slint::TimerMode::Repeated, Duration::from_secs(1), {
+        let e = emu.as_weak();
+        move || {
+            if let Some(e) = e.upgrade() {
+                e.set_time_str(now_clock().into());
+                e.set_date_str(now_date_long().into());
+                e.set_lower_time_str(now_clock().into());
+                e.set_lower_date_str(now_date_short().into());
+            }
+        }
+    });
+
     emu.run()?;
+    // Keep timers alive until window closes.
+    drop(clock_timer);
     Ok(())
 }
 
@@ -973,12 +1110,44 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
             }
         }
     });
+    win.on_qm_item_activated({
+        let w = win.as_weak(); let sh = shell.clone();
+        move |key| {
+            if let Some(w) = w.upgrade() {
+                let idx = match key.as_str() {
+                    "power_off" => 0, "sleep" => 1, "lock" => 2, "settings" => 3, _ => return,
+                };
+                sh.borrow_mut().qm_focus = idx;
+                dispatch_shell(&sh, ShellAction::Confirm, &w);
+            }
+        }
+    });
+    win.on_qm_close_requested({
+        let w = win.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(w) = w.upgrade() {
+                dispatch_shell(&sh, ShellAction::Cancel, &w);
+            }
+        }
+    });
 
     win.on_palette_query_changed({
         let w = win.as_weak(); let sh = shell.clone();
         move |q| {
             if let Some(w) = w.upgrade() {
                 if let Ok(mut s) = sh.try_borrow_mut() { s.palette.set_query(&q); }
+                render_shell(&w, &sh.borrow());
+            }
+        }
+    });
+    win.on_app_settings_section_selected({
+        let w = win.as_weak(); let sh = shell.clone();
+        move |sidebar_idx| {
+            if let Some(w) = w.upgrade() {
+                let mut s = sh.borrow_mut();
+                s.settings_sidebar_focus = sidebar_idx as usize;
+                s.settings_enter_rows();
+                drop(s);
                 render_shell(&w, &sh.borrow());
             }
         }
@@ -992,7 +1161,7 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
                     if settings::apply_activation(key.as_str(), &mut s.config) {
                         let _ = s.config.save(&config::user_config_path());
                     }
-                    s.rebuild_settings();
+                    s.settings_switch_section();
                 }
                 render_shell(&w, &sh.borrow());
             }
@@ -1004,7 +1173,8 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
             if let Some(w) = w.upgrade() {
                 {
                     let mut s = sh.borrow_mut();
-                    if settings::apply_adjustment(key.as_str(), delta, &mut s.config) {
+                    let schema = s.settings_schema.clone();
+                    if settings::apply_adjustment(key.as_str(), delta, &mut s.config, &schema) {
                         let _ = s.config.save(&config::user_config_path());
                     }
                     s.rebuild_settings();
@@ -1095,13 +1265,13 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     });
 
     // --- Initial state -----------------------------------------------------
-    lower.set_time_str("14:32".into());
-    lower.set_date_str("Sat 28 Mar".into());
+    lower.set_time_str(now_clock().into());
+    lower.set_date_str(now_date_short().into());
     lower.set_battery_pct(87);
     lower.set_wifi_connected(true);
     lower.set_notification_count(3);
-    win.set_time_str("14:32".into());
-    win.set_date_str("Saturday, Mar 28".into());
+    win.set_time_str(now_clock().into());
+    win.set_date_str(now_date_long().into());
     win.set_battery_pct(87);
 
     if let Some(mode) = demo_mode {
@@ -1127,8 +1297,26 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         }
     });
 
+    // Live clock — update every second
+    let clock_timer = slint::Timer::default();
+    clock_timer.start(slint::TimerMode::Repeated, Duration::from_secs(1), {
+        let w = win.as_weak(); let l = lower.as_weak();
+        move || {
+            if let Some(w) = w.upgrade() {
+                w.set_time_str(now_clock().into());
+                w.set_date_str(now_date_long().into());
+            }
+            if let Some(l) = l.upgrade() {
+                l.set_time_str(now_clock().into());
+                l.set_date_str(now_date_short().into());
+            }
+        }
+    });
+
     lower.show()?;
     win.run()?;
+    // Keep timers alive until window closes.
+    drop(clock_timer);
     Ok(())
 }
 

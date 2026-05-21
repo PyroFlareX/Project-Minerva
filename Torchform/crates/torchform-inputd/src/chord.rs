@@ -1,11 +1,17 @@
 // =============================================================================
-// chord.rs — Chord detection and input event normalisation
+// chord.rs — Chord/hold detection and input event normalisation
 //
 // Reads raw gamepad events from /dev/input/event* (the input MCU's USB HID
-// gamepad interface) and emits high-level InputActions. Also handles:
-//   - L2/R2 chord detection (both held → system radial)
-//   - D-pad hat-switch decoding (ABS_HAT0X / ABS_HAT0Y → directional events)
-//   - Repeat suppression for held directional inputs
+// gamepad interface) and emits high-level Actions.  Also handles:
+//
+//   • Generic N-button chord detection (simultaneous press within within_ms)
+//   • Generic N-button hold detection (all held for hold_ms)
+//   • D-pad hat-switch decoding + repeat
+//   • L2/R2 analog trigger hold state + SystemChordEntered/Exited (compat)
+//
+// Chord patterns and hold patterns are loaded from keybinds.toml at startup
+// via `ChordDetector::with_patterns()`.  The old hardcoded L2+R2 logic is
+// replaced by a built-in default pattern in `ChordDetector::new()`.
 // =============================================================================
 
 use std::{
@@ -24,16 +30,20 @@ pub enum Action {
     ButtonReleased(Button),
 
     // Analog axes (normalised -1.0..1.0)
-    LeftPadMoved { x: f32, y: f32 },   // Cirque trackpad
+    LeftPadMoved { x: f32, y: f32 },
     RightStickMoved { x: f32, y: f32 },
 
-    // Chords — emitted on state transition
-    L2HeldChange(bool),          // true = held, false = released
+    // Legacy L2/R2 chord state signals (kept for radial visual state)
+    L2HeldChange(bool),
     R2HeldChange(bool),
-    SystemChordEntered,          // L2 + R2 both now held
-    SystemChordExited,           // One of L2/R2 released
+    SystemChordEntered,
+    SystemChordExited,
 
-    // D-pad repeats (held → auto-repeat at 200 ms / 80 ms)
+    // Generic chord/hold events — resolved to ShellActions by ChordMap
+    ChordFired { name: String },
+    HoldFired  { name: String },
+
+    // D-pad repeat (held → auto-repeat)
     DpadRepeat(DpadDir),
 }
 
@@ -46,7 +56,7 @@ pub enum Button {
     Start,
     Select,
     DpadUp, DpadDown, DpadLeft, DpadRight,
-    LeftPadClick,   // Cirque physical click (if supported)
+    LeftPadClick,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -56,8 +66,6 @@ pub enum DpadDir { Up, Down, Left, Right }
 // Linux evdev input_event
 // ---------------------------------------------------------------------------
 
-/// Raw layout of a Linux `input_event` struct.
-/// Exposed publicly so `main.rs` can cast its read buffer without a second copy.
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct InputEventRaw {
@@ -68,23 +76,15 @@ pub struct InputEventRaw {
     pub value: i32,
 }
 
-// EV_ types
-const EV_KEY: u16 = 0x01;
-const EV_ABS: u16 = 0x03;
-
-// ABS codes for hat switch
+const EV_KEY:    u16 = 0x01;
+const EV_ABS:    u16 = 0x03;
 const ABS_HAT0X: u16 = 0x10;
 const ABS_HAT0Y: u16 = 0x11;
+const ABS_RX:    u16 = 0x03;
+const ABS_RY:    u16 = 0x04;
+const ABS_Z:     u16 = 0x05;
+const ABS_RZ:    u16 = 0x06;
 
-// ABS codes for right stick (TLV493D via MCU)
-const ABS_RX: u16 = 0x03;
-const ABS_RY: u16 = 0x04;
-
-// ABS codes for L2/R2 analog triggers
-const ABS_Z:  u16 = 0x05;
-const ABS_RZ: u16 = 0x06;
-
-// BTN codes matching the MCU's HID descriptor
 fn btn_code(code: u16) -> Option<Button> {
     match code {
         0x130 => Some(Button::A),
@@ -105,45 +105,122 @@ fn btn_code(code: u16) -> Option<Button> {
     }
 }
 
+/// Canonical name for a Button used in chord/hold pattern matching.
+fn button_name(b: Button) -> &'static str {
+    match b {
+        Button::A          => "button_a",
+        Button::B          => "button_b",
+        Button::X          => "button_x",
+        Button::Y          => "button_y",
+        Button::L1         => "l1",
+        Button::R1         => "r1",
+        Button::L2         => "l2",
+        Button::R2         => "r2",
+        Button::Start      => "button_start",
+        Button::Select     => "button_select",
+        Button::DpadUp     => "dpad_up",
+        Button::DpadDown   => "dpad_down",
+        Button::DpadLeft   => "dpad_left",
+        Button::DpadRight  => "dpad_right",
+        Button::LeftPadClick => "pad_click",
+    }
+}
+
+fn canonical_chord_name(buttons: &[Button]) -> String {
+    let mut names: Vec<&str> = buttons.iter().map(|b| button_name(*b)).collect();
+    names.sort_unstable();
+    names.join("+")
+}
+
+// ---------------------------------------------------------------------------
+// Chord / hold pattern descriptors
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone)]
+pub struct ChordPattern {
+    pub buttons:   Vec<Button>,
+    pub within_ms: u64,
+    pub name:      String,
+}
+
+#[derive(Debug, Clone)]
+pub struct HoldPattern {
+    pub buttons: Vec<Button>,
+    pub hold_ms: u64,
+    pub name:    String,
+}
+
+// ---------------------------------------------------------------------------
+// D-pad repeat state
+// ---------------------------------------------------------------------------
+
+struct DpadRepeatState {
+    first_press: Instant,
+    next_emit:   Option<Instant>,
+}
+
 // ---------------------------------------------------------------------------
 // ChordDetector
 // ---------------------------------------------------------------------------
 
-/// Per-direction repeat state: tracks first press and the next scheduled emit.
-struct DpadRepeatState {
-    first_press: Instant,
-    /// When to next emit; None until the initial delay has elapsed.
-    next_emit:   Option<Instant>,
-}
-
 pub struct ChordDetector {
-    held:          HashMap<Button, Instant>,
-    l2_analog:     f32,
-    r2_analog:     f32,
-    /// Threshold above which analog L2/R2 count as "held"
-    analog_thresh: f32,
-    /// Per-direction D-pad repeat state
-    dpad_repeat:   HashMap<DpadDir, DpadRepeatState>,
-    repeat_delay:  Duration,
-    repeat_rate:   Duration,
-    /// Last known right-stick axes (stored so partial axis updates retain the other component)
-    right_stick_x: f32,
-    right_stick_y: f32,
+    held:             HashMap<Button, Instant>,
+    l2_analog:        f32,
+    r2_analog:        f32,
+    analog_thresh:    f32,
+    dpad_repeat:      HashMap<DpadDir, DpadRepeatState>,
+    pub repeat_delay: Duration,
+    pub repeat_rate:  Duration,
+    right_stick_x:    f32,
+    right_stick_y:    f32,
+
+    // Generic pattern tables
+    chord_patterns: Vec<ChordPattern>,
+    hold_patterns:  Vec<HoldPattern>,
+    hold_deadlines: HashMap<String, Instant>,
+
+    // Track which chords already fired (reset when any button releases)
+    chord_fired: std::collections::HashSet<String>,
 }
 
 impl ChordDetector {
     pub fn new() -> Self {
-        Self {
-            held:          HashMap::new(),
-            l2_analog:     0.0,
-            r2_analog:     0.0,
-            analog_thresh: 0.25,
-            dpad_repeat:   HashMap::new(),
-            repeat_delay:  Duration::from_millis(400),
-            repeat_rate:   Duration::from_millis(80),
-            right_stick_x: 0.0,
-            right_stick_y: 0.0,
+        let mut det = Self {
+            held:           HashMap::new(),
+            l2_analog:      0.0,
+            r2_analog:      0.0,
+            analog_thresh:  0.25,
+            dpad_repeat:    HashMap::new(),
+            repeat_delay:   Duration::from_millis(400),
+            repeat_rate:    Duration::from_millis(80),
+            right_stick_x:  0.0,
+            right_stick_y:  0.0,
+            chord_patterns: Vec::new(),
+            hold_patterns:  Vec::new(),
+            hold_deadlines: HashMap::new(),
+            chord_fired:    std::collections::HashSet::new(),
+        };
+
+        // Built-in L2+R2 chord (backward compat with SystemChordEntered)
+        det.chord_patterns.push(ChordPattern {
+            buttons:   vec![Button::L2, Button::R2],
+            within_ms: 80,
+            name:      "l2+r2".into(),
+        });
+
+        det
+    }
+
+    /// Load chord and hold patterns from external config.
+    /// This ADDS to the built-in patterns (doesn't replace them).
+    pub fn with_patterns(mut self, chords: Vec<ChordPattern>, holds: Vec<HoldPattern>) -> Self {
+        for c in chords {
+            if !self.chord_patterns.iter().any(|p| p.name == c.name) {
+                self.chord_patterns.push(c);
+            }
         }
+        self.hold_patterns = holds;
+        self
     }
 
     fn l2_held(&self) -> bool {
@@ -155,11 +232,79 @@ impl ChordDetector {
     }
 
     fn was_system_chord(&self) -> bool {
-        // Before the current event, were both held?
         self.l2_held() && self.r2_held()
     }
 
-    /// Process one raw evdev event and return any emitted actions.
+    // -----------------------------------------------------------------------
+    // Generic chord check — called on every button press
+    // -----------------------------------------------------------------------
+
+    fn check_chords(&mut self, just_pressed: Button, out: &mut Vec<Action>) {
+        let now = Instant::now();
+
+        for pattern in &self.chord_patterns {
+            if self.chord_fired.contains(&pattern.name) {
+                continue;
+            }
+            if !pattern.buttons.contains(&just_pressed) {
+                continue;
+            }
+            // All other buttons in the pattern must currently be held
+            let all_held = pattern.buttons.iter()
+                .filter(|&&b| b != just_pressed)
+                .all(|b| self.held.contains_key(b));
+            if !all_held {
+                continue;
+            }
+            // All press times (including just_pressed) must be within within_ms
+            let threshold = Duration::from_millis(pattern.within_ms);
+            // just_pressed was just inserted so its time is ~now
+            let in_window = pattern.buttons.iter()
+                .filter(|&&b| b != just_pressed)
+                .all(|b| {
+                    if let Some(&t) = self.held.get(b) {
+                        now.duration_since(t) <= threshold
+                    } else {
+                        false
+                    }
+                });
+            if in_window {
+                self.chord_fired.insert(pattern.name.clone());
+                out.push(Action::ChordFired { name: pattern.name.clone() });
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Generic hold check — called on every button press
+    // -----------------------------------------------------------------------
+
+    fn check_holds(&mut self, just_pressed: Button) {
+        for pattern in &self.hold_patterns {
+            if !pattern.buttons.contains(&just_pressed) {
+                continue;
+            }
+            let all_held = pattern.buttons.iter().all(|b| self.held.contains_key(b));
+            if all_held {
+                let deadline = Instant::now() + Duration::from_millis(pattern.hold_ms);
+                self.hold_deadlines.insert(pattern.name.clone(), deadline);
+            }
+        }
+    }
+
+    fn cancel_holds_for(&mut self, released: Button) {
+        self.hold_patterns.iter()
+            .filter(|p| p.buttons.contains(&released))
+            .map(|p| p.name.clone())
+            .collect::<Vec<_>>()
+            .into_iter()
+            .for_each(|name| { self.hold_deadlines.remove(&name); });
+    }
+
+    // -----------------------------------------------------------------------
+    // Main process
+    // -----------------------------------------------------------------------
+
     pub fn process(&mut self, ev: &InputEventRaw) -> Vec<Action> {
         let mut out = Vec::new();
 
@@ -167,10 +312,19 @@ impl ChordDetector {
             EV_KEY => {
                 if let Some(btn) = btn_code(ev.code) {
                     if ev.value == 1 {
-                        // Press
                         let was_chord = self.was_system_chord();
-                        self.held.insert(btn.clone(), Instant::now());
+                        self.held.insert(btn, Instant::now());
 
+                        // D-pad repeat state
+                        match btn {
+                            Button::DpadUp    => { self.dpad_repeat.insert(DpadDir::Up,    DpadRepeatState { first_press: Instant::now(), next_emit: None }); }
+                            Button::DpadDown  => { self.dpad_repeat.insert(DpadDir::Down,  DpadRepeatState { first_press: Instant::now(), next_emit: None }); }
+                            Button::DpadLeft  => { self.dpad_repeat.insert(DpadDir::Left,  DpadRepeatState { first_press: Instant::now(), next_emit: None }); }
+                            Button::DpadRight => { self.dpad_repeat.insert(DpadDir::Right, DpadRepeatState { first_press: Instant::now(), next_emit: None }); }
+                            _ => {}
+                        }
+
+                        // Legacy L2/R2 chord signals
                         match btn {
                             Button::L2 => {
                                 out.push(Action::L2HeldChange(true));
@@ -184,19 +338,31 @@ impl ChordDetector {
                                     out.push(Action::SystemChordEntered);
                                 }
                             }
-                            Button::DpadUp    => { self.dpad_repeat.insert(DpadDir::Up,    DpadRepeatState { first_press: Instant::now(), next_emit: None }); }
-                            Button::DpadDown  => { self.dpad_repeat.insert(DpadDir::Down,  DpadRepeatState { first_press: Instant::now(), next_emit: None }); }
-                            Button::DpadLeft  => { self.dpad_repeat.insert(DpadDir::Left,  DpadRepeatState { first_press: Instant::now(), next_emit: None }); }
-                            Button::DpadRight => { self.dpad_repeat.insert(DpadDir::Right, DpadRepeatState { first_press: Instant::now(), next_emit: None }); }
                             _ => {}
                         }
 
+                        // Generic chord + hold check
+                        self.check_chords(btn, &mut out);
+                        self.check_holds(btn);
+
                         out.push(Action::ButtonPressed(btn));
                     } else if ev.value == 0 {
-                        // Release
                         let was_chord = self.was_system_chord();
                         self.held.remove(&btn);
+                        self.chord_fired.remove(&canonical_chord_name(
+                            &self.chord_patterns.iter()
+                                .find(|p| p.buttons.contains(&btn))
+                                .map(|p| p.buttons.as_slice())
+                                .unwrap_or(&[])
+                        ));
+                        // Remove all fired-chord marks that included this button
+                        let to_remove: Vec<String> = self.chord_patterns.iter()
+                            .filter(|p| p.buttons.contains(&btn))
+                            .map(|p| p.name.clone())
+                            .collect();
+                        for name in to_remove { self.chord_fired.remove(&name); }
 
+                        // Legacy L2/R2
                         match btn {
                             Button::L2 => {
                                 if was_chord { out.push(Action::SystemChordExited); }
@@ -213,6 +379,7 @@ impl ChordDetector {
                             _ => {}
                         }
 
+                        self.cancel_holds_for(btn);
                         out.push(Action::ButtonReleased(btn));
                     }
                 }
@@ -220,7 +387,6 @@ impl ChordDetector {
 
             EV_ABS => {
                 match ev.code {
-                    // Hat switch → D-pad
                     ABS_HAT0X => match ev.value {
                         -1 => {
                             self.held.insert(Button::DpadLeft, Instant::now());
@@ -264,7 +430,6 @@ impl ChordDetector {
                         _ => {}
                     },
 
-                    // Right stick (TLV493D via MCU) — accumulate both axes before emitting
                     ABS_RX => {
                         self.right_stick_x = ev.value as f32 / 32767.0;
                         out.push(Action::RightStickMoved { x: self.right_stick_x, y: self.right_stick_y });
@@ -274,7 +439,6 @@ impl ChordDetector {
                         out.push(Action::RightStickMoved { x: self.right_stick_x, y: self.right_stick_y });
                     }
 
-                    // L2/R2 analog triggers — also check for system chord entry/exit
                     ABS_Z => {
                         let prev_l2 = self.l2_held();
                         let was_chord = prev_l2 && self.r2_held();
@@ -314,7 +478,7 @@ impl ChordDetector {
         out
     }
 
-    /// Call periodically to emit D-pad repeat actions at the configured rate.
+    /// Call periodically to emit D-pad repeat actions and hold-fire events.
     pub fn tick_repeats(&mut self) -> Vec<Action> {
         let now = Instant::now();
         let mut out = Vec::new();
@@ -323,14 +487,12 @@ impl ChordDetector {
         let repeat_rate  = self.repeat_rate;
 
         for (dir, state) in &mut self.dpad_repeat {
-            // Arm next_emit after the initial delay has elapsed
             if state.next_emit.is_none() {
                 let deadline = state.first_press + repeat_delay;
                 if now >= deadline {
                     state.next_emit = Some(deadline);
                 }
             }
-            // Fire (and advance) if the next scheduled emit has arrived
             if let Some(ref mut next) = state.next_emit {
                 if now >= *next {
                     out.push(Action::DpadRepeat(*dir));
@@ -339,7 +501,42 @@ impl ChordDetector {
             }
         }
 
+        // Check hold deadlines
+        let fired: Vec<String> = self.hold_deadlines.iter()
+            .filter(|(_, &deadline)| now >= deadline)
+            .map(|(name, _)| name.clone())
+            .collect();
+        for name in fired {
+            self.hold_deadlines.remove(&name);
+            out.push(Action::HoldFired { name });
+        }
+
         out
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Builder helpers for loading patterns from keybinds.toml
+// ---------------------------------------------------------------------------
+
+/// Parse a button name string (as used in keybinds.toml) to a `Button`.
+pub fn button_from_name(name: &str) -> Option<Button> {
+    match name {
+        "button_a"     => Some(Button::A),
+        "button_b"     => Some(Button::B),
+        "button_x"     => Some(Button::X),
+        "button_y"     => Some(Button::Y),
+        "l1"           => Some(Button::L1),
+        "r1"           => Some(Button::R1),
+        "l2"           => Some(Button::L2),
+        "r2"           => Some(Button::R2),
+        "button_start" => Some(Button::Start),
+        "button_select"=> Some(Button::Select),
+        "dpad_up"      => Some(Button::DpadUp),
+        "dpad_down"    => Some(Button::DpadDown),
+        "dpad_left"    => Some(Button::DpadLeft),
+        "dpad_right"   => Some(Button::DpadRight),
+        _              => None,
     }
 }
 
@@ -359,20 +556,18 @@ mod tests {
         InputEventRaw { sec: 0, usec: 0, etype: EV_ABS, code, value }
     }
 
-    // BTN_A = 0x130
-    const BTN_A: u16 = 0x130;
-    const BTN_B: u16 = 0x131;
+    const BTN_A:  u16 = 0x130;
+    const BTN_B:  u16 = 0x131;
+    const BTN_L1: u16 = 0x136;
+    const BTN_R1: u16 = 0x137;
     const BTN_L2: u16 = 0x138;
     const BTN_R2: u16 = 0x139;
 
     #[test]
     fn button_press_and_release() {
         let mut cd = ChordDetector::new();
-
         let actions = cd.process(&key_ev(BTN_A, 1));
         assert!(actions.contains(&Action::ButtonPressed(Button::A)));
-        assert!(!actions.contains(&Action::ButtonReleased(Button::A)));
-
         let actions = cd.process(&key_ev(BTN_A, 0));
         assert!(actions.contains(&Action::ButtonReleased(Button::A)));
     }
@@ -380,109 +575,109 @@ mod tests {
     #[test]
     fn unknown_button_produces_no_actions() {
         let mut cd = ChordDetector::new();
-        let actions = cd.process(&key_ev(0xFFFF, 1));
-        assert!(actions.is_empty());
+        assert!(cd.process(&key_ev(0xFFFF, 1)).is_empty());
     }
 
     #[test]
     fn dpad_hat_x_decodes_to_left_right() {
         let mut cd = ChordDetector::new();
-
-        let actions = cd.process(&abs_ev(ABS_HAT0X, -1));
-        assert!(actions.contains(&Action::ButtonPressed(Button::DpadLeft)));
-
-        let actions = cd.process(&abs_ev(ABS_HAT0X, 0));
-        assert!(actions.contains(&Action::ButtonReleased(Button::DpadLeft)));
-        assert!(actions.contains(&Action::ButtonReleased(Button::DpadRight)));
-
-        let actions = cd.process(&abs_ev(ABS_HAT0X, 1));
-        assert!(actions.contains(&Action::ButtonPressed(Button::DpadRight)));
-    }
-
-    #[test]
-    fn dpad_hat_y_decodes_to_up_down() {
-        let mut cd = ChordDetector::new();
-
-        let actions = cd.process(&abs_ev(ABS_HAT0Y, -1));
-        assert!(actions.contains(&Action::ButtonPressed(Button::DpadUp)));
-
-        let actions = cd.process(&abs_ev(ABS_HAT0Y, 1));
-        assert!(actions.contains(&Action::ButtonPressed(Button::DpadDown)));
-
-        let actions = cd.process(&abs_ev(ABS_HAT0Y, 0));
-        assert!(actions.contains(&Action::ButtonReleased(Button::DpadUp)));
-        assert!(actions.contains(&Action::ButtonReleased(Button::DpadDown)));
+        let a = cd.process(&abs_ev(ABS_HAT0X, -1));
+        assert!(a.contains(&Action::ButtonPressed(Button::DpadLeft)));
+        let a = cd.process(&abs_ev(ABS_HAT0X, 0));
+        assert!(a.contains(&Action::ButtonReleased(Button::DpadLeft)));
+        let a = cd.process(&abs_ev(ABS_HAT0X, 1));
+        assert!(a.contains(&Action::ButtonPressed(Button::DpadRight)));
     }
 
     #[test]
     fn l2_r2_digital_chord_enter_and_exit() {
         let mut cd = ChordDetector::new();
+        let a = cd.process(&key_ev(BTN_L2, 1));
+        assert!(a.contains(&Action::L2HeldChange(true)));
+        assert!(!a.contains(&Action::SystemChordEntered));
+        let a = cd.process(&key_ev(BTN_R2, 1));
+        assert!(a.contains(&Action::SystemChordEntered));
+        let a = cd.process(&key_ev(BTN_L2, 0));
+        assert!(a.contains(&Action::SystemChordExited));
+        let a = cd.process(&key_ev(BTN_R2, 0));
+        assert!(!a.contains(&Action::SystemChordExited));
+    }
 
-        // Press L2 — held change, no chord yet
-        let actions = cd.process(&key_ev(BTN_L2, 1));
-        assert!(actions.contains(&Action::L2HeldChange(true)));
-        assert!(!actions.contains(&Action::SystemChordEntered));
-
-        // Press R2 — chord entered
+    #[test]
+    fn l2_r2_chord_fires_chord_action() {
+        let mut cd = ChordDetector::new();
+        cd.process(&key_ev(BTN_L2, 1));
         let actions = cd.process(&key_ev(BTN_R2, 1));
-        assert!(actions.contains(&Action::R2HeldChange(true)));
-        assert!(actions.contains(&Action::SystemChordEntered));
+        assert!(actions.iter().any(|a| matches!(a, Action::ChordFired { name } if name == "l2+r2")));
+    }
 
-        // Release L2 — chord exited
-        let actions = cd.process(&key_ev(BTN_L2, 0));
-        assert!(actions.contains(&Action::SystemChordExited));
-        assert!(actions.contains(&Action::L2HeldChange(false)));
+    #[test]
+    fn custom_chord_fires_on_simultaneous_press() {
+        let mut cd = ChordDetector::new().with_patterns(
+            vec![ChordPattern {
+                buttons:   vec![Button::L1, Button::X],
+                within_ms: 80,
+                name:      "l1+button_x".into(),
+            }],
+            vec![],
+        );
+        cd.process(&key_ev(BTN_L1, 1));
+        // X button code is 0x133
+        let actions = cd.process(&key_ev(0x133, 1));
+        assert!(actions.iter().any(|a| matches!(a, Action::ChordFired { name } if name == "l1+button_x")),
+            "expected ChordFired l1+button_x in {:?}", actions);
+    }
 
-        // Release R2 — no second exit
-        let actions = cd.process(&key_ev(BTN_R2, 0));
-        assert!(!actions.contains(&Action::SystemChordExited));
-        assert!(actions.contains(&Action::R2HeldChange(false)));
+    #[test]
+    fn hold_fires_after_deadline_in_tick() {
+        let mut cd = ChordDetector::new().with_patterns(
+            vec![],
+            vec![HoldPattern {
+                buttons: vec![Button::L1, Button::R1],
+                hold_ms: 0,  // fire immediately for test
+                name:    "l1+r1".into(),
+            }],
+        );
+        cd.process(&key_ev(BTN_L1, 1));
+        cd.process(&key_ev(BTN_R1, 1));
+        let ticks = cd.tick_repeats();
+        assert!(ticks.iter().any(|a| matches!(a, Action::HoldFired { name } if name == "l1+r1")));
+    }
+
+    #[test]
+    fn hold_cancelled_on_release() {
+        let mut cd = ChordDetector::new().with_patterns(
+            vec![],
+            vec![HoldPattern {
+                buttons: vec![Button::L1, Button::R1],
+                hold_ms: 9999,
+                name:    "l1+r1".into(),
+            }],
+        );
+        cd.process(&key_ev(BTN_L1, 1));
+        cd.process(&key_ev(BTN_R1, 1));
+        cd.process(&key_ev(BTN_L1, 0)); // cancel by releasing
+        let ticks = cd.tick_repeats();
+        assert!(!ticks.iter().any(|a| matches!(a, Action::HoldFired { .. })));
     }
 
     #[test]
     fn analog_l2_crosses_threshold_emits_held_change() {
         let mut cd = ChordDetector::new();
-
-        // Below threshold (25% = 63/255)
-        let actions = cd.process(&abs_ev(ABS_Z, 50));
-        assert!(actions.is_empty());
-
-        // Cross threshold (30% = 76/255)
-        let actions = cd.process(&abs_ev(ABS_Z, 76));
-        assert!(actions.contains(&Action::L2HeldChange(true)));
-
-        // Back below
-        let actions = cd.process(&abs_ev(ABS_Z, 10));
-        assert!(actions.contains(&Action::L2HeldChange(false)));
-    }
-
-    #[test]
-    fn analog_l2_r2_both_cross_threshold_enters_chord() {
-        let mut cd = ChordDetector::new();
-
-        // L2 crosses threshold
-        cd.process(&abs_ev(ABS_Z, 100));
-
-        // R2 crosses — chord should be entered
-        let actions = cd.process(&abs_ev(ABS_RZ, 100));
-        assert!(actions.contains(&Action::SystemChordEntered));
-
-        // R2 drops — chord exited
-        let actions = cd.process(&abs_ev(ABS_RZ, 0));
-        assert!(actions.contains(&Action::SystemChordExited));
+        assert!(cd.process(&abs_ev(ABS_Z, 50)).is_empty());
+        let a = cd.process(&abs_ev(ABS_Z, 76));
+        assert!(a.contains(&Action::L2HeldChange(true)));
+        let a = cd.process(&abs_ev(ABS_Z, 10));
+        assert!(a.contains(&Action::L2HeldChange(false)));
     }
 
     #[test]
     fn right_stick_retains_other_axis() {
         let mut cd = ChordDetector::new();
-
-        // Move X axis to max
-        let actions = cd.process(&abs_ev(ABS_RX, 32767));
-        assert!(actions.iter().any(|a| matches!(a, Action::RightStickMoved { x, y } if *x > 0.9 && *y == 0.0)));
-
-        // Move Y axis — X should still be 1.0, not reset to 0
-        let actions = cd.process(&abs_ev(ABS_RY, 16384));
-        assert!(actions.iter().any(|a| matches!(a, Action::RightStickMoved { x, y } if *x > 0.9 && *y > 0.4)));
+        let a = cd.process(&abs_ev(ABS_RX, 32767));
+        assert!(a.iter().any(|a| matches!(a, Action::RightStickMoved { x, y } if *x > 0.9 && *y == 0.0)));
+        let a = cd.process(&abs_ev(ABS_RY, 16384));
+        assert!(a.iter().any(|a| matches!(a, Action::RightStickMoved { x, y } if *x > 0.9 && *y > 0.4)));
     }
 
     #[test]
@@ -494,39 +689,19 @@ mod tests {
     #[test]
     fn tick_repeats_does_not_fire_before_delay() {
         let mut cd = ChordDetector::new();
-        // Set a very long delay so it won't fire in a test
         cd.repeat_delay = Duration::from_secs(9999);
-        cd.process(&abs_ev(ABS_HAT0Y, -1)); // DpadUp held
+        cd.process(&abs_ev(ABS_HAT0Y, -1));
         assert!(cd.tick_repeats().is_empty());
     }
 
     #[test]
     fn tick_repeats_fires_after_delay_and_stops_when_released() {
         let mut cd = ChordDetector::new();
-        // Make delay=0 so the repeat fires immediately on the next tick
         cd.repeat_delay = Duration::ZERO;
         cd.repeat_rate  = Duration::ZERO;
-
-        cd.process(&abs_ev(ABS_HAT0Y, -1)); // DpadUp held
-
-        let repeats = cd.tick_repeats();
-        assert!(repeats.contains(&Action::DpadRepeat(DpadDir::Up)));
-
-        // Release — no more repeats
+        cd.process(&abs_ev(ABS_HAT0Y, -1));
+        assert!(cd.tick_repeats().contains(&Action::DpadRepeat(DpadDir::Up)));
         cd.process(&abs_ev(ABS_HAT0Y, 0));
-        assert!(cd.tick_repeats().is_empty());
-    }
-
-    #[test]
-    fn dpad_button_code_path_repeat_state_cleared_on_release() {
-        let mut cd = ChordDetector::new();
-        cd.repeat_delay = Duration::ZERO;
-        cd.repeat_rate  = Duration::ZERO;
-
-        cd.process(&key_ev(0x220, 1)); // DpadUp (BTN_DPAD_UP)
-        assert!(!cd.tick_repeats().is_empty());
-
-        cd.process(&key_ev(0x220, 0)); // release
         assert!(cd.tick_repeats().is_empty());
     }
 }

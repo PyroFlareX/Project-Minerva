@@ -124,7 +124,7 @@ export component QuickSettings inherits Rectangle {
     }
 
     panel := Rectangle {
-        width: 310px;
+        width: min(420px, parent.width * 0.22);
         height: parent.height;
         y: 0;
         x: open ? parent.width - self.width : parent.width;
@@ -168,20 +168,33 @@ export component QuickSettings inherits Rectangle {
                 changed(v) => { root.brightness-changed(v); }
             }
 
-            // Tile grid (2 columns, absolute placement per index)
-            Rectangle {
+            // Tile grid (2 columns, absolute placement, scrolls with focus)
+            tile-clip := Rectangle {
                 vertical-stretch: 1;
+                clip: true;
                 property <length> gap: 8px;
                 property <length> cell-w: (self.width - 28px - gap) / 2;
-                property <length> cell-h: 64px;
-                for tile[i] in tiles: QsTileBtn {
-                    x: 14px + mod(i, 2) * (parent.cell-w + parent.gap);
-                    y: 4px + floor(i / 2) * (parent.cell-h + parent.gap);
-                    width: parent.cell-w;
-                    height: parent.cell-h;
-                    tile: tile;
-                    focused: tile.index == focus-index;
-                    activated => { root.tile-activated(tile.index); }
+                property <length> cell-h: 72px;
+                property <int>    focused-row: floor(focus-index / 2);
+                property <length> scroll-y: min(0px,
+                    (tile-clip.height / 2)
+                    - (focused-row * (cell-h + gap))
+                    - cell-h / 2
+                );
+                Rectangle {
+                    width: parent.width;
+                    height: ceil(tiles.length / 2) * (tile-clip.cell-h + tile-clip.gap);
+                    y: tile-clip.scroll-y;
+                    animate y { duration: Tokens.anim-normal; easing: ease-in-out; }
+                    for tile[i] in tiles: QsTileBtn {
+                        x: 14px + mod(i, 2) * (tile-clip.cell-w + tile-clip.gap);
+                        y: floor(i / 2) * (tile-clip.cell-h + tile-clip.gap);
+                        width: tile-clip.cell-w;
+                        height: tile-clip.cell-h;
+                        tile: tile;
+                        focused: tile.index == focus-index;
+                        activated => { root.tile-activated(tile.index); }
+                    }
                 }
             }
         }

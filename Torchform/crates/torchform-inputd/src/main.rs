@@ -29,7 +29,7 @@ use tracing::{debug, info, warn};
 
 use chord::{Action, Button, DpadDir, ChordDetector};
 use cirque::CirqueSpi;
-use torchform_actions::{ShellAction, InputMap, RawInput};
+use torchform_actions::{ShellAction, InputMap, RawInput, ChordMap};
 
 // ---------------------------------------------------------------------------
 // Config — paths resolved at startup
@@ -239,6 +239,10 @@ fn main() -> Result<()> {
 // ---------------------------------------------------------------------------
 
 fn chord_action_to_shell(action: &Action, map: &InputMap) -> Option<ShellAction> {
+    chord_action_to_shell_with_chords(action, map, &ChordMap::default())
+}
+
+fn chord_action_to_shell_with_chords(action: &Action, map: &InputMap, chord_map: &ChordMap) -> Option<ShellAction> {
     match action {
         // Button edges — look up in InputMap by raw name
         Action::ButtonPressed(btn) => {
@@ -270,6 +274,10 @@ fn chord_action_to_shell(action: &Action, map: &InputMap) -> Option<ShellAction>
                 DpadDir::Right => "dpad_right",
             };
             map.resolve(&RawInput::new(raw))
+        }
+        // Chord and hold events — resolved via ChordMap
+        Action::ChordFired { name } | Action::HoldFired { name } => {
+            chord_map.resolve(name)
         }
         // Analog axes — constructed directly (bypass InputMap)
         Action::RightStickMoved { x, y } => Some(ShellAction::StickMoved { x: *x, y: *y }),

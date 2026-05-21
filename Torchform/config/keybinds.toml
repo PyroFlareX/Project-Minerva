@@ -1,8 +1,18 @@
 # =============================================================================
 # Torchform keybinds — input to action mapping
 #
-# This file maps named raw inputs to named ShellActions.
-# Copy to ~/.config/torchform/keybinds.toml to override for your user.
+# Three sections:
+#   [shell]  — active when no app is foregrounded (panels, home, lock)
+#   [app]    — active when an app is foregrounded
+#   [binds]  — legacy fallback (used if [shell]/[app] key is not present)
+#
+# B (cancel) is intentionally absent from [app] — apps handle their own
+# back navigation.  B only closes panels and overlays in [shell].
+#
+# Chord bindings fire when ALL listed buttons are pressed simultaneously
+# within the `within_ms` window (default 80 ms).
+#
+# Hold bindings fire after ALL listed buttons are held for `hold_ms`.
 #
 # Raw input names:
 #   button_a, button_b, button_x, button_y
@@ -21,34 +31,28 @@
 #   Key            Controller input       Default action
 #   ─────────────────────────────────────────────────────
 #   A              button_a               confirm
-#   B              button_b               cancel
+#   B              button_b               cancel (panels only)
 #   X              button_x               open_palette
 #   Space          button_select          go_home
 #   Enter          button_start           open_switcher
 #   Tab (hold)     l2_hold_true           radial_hold_true
 #   Tab (release)  l2_hold_false          radial_hold_false
-#   Esc            button_b               cancel
+#   Esc            button_b               cancel (panels only)
 #   Z              r1                     open_quick_settings
 #   C              l1                     open_notifications
 #   Arrow Up       dpad_up                nav_up
 #   Arrow Down     dpad_down              nav_down
 #   Arrow Left     dpad_left              nav_left
 #   Arrow Right    dpad_right             nav_right
-#   I              stick north            (analog, bypasses keybinds)
-#   K              stick south            (analog, bypasses keybinds)
-#   J              stick west             (analog, bypasses keybinds)
-#   L              stick east             (analog, bypasses keybinds)
-#
-#   The keyboard mapping is hardcoded in ui/emulator.slint and ui/shell.slint
-#   (FocusScope key-pressed/key-released handlers). It cannot be changed here.
 #
 # Action names:
 #   confirm, cancel
 #   open_palette, open_switcher
-#   open_quick_settings           — slide in Quick Settings panel (right)
-#   open_notifications            — slide in Notifications panel (left)
-#   go_home                       — return to Home screen
-#   lock                          — go to Lock screen (long-press or chord)
+#   open_quick_settings    — slide in Quick Settings panel (right)
+#   open_notifications     — slide in Notifications panel (left)
+#   open_quick_menu        — quick-action overlay (Switch-style home hold)
+#   go_home                — return to Home screen
+#   lock                   — go to Lock screen
 #   radial_hold_true, radial_hold_false
 #   nav_up, nav_down, nav_left, nav_right
 #   workspace_prev, workspace_next
@@ -63,40 +67,68 @@
 # Unknown action names are silently ignored with a log warning.
 # =============================================================================
 
-[binds]
-
-# --- Face buttons -----------------------------------------------------------
+# Shell context: active when no app is foregrounded (home, panels, menus)
+[shell]
 button_a      = "confirm"
-button_b      = "cancel"
+button_b      = "cancel"           # closes panels / menus only
 button_select = "go_home"
 button_start  = "open_switcher"
 button_x      = "open_palette"
-
-# --- Shoulder triggers — radial menu ----------------------------------------
-# L2/R2 hold = radial quick-action ring.
+l1            = "open_notifications"
+r1            = "open_quick_settings"
+select_long   = "lock"
+dpad_up       = "nav_up"
+dpad_down     = "nav_down"
+dpad_left     = "nav_left"
+dpad_right    = "nav_right"
 l2_hold_true  = "radial_hold_true"
 l2_hold_false = "radial_hold_false"
 r2_hold_true  = "radial_hold_true"
 r2_hold_false = "radial_hold_false"
 
-# --- D-pad ------------------------------------------------------------------
-dpad_up    = "nav_up"
-dpad_down  = "nav_down"
-dpad_left  = "nav_left"
-dpad_right = "nav_right"
+# App context: active when an app is foregrounded
+# B is intentionally absent — apps manage their own back navigation.
+# HOME (select), Start, and explicit go_home are the only ways out of apps.
+[app]
+button_start  = "open_switcher"   # overlay switcher while in-app
+button_x      = "open_palette"    # open palette while in-app
+button_select = "go_home"         # home button always exits
+dpad_up       = "nav_up"
+dpad_down     = "nav_down"
+dpad_left     = "nav_left"
+dpad_right    = "nav_right"
 
-# --- Shoulder bumpers — Quick Settings / Notifications ----------------------
-# ZL (mapped to l1 on the handheld) opens Notifications from the left.
-# ZR (mapped to r1) opens Quick Settings from the right.
-# Change these to "workspace_prev"/"workspace_next" if you prefer cycling.
-l1 = "open_notifications"
-r1 = "open_quick_settings"
-
-# --- Long-press / chord system actions --------------------------------------
-select_long           = "lock"
+# Legacy fallback table — used if a key is not in [shell] or [app]
+[binds]
 l2_r2_brightness_up   = "brightness_up"
 l2_r2_brightness_down = "brightness_down"
 l2_r2_volume_up       = "volume_up"
 l2_r2_volume_down     = "volume_down"
 l2_r2_wifi            = "wifi_toggle"
 l2_r2_bt              = "bluetooth_toggle"
+
+# ---------------------------------------------------------------------------
+# Chord bindings (simultaneous button presses)
+# ---------------------------------------------------------------------------
+
+# L1 + X → next workspace
+[[chords]]
+buttons   = ["l1", "button_x"]
+action    = "workspace_next"
+within_ms = 80
+
+# L2 + R2 → open radial menu (keep parity with SystemChordEntered)
+[[chords]]
+buttons   = ["l2", "r2"]
+action    = "open_radial"
+within_ms = 80
+
+# ---------------------------------------------------------------------------
+# Hold bindings (all listed buttons held for hold_ms)
+# ---------------------------------------------------------------------------
+
+# L1 + R1 held 3 s → quick action overlay (Switch-style home button hold)
+[[holds]]
+buttons = ["l1", "r1"]
+action  = "open_quick_menu"
+hold_ms = 3000
