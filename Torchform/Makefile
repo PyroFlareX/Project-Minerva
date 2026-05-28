@@ -251,3 +251,46 @@ remote-vnc:
 remote-vnc-kill:
 	-ssh $(MINERVA_HOST) "pkill -f wayvnc; pkill -f cage" 2>/dev/null; true
 	-pkill -f "ssh -L $(VNC_PORT)" 2>/dev/null; true
+
+# ── QuickShell demo ───────────────────────────────────────────────────────────
+.PHONY: deploy-hdmi hdmi-restart remote-vnc-qs remote-vnc-qs-kill
+
+# Sync QML + C source to Minerva, compile gamepad-map there, restart on HDMI.
+deploy-hdmi:
+	@echo ">> Syncing demo-quickshell to $(MINERVA_HOST)..."
+	ssh $(MINERVA_HOST) "mkdir -p ~/projects/demo-quickshell"
+	rsync -avz --exclude='*.o' --exclude=gamepad-map demo-quickshell/. \
+	    $(MINERVA_HOST):~/projects/demo-quickshell/
+	@echo ">> Compiling gamepad-map on $(MINERVA_HOST)..."
+	ssh $(MINERVA_HOST) "gcc -O2 -o ~/projects/demo-quickshell/gamepad-map \
+	    ~/projects/demo-quickshell/gamepad-map.c && echo '   gamepad-map OK'"
+
+hdmi-restart: deploy-hdmi
+	@echo ">> Restarting demo on HDMI..."
+	-ssh $(MINERVA_HOST) "pkill -9 -x quickshell; pkill -9 -x sway; \
+	    pkill -9 -f demo-quickshell/gamepad-map" 2>/dev/null; true
+	ssh $(MINERVA_HOST) \
+	    "nohup setsid bash ~/projects/demo-quickshell/start-hdmi.sh \
+	     </dev/null >/tmp/start-hdmi.log 2>&1 &"
+	@echo ">> Running — tail logs: ssh $(MINERVA_HOST) tail -f /tmp/quickshell-hdmi.log"
+
+remote-vnc-qs:
+	@echo ">> Killing stale quickshell/wayvnc on $(MINERVA_HOST)..."
+	-ssh $(MINERVA_HOST) "pkill -9 -f wayvnc; pkill -9 -f quickshell; pkill -9 -f 'sway.*torchform'; rm -rf /tmp/xdg-qs-vnc" 2>/dev/null; true
+	-pkill -f "ssh -L $(VNC_PORT)" 2>/dev/null; true
+	@sleep 1
+	@echo ">> Syncing demo files to $(MINERVA_HOST)..."
+	ssh $(MINERVA_HOST) "mkdir -p ~/projects/demo-quickshell"
+	scp -r demo-quickshell/. $(MINERVA_HOST):~/projects/demo-quickshell/
+	@echo ">> Starting QuickShell demo on $(MINERVA_HOST)..."
+	ssh $(MINERVA_HOST) "VNC_PORT=$(VNC_PORT) bash ~/projects/demo-quickshell/start.sh" &
+	@echo ">> Waiting for wayvnc to start..."
+	@sleep 10
+	@echo ">> Opening SSH tunnel and viewer..."
+	ssh -L $(VNC_PORT):localhost:$(VNC_PORT) $(MINERVA_HOST) -N &
+	@sleep 1
+	gvncviewer localhost::$(VNC_PORT)
+
+remote-vnc-qs-kill:
+	-ssh $(MINERVA_HOST) "pkill -f wayvnc; pkill -f quickshell; pkill -f 'sway.*torchform'" 2>/dev/null; true
+	-pkill -f "ssh -L $(VNC_PORT)" 2>/dev/null; true

@@ -26,6 +26,7 @@ mod apps;
 mod audio;
 mod settings;
 mod shell;
+mod sysstate;
 
 // All Slint-generated types land here: ShellOverlay, LowerScreen,
 // TorchformEmulator, AppSettings, AppFiles, RadialItem, RadialLayer,
@@ -87,8 +88,10 @@ macro_rules! push_shell_render {
         ui.set_app_browser_visible(on_app && s.app_id == Some(AppId::Browser));
         ui.set_app_media_visible(on_app && s.app_id == Some(AppId::Media));
         ui.set_app_terminal_visible(on_app && s.app_id == Some(AppId::Terminal));
+        ui.set_app_notes_visible(on_app && s.app_id == Some(AppId::Notes));
         ui.set_app_camera_visible(false);
-        ui.set_app_network_visible(false);
+        let on_network = on_app && s.app_id == Some(AppId::Network);
+        ui.set_app_network_visible(on_network);
         ui.set_app_keyboard_visible(false);
 
         // App-widget data — Settings (two-pane)
@@ -103,6 +106,47 @@ macro_rules! push_shell_render {
         ui.set_app_files_entries(fs_read_dir(&s.files_path));
         ui.set_app_media_focused_row(*s.app_rows.get(&AppId::Media).unwrap_or(&0));
         ui.set_app_browser_focused_row(*s.app_rows.get(&AppId::Browser).unwrap_or(&0));
+        ui.set_app_network_focused_row(*s.app_rows.get(&AppId::Network).unwrap_or(&0));
+        ui.set_app_network_wifi_list(build_wifi_list(s));
+        ui.set_app_network_wifi_enabled(s.cfg.wifi);
+        ui.set_app_network_bt_enabled(s.cfg.bt);
+
+        // Sysmon app
+        let on_sysmon = on_app && s.app_id == Some(AppId::Sysmon);
+        ui.set_app_sysmon_visible(on_sysmon);
+        if on_sysmon {
+            let sm = &s.sysmon;
+            ui.set_app_sysmon_cpu_pct(sm.cpu_pct);
+            ui.set_app_sysmon_ram_pct(sm.ram_pct);
+            ui.set_app_sysmon_gpu_pct(sm.gpu_pct);
+            ui.set_app_sysmon_temp_c(sm.temp_c);
+            ui.set_app_sysmon_ram_used_mb(sm.ram_used_mb);
+            ui.set_app_sysmon_ram_total_mb(sm.ram_total_mb);
+            ui.set_app_sysmon_cpu_name(sm.cpu_name.clone().into());
+            ui.set_app_sysmon_core_pcts(Rc::new(slint::VecModel::from(sm.core_pcts.clone())).into());
+            ui.set_app_sysmon_proc_names(Rc::new(slint::VecModel::from(sm.proc_names.iter().map(|s| slint::SharedString::from(s.as_str())).collect::<Vec<_>>())).into());
+            ui.set_app_sysmon_proc_cpus(Rc::new(slint::VecModel::from(sm.proc_cpus.clone())).into());
+            ui.set_app_sysmon_proc_mems(Rc::new(slint::VecModel::from(sm.proc_mems.clone())).into());
+        }
+
+        // Logview app
+        let on_logview = on_app && s.app_id == Some(AppId::Logview);
+        ui.set_app_logview_visible(on_logview);
+        ui.set_app_logview_show_info(s.log_show_info);
+        ui.set_app_logview_show_warn(s.log_show_warn);
+        ui.set_app_logview_show_error(s.log_show_error);
+        ui.set_app_logview_show_debug(s.log_show_debug);
+        ui.set_app_logview_tail(s.log_tail);
+        if on_logview {
+            ui.set_app_logview_lines(build_log_lines(s));
+        }
+
+        // Notes app
+        ui.set_app_notes_focused_row(*s.app_rows.get(&AppId::Notes).unwrap_or(&0));
+        ui.set_app_notes_list(build_notes_list(s));
+        ui.set_app_notes_editing(s.notes_editing);
+        ui.set_app_notes_edit_title(s.notes_edit_title.clone().into());
+        ui.set_app_notes_edit_body(s.notes_edit_body.clone().into());
 
         // Radial overlay
         ui.set_radial_visible(s.radial.visible);
@@ -164,12 +208,13 @@ fn screen_enum(s: &Shell) -> ShellScreen {
 }
 
 fn lower_context(s: &Shell) -> LowerContext {
-    if s.palette.visible {
-        LowerContext::Keyboard
-    } else if s.radial.visible {
-        LowerContext::RadialMenu
-    } else {
-        LowerContext::Idle
+    use shell::TextTarget;
+    match s.active_text_target() {
+        TextTarget::Palette | TextTarget::Notes => LowerContext::Keyboard,
+        TextTarget::None => {
+            if s.radial.visible { LowerContext::RadialMenu }
+            else                { LowerContext::Idle }
+        }
     }
 }
 
@@ -245,6 +290,44 @@ fn build_notifs(s: &Shell) -> slint::ModelRc<NotifEntry> {
     Rc::new(slint::VecModel::from(v)).into()
 }
 
+fn build_log_lines(s: &Shell) -> slint::ModelRc<LogLine> {
+    let v: Vec<LogLine> = s.log_lines.iter()
+        .filter(|l| match l.level.as_str() {
+            "info"  => s.log_show_info,
+            "warn"  => s.log_show_warn,
+            "error" => s.log_show_error,
+            "debug" => s.log_show_debug,
+            _       => s.log_show_info,
+        })
+        .map(|l| LogLine {
+            level:  l.level.clone().into(),
+            source: l.source.clone().into(),
+            text:   l.text.clone().into(),
+            time:   l.time.clone().into(),
+        }).collect();
+    Rc::new(slint::VecModel::from(v)).into()
+}
+
+fn build_wifi_list(s: &Shell) -> slint::ModelRc<WifiNetwork> {
+    let v: Vec<WifiNetwork> = s.network.wifi_list.iter().map(|n| WifiNetwork {
+        ssid:      n.ssid.clone().into(),
+        signal:    n.signal,
+        secured:   n.secured,
+        connected: n.connected,
+    }).collect();
+    Rc::new(slint::VecModel::from(v)).into()
+}
+
+fn build_notes_list(s: &Shell) -> slint::ModelRc<NoteEntry> {
+    let v: Vec<NoteEntry> = s.notes_list.iter().enumerate().map(|(i, n)| NoteEntry {
+        index:   i as i32,
+        title:   n.title.clone().into(),
+        preview: n.body.chars().take(60).collect::<String>().into(),
+        time:    n.time.clone().into(),
+    }).collect();
+    Rc::new(slint::VecModel::from(v)).into()
+}
+
 fn build_qm_items() -> slint::ModelRc<QuickMenuItem> {
     let items = vec![
         QuickMenuItem { index: 0, icon: "⏻".into(),  label: "Power Off".into(), key: "power_off".into() },
@@ -292,27 +375,268 @@ fn build_hints(s: &Shell) -> slint::ModelRc<HintItem> {
 // Effects — side effects that the pure state machine cannot perform itself.
 // ===========================================================================
 
-fn apply_effects(s: &Shell, effects: &[Effect]) {
+fn apply_effects(s: &mut Shell, effects: &[Effect]) {
     for e in effects {
         match e {
             Effect::Sound(cue) => audio::play(*cue),
             Effect::LaunchExternal(id) => {
-                apps::try_launch_external(id, &s.config.apps, &s.config.launch);
+                if let Some(pid) = apps::try_launch_external(id, &s.config.apps, &s.config.launch) {
+                    if let Some(app) = shell::AppId::from_command(id) {
+                        s.pid_map.insert(app, pid);
+                    }
+                }
             }
             Effect::SaveConfig => {
                 let _ = s.config.save(&config::user_config_path());
             }
             Effect::ShowBanner(_b) => { /* TODO(M3): drive the Banner widget */ }
             Effect::Suspend => info!("System action: suspend requested"),
+            Effect::SaveNotes(notes) => save_notes_to_disk(notes),
+            Effect::KillApp(pid) => {
+                let _ = std::process::Command::new("kill")
+                    .args(["-TERM", &pid.to_string()])
+                    .spawn();
+                tracing::info!("SIGTERM sent to pid {pid}");
+            }
         }
     }
+}
+
+fn load_notes_from_disk() -> Vec<shell::Note> {
+    let path = dirs_or_home().join("torchform/notes/notes.json");
+    let Ok(data) = std::fs::read_to_string(&path) else { return vec![]; };
+    let Ok(arr)  = serde_json::from_str::<serde_json::Value>(&data) else { return vec![]; };
+    let Some(arr) = arr.as_array() else { return vec![]; };
+    arr.iter().filter_map(|v| {
+        Some(shell::Note {
+            id:    v["id"].as_u64()? as usize,
+            title: v["title"].as_str()?.to_owned(),
+            body:  v["body"].as_str()?.to_owned(),
+            time:  v["time"].as_str()?.to_owned(),
+        })
+    }).collect()
+}
+
+fn save_notes_to_disk(notes: &[shell::Note]) {
+    let dir = dirs_or_home().join("torchform/notes");
+    if std::fs::create_dir_all(&dir).is_err() { return; }
+    let path = dir.join("notes.json");
+    let json = serde_json::json!(notes.iter().map(|n| serde_json::json!({
+        "id": n.id, "title": n.title, "body": n.body, "time": n.time
+    })).collect::<Vec<_>>());
+    let _ = std::fs::write(&path, json.to_string());
+    tracing::debug!("notes saved to {}", path.display());
+}
+
+fn poll_sysmon() -> shell::SysmonData {
+    let mut sm = shell::SysmonData::default();
+
+    // CPU model name
+    if let Ok(info) = std::fs::read_to_string("/proc/cpuinfo") {
+        for line in info.lines() {
+            if let Some(name) = line.strip_prefix("model name\t: ") {
+                sm.cpu_name = name.trim().to_owned();
+                break;
+            }
+        }
+    }
+
+    // CPU & per-core usage: read /proc/stat twice with 100ms gap
+    fn read_cpu_times() -> Vec<(u64, u64)> {
+        let Ok(s) = std::fs::read_to_string("/proc/stat") else { return vec![]; };
+        s.lines().filter(|l| l.starts_with("cpu")).map(|l| {
+            let ns: Vec<u64> = l.split_whitespace().skip(1)
+                .filter_map(|x| x.parse().ok()).collect();
+            let idle  = ns.get(3).copied().unwrap_or(0) + ns.get(4).copied().unwrap_or(0);
+            let total: u64 = ns.iter().sum();
+            (idle, total)
+        }).collect()
+    }
+    let t0 = read_cpu_times();
+    std::thread::sleep(std::time::Duration::from_millis(100));
+    let t1 = read_cpu_times();
+    for (i, (a, b)) in t0.iter().zip(t1.iter()).enumerate() {
+        let dtotal = b.1.saturating_sub(a.1) as f32;
+        let didle  = b.0.saturating_sub(a.0) as f32;
+        let pct = if dtotal > 0.0 { (dtotal - didle) / dtotal } else { 0.0 };
+        if i == 0 { sm.cpu_pct = pct; } else { sm.core_pcts.push(pct); }
+    }
+
+    // RAM from /proc/meminfo
+    if let Ok(info) = std::fs::read_to_string("/proc/meminfo") {
+        let mut total_kb = 0u64;
+        let mut avail_kb = 0u64;
+        for line in info.lines() {
+            if let Some(v) = line.strip_prefix("MemTotal:") {
+                total_kb = v.split_whitespace().next().and_then(|x| x.parse().ok()).unwrap_or(0);
+            } else if let Some(v) = line.strip_prefix("MemAvailable:") {
+                avail_kb = v.split_whitespace().next().and_then(|x| x.parse().ok()).unwrap_or(0);
+            }
+        }
+        let used_kb = total_kb.saturating_sub(avail_kb);
+        sm.ram_total_mb = (total_kb / 1024) as i32;
+        sm.ram_used_mb  = (used_kb / 1024) as i32;
+        sm.ram_pct = if total_kb > 0 { used_kb as f32 / total_kb as f32 } else { 0.0 };
+    }
+
+    // CPU temp from hwmon
+    if let Ok(rd) = std::fs::read_dir("/sys/class/hwmon") {
+        'outer: for entry in rd.filter_map(|e| e.ok()) {
+            for i in 0..8u8 {
+                let p = entry.path().join(format!("temp{}_input", i));
+                if let Ok(s) = std::fs::read_to_string(&p) {
+                    if let Ok(milli) = s.trim().parse::<i32>() {
+                        sm.temp_c = milli as f32 / 1000.0;
+                        break 'outer;
+                    }
+                }
+            }
+        }
+    }
+
+    // Top processes from /proc/*/stat
+    let mut procs: Vec<(String, f32, i32)> = vec![];
+    if let Ok(rd) = std::fs::read_dir("/proc") {
+        for entry in rd.filter_map(|e| e.ok()) {
+            let name = entry.file_name();
+            let pid_str = name.to_string_lossy();
+            if !pid_str.chars().all(|c| c.is_ascii_digit()) { continue; }
+            let stat_path = entry.path().join("stat");
+            let Ok(stat) = std::fs::read_to_string(&stat_path) else { continue; };
+            let parts: Vec<&str> = stat.splitn(52, ' ').collect();
+            if parts.len() < 24 { continue; }
+            // comm is field 2, surrounded by parens
+            let comm = parts[1].trim_matches(|c| c == '(' || c == ')').to_owned();
+            let utime: u64 = parts[13].parse().unwrap_or(0);
+            let stime: u64 = parts[14].parse().unwrap_or(0);
+            let rss:   i64 = parts[23].parse().unwrap_or(0);
+            let cpu_ticks = (utime + stime) as f32;
+            let mem_kb = (rss * 4) as i32; // 4 KB pages
+            procs.push((comm, cpu_ticks, mem_kb / 1024));
+        }
+    }
+    procs.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+    procs.truncate(12);
+    let tick_scale = 1.0f32 / 100.0; // rough normalisation
+    sm.proc_names = procs.iter().map(|(n, _, _)| n.clone()).collect();
+    sm.proc_cpus  = procs.iter().map(|(_, c, _)| (c * tick_scale).min(100.0)).collect();
+    sm.proc_mems  = procs.iter().map(|(_, _, m)| *m).collect();
+
+    sm
+}
+
+/// Run `nmcli -t -f SSID,SIGNAL,SECURITY,IN-USE device wifi list` and parse.
+fn scan_wifi() -> Vec<shell::WifiNet> {
+    let Ok(out) = std::process::Command::new("nmcli")
+        .args(["-t", "-f", "IN-USE,SSID,SIGNAL,SECURITY", "device", "wifi", "list"])
+        .output()
+    else {
+        return vec![
+            shell::WifiNet { ssid: "TorchformAP".into(),  signal: 87, secured: true,  connected: true  },
+            shell::WifiNet { ssid: "Neighbor_5G".into(),  signal: 62, secured: true,  connected: false },
+            shell::WifiNet { ssid: "OpenCoffeeNet".into(),signal: 41, secured: false, connected: false },
+        ];
+    };
+    let text = String::from_utf8_lossy(&out.stdout);
+    text.lines().filter_map(|line| {
+        // nmcli -t separates fields with ':'  ; IN-USE is '*' or ' '
+        let parts: Vec<&str> = line.splitn(4, ':').collect();
+        if parts.len() < 4 { return None; }
+        let connected = parts[0].trim() == "*";
+        let ssid     = parts[1].trim().to_owned();
+        let signal: i32 = parts[2].trim().parse().unwrap_or(0);
+        let secured  = !parts[3].trim().is_empty() && parts[3].trim() != "--";
+        if ssid.is_empty() { return None; }
+        Some(shell::WifiNet { ssid, signal, secured, connected })
+    }).collect()
+}
+
+fn nmcli_connect(ssid: &str) {
+    let _ = std::process::Command::new("nmcli")
+        .args(["device", "wifi", "connect", ssid])
+        .spawn();
+}
+
+/// Spawn a journalctl -f reader thread; returns the shared buffer.
+/// On non-Linux or if journalctl is absent, seeds a few static lines.
+fn spawn_log_reader() -> std::sync::Arc<std::sync::Mutex<Vec<shell::LogEntry>>> {
+    use std::sync::{Arc, Mutex};
+    let buf: Arc<Mutex<Vec<shell::LogEntry>>> = Arc::new(Mutex::new(vec![
+        shell::LogEntry { level: "info".into(),  source: "torchform".into(), text: "Shell started".into(),        time: "now".into() },
+        shell::LogEntry { level: "info".into(),  source: "kernel".into(),    text: "system ready".into(),         time: "now".into() },
+        shell::LogEntry { level: "warn".into(),  source: "compositor".into(),text: "no DRM/KMS backend".into(),   time: "now".into() },
+        shell::LogEntry { level: "debug".into(), source: "inputd".into(),    text: "no gamepad detected".into(),  time: "now".into() },
+    ]));
+    let buf2 = buf.clone();
+    std::thread::spawn(move || {
+        use std::io::BufRead;
+        // Try journalctl --follow --output=short-iso --no-pager
+        let Ok(mut child) = std::process::Command::new("journalctl")
+            .args(["--follow", "--output=short-iso", "--no-pager", "-n", "200"])
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+        else { return; };
+        let Some(stdout) = child.stdout.take() else { return; };
+        for line in std::io::BufReader::new(stdout).lines() {
+            let Ok(line) = line else { break; };
+            let entry = parse_journal_line(&line);
+            let mut lock = buf2.lock().unwrap();
+            lock.push(entry);
+            if lock.len() > 2000 { lock.drain(..500); }
+        }
+    });
+    buf
+}
+
+fn parse_journal_line(line: &str) -> shell::LogEntry {
+    // journalctl short-iso format:
+    //   2026-05-22T14:01:23+0000 hostname process[pid]: MESSAGE
+    let (time_part, rest) = line.split_once(' ').unwrap_or(("", line));
+    let time = time_part.get(11..16).unwrap_or("??:??").to_owned(); // HH:MM
+
+    let (source, text) = if let Some(idx) = rest.find(": ") {
+        let src_raw = &rest[..idx];
+        let msg = &rest[idx + 2..];
+        // src_raw = "hostname process[pid]" — take last word before bracket
+        let src = src_raw.split_whitespace().last()
+            .and_then(|s| s.split('[').next())
+            .unwrap_or(src_raw)
+            .to_owned();
+        (src, msg.to_owned())
+    } else {
+        ("sys".to_owned(), rest.to_owned())
+    };
+
+    let level = if text.contains("error") || text.contains("Error") || text.contains("ERROR") || text.contains("fail") { "error" }
+        else if text.contains("warn") || text.contains("Warn") || text.contains("WARNING") { "warn" }
+        else if text.contains("debug") || text.contains("Debug") || text.contains("DEBUG") { "debug" }
+        else { "info" };
+
+    shell::LogEntry { level: level.into(), source, text, time }
+}
+
+fn dirs_or_home() -> std::path::PathBuf {
+    std::env::var("XDG_DATA_HOME")
+        .map(std::path::PathBuf::from)
+        .unwrap_or_else(|_| {
+            let home = std::env::var("HOME").unwrap_or_else(|_| "/root".into());
+            std::path::PathBuf::from(home).join(".local/share")
+        })
 }
 
 // ---------------------------------------------------------------------------
 // Gamepad thread — reads HID controllers via gilrs, maps to ShellAction
 // ---------------------------------------------------------------------------
 
-fn spawn_gamepad_thread(tx: mpsc::Sender<ShellAction>) {
+/// Events from the gamepad thread. Button presses carry the raw name so the
+/// main thread can resolve them with the correct KeybindContext.
+enum GpEvent {
+    Button(String),                          // raw button name e.g. "button_a"
+    Stick(ShellAction),                      // pre-built StickMoved (no context needed)
+}
+
+fn spawn_gamepad_thread(tx: mpsc::Sender<GpEvent>) {
     std::thread::spawn(move || {
         let mut gilrs = match gilrs::Gilrs::new() {
             Ok(g) => g,
@@ -323,26 +647,25 @@ fn spawn_gamepad_thread(tx: mpsc::Sender<ShellAction>) {
         };
         info!("Gamepad thread started ({} gamepads detected)",
               gilrs.gamepads().count());
-        let map = InputMap::load();
         let mut stick_x = 0.0f32;
         let mut stick_y = 0.0f32;
         loop {
             while let Some(ev) = gilrs.next_event() {
                 use gilrs::{Axis, EventType};
-                let action = match ev.event {
+                let event = match ev.event {
                     EventType::AxisChanged(Axis::LeftStickX, v, _) => {
                         stick_x = v;
-                        Some(ShellAction::StickMoved { x: stick_x, y: stick_y })
+                        Some(GpEvent::Stick(ShellAction::StickMoved { x: stick_x, y: stick_y }))
                     }
                     EventType::AxisChanged(Axis::LeftStickY, v, _) => {
                         stick_y = -v; // gilrs Y+ = up, shell Y+ = down
-                        Some(ShellAction::StickMoved { x: stick_x, y: stick_y })
+                        Some(GpEvent::Stick(ShellAction::StickMoved { x: stick_x, y: stick_y }))
                     }
                     other => gilrs_event_to_raw(other)
-                                .and_then(|raw| map.resolve(&RawInput::new(raw))),
+                                .map(|raw| GpEvent::Button(raw.to_owned())),
                 };
-                if let Some(a) = action {
-                    if tx.send(a).is_err() { return; }
+                if let Some(e) = event {
+                    if tx.send(e).is_err() { return; }
                 }
             }
             std::thread::sleep(Duration::from_millis(4)); // 250 Hz poll
@@ -556,8 +879,11 @@ fn settings_section_title(s: &Shell) -> String {
 fn dispatch_emu(cell: &Rc<RefCell<Shell>>, action: ShellAction, emu: &TorchformEmulator) {
     let effects = cell.borrow_mut().handle(action);
     {
+        let mut s = cell.borrow_mut();
+        apply_effects(&mut s, &effects);
+    }
+    {
         let s = cell.borrow();
-        apply_effects(&s, &effects);
         render_emu(emu, &s);
     }
     for e in &effects {
@@ -581,8 +907,13 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
     apply_theme_emu(&emu, &cfg.theme.resolve());
     let shell = Rc::new(RefCell::new(Shell::new(cfg)));
 
-    let (gp_tx, gp_rx) = mpsc::channel::<ShellAction>();
+    shell.borrow_mut().notes_list = load_notes_from_disk();
+    shell.borrow_mut().network.wifi_list = scan_wifi();
+    let log_buf = spawn_log_reader();
+
+    let (gp_tx, gp_rx) = mpsc::channel::<GpEvent>();
     spawn_gamepad_thread(gp_tx);
+    let gp_map = InputMap::load();
 
     macro_rules! key_cb {
         ($action:expr) => {{
@@ -654,7 +985,8 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         let e = emu.as_weak(); let sh = shell.clone();
         move |i| {
             if let Some(e) = e.upgrade() {
-                sh.borrow_mut().switcher_close(i as usize);
+                let effects = sh.borrow_mut().switcher_close(i as usize);
+                apply_effects(&mut sh.borrow_mut(), &effects);
                 render_emu(&e, &sh.borrow());
             }
         }
@@ -686,7 +1018,8 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         let e = emu.as_weak(); let sh = shell.clone();
         move || {
             if let Some(e) = e.upgrade() {
-                sh.borrow_mut().secondary();
+                let effects = sh.borrow_mut().secondary();
+                apply_effects(&mut sh.borrow_mut(), &effects);
                 render_emu(&e, &sh.borrow());
             }
         }
@@ -695,7 +1028,9 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         let e = emu.as_weak(); let sh = shell.clone();
         move |v| {
             if let Some(e) = e.upgrade() {
-                sh.borrow_mut().cfg.vol = v.clamp(0, 100);
+                let v = v.clamp(0, 100);
+                sh.borrow_mut().cfg.vol = v;
+                sysstate::set_volume(v);
                 render_emu(&e, &sh.borrow());
             }
         }
@@ -704,7 +1039,9 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         let e = emu.as_weak(); let sh = shell.clone();
         move |v| {
             if let Some(e) = e.upgrade() {
-                sh.borrow_mut().cfg.bright = v.clamp(0, 100);
+                let v = v.clamp(0, 100);
+                sh.borrow_mut().cfg.bright = v;
+                sysstate::set_brightness(v);
                 render_emu(&e, &sh.borrow());
             }
         }
@@ -736,6 +1073,38 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
             }
         }
     });
+    emu.on_app_network_connect_wifi({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move |ssid| {
+            if let Some(e) = e.upgrade() {
+                nmcli_connect(ssid.as_str());
+                sh.borrow_mut().network.wifi_list = scan_wifi();
+                render_emu(&e, &sh.borrow());
+            }
+        }
+    });
+    emu.on_app_network_toggle_wifi({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(e) = e.upgrade() {
+                { let mut s = sh.borrow_mut(); s.cfg.wifi = !s.cfg.wifi; }
+                sh.borrow_mut().network.wifi_list = scan_wifi();
+                render_emu(&e, &sh.borrow());
+            }
+        }
+    });
+    emu.on_app_network_toggle_bt({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(e) = e.upgrade() {
+                { let mut s = sh.borrow_mut(); s.cfg.bt = !s.cfg.bt; }
+                render_emu(&e, &sh.borrow());
+            }
+        }
+    });
+    emu.on_app_network_toggle_cellular(key_cb!(ShellAction::Cancel)); // stub
+    emu.on_app_network_toggle_vpn(key_cb!(ShellAction::Cancel));     // stub
+
     emu.on_qm_item_activated({
         let e = emu.as_weak(); let sh = shell.clone();
         move |key| {
@@ -851,8 +1220,7 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         let e = emu.as_weak(); let sh = shell.clone();
         move |k| {
             if let Some(e) = e.upgrade() {
-                sh.borrow_mut().palette.append_char(k.chars().next().unwrap_or(' '));
-                render_emu(&e, &sh.borrow());
+                dispatch_emu(&sh, ShellAction::LowerKeyPress { key: k.to_string() }, &e);
             }
         }
     });
@@ -860,21 +1228,93 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         let e = emu.as_weak(); let sh = shell.clone();
         move || {
             if let Some(e) = e.upgrade() {
-                sh.borrow_mut().palette.backspace();
-                render_emu(&e, &sh.borrow());
+                dispatch_emu(&sh, ShellAction::LowerBackspace, &e);
             }
         }
     });
     emu.on_lower_submit(key_cb!(ShellAction::Confirm));
 
-    // Gamepad drain timer
+    emu.on_app_notes_new({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(e) = e.upgrade() {
+                dispatch_emu(&sh, ShellAction::Confirm, &e);
+            }
+        }
+    });
+    emu.on_app_notes_open({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move |i| {
+            if let Some(e) = e.upgrade() {
+                sh.borrow_mut().app_rows.insert(AppId::Notes, i);
+                dispatch_emu(&sh, ShellAction::Confirm, &e);
+            }
+        }
+    });
+    emu.on_app_notes_save({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move |title, body| {
+            if let Some(e) = e.upgrade() {
+                {
+                    let mut s = sh.borrow_mut();
+                    s.notes_edit_title = title.to_string();
+                    s.notes_edit_body  = body.to_string();
+                }
+                dispatch_emu(&sh, ShellAction::Confirm, &e);
+            }
+        }
+    });
+    emu.on_app_notes_delete({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move |i| {
+            if let Some(e) = e.upgrade() {
+                {
+                    let mut s = sh.borrow_mut();
+                    let idx = i as usize;
+                    if idx < s.notes_list.len() {
+                        s.notes_list.remove(idx);
+                        let effects = vec![shell::Effect::SaveNotes(s.notes_list.clone())];
+                        apply_effects(&mut s, &effects);
+                    }
+                }
+                render_emu(&e, &sh.borrow());
+            }
+        }
+    });
+    emu.on_app_notes_back({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(e) = e.upgrade() {
+                {
+                    let mut s = sh.borrow_mut();
+                    s.notes_editing = false;
+                }
+                render_emu(&e, &sh.borrow());
+            }
+        }
+    });
+
+    // Gamepad drain timer — resolve button events with the current context
     let gp_timer = slint::Timer::default();
     gp_timer.start(slint::TimerMode::Repeated, Duration::from_millis(8), {
         let e = emu.as_weak(); let sh = shell.clone();
         move || {
-            while let Ok(event) = gp_rx.try_recv() {
+            while let Ok(ev) = gp_rx.try_recv() {
                 if let Some(e) = e.upgrade() {
-                    dispatch_emu(&sh, event, &e);
+                    let action = match ev {
+                        GpEvent::Stick(a) => Some(a),
+                        GpEvent::Button(raw) => {
+                            let ctx = if sh.borrow().screen == Screen::App {
+                                torchform_actions::KeybindContext::App
+                            } else {
+                                torchform_actions::KeybindContext::Shell
+                            };
+                            gp_map.resolve_ctx(&RawInput::new(&raw), ctx)
+                        }
+                    };
+                    if let Some(a) = action {
+                        dispatch_emu(&sh, a, &e);
+                    }
                 }
             }
         }
@@ -917,9 +1357,92 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
         }
     });
 
+    // Battery poll — update every 30 seconds
+    let batt_timer = slint::Timer::default();
+    batt_timer.start(slint::TimerMode::Repeated, Duration::from_secs(30), {
+        let e = emu.as_weak();
+        move || {
+            if let Some(e) = e.upgrade() {
+                if let Some(pct) = sysstate::read_battery() {
+                    e.set_battery_pct(pct);
+                    e.set_lower_battery_pct(pct);
+                }
+            }
+        }
+    });
+
+    // Sysmon poll — update every 2 seconds (only when sysmon app is visible)
+    let sysmon_timer = slint::Timer::default();
+    sysmon_timer.start(slint::TimerMode::Repeated, Duration::from_secs(2), {
+        let e = emu.as_weak(); let sh = shell.clone();
+        move || {
+            if sh.borrow().app_id == Some(AppId::Sysmon) && sh.borrow().screen == Screen::App {
+                let data = poll_sysmon();
+                sh.borrow_mut().sysmon = data;
+                if let Some(e) = e.upgrade() { render_emu(&e, &sh.borrow()); }
+            }
+        }
+    });
+
+    // Logview callbacks
+    emu.on_app_logview_toggle_level({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move |level| {
+            if let Some(e) = e.upgrade() {
+                {
+                    let mut s = sh.borrow_mut();
+                    match level.as_str() {
+                        "info"  => s.log_show_info  = !s.log_show_info,
+                        "warn"  => s.log_show_warn  = !s.log_show_warn,
+                        "error" => s.log_show_error = !s.log_show_error,
+                        "debug" => s.log_show_debug = !s.log_show_debug,
+                        _ => {}
+                    }
+                }
+                render_emu(&e, &sh.borrow());
+            }
+        }
+    });
+    emu.on_app_logview_toggle_tail({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(e) = e.upgrade() {
+                { let mut s = sh.borrow_mut(); s.log_tail = !s.log_tail; }
+                render_emu(&e, &sh.borrow());
+            }
+        }
+    });
+    emu.on_app_logview_clear({
+        let e = emu.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(e) = e.upgrade() {
+                sh.borrow_mut().log_lines.clear();
+                render_emu(&e, &sh.borrow());
+            }
+        }
+    });
+
+    // Log drain — pull new lines from journalctl thread every 500ms
+    let log_timer = slint::Timer::default();
+    log_timer.start(slint::TimerMode::Repeated, Duration::from_millis(500), {
+        let e = emu.as_weak(); let sh = shell.clone();
+        move || {
+            if sh.borrow().app_id == Some(AppId::Logview) && sh.borrow().screen == Screen::App {
+                let new_lines: Vec<shell::LogEntry> = log_buf.lock().unwrap().drain(..).collect();
+                if !new_lines.is_empty() {
+                    sh.borrow_mut().log_lines.extend(new_lines);
+                    if let Some(e) = e.upgrade() { render_emu(&e, &sh.borrow()); }
+                }
+            }
+        }
+    });
+
     emu.run()?;
     // Keep timers alive until window closes.
     drop(clock_timer);
+    drop(batt_timer);
+    drop(sysmon_timer);
+    drop(log_timer);
     Ok(())
 }
 
@@ -930,8 +1453,11 @@ fn run_emulator(demo_mode: Option<&str>) -> Result<()> {
 fn dispatch_shell(cell: &Rc<RefCell<Shell>>, action: ShellAction, win: &ShellOverlay) {
     let effects = cell.borrow_mut().handle(action);
     {
+        let mut s = cell.borrow_mut();
+        apply_effects(&mut s, &effects);
+    }
+    {
         let s = cell.borrow();
-        apply_effects(&s, &effects);
         render_shell(win, &s);
     }
     for e in &effects {
@@ -960,8 +1486,13 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     apply_theme_shell(&win, &cfg.theme.resolve());
     let shell = Rc::new(RefCell::new(Shell::new(cfg)));
 
-    let (gp_tx, gp_rx) = mpsc::channel::<ShellAction>();
+    shell.borrow_mut().notes_list = load_notes_from_disk();
+    shell.borrow_mut().network.wifi_list = scan_wifi();
+    let log_buf = spawn_log_reader();
+
+    let (gp_tx, gp_rx) = mpsc::channel::<GpEvent>();
     spawn_gamepad_thread(gp_tx);
+    let gp_map = InputMap::load();
 
     macro_rules! key_cb {
         ($action:expr) => {{
@@ -1030,7 +1561,8 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         let w = win.as_weak(); let sh = shell.clone();
         move |i| {
             if let Some(w) = w.upgrade() {
-                sh.borrow_mut().switcher_close(i as usize);
+                let effects = sh.borrow_mut().switcher_close(i as usize);
+                apply_effects(&mut sh.borrow_mut(), &effects);
                 render_shell(&w, &sh.borrow());
             }
         }
@@ -1060,7 +1592,8 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         let w = win.as_weak(); let sh = shell.clone();
         move || {
             if let Some(w) = w.upgrade() {
-                sh.borrow_mut().secondary();
+                let effects = sh.borrow_mut().secondary();
+                apply_effects(&mut sh.borrow_mut(), &effects);
                 render_shell(&w, &sh.borrow());
             }
         }
@@ -1069,7 +1602,9 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         let w = win.as_weak(); let sh = shell.clone();
         move |v| {
             if let Some(w) = w.upgrade() {
-                sh.borrow_mut().cfg.vol = v.clamp(0, 100);
+                let v = v.clamp(0, 100);
+                sh.borrow_mut().cfg.vol = v;
+                sysstate::set_volume(v);
                 render_shell(&w, &sh.borrow());
             }
         }
@@ -1078,7 +1613,9 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         let w = win.as_weak(); let sh = shell.clone();
         move |v| {
             if let Some(w) = w.upgrade() {
-                sh.borrow_mut().cfg.bright = v.clamp(0, 100);
+                let v = v.clamp(0, 100);
+                sh.borrow_mut().cfg.bright = v;
+                sysstate::set_brightness(v);
                 render_shell(&w, &sh.borrow());
             }
         }
@@ -1110,6 +1647,38 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
             }
         }
     });
+    win.on_app_network_connect_wifi({
+        let w = win.as_weak(); let sh = shell.clone();
+        move |ssid| {
+            if let Some(w) = w.upgrade() {
+                nmcli_connect(ssid.as_str());
+                sh.borrow_mut().network.wifi_list = scan_wifi();
+                render_shell(&w, &sh.borrow());
+            }
+        }
+    });
+    win.on_app_network_toggle_wifi({
+        let w = win.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(w) = w.upgrade() {
+                { let mut s = sh.borrow_mut(); s.cfg.wifi = !s.cfg.wifi; }
+                sh.borrow_mut().network.wifi_list = scan_wifi();
+                render_shell(&w, &sh.borrow());
+            }
+        }
+    });
+    win.on_app_network_toggle_bt({
+        let w = win.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(w) = w.upgrade() {
+                { let mut s = sh.borrow_mut(); s.cfg.bt = !s.cfg.bt; }
+                render_shell(&w, &sh.borrow());
+            }
+        }
+    });
+    win.on_app_network_toggle_cellular(key_cb!(ShellAction::Cancel)); // stub
+    win.on_app_network_toggle_vpn(key_cb!(ShellAction::Cancel));     // stub
+
     win.on_qm_item_activated({
         let w = win.as_weak(); let sh = shell.clone();
         move |key| {
@@ -1221,8 +1790,7 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         let w = win.as_weak(); let sh = shell.clone();
         move |k| {
             if let Some(w) = w.upgrade() {
-                sh.borrow_mut().palette.append_char(k.chars().next().unwrap_or(' '));
-                render_shell(&w, &sh.borrow());
+                dispatch_shell(&sh, ShellAction::LowerKeyPress { key: k.to_string() }, &w);
             }
         }
     });
@@ -1230,8 +1798,7 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         let w = win.as_weak(); let sh = shell.clone();
         move || {
             if let Some(w) = w.upgrade() {
-                sh.borrow_mut().palette.backspace();
-                render_shell(&w, &sh.borrow());
+                dispatch_shell(&sh, ShellAction::LowerBackspace, &w);
             }
         }
     });
@@ -1240,6 +1807,66 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         move || {
             if let Some(w) = w.upgrade() {
                 dispatch_shell(&sh, ShellAction::Confirm, &w);
+            }
+        }
+    });
+
+    win.on_app_notes_new({
+        let w = win.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(w) = w.upgrade() {
+                dispatch_shell(&sh, ShellAction::Confirm, &w);
+            }
+        }
+    });
+    win.on_app_notes_open({
+        let w = win.as_weak(); let sh = shell.clone();
+        move |i| {
+            if let Some(w) = w.upgrade() {
+                sh.borrow_mut().app_rows.insert(AppId::Notes, i);
+                dispatch_shell(&sh, ShellAction::Confirm, &w);
+            }
+        }
+    });
+    win.on_app_notes_save({
+        let w = win.as_weak(); let sh = shell.clone();
+        move |title, body| {
+            if let Some(w) = w.upgrade() {
+                {
+                    let mut s = sh.borrow_mut();
+                    s.notes_edit_title = title.to_string();
+                    s.notes_edit_body  = body.to_string();
+                }
+                dispatch_shell(&sh, ShellAction::Confirm, &w);
+            }
+        }
+    });
+    win.on_app_notes_delete({
+        let w = win.as_weak(); let sh = shell.clone();
+        move |i| {
+            if let Some(w) = w.upgrade() {
+                {
+                    let mut s = sh.borrow_mut();
+                    let idx = i as usize;
+                    if idx < s.notes_list.len() {
+                        s.notes_list.remove(idx);
+                        let effects = vec![shell::Effect::SaveNotes(s.notes_list.clone())];
+                        apply_effects(&mut s, &effects);
+                    }
+                }
+                render_shell(&w, &sh.borrow());
+            }
+        }
+    });
+    win.on_app_notes_back({
+        let w = win.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(w) = w.upgrade() {
+                {
+                    let mut s = sh.borrow_mut();
+                    s.notes_editing = false;
+                }
+                render_shell(&w, &sh.borrow());
             }
         }
     });
@@ -1256,9 +1883,22 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
     gp_timer.start(slint::TimerMode::Repeated, Duration::from_millis(8), {
         let w = win.as_weak(); let sh = shell.clone();
         move || {
-            while let Ok(event) = gp_rx.try_recv() {
+            while let Ok(ev) = gp_rx.try_recv() {
                 if let Some(w) = w.upgrade() {
-                    dispatch_shell(&sh, event, &w);
+                    let action = match ev {
+                        GpEvent::Stick(a) => Some(a),
+                        GpEvent::Button(raw) => {
+                            let ctx = if sh.borrow().screen == Screen::App {
+                                torchform_actions::KeybindContext::App
+                            } else {
+                                torchform_actions::KeybindContext::Shell
+                            };
+                            gp_map.resolve_ctx(&RawInput::new(&raw), ctx)
+                        }
+                    };
+                    if let Some(a) = action {
+                        dispatch_shell(&sh, a, &w);
+                    }
                 }
             }
         }
@@ -1313,10 +1953,91 @@ fn run_standalone(demo_mode: Option<&str>) -> Result<()> {
         }
     });
 
+    // Battery poll — update every 30 seconds
+    let batt_timer = slint::Timer::default();
+    batt_timer.start(slint::TimerMode::Repeated, Duration::from_secs(30), {
+        let w = win.as_weak(); let l = lower.as_weak();
+        move || {
+            if let Some(pct) = sysstate::read_battery() {
+                if let Some(w) = w.upgrade() { w.set_battery_pct(pct); }
+                if let Some(l) = l.upgrade() { l.set_battery_pct(pct); }
+            }
+        }
+    });
+
+    // Sysmon poll — update every 2 seconds (only when sysmon app is visible)
+    let sysmon_timer = slint::Timer::default();
+    sysmon_timer.start(slint::TimerMode::Repeated, Duration::from_secs(2), {
+        let w = win.as_weak(); let sh = shell.clone();
+        move || {
+            if sh.borrow().app_id == Some(AppId::Sysmon) && sh.borrow().screen == Screen::App {
+                let data = poll_sysmon();
+                sh.borrow_mut().sysmon = data;
+                if let Some(w) = w.upgrade() { render_shell(&w, &sh.borrow()); }
+            }
+        }
+    });
+
+    // Logview callbacks
+    win.on_app_logview_toggle_level({
+        let w = win.as_weak(); let sh = shell.clone();
+        move |level| {
+            if let Some(w) = w.upgrade() {
+                {
+                    let mut s = sh.borrow_mut();
+                    match level.as_str() {
+                        "info"  => s.log_show_info  = !s.log_show_info,
+                        "warn"  => s.log_show_warn  = !s.log_show_warn,
+                        "error" => s.log_show_error = !s.log_show_error,
+                        "debug" => s.log_show_debug = !s.log_show_debug,
+                        _ => {}
+                    }
+                }
+                render_shell(&w, &sh.borrow());
+            }
+        }
+    });
+    win.on_app_logview_toggle_tail({
+        let w = win.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(w) = w.upgrade() {
+                { let mut s = sh.borrow_mut(); s.log_tail = !s.log_tail; }
+                render_shell(&w, &sh.borrow());
+            }
+        }
+    });
+    win.on_app_logview_clear({
+        let w = win.as_weak(); let sh = shell.clone();
+        move || {
+            if let Some(w) = w.upgrade() {
+                sh.borrow_mut().log_lines.clear();
+                render_shell(&w, &sh.borrow());
+            }
+        }
+    });
+
+    // Log drain — pull new lines from journalctl thread every 500ms
+    let log_timer = slint::Timer::default();
+    log_timer.start(slint::TimerMode::Repeated, Duration::from_millis(500), {
+        let w = win.as_weak(); let sh = shell.clone();
+        move || {
+            if sh.borrow().app_id == Some(AppId::Logview) && sh.borrow().screen == Screen::App {
+                let new_lines: Vec<shell::LogEntry> = log_buf.lock().unwrap().drain(..).collect();
+                if !new_lines.is_empty() {
+                    sh.borrow_mut().log_lines.extend(new_lines);
+                    if let Some(w) = w.upgrade() { render_shell(&w, &sh.borrow()); }
+                }
+            }
+        }
+    });
+
     lower.show()?;
     win.run()?;
     // Keep timers alive until window closes.
     drop(clock_timer);
+    drop(batt_timer);
+    drop(sysmon_timer);
+    drop(log_timer);
     Ok(())
 }
 

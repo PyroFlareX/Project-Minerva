@@ -36,9 +36,9 @@ component CommandRow inherits Rectangle {
 
     callback activated();
 
-    height: 52px;
+    height: 60px;
     border-radius: Tokens.radius-md;
-    background: focused ? Tokens.primary.with-alpha(0.13) : transparent;
+    background: focused ? Tokens.accent.with-alpha(0.13) : transparent;
     animate background { duration: Tokens.anim-fast; }
 
     // Focus accent bar
@@ -80,7 +80,7 @@ component CommandRow inherits Rectangle {
                 font-size: Tokens.text-md;
                 font-family: Tokens.font-sans;
                 font-weight: Tokens.weight-medium;
-                color: focused ? Tokens.text-primary : Tokens.text-primary;
+                color: focused ? Tokens.accent : Tokens.text-primary;
             }
             Text {
                 text: entry.description;
@@ -97,7 +97,7 @@ component CommandRow inherits Rectangle {
         // Category chip
         Rectangle {
             width: cat-text.preferred-width + Tokens.space-3;
-            height: 20px;
+            height: 24px;
             border-radius: Tokens.radius-sm;
             background: Tokens.bg-elevated;
             cat-text := Text {
@@ -146,8 +146,7 @@ export component CommandPalette inherits Rectangle {
     width:  100%;
     height: 100%;
     background: Tokens.bg-overlay;
-
-    opacity: visible-prop ? 1.0 : 0.0;
+    visible: visible-prop;
     animate opacity { duration: Tokens.anim-normal; }
 
     panel := Rectangle {
@@ -172,7 +171,7 @@ export component CommandPalette inherits Rectangle {
             // Search bar (display-only — input comes from Rust backend)
             // -----------------------------------------------------------------
             search-bar := Rectangle {
-                height: 48px;
+                height: 56px;
                 border-radius: Tokens.radius-md;
                 background: Tokens.bg-surface;
                 border-width: 1px;
@@ -225,7 +224,7 @@ export component CommandPalette inherits Rectangle {
 
             // -----------------------------------------------------------------
             // Results list — clip rect with a translated VerticalLayout.
-            // Row stride = 52px height + 4px spacing = 56px.
+            // Row stride = 60px height + 4px spacing = 64px.
             // The layout's y is driven reactively by focused-index so the
             // focused row stays centred; clamped to never scroll past the ends.
             // (Using a plain Rectangle+y instead of ScrollView avoids the
@@ -241,8 +240,8 @@ export component CommandPalette inherits Rectangle {
                     // y < 0  → content pulled up (scrolled down)
                     // Clamp: never go below top (0) or past bottom of content.
                     y: min(0px, max(
-                        parent.height - entries.length * 56px,
-                        (parent.height - 56px) / 2 - focused-index * 56px
+                        parent.height - entries.length * 64px,
+                        (parent.height - 64px) / 2 - focused-index * 64px
                     ));
 
                     for entry[idx] in entries: CommandRow {
@@ -271,36 +270,38 @@ export component CommandPalette inherits Rectangle {
             // Footer — input hint bar
             // -----------------------------------------------------------------
             Rectangle {
-                height: 28px;
+                height: 34px;
                 background: transparent;
+                Rectangle { x: 0; y: 0; width: parent.width; height: 1px; background: Tokens.border-subtle; }
                 HorizontalLayout {
                     spacing: Tokens.space-6;
                     alignment: center;
+                    height: parent.height;
                     Text {
-                        text: "D-pad ↑↓ navigate";
-                        font-size: Tokens.text-xs;
-                        font-family: Tokens.font-sans;
+                        text: "↑↓ navigate";
+                        font-size: Tokens.text-sm;
+                        font-family: Tokens.font-mono;
                         color: Tokens.text-disabled;
                         vertical-alignment: center;
                     }
                     Text {
                         text: "A confirm";
-                        font-size: Tokens.text-xs;
-                        font-family: Tokens.font-sans;
+                        font-size: Tokens.text-sm;
+                        font-family: Tokens.font-mono;
                         color: Tokens.text-disabled;
                         vertical-alignment: center;
                     }
                     Text {
                         text: "B dismiss";
-                        font-size: Tokens.text-xs;
-                        font-family: Tokens.font-sans;
+                        font-size: Tokens.text-sm;
+                        font-family: Tokens.font-mono;
                         color: Tokens.text-disabled;
                         vertical-alignment: center;
                     }
                     Text {
                         text: "Select → voice";
-                        font-size: Tokens.text-xs;
-                        font-family: Tokens.font-sans;
+                        font-size: Tokens.text-sm;
+                        font-family: Tokens.font-mono;
                         color: Tokens.text-disabled;
                         vertical-alignment: center;
                     }

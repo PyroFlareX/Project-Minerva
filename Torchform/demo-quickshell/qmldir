@@ -1,0 +1,15 @@
+module TorchformDemo
+singleton Tokens 1.0 Tokens.qml
+StatusBar 1.0 StatusBar.qml
+HintBar 1.0 HintBar.qml
+LockScreen 1.0 LockScreen.qml
+HomeScreen 1.0 HomeScreen.qml
+AppWindow 1.0 AppWindow.qml
+RadialMenu 1.0 RadialMenu.qml
+CommandPalette 1.0 CommandPalette.qml
+AppSwitcher 1.0 AppSwitcher.qml
+QuickSettings 1.0 QuickSettings.qml
+Notifications 1.0 Notifications.qml
+WiFiPanel 1.0 WiFiPanel.qml
+BluetoothPanel 1.0 BluetoothPanel.qml
+LowerPanel 1.0 LowerPanel.qml

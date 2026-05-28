@@ -5,10 +5,10 @@
 	(uuid "e63e39d7-6ac0-4ffd-8aa3-1841a4541b55")
 	(paper "A4")
 	(title_block
-		(title "Compute Module 5 IO Board - Top Level")
+		(title "Minerva Carrier Board")
 		(rev "1")
-		(company "Copyright © 2024 Raspberry Pi Ltd.")
-		(comment 1 "www.raspberrypi.com")
+		(company "Zack Dell")
+		(comment 1 "zackdell.com")
 	)
 	(lib_symbols
 		(symbol "Battery_Management:BQ25798"
@@ -3154,7 +3154,7 @@
 	)
 	(wire
 		(pts
-			(xy 147.32 168.91) (xy 148.59 168.91)
+			(xy 97.79 177.8) (xy 99.06 177.8)
 		)
 		(stroke
 			(width 0)
@@ -3214,7 +3214,7 @@
 	)
 	(wire
 		(pts
-			(xy 157.48 168.91) (xy 157.48 170.18)
+			(xy 107.95 177.8) (xy 107.95 179.07)
 		)
 		(stroke
 			(width 0)
@@ -3584,7 +3584,7 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 168.91) (xy 157.48 168.91)
+			(xy 106.68 177.8) (xy 107.95 177.8)
 		)
 		(stroke
 			(width 0)
@@ -3774,7 +3774,7 @@
 	)
 	(wire
 		(pts
-			(xy 140.97 168.91) (xy 142.24 168.91)
+			(xy 91.44 177.8) (xy 92.71 177.8)
 		)
 		(stroke
 			(width 0)
@@ -4393,7 +4393,7 @@
 		(uuid "28c76331-1bb2-429e-88ba-1bacab9de126")
 	)
 	(label "CRG_IND_SIG"
-		(at 140.97 168.91 180)
+		(at 91.44 177.8 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4694,7 +4694,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 22.86 175.895 0)
+		(at 248.92 113.03 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim yes)
@@ -4704,7 +4704,7 @@
 		(dnp yes)
 		(uuid "00000000-0000-0000-0000-00005e3b25a9")
 		(property "Reference" "H3"
-			(at 25.4 174.752 0)
+			(at 251.46 111.887 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4715,7 +4715,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 25.4 177.038 0)
+			(at 251.46 114.173 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4726,7 +4726,7 @@
 			)
 		)
 		(property "Footprint" "CM5IO:MountingHole_2.7mm_M2.5_DIN965"
-			(at 22.86 175.895 0)
+			(at 248.92 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4737,7 +4737,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 22.86 175.895 0)
+			(at 248.92 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4748,7 +4748,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 22.86 175.895 0)
+			(at 248.92 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4759,7 +4759,7 @@
 			)
 		)
 		(property "Field4" "nf"
-			(at 22.86 175.895 0)
+			(at 248.92 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4770,7 +4770,7 @@
 			)
 		)
 		(property "Field5" "nf"
-			(at 22.86 175.895 0)
+			(at 248.92 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4781,7 +4781,7 @@
 			)
 		)
 		(property "Field6" "nf"
-			(at 22.86 175.895 0)
+			(at 248.92 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4792,7 +4792,7 @@
 			)
 		)
 		(property "Field7" "nf"
-			(at 22.86 175.895 0)
+			(at 248.92 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4803,7 +4803,7 @@
 			)
 		)
 		(property "Part Description" "M2.5 mounting hole"
-			(at 22.86 175.895 0)
+			(at 248.92 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4824,7 +4824,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 22.86 170.815 0)
+		(at 248.92 107.95 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim yes)
@@ -4834,7 +4834,7 @@
 		(dnp yes)
 		(uuid "00000000-0000-0000-0000-00005e3b2cb2")
 		(property "Reference" "H2"
-			(at 25.4 169.672 0)
+			(at 251.46 106.807 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4845,7 +4845,7 @@
 			)
 		)
 		(property "Value" "MountingHole"
-			(at 25.4 171.958 0)
+			(at 251.46 109.093 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4856,7 +4856,7 @@
 			)
 		)
 		(property "Footprint" "CM5IO:MountingHole_2.7mm_M2.5_DIN965"
-			(at 22.86 170.815 0)
+			(at 248.92 107.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4867,7 +4867,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 22.86 170.815 0)
+			(at 248.92 107.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4878,7 +4878,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 22.86 170.815 0)
+			(at 248.92 107.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4889,7 +4889,7 @@
 			)
 		)
 		(property "Field4" "nf"
-			(at 22.86 170.815 0)
+			(at 248.92 107.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4900,7 +4900,7 @@
 			)
 		)
 		(property "Field5" "nf"
-			(at 22.86 170.815 0)
+			(at 248.92 107.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4911,7 +4911,7 @@
 			)
 		)
 		(property "Field6" "nf"
-			(at 22.86 170.815 0)
+			(at 248.92 107.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4922,7 +4922,7 @@
 			)
 		)
 		(property "Field7" "nf"
-			(at 22.86 170.815 0)
+			(at 248.92 107.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4933,7 +4933,7 @@
 			)
 		)
 		(property "Part Description" "M2.5 mounting hole"
-			(at 22.86 170.815 0)
+			(at 248.92 107.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5463,7 +5463,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small_US")
-		(at 144.78 168.91 90)
+		(at 95.25 177.8 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5474,7 +5474,7 @@
 		(fields_autoplaced yes)
 		(uuid "11375172-37ce-4bd2-9aa6-35f2f77abeb4")
 		(property "Reference" "R2"
-			(at 144.78 162.56 90)
+			(at 95.25 171.45 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5484,7 +5484,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 144.78 165.1 90)
+			(at 95.25 173.99 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5494,7 +5494,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
-			(at 144.78 168.91 0)
+			(at 95.25 177.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5505,7 +5505,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 144.78 168.91 0)
+			(at 95.25 177.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5516,7 +5516,7 @@
 			)
 		)
 		(property "Description" "Resistor, small US symbol"
-			(at 144.78 168.91 0)
+			(at 95.25 177.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6396,7 +6396,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 152.4 168.91 180)
+		(at 102.87 177.8 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6407,7 +6407,7 @@
 		(fields_autoplaced yes)
 		(uuid "5b084835-ff56-4fcf-ad15-560e73794e09")
 		(property "Reference" "D4"
-			(at 153.9875 161.29 0)
+			(at 104.4575 170.18 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6417,7 +6417,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 153.9875 163.83 0)
+			(at 104.4575 172.72 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6427,7 +6427,7 @@
 			)
 		)
 		(property "Footprint" "LED_SMD:LED_0201_0603Metric"
-			(at 152.4 168.91 0)
+			(at 102.87 177.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6438,7 +6438,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 152.4 168.91 0)
+			(at 102.87 177.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6449,7 +6449,7 @@
 			)
 		)
 		(property "Description" "Light emitting diode"
-			(at 152.4 168.91 0)
+			(at 102.87 177.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6460,7 +6460,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
-			(at 152.4 168.91 0)
+			(at 102.87 177.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7580,7 +7580,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 157.48 170.18 0)
+		(at 107.95 179.07 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7591,7 +7591,7 @@
 		(fields_autoplaced yes)
 		(uuid "86896820-768d-43e6-bccc-ec19e47cf26e")
 		(property "Reference" "#PWR04"
-			(at 157.48 176.53 0)
+			(at 107.95 185.42 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7602,7 +7602,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 157.48 175.26 0)
+			(at 107.95 184.15 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7612,7 +7612,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 157.48 170.18 0)
+			(at 107.95 179.07 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7623,7 +7623,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 157.48 170.18 0)
+			(at 107.95 179.07 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7634,7 +7634,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 157.48 170.18 0)
+			(at 107.95 179.07 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

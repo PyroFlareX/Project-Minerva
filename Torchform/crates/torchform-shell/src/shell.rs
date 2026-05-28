@@ -70,6 +70,7 @@ pub enum AppId {
     Pkgman,
     Logview,
     Notes,
+    Network,
 }
 
 impl AppId {
@@ -88,6 +89,7 @@ impl AppId {
             AppId::Pkgman   => "pkgman",
             AppId::Logview  => "logview",
             AppId::Notes    => "notes",
+            AppId::Network  => "network",
         }
     }
 
@@ -106,6 +108,7 @@ impl AppId {
             AppId::Pkgman   => "Packages",
             AppId::Logview  => "Logs",
             AppId::Notes    => "Notes",
+            AppId::Network  => "Network",
         }
     }
 
@@ -124,6 +127,7 @@ impl AppId {
             AppId::Pkgman   => "📦",
             AppId::Logview  => "📋",
             AppId::Notes    => "📝",
+            AppId::Network  => "📶",
         }
     }
 
@@ -142,6 +146,7 @@ impl AppId {
             AppId::Pkgman   => "#050808",
             AppId::Logview  => "#030308",
             AppId::Notes    => "#080600",
+            AppId::Network  => "#040810",
         }
     }
 
@@ -160,6 +165,7 @@ impl AppId {
             AppId::Pkgman   => "app.pkgman",
             AppId::Logview  => "app.logview",
             AppId::Notes    => "app.notes",
+            AppId::Network  => "app.network",
         }
     }
 
@@ -179,6 +185,7 @@ impl AppId {
             "pkgman" | "packages"               => AppId::Pkgman,
             "logview" | "logs"                  => AppId::Logview,
             "notes"                             => AppId::Notes,
+            "network" | "wifi" | "bluetooth"    => AppId::Network,
             _                                   => return None,
         })
     }
@@ -186,8 +193,8 @@ impl AppId {
 
 /// Home-grid apps, in display order (everything not in the dock).
 /// Mirrors `APPS_DEF.filter(a => !DOCK_IDS.includes(a.id))`.
-pub const HOME_GRID: [AppId; 7] = [
-    AppId::Media, AppId::Email, AppId::Settings,
+pub const HOME_GRID: [AppId; 8] = [
+    AppId::Media, AppId::Email, AppId::Settings, AppId::Network,
     AppId::Sysmon, AppId::Pkgman, AppId::Logview, AppId::Notes,
 ];
 
@@ -271,6 +278,51 @@ pub struct Notif {
     pub src_app:  Option<AppId>,
 }
 
+/// A single note entry.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Note {
+    pub id:      usize,
+    pub title:   String,
+    pub body:    String,
+    pub time:    String,   // display timestamp, e.g. "Just now"
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct WifiNet {
+    pub ssid:      String,
+    pub signal:    i32,   // 0–100
+    pub secured:   bool,
+    pub connected: bool,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct NetworkState {
+    pub wifi_list: Vec<WifiNet>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct LogEntry {
+    pub level:  String,   // "info"|"warn"|"error"|"debug"
+    pub source: String,
+    pub text:   String,
+    pub time:   String,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct SysmonData {
+    pub cpu_pct:      f32,
+    pub ram_pct:      f32,
+    pub gpu_pct:      f32,
+    pub temp_c:       f32,
+    pub ram_used_mb:  i32,
+    pub ram_total_mb: i32,
+    pub cpu_name:     String,
+    pub core_pcts:    Vec<f32>,
+    pub proc_names:   Vec<String>,
+    pub proc_cpus:    Vec<f32>,
+    pub proc_mems:    Vec<i32>,
+}
+
 /// A transient toast banner (mirrors `showBanner`).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Banner {
@@ -306,6 +358,21 @@ pub enum Effect {
     SaveConfig,
     /// Suspend the device.
     Suspend,
+    /// Persist the notes list to disk.
+    SaveNotes(Vec<Note>),
+    /// Send SIGTERM to a launched external process.
+    KillApp(u32),
+}
+
+// ---------------------------------------------------------------------------
+// Text target — which field currently receives OSK / LowerKeyPress input
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TextTarget {
+    None,
+    Palette,
+    Notes,
 }
 
 // ---------------------------------------------------------------------------
@@ -332,6 +399,7 @@ pub struct Shell {
     pub panel:    Option<Panel>,
     pub app_id:   Option<AppId>,
     pub run_apps: Vec<AppId>,
+    pub pid_map:  HashMap<AppId, u32>,   // app → OS pid for externally-launched apps
 
     pub home_focus:   usize,
     pub qs_focus:     usize,
@@ -362,6 +430,28 @@ pub struct Shell {
     pub settings_rows:   Vec<SettingsRowData>,
     pub settings_schema: SettingsSchema,
 
+    // Network state (refreshed on demand and on app open)
+    pub network: NetworkState,
+
+    // Sysmon live data (refreshed by a 2s timer in main.rs)
+    pub sysmon: SysmonData,
+
+    // Logview state
+    pub log_lines:      Vec<LogEntry>,
+    pub log_show_info:  bool,
+    pub log_show_warn:  bool,
+    pub log_show_error: bool,
+    pub log_show_debug: bool,
+    pub log_tail:       bool,
+
+    // Notes app state
+    pub notes_list:     Vec<Note>,
+    pub notes_editing:  bool,
+    pub notes_edit_idx: Option<usize>,  // None = new note
+    pub notes_edit_title: String,
+    pub notes_edit_body:  String,
+    pub notes_focus_field: usize,       // 0 = title, 1 = body
+
     konami_idx: usize,
 }
 
@@ -380,6 +470,7 @@ impl Shell {
             panel:  None,
             app_id: None,
             run_apps: Vec::new(),
+            pid_map:  HashMap::new(),
             home_focus:   0,
             qs_focus:     0,
             nf_focus:     0,
@@ -400,6 +491,20 @@ impl Shell {
             files_path: "/home".into(),
             settings_rows,
             settings_schema: schema,
+            network: NetworkState::default(),
+            sysmon: SysmonData::default(),
+            log_lines:      Vec::new(),
+            log_show_info:  true,
+            log_show_warn:  true,
+            log_show_error: true,
+            log_show_debug: false,
+            log_tail:       true,
+            notes_list:        Vec::new(),
+            notes_editing:     false,
+            notes_edit_idx:    None,
+            notes_edit_title:  String::new(),
+            notes_edit_body:   String::new(),
+            notes_focus_field: 0,
             konami_idx: 0,
         }
     }
@@ -411,6 +516,17 @@ impl Shell {
     /// The focusable home order (grid then dock).
     pub fn home_order(&self) -> Vec<AppId> {
         home_order()
+    }
+
+    /// Which text field should currently receive OSK / voice input.
+    pub fn active_text_target(&self) -> TextTarget {
+        if self.palette.visible {
+            return TextTarget::Palette;
+        }
+        if self.screen == Screen::App && self.app_id == Some(AppId::Notes) && self.notes_editing {
+            return TextTarget::Notes;
+        }
+        TextTarget::None
     }
 
     pub fn rebuild_settings(&mut self) {
@@ -524,7 +640,11 @@ impl Shell {
         self.panel  = None;
     }
 
-    fn kill_app(&mut self, app: AppId) {
+    fn kill_app(&mut self, app: AppId) -> Vec<Effect> {
+        let mut fx = vec![];
+        if let Some(pid) = self.pid_map.remove(&app) {
+            fx.push(Effect::KillApp(pid));
+        }
         self.run_apps.retain(|a| *a != app);
         if self.app_id == Some(app) {
             self.app_id = self.run_apps.last().copied();
@@ -533,6 +653,7 @@ impl Shell {
         if self.sw_focus >= self.run_apps.len() {
             self.sw_focus = self.run_apps.len().saturating_sub(1);
         }
+        fx
     }
 
     /// Resume the running app at switcher index `i` (touch / direct).
@@ -544,11 +665,12 @@ impl Shell {
     }
 
     /// Close the running app at switcher index `i` (touch / direct).
-    pub fn switcher_close(&mut self, i: usize) {
+    pub fn switcher_close(&mut self, i: usize) -> Vec<Effect> {
         if let Some(app) = self.run_apps.get(i).copied() {
             self.sw_focus = i;
-            self.kill_app(app);
+            return self.kill_app(app);
         }
+        vec![]
     }
 
     fn toggle_panel(&mut self, p: Panel) {
@@ -686,17 +808,37 @@ impl Shell {
             ShellAction::SplitToggle     => {}
             ShellAction::Sleep           => fx.push(Effect::Suspend),
 
-            // ---- Palette text injection ----
+            // ---- Text input — routed to the active target ----
             ShellAction::VoiceResult { text } => {
-                if self.palette.visible { self.palette.set_query(&text); }
+                match self.active_text_target() {
+                    TextTarget::Palette => self.palette.set_query(&text),
+                    TextTarget::Notes => {
+                        if self.notes_focus_field == 0 { self.notes_edit_title.push_str(&text); }
+                        else                           { self.notes_edit_body.push_str(&text);  }
+                    }
+                    TextTarget::None    => {}
+                }
             }
             ShellAction::LowerKeyPress { key } => {
-                if self.palette.visible {
-                    self.palette.append_char(key.chars().next().unwrap_or(' '));
+                let ch = key.chars().next().unwrap_or(' ');
+                match self.active_text_target() {
+                    TextTarget::Palette => self.palette.append_char(ch),
+                    TextTarget::Notes => {
+                        if self.notes_focus_field == 0 { self.notes_edit_title.push(ch); }
+                        else                           { self.notes_edit_body.push(ch);  }
+                    }
+                    TextTarget::None => {}
                 }
             }
             ShellAction::LowerBackspace => {
-                if self.palette.visible { self.palette.backspace(); }
+                match self.active_text_target() {
+                    TextTarget::Palette => self.palette.backspace(),
+                    TextTarget::Notes => {
+                        if self.notes_focus_field == 0 { self.notes_edit_title.pop(); }
+                        else                           { self.notes_edit_body.pop();  }
+                    }
+                    TextTarget::None => {}
+                }
             }
             ShellAction::LowerSubmit => return self.route_confirm_owned(),
 
@@ -890,7 +1032,8 @@ impl Shell {
     }
 
     /// Secondary action (X button): dismiss a notification / close a switcher card.
-    pub fn secondary(&mut self) {
+    pub fn secondary(&mut self) -> Vec<Effect> {
+        let mut fx = vec![];
         match self.panel {
             Some(Panel::Notifications) => {
                 if self.nf_focus < self.notifs.len() {
@@ -900,11 +1043,12 @@ impl Shell {
             }
             Some(Panel::Switcher) => {
                 if let Some(app) = self.run_apps.get(self.sw_focus).copied() {
-                    self.kill_app(app);
+                    fx.extend(self.kill_app(app));
                 }
             }
             _ => {}
         }
+        fx
     }
 
     // -----------------------------------------------------------------------
@@ -980,6 +1124,24 @@ impl Shell {
             }
             return;
         }
+        if app == AppId::Notes {
+            if self.notes_editing {
+                // Navigate between title (0) and body (1) fields
+                match dir {
+                    Nav::Up   => { self.notes_focus_field = 0; }
+                    Nav::Down => { self.notes_focus_field = 1; }
+                    _ => {}
+                }
+            } else {
+                // Navigate note list
+                match dir {
+                    Nav::Up   => { let r = (self.row(app) - 1).max(0); self.set_row(app, r); }
+                    Nav::Down => { let r = self.row(app) + 1; self.set_row(app, r); }
+                    _ => {}
+                }
+            }
+            return;
+        }
         // Generic apps: up/down adjust the focused row (clamped at 0).
         match dir {
             Nav::Up   => { let r = (self.row(app) - 1).max(0); self.set_row(app, r); }
@@ -1012,6 +1174,44 @@ impl Shell {
     }
 
     fn confirm_app(&mut self, app: AppId, fx: &mut Vec<Effect>) {
+        if app == AppId::Notes {
+            if self.notes_editing {
+                // A while editing = save the note
+                let note = Note {
+                    id:    self.notes_edit_idx.unwrap_or(self.notes_list.len()),
+                    title: self.notes_edit_title.clone(),
+                    body:  self.notes_edit_body.clone(),
+                    time:  "Just now".into(),
+                };
+                if let Some(idx) = self.notes_edit_idx {
+                    if let Some(n) = self.notes_list.get_mut(idx) { *n = note.clone(); }
+                } else {
+                    self.notes_list.push(note.clone());
+                }
+                fx.push(Effect::SaveNotes(self.notes_list.clone()));
+                self.notes_editing = false;
+            } else {
+                // A on a note in the list = open it for editing
+                let row = self.row(AppId::Notes) as usize;
+                if row < self.notes_list.len() {
+                    let n = &self.notes_list[row];
+                    self.notes_edit_idx   = Some(row);
+                    self.notes_edit_title = n.title.clone();
+                    self.notes_edit_body  = n.body.clone();
+                    self.notes_focus_field = 1;
+                    self.notes_editing    = true;
+                } else {
+                    // Past list end = new note (same as X)
+                    self.notes_edit_idx   = None;
+                    self.notes_edit_title = String::new();
+                    self.notes_edit_body  = String::new();
+                    self.notes_focus_field = 0;
+                    self.notes_editing    = true;
+                }
+            }
+            fx.push(Effect::Sound(SoundCue::Confirm));
+            return;
+        }
         if app == AppId::Settings {
             if self.settings_sidebar_active {
                 // A in sidebar = enter this section's rows

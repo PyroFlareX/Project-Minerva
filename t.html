@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Torchform OS · N3DS Shell</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07070f;--s1:#0c0c1a;--s2:#111120;--s3:#181828;
+  --b1:#1e1e30;--b2:#282840;
+  --t1:#c0c0da;--t2:#5858a0;--t3:#28285a;
+  --acc:#e8ff47;--blue:#4fd1ff;--org:#ff7a40;--grn:#3fc060;--red:#ff4a4a;--pur:#c060ff;
+  --mono:'DM Mono',monospace;--cond:'Barlow Condensed',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#000}
+#shell{position:fixed;inset:0;background:var(--bg);color:var(--t1);font-family:var(--mono);overflow:hidden;user-select:none}
+
+/* STATUS BAR */
+#sb{position:absolute;top:0;left:0;right:0;height:28px;background:rgba(7,7,15,.97);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 12px;gap:10px;z-index:200}
+.sb-ws{display:flex;gap:3px}.sb-wd{width:5px;height:5px;border-radius:50%;background:var(--b2);transition:.2s}.sb-wd.on{background:var(--acc)}
+.sb-app{font-size:10px;color:var(--t2);letter-spacing:.05em;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-clk{flex:1;text-align:center;font-size:12px;font-weight:500;letter-spacing:.1em}
+.sb-r{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2)}
+.sb-np{font-size:9px;color:var(--blue);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-nd{width:6px;height:6px;border-radius:50%;background:var(--red);display:none}.sb-nd.on{display:block}
+
+/* HINT BAR */
+#hb{position:absolute;bottom:0;left:0;right:0;height:24px;background:rgba(7,7,15,.97);border-top:1px solid var(--b1);display:flex;align-items:center;padding:0 12px;gap:14px;z-index:200;overflow:hidden}
+.hn{display:flex;align-items:center;gap:3px;font-size:9px;color:var(--t3);white-space:nowrap}
+.hk{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:13px;padding:0 3px;background:var(--s3);border:1px solid var(--b2);font-size:7px;color:var(--t2);border-radius:2px}
+
+/* SCREEN */
+#scr{position:absolute;top:28px;left:0;right:0;bottom:24px;overflow:hidden}
+.layer{position:absolute;inset:0;display:none}.layer.on{display:flex;flex-direction:column}
+
+/* LOCK */
+#lock{align-items:center;justify-content:center;gap:8px}
+.lk-t{font-family:var(--cond);font-size:88px;font-weight:700;line-height:1;color:var(--t1)}
+.lk-d{font-size:12px;color:var(--t2);letter-spacing:.15em}
+.lk-pin{display:flex;gap:10px;margin-top:18px}
+.lk-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--b2);transition:.12s}
+.lk-dot.f{background:var(--acc);border-color:var(--acc)}
+.lk-h{margin-top:22px;font-size:10px;color:var(--t3);letter-spacing:.12em;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* HOME */
+#home{background:var(--bg)}
+.hw{position:absolute;inset:0;background:radial-gradient(ellipse at 28% 38%,rgba(42,100,200,.07)0%,transparent 55%),radial-gradient(ellipse at 72% 72%,rgba(232,255,71,.04)0%,transparent 50%)}
+.h-srch{margin:12px 24px 0;display:flex;align-items:center;gap:8px;background:var(--s1);border:1px solid var(--b1);border-radius:20px;padding:6px 14px;font-size:11px;color:var(--t3);position:relative;z-index:1}
+.h-gr{flex:1;padding:10px 24px;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-content:start;position:relative;z-index:1;overflow:hidden}
+.ai{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:.1s}
+.ai.f{background:rgba(232,255,71,.07);border-color:var(--acc)}
+.ai-b{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;border:1px solid rgba(255,255,255,.06)}
+.ai-n{font-size:9px;color:var(--t2);letter-spacing:.04em;text-align:center}
+.h-dock{margin:0 auto 10px;display:flex;gap:8px;background:rgba(255,255,255,.03);border:1px solid var(--b1);padding:7px 12px;border-radius:16px;position:relative;z-index:1}
+.di{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:1px solid transparent;transition:.1s}
+.di.f{border-color:var(--acc);background:rgba(232,255,71,.09)}.di.run{box-shadow:0 0 0 1px var(--grn) inset}
+
+/* APP WINDOW */
+#apl{position:absolute;inset:0;display:none;flex-direction:column}
+#apl.on{display:flex}
+#atb{height:32px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 12px;gap:10px;flex-shrink:0}
+.atb-i{font-size:14px}.atb-n{font-family:var(--cond);font-size:15px;font-weight:700;letter-spacing:.05em;color:var(--t1)}
+.atb-r{margin-left:auto;display:flex;gap:6px}
+.atb-b{padding:2px 8px;font-size:9px;background:var(--s2);border:1px solid var(--b1);color:var(--t2);font-family:var(--mono);border-radius:3px;cursor:pointer}
+#acnt{flex:1;overflow:hidden;position:relative}
+
+/* PANELS */
+.panel{position:absolute;top:0;bottom:0;z-index:150;background:rgba(9,9,20,.97);border:1px solid var(--b1);display:none;flex-direction:column}
+.panel.on{display:flex}
+#pqs{right:0;width:310px;border-right:none;border-top:none;border-bottom:none}
+#pnf{left:0;width:310px;border-left:none;border-top:none;border-bottom:none}
+#psw{inset:0;width:100%;border:none;background:rgba(7,7,15,.94);align-items:center;justify-content:center;gap:20px}
+.ph{padding:14px 16px 10px;border-bottom:1px solid var(--b1);flex-shrink:0}
+.ph-sm{font-size:8px;color:var(--t3);letter-spacing:.22em;margin-bottom:3px}
+.ph-lg{font-family:var(--cond);font-size:20px;font-weight:700;color:var(--t1)}
+
+/* QUICK SETTINGS */
+.qs-g{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 14px;overflow-y:auto}
+.qt{padding:10px 12px;border-radius:8px;background:var(--s2);border:1px solid var(--b1);cursor:pointer;transition:.1s}
+.qt.f{border-color:var(--acc)!important;background:rgba(232,255,71,.08)!important}
+.qt.on{background:rgba(232,255,71,.1);border-color:var(--acc)}
+.qt-i{font-size:18px;margin-bottom:4px}.qt-n{font-size:10px;color:var(--t1)}.qt-v{font-size:9px;color:var(--t2);margin-top:2px}
+.qs-sl{padding:7px 14px}
+.qs-sl-l{display:flex;justify-content:space-between;font-size:10px;color:var(--t2);margin-bottom:4px}
+input[type=range]{width:100%;height:3px;accent-color:var(--acc);cursor:pointer}
+
+/* NOTIFICATIONS */
+.nf-l{flex:1;overflow-y:auto}
+.nf-i{padding:10px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:.1s}
+.nf-i.f{background:rgba(232,255,71,.06);border-left:2px solid var(--acc)}
+.nf-ap{font-size:8px;color:var(--t2);letter-spacing:.12em;margin-bottom:2px}
+.nf-ti{font-size:11px;color:var(--t1);margin-bottom:2px}.nf-bo{font-size:10px;color:var(--t2)}
+.nf-tm{font-size:9px;color:var(--t3);float:right;margin-top:-20px}
+
+/* SWITCHER */
+.sw-h{font-size:9px;color:var(--t3);letter-spacing:.2em}
+.sw-cs{display:flex;gap:14px;align-items:center;max-width:90vw;overflow-x:auto;padding:4px}
+.swc{width:130px;flex-shrink:0;border-radius:10px;border:1px solid var(--b1);cursor:pointer;transition:.12s}
+.swc.f{border-color:var(--acc);transform:scale(1.06)}
+.swc-p{height:75px;display:flex;align-items:center;justify-content:center;font-size:30px;border-radius:9px 9px 0 0;background:var(--s2)}
+.swc-n{padding:6px 9px;font-size:10px;color:var(--t1);background:var(--s1);border-radius:0 0 9px 9px;display:flex;justify-content:space-between;align-items:center}
+.swc-x{color:var(--red);font-size:12px}
+
+/* BANNER */
+#banner{position:absolute;top:4px;left:50%;transform:translateX(-50%);background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:9px 14px;z-index:180;display:none;min-width:220px;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+#banner.on{display:flex;gap:10px;align-items:flex-start}
+.bn-i{font-size:18px;flex-shrink:0}.bn-r{flex:1}
+.bn-ap{font-size:8px;color:var(--t2);letter-spacing:.1em;margin-bottom:2px}
+.bn-ti{font-size:11px;color:var(--t1);margin-bottom:1px}.bn-bo{font-size:10px;color:var(--t2)}
+
+/* TERMINAL */
+#t-w{height:100%;background:#030309;display:flex;flex-direction:column;padding:8px}
+.t-o{flex:1;overflow-y:auto;font-size:12px;line-height:1.65;font-family:var(--mono)}
+.t-l{white-space:pre-wrap;word-break:break-all}
+.tp{color:#39ff47}.tc{color:var(--t1)}.to{color:var(--t2)}.te{color:var(--red)}.ts{color:var(--blue)}
+.t-ir{display:flex;align-items:center;gap:6px;padding-top:5px;border-top:1px solid var(--b1);margin-top:4px;flex-shrink:0}
+.t-ps{color:#39ff47;font-size:12px;white-space:nowrap;font-family:var(--mono)}
+#t-in{flex:1;background:transparent;border:none;color:var(--t1);font-family:var(--mono);font-size:12px;outline:none;caret-color:var(--acc)}
+
+/* BROWSER */
+#b-w{height:100%;display:flex;flex-direction:column;background:var(--bg)}
+.b-bar{padding:5px 10px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;gap:6px;align-items:center;flex-shrink:0}
+.b-nav{padding:3px 8px;background:var(--s2);border:1px solid var(--b1);border-radius:4px;font-size:11px;color:var(--t2);cursor:pointer;font-family:var(--mono)}
+#b-url{flex:1;padding:4px 10px;background:var(--s2);border:1px solid var(--b1);border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--t1);outline:none}
+#b-url:focus{border-color:var(--acc)}
+#b-c{flex:1;overflow-y:auto;padding:16px}
+.bk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.bk{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:14px 10px;text-align:center;cursor:pointer}
+.bk:hover{border-color:var(--acc)}.bk-i{font-size:24px;margin-bottom:6px}.bk-l{font-size:10px;color:var(--t2)}
+.b-page{font-size:12px;color:var(--t1);line-height:1.7}
+.b-h1{font-family:var(--cond);font-size:24px;font-weight:700;color:var(--t1);margin-bottom:10px}
+.b-h2{font-family:var(--cond);font-size:17px;font-weight:600;color:var(--t1);margin:14px 0 6px}
+.b-link{color:var(--blue);cursor:pointer;text-decoration:underline}
+
+/* FILES */
+#f-w{height:100%;display:flex;background:var(--bg)}
+.f-sb{width:150px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);padding:8px 0;overflow-y:auto}
+.f-si{padding:7px 14px;font-size:11px;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:7px}
+.f-si.f{color:var(--acc);background:rgba(232,255,71,.07);border-left:2px solid var(--acc)}
+.f-mn{flex:1;display:flex;flex-direction:column}
+.f-tb{padding:6px 12px;background:var(--s1);border-bottom:1px solid var(--b1);font-size:10px;color:var(--t2);display:flex;gap:10px;align-items:center;flex-shrink:0}
+.f-path{color:var(--acc)}
+.f-l{flex:1;overflow-y:auto}
+.f-it{padding:8px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--b1);cursor:pointer;font-size:11px}
+.f-it.f{background:rgba(232,255,71,.07);border-left:2px solid var(--acc)}
+.f-ic{font-size:14px;flex-shrink:0}.f-nm{flex:1;color:var(--t1)}.f-mt{font-size:9px;color:var(--t3)}
+
+/* MEDIA */
+#m-w{height:100%;display:flex;background:var(--bg)}
+.m-pl{width:190px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);overflow-y:auto}
+.m-tr{padding:10px 12px;border-bottom:1px solid var(--b1);cursor:pointer;transition:.1s}
+.m-tr.ac{background:rgba(232,255,71,.09);border-left:2px solid var(--acc)}
+.m-tr.f{background:rgba(232,255,71,.04)}
+.m-tt{font-size:11px;color:var(--t1)}.m-at{font-size:10px;color:var(--t2);margin-top:1px}
+.m-mn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:16px}
+.m-art{width:130px;height:130px;border-radius:12px;background:var(--s2);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:50px}
+.m-ti{font-family:var(--cond);font-size:22px;font-weight:700;color:var(--t1)}
+.m-ai{font-size:11px;color:var(--t2)}
+.m-pg{width:100%;max-width:260px}
+.m-bg{height:3px;background:var(--b2);border-radius:2px}
+.m-fg{height:100%;border-radius:2px;background:var(--acc);transition:width .5s linear}
+.m-ts{display:flex;justify-content:space-between;font-size:9px;color:var(--t3);margin-top:3px}
+.m-ct{display:flex;gap:20px;align-items:center}
+.m-bt{font-size:20px;cursor:pointer;color:var(--t2);transition:.1s}.m-bt:hover{color:var(--t1)}
+.m-bt.play{font-size:30px;color:var(--t1)}
+
+/* PHONE */
+#ph-w{height:100%;display:flex;flex-direction:column;background:var(--bg)}
+.ph-tb{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
+.ph-ta{flex:1;padding:9px;text-align:center;font-size:11px;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent}
+.ph-ta.on{color:var(--acc);border-color:var(--acc)}.ph-ta.f{color:var(--t1)}
+.dl{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;gap:12px}
+.dl-n{font-family:var(--cond);font-size:38px;font-weight:700;letter-spacing:.1em;color:var(--t1);min-height:46px}
+.dl-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dlb{width:58px;height:58px;border-radius:50%;background:var(--s2);border:1px solid var(--b1);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--t1);transition:.1s}
+.dlb.f{border-color:var(--acc);background:rgba(232,255,71,.1)}
+.dlb.call{background:var(--grn);border-color:var(--grn);font-size:22px}
+.dlb.del{background:var(--s3)}
+.dlb-s{font-size:7px;color:var(--t3);letter-spacing:.06em}
+.cl-l{flex:1;overflow-y:auto}
+.cl-i{padding:10px 14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:12px}
+.cl-av{width:36px;height:36px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.cl-nm{font-size:12px;color:var(--t1)}.cl-mt{font-size:9px;color:var(--t3)}
+.call-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.call-av{width:80px;height:80px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:32px}
+.call-nm{font-family:var(--cond);font-size:24px;font-weight:700;color:var(--t1)}
+.call-st{font-size:12px;color:var(--grn);animation:blink 1s infinite}
+.call-acts{display:flex;gap:14px;margin-top:12px}
+.call-btn{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:1px solid var(--b1);background:var(--s2)}
+.call-btn.end{background:var(--red);border-color:var(--red)}
+
+/* SMS */
+#s-w{height:100%;display:flex;background:var(--bg)}
+.s-sb{width:170px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);overflow-y:auto}
+.s-cv{padding:10px 12px;border-bottom:1px solid var(--b1);cursor:pointer}
+.s-cv.f{background:rgba(232,255,71,.07);border-left:2px solid var(--acc)}
+.s-cv.on{background:rgba(232,255,71,.03)}
+.s-cn{font-size:11px;color:var(--t1)}.s-cp{font-size:9px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.s-mn{flex:1;display:flex;flex-direction:column}
+.s-hd{padding:8px 12px;background:var(--s1);border-bottom:1px solid var(--b1);font-size:12px;color:var(--t1);flex-shrink:0}
+.s-ms{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px}
+.s-msg{max-width:75%;padding:7px 10px;border-radius:10px;font-size:11px;line-height:1.5}
+.s-msg.out{background:var(--acc);color:#000;align-self:flex-end;border-radius:10px 10px 2px 10px}
+.s-msg.in{background:var(--s2);color:var(--t1);align-self:flex-start;border-radius:10px 10px 10px 2px}
+.s-cm{padding:7px 10px;background:var(--s1);border-top:1px solid var(--b1);display:flex;gap:7px;flex-shrink:0}
+#s-in{flex:1;background:var(--s2);border:1px solid var(--b1);color:var(--t1);font-family:var(--mono);font-size:11px;padding:5px 10px;border-radius:14px;outline:none}
+#s-in:focus{border-color:var(--acc)}
+
+/* EMAIL */
+#e-w{height:100%;display:flex;background:var(--bg)}
+.e-fb{width:150px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);padding:8px 0}
+.e-fi{padding:8px 14px;font-size:11px;color:var(--t2);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.e-fi.on{color:var(--acc);background:rgba(232,255,71,.07)}
+.e-fi.f{border-left:2px solid var(--acc);color:var(--t1)}
+.e-bd{font-size:9px;background:var(--acc);color:#000;padding:1px 5px;border-radius:8px;font-weight:500}
+.e-ml{width:230px;flex-shrink:0;border-right:1px solid var(--b1);overflow-y:auto}
+.e-mi{padding:10px 12px;border-bottom:1px solid var(--b1);cursor:pointer}
+.e-mi.f{background:rgba(232,255,71,.07);border-left:2px solid var(--acc)}
+.e-mi.ur .e-ms{font-weight:500;color:var(--t1)}
+.e-mf{font-size:11px;color:var(--t1)}.e-ms{font-size:10px;color:var(--t2);margin-top:2px}.e-mp{font-size:9px;color:var(--t3)}
+.e-dt{flex:1;padding:16px;overflow-y:auto}
+.e-df{font-size:11px;color:var(--t2);margin-bottom:3px}
+.e-dsu{font-family:var(--cond);font-size:20px;font-weight:700;color:var(--t1);margin-bottom:12px}
+.e-db{font-size:12px;color:var(--t2);line-height:1.8}
+
+/* SETTINGS */
+#st-w{height:100%;display:flex;background:var(--bg)}
+.st-sb{width:190px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);overflow-y:auto;padding:6px 0}
+.st-g{padding:5px 14px 2px;font-size:8px;color:var(--t3);letter-spacing:.15em}
+.st-i{padding:8px 14px;font-size:11px;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:7px}
+.st-i.on{color:var(--acc);background:rgba(232,255,71,.07)}
+.st-i.f{border-left:2px solid var(--acc);color:var(--t1)}
+.st-mn{flex:1;overflow-y:auto;padding:16px 20px}
+.st-tn{font-family:var(--cond);font-size:20px;font-weight:700;color:var(--t1);margin-bottom:14px}
+.st-rw{padding:12px 0;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.st-rw:last-child{border-bottom:none}
+.st-rl{font-size:12px;color:var(--t1)}.st-rs{font-size:10px;color:var(--t2);margin-top:2px}
+.st-tg{width:36px;height:20px;border-radius:10px;background:var(--b2);position:relative;cursor:pointer;transition:.15s;flex-shrink:0}
+.st-tg.on{background:var(--acc)}
+.st-tg::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:var(--s3);top:3px;left:3px;transition:.15s}
+.st-tg.on::after{left:19px;background:#000}
+.st-sv{font-size:11px;color:var(--acc);min-width:32px;text-align:right}
+.st-sl{width:120px;height:3px;accent-color:var(--acc)}
+.st-sel{background:var(--s2);border:1px solid var(--b1);color:var(--t1);padding:4px 8px;font-size:11px;font-family:var(--mono);border-radius:3px;outline:none}
+
+/* SYSMON */
+#sm-w{height:100%;padding:10px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto 1fr;gap:8px;overflow:hidden;background:var(--bg)}
+.sm-c{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:10px;overflow:hidden}
+.sm-c.w2{grid-column:span 2}
+.sm-lb{font-size:8px;color:var(--t3);letter-spacing:.15em;margin-bottom:4px}
+.sm-vl{font-family:var(--cond);font-size:28px;font-weight:700;line-height:1}
+.sm-sb{font-size:9px;color:var(--t2);margin-top:2px}
+.sm-bw{margin-top:6px;height:3px;background:var(--b2);border-radius:2px}
+.sm-bf{height:100%;border-radius:2px;transition:width .4s}
+.sm-gh{display:flex;align-items:flex-end;gap:2px;height:34px;margin-top:7px}
+.sm-gb{flex:1;border-radius:1px 1px 0 0;min-height:2px;transition:height .25s}
+.pr-h{display:flex;padding:3px 0;font-size:8px;color:var(--t3);border-bottom:1px solid var(--b1)}
+.pr-r{display:flex;padding:5px 0;border-bottom:1px solid var(--b1);font-size:10px}
+.pr-n{flex:1;color:var(--t1)}.pr-c{width:46px;text-align:right;color:var(--org)}.pr-m{width:46px;text-align:right;color:var(--blue)}
+.pr-l{overflow-y:auto;height:100%}
+
+/* PKGMAN */
+#pk-w{height:100%;display:flex;flex-direction:column;padding:12px;gap:10px;overflow-y:auto}
+.pk-src{display:flex;gap:8px;flex-shrink:0}
+#pk-in{flex:1;background:var(--s2);border:1px solid var(--b1);color:var(--t1);font-family:var(--mono);font-size:11px;padding:6px 12px;border-radius:4px;outline:none}
+#pk-in:focus{border-color:var(--acc)}
+.pk-btn{padding:6px 14px;background:var(--s2);border:1px solid var(--b1);border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--t1);cursor:pointer}
+.pk-btn:hover{border-color:var(--acc)}
+.pk-out{flex:1;background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:10px;font-size:11px;line-height:1.7;color:var(--t2);overflow-y:auto;font-family:var(--mono);white-space:pre-wrap}
+.pk-list{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pk-it{background:var(--s1);border:1px solid var(--b1);border-radius:6px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center}
+.pk-nm{font-size:11px;color:var(--t1)}.pk-vr{font-size:9px;color:var(--t3)}
+.pk-ins{padding:2px 8px;font-size:9px;background:var(--s2);border:1px solid var(--b1);border-radius:3px;color:var(--t2);cursor:pointer;font-family:var(--mono)}
+.pk-ins:hover{border-color:var(--acc);color:var(--acc)}
+
+/* LOG VIEWER */
+#lg-w{height:100%;display:flex;flex-direction:column;background:#030309;padding:8px}
+.lg-tb{display:flex;gap:8px;margin-bottom:8px;flex-shrink:0}
+.lg-tab{padding:3px 10px;font-size:10px;background:var(--s2);border:1px solid var(--b1);border-radius:4px;color:var(--t2);cursor:pointer;font-family:var(--mono)}
+.lg-tab.on{border-color:var(--acc);color:var(--acc)}
+.lg-l{flex:1;overflow-y:auto;font-size:11px;line-height:1.65;font-family:var(--mono)}
+.lg-r{padding:2px 0;white-space:pre;font-size:10.5px}
+.lg-info{color:var(--t2)}.lg-warn{color:var(--org)}.lg-err{color:var(--red)}.lg-ok{color:var(--grn)}.lg-dbg{color:var(--t3)}
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="sb"></div>
+  <div id="scr">
+    <div id="lock" class="layer">
+      <div class="lk-t" id="lk-t">00:00</div>
+      <div class="lk-d" id="lk-d">Monday, Jan 1</div>
+      <div class="lk-pin" id="lk-pin"></div>
+      <div class="lk-h">Press A to unlock  ·  ↑↑↓↓←→←→BA for Konami</div>
+    </div>
+    <div id="home" class="layer">
+      <div class="hw"></div>
+      <div class="h-srch">🔍 <span style="flex:1;color:var(--t3)">Search apps, files, settings…</span><span style="font-size:9px;color:var(--t3)">[Y]</span></div>
+      <div class="h-gr" id="hgr"></div>
+      <div class="h-dock" id="dck"></div>
+    </div>
+    <div id="apl">
+      <div id="atb"></div>
+      <div id="acnt"></div>
+    </div>
+    <!-- Panels -->
+    <div id="pqs" class="panel">
+      <div class="ph"><div class="ph-sm">QUICK SETTINGS</div><div class="ph-lg" id="qs-time">--:--</div></div>
+      <div class="qs-sl"><div class="qs-sl-l"><span>🔊 Volume</span><span id="qs-vv">70%</span></div><input type="range" min="0" max="100" value="70" id="qs-vol" oninput="S.cfg.vol=+this.value;$('qs-vv').textContent=this.value+'%';rSb()"></div>
+      <div class="qs-sl"><div class="qs-sl-l"><span>☀️ Brightness</span><span id="qs-bv">85%</span></div><input type="range" min="5" max="100" value="85" id="qs-br" oninput="S.cfg.bright=+this.value;$('qs-bv').textContent=this.value+'%'"></div>
+      <div class="qs-g" id="qsg"></div>
+    </div>
+    <div id="pnf" class="panel">
+      <div class="ph" style="display:flex;justify-content:space-between;align-items:flex-end">
+        <div><div class="ph-sm">NOTIFICATIONS</div><div class="ph-lg" id="nf-c">0 new</div></div>
+        <span style="font-size:10px;color:var(--t3);cursor:pointer" onclick="S.notifs=[];rNf();rSb()">Clear all</span>
+      </div>
+      <div class="nf-l" id="nfl"></div>
+    </div>
+    <div id="psw" class="panel">
+      <div class="sw-h">APP SWITCHER — [START]</div>
+      <div class="sw-cs" id="swcs"></div>
+      <div style="font-size:9px;color:var(--t3);margin-top:6px">
+        <span class="hk">A</span> resume &nbsp;<span class="hk">X</span> close &nbsp;<span class="hk">B</span> cancel &nbsp;<span class="hk">L/R</span> scroll
+      </div>
+    </div>
+    <div id="banner"></div>
+  </div>
+  <div id="hb"></div>
+</div>
+<script>
+/* ═══════════════════ HELPERS ═══════════════════ */
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function fmtTime(s){return Math.floor(s/60)+':'+(s%60).toString().padStart(2,'0')}
+function fmtDate(d){return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}
+
+/* ═══════════════════ STATE ═══════════════════ */
+const S = {
+  screen:'lock', panel:null, appId:null, runApps:[],
+  workspace:0, homeFocus:0, qsFocus:0, nfFocus:0, swFocus:0,
+  pin:'', pinLen:0, lockKonami:0,
+  cfg:{vol:70,bright:85,wifi:true,bt:true,dnd:false,airplane:false,
+       wifiNet:'HomeNet-5G',btDev:'QCY H3 Pro',nightMode:true,haptic:true,
+       firewall:true,batSave:true,vpn:true},
+  notifs:[
+    {id:1,app:'SMS',icon:'💬',title:'Alice Chen',body:'Are you free tonight?',time:'2m',srcApp:'sms'},
+    {id:2,app:'EMAIL',icon:'📧',title:'CI: build passed',body:'main · 47 tests passed · deployed',time:'8m',srcApp:'email'},
+    {id:3,app:'SYSTEM',icon:'⚙️',title:'System update ready',body:'Torchform OS 0.3.1 available',time:'1h',srcApp:'settings'},
+    {id:4,app:'SMS',icon:'💬',title:'Mom',body:'Call me when you get a chance',time:'2h',srcApp:'sms'},
+  ],
+};
+const KONAMI=['DU','DU','DD','DD','DL','DR','DL','DR','B','A'];
+
+/* ═══════════════════ APP REGISTRY ═══════════════════ */
+const APPS_DEF=[
+  {id:'terminal',name:'Terminal',icon:'⬛',bg:'#040408',clr:'#39ff47'},
+  {id:'browser', name:'Browser', icon:'🌐',bg:'#040810',clr:'#4fd1ff'},
+  {id:'files',   name:'Files',   icon:'📁',bg:'#080600',clr:'#ffb840'},
+  {id:'media',   name:'Media',   icon:'🎵',bg:'#060408',clr:'#c060ff'},
+  {id:'phone',   name:'Phone',   icon:'📞',bg:'#040806',clr:'#3fc060'},
+  {id:'sms',     name:'Messages',icon:'💬',bg:'#040608',clr:'#4fd1ff'},
+  {id:'email',   name:'Email',   icon:'📧',bg:'#080404',clr:'#ff7a40'},
+  {id:'settings',name:'Settings',icon:'⚙️',bg:'#050510',clr:'#8080ff'},
+  {id:'sysmon',  name:'Monitor', icon:'📊',bg:'#040806',clr:'#e8ff47'},
+  {id:'pkgman',  name:'Packages',icon:'📦',bg:'#050808',clr:'#39ff47'},
+  {id:'logview', name:'Logs',    icon:'📋',bg:'#030308',clr:'#4fd1ff'},
+  {id:'notes',   name:'Notes',   icon:'📝',bg:'#080600',clr:'#e8ff47'},
+];
+const DOCK_IDS=['terminal','browser','sms','phone','files'];
+function appDef(id){return APPS_DEF.find(a=>a.id===id)}
+
+/* ═══════════════════ APP STATE ═══════════════════ */
+const A={};
+
+/* ── TERMINAL ───────────────────────────────── */
+A.terminal={
+  cwd:'/home/zack', hist:[], hIdx:-1,
+  lines:[
+    {c:'ts',t:'Torchform OS 0.3.0 · kernel 6.8.0-minerva · BCM2712 CM5'},
+    {c:'ts',t:'Type "help" for available commands.  D-pad scrolls, ↑↓ = history.\n'},
+  ],
+  FS:{
+    '/':['home','etc','var','proc','dev'],
+    '/home':['zack'],
+    '/home/zack':['Documents','Downloads','Projects','Music','Pictures','.config','.bashrc','README.md'],
+    '/home/zack/Documents':['thelongcentury.md','notes.md','resume.pdf','ITAR-checklist.txt','minerva-spec.md'],
+    '/home/zack/Downloads':['qwen3-14b-q4_k_m.gguf','alpine-3.18.iso','RP2040-datasheet.pdf','kicad_8.0.3.tar.gz'],
+    '/home/zack/Projects':['torchform','long-century','entropy','minerva-kicad','hermes-agent'],
+    '/home/zack/Projects/torchform':['src','Cargo.toml','README.md','.git'],
+    '/home/zack/Projects/long-century':['src','scripts','CMakeLists.txt','conanfile.txt','.git'],
+    '/home/zack/Music':['aphex-twin-selected.flac','arca-kick-ii.flac','nails-tbeck.flac','eno-airports.flac'],
+    '/etc':['hosts','fstab','headscale','passwd','os-release'],
+    '/var':['log','lib','cache'],
+    '/var/log':['torchform.log','syslog','dmesg','nginx.log'],
+  },
+  FILES:{
+    '.bashrc':'# ~/.bashrc\nexport EDITOR=vim\nexport PATH=$PATH:/home/zack/.cargo/bin\nalias ll="ls -la"\nalias gs="git status"\nalias tl="tail -f /var/log/torchform.log"',
+    'README.md':'# Minerva\n\nCM5 cyberdeck in N3DS form factor.\nRunning Alpine Linux + Torchform OS.\n\n## Quick start\n\n```\nssh zack@minerva.local\n./forge build minerva\n```',
+    'thelongcentury.md':'# The Long Century\n\nVictoria 2 reimagining.\n\n## Stack\n- C++ engine core\n- AngelScript scripting\n- OpenGL + Dear ImGui\n- Binary save system\n- Rust matchmaking server',
+    'notes.md':'# Notes\n\n## Minerva power path\n- TPS25751S USB PD sink\n- BQ25798 buck-boost charger\n- TPS62160 3.3V rail\n- MAX17048 fuel gauge\n- ~10mm battery constraint',
+    'hosts':'127.0.0.1 localhost\n::1       localhost\n10.0.0.3  pyrospc\n10.0.0.6  truenas\n10.0.0.8  blaze\n10.0.0.9  inferno',
+    'os-release':'NAME="Torchform OS"\nVERSION="0.3.0"\nID=torchform\nPRETTY_NAME="Torchform OS 0.3.0 (Minerva)"\nHOME_URL="https://zackdell.com"',
+    'dmesg':'[    0.000000] Booting Linux 6.8.0-minerva\n[    0.123456] BCM2712 CM5 board detected\n[    0.234567] JDI R63452 display initialized 1080p\n[    1.045678] BQ25798 charger: USB PD 45W\n[    1.234567] SIM7600G-H modem attached\n[    2.456789] torchformd started\n[    3.012345] Wayland compositor ready',
+    'torchform.log':'[12:44:01] INFO  compositor: wayland socket ready\n[12:44:02] INFO  input: RP2040 HID attached\n[12:44:03] INFO  shell: home loaded\n[12:47:11] INFO  app: terminal launched\n[12:47:22] WARN  media: no audio device found, using null sink',
+  },
+  resolve(p){
+    if(!p||p==='~') return '/home/zack';
+    if(p.startsWith('/')) return p.replace(/\/+$/,'');
+    if(p==='..'){const parts=this.cwd.split('/').filter(Boolean);parts.pop();return '/'+parts.join('/');}
+    if(p==='.') return this.cwd;
+    return (this.cwd+'/'+p).replace(/\/+/,'/');
+  },
+  exec(raw){
+    const parts=raw.trim().split(/\s+/);
+    const cmd=parts[0], args=parts.slice(1), a=args.join(' ');
+    switch(cmd){
+      case 'ls':{
+        const path=args.find(x=>!x.startsWith('-'))||this.cwd;
+        const rp=this.resolve(path);
+        const items=this.FS[rp];
+        if(!items) return {c:'te',t:`ls: ${path}: No such file or directory`};
+        const long=args.includes('-l')||args.includes('-la')||args.includes('-al');
+        if(long) return {c:'to',t:['total '+items.length*4,...items.map(i=>`-rw-r--r-- 1 zack zack ${(Math.random()*9000+100).toFixed(0).padStart(6)} Jan 15 ${i}`)].join('\n')};
+        return {c:'to',t:items.join('  ')};
+      }
+      case 'cd':{
+        const target=this.resolve(args[0]);
+        if(this.FS[target]){this.cwd=target;return null;}
+        return {c:'te',t:`cd: ${args[0]}: No such file or directory`};
+      }
+      case 'pwd': return {c:'to',t:this.cwd};
+      case 'cat':{
+        const f=args[0]?.split('/').pop();
+        const content=this.FILES[f]||this.FILES[args[0]];
+        return content?{c:'to',t:content}:{c:'te',t:`cat: ${args[0]}: No such file or directory`};
+      }
+      case 'echo': return {c:'to',t:a.replace(/["']/g,'')};
+      case 'clear': this.lines=[]; return null;
+      case 'pwd': return {c:'to',t:this.cwd};
+      case 'ps': return {c:'to',t:'PID   TTY   TIME     CMD\n  1   ?     0:01     init\n 42   ?     0:14     torchformd\n 88   pts/0 0:00     bash\n344   ?     0:33     lm-studio\n401   ?     0:28     n8n\n450   ?     0:12     tailscaled\n512   pts/0 0:00     ps'};
+      case 'kill': return {c:'to',t:`Sent SIGTERM to PID ${args[0]||'?'}`};
+      case 'top': return {c:'to',t:'top - '+new Date().toTimeString().slice(0,8)+' up 4:23, 1 user\nTasks: 112 total, 1 running, 111 sleeping\n%Cpu: 14.2 us, 2.1 sy, 0.0 ni, 82.8 id\nMem: 8096M total, 2148M used, 5432M free\n\n PID USER   %CPU %MEM COMMAND\n 344 zack   8.4  12.1 lm-studio\n 401 zack   3.2   4.3 n8n\n 450 zack   0.9   0.6 tailscaled\n  42 root   0.8   2.1 torchformd\n  88 zack   0.1   0.1 bash'};
+      case 'uname': return {c:'to',t:'Linux minerva 6.8.0-minerva #1 SMP PREEMPT_DYNAMIC aarch64 GNU/Linux'};
+      case 'df': return {c:'to',t:'Filesystem      Size  Used Avail Use% Mounted on\n/dev/mmcblk0p2  119G   34G   80G  30% /\ntmpfs           3.9G  128M  3.8G   4% /tmp\n/dev/sda1       2.0T  1.1T  900G  55% /mnt/storage'};
+      case 'free': return {c:'to',t:'              total        used        free\nMem:          7.9Gi       2.1Gi       5.4Gi\nSwap:         2.0Gi          0B       2.0Gi'};
+      case 'ping': return {c:'to',t:`PING ${a||'8.8.8.8'}: 56 data bytes\n64 bytes from ${a||'8.8.8.8'}: icmp_seq=0 ttl=57 time=14.2ms\n64 bytes from ${a||'8.8.8.8'}: icmp_seq=1 ttl=57 time=13.8ms\n--- ping statistics ---\n2 packets transmitted, 2 received, 0% loss`};
+      case 'ssh': return {c:'ts',t:`Connecting to ${a||'host'}...\nAuthenticated via ed25519 key.\n${a||'remote'}:~$ (simulated — type 'exit' to return)`};
+      case 'neofetch': return {c:'ts',t:[
+        '      ___      zack@minerva',
+        '     /o_o\\     OS: Torchform OS 0.3.0',
+        '    (_/ \\_)    Host: Minerva CM5 Cyberdeck',
+        '     |___|     Kernel: 6.8.0-minerva',
+        '    /|   |\\    CPU: BCM2712 (4) @ 2.4GHz',
+        '              GPU: VideoCore VII',
+        '              RAM: 2148MiB / 8096MiB',
+        '              Shell: torchform + zsh 5.9',
+        '              Display: JDI 1080p + DSI 480p',
+        '              WM: smithay compositor',
+      ].join('\n')};
+      case 'git': return {c:'to',t:"On branch main\nYour branch is up to date with 'origin/main'.\n\nnothing to commit, working tree clean"};
+      case 'cargo': return {c:'to',t:'   Compiling torchform v0.3.0\n   Compiling smithay v0.3.0\n    Finished release [optimized] target(s) in 12.4s'};
+      case 'curl': return {c:'to',t:`HTTP/1.1 200 OK\nContent-Type: application/json\n\n{"status":"ok","host":"${a}"}`};
+      case 'exit': case 'logout': return {c:'ts',t:'Connection to remote closed.'};
+      case 'vim': case 'nano': return {c:'to',t:`Opening ${a||'file'} in editor... (simulated)\n[Ctrl+C to exit editor mode]`};
+      case 'help': return {c:'ts',t:'Commands: ls  cd  pwd  cat  echo  clear  ps  kill  top\n         uname  df  free  ping  ssh  neofetch\n         git  cargo  curl  vim  nano  exit\n\nD-pad ↑↓ scrolls output  ·  ↑↓ keys = history'};
+      case '': return null;
+      default: return {c:'te',t:`${cmd}: command not found — type 'help'`};
+    }
+  },
+  run(cmd){
+    this.hist.unshift(cmd); this.hIdx=-1;
+    this.lines.push({c:'tp',t:`zack@minerva:${this.cwd.replace('/home/zack','~')}$ `},{c:'tc',t:cmd});
+    const out=this.exec(cmd);
+    if(out) this.lines.push(out);
+    this.renderLines();
+    const el=$('t-out'); if(el) el.scrollTop=el.scrollHeight;
+  },
+  renderLines(){
+    const el=$('t-out'); if(!el) return;
+    el.innerHTML=this.lines.slice(-300).map(l=>`<div class="t-l ${l.c}">${esc(l.t)}</div>`).join('');
+  },
+  render(){
+    $('acnt').innerHTML=`<div id="t-w"><div class="t-o" id="t-out"></div><div class="t-ir"><span class="t-ps">zack@minerva:${esc(this.cwd.replace('/home/zack','~'))}$&nbsp;</span><input id="t-in" autocomplete="off" autocorrect="off" spellcheck="false" placeholder=""></div></div>`;
+    this.renderLines();
+    const inp=$('t-in');
+    if(inp){
+      inp.focus();
+      inp.onkeydown=e=>{
+        if(e.key==='Enter'){e.preventDefault();const v=inp.value;inp.value='';this.run(v);}
+        else if(e.key==='ArrowUp'){e.preventDefault();if(this.hIdx<this.hist.length-1){this.hIdx++;inp.value=this.hist[this.hIdx]||'';}}
+        else if(e.key==='ArrowDown'){e.preventDefault();this.hIdx=Math.max(-1,this.hIdx-1);inp.value=this.hIdx>=0?this.hist[this.hIdx]:'';}
+      };
+    }
+  },
+  input(btn){
+    const el=$('t-in'); if(el) el.focus();
+    const out=$('t-out');
+    if(btn==='DU'&&out) out.scrollTop-=40;
+    else if(btn==='DD'&&out) out.scrollTop+=40;
+  }
+};
+
+/* ── BROWSER ────────────────────────────────── */
+A.browser={
+  url:'about:newtab', hist:['about:newtab'], hIdx:0,
+  PAGES:{
+    'about:newtab':()=>`<div style="max-width:520px;margin:0 auto"><div style="font-family:var(--cond);font-size:30px;font-weight:700;color:var(--t2);text-align:center;margin-bottom:18px">New Tab</div><div class="bk-grid">${[{i:'🔍',l:'google.com'},{i:'🐙',l:'github.com'},{i:'🗞',l:'news.ycombinator.com'},{i:'📺',l:'youtube.com'},{i:'📖',l:'docs.rust-lang.org'},{i:'🦀',l:'crates.io'},{i:'🏠',l:'headplane.zackdell.com'},{i:'🤖',l:'claude.ai'}].map(b=>`<div class="bk" onclick="A.browser.nav('${b.l}')"><div class="bk-i">${b.i}</div><div class="bk-l">${b.l}</div></div>`).join('')}</div></div>`,
+    'google.com':()=>`<div class="b-page"><div style="text-align:center;margin-bottom:20px"><div style="font-family:var(--cond);font-size:44px;font-weight:700;color:var(--acc)">Search</div></div><div style="background:var(--s1);border:1px solid var(--b1);border-radius:24px;padding:10px 18px;font-size:13px;color:var(--t3);margin-bottom:16px">🔍 Search the web…</div><div class="b-h2">Recent</div><div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">${['N3DS controller-first shell linux','BQ25798 USB PD charger schematic','Rust async trait stabilization RFC','Qwen3-14B local inference benchmark','KiCad JLCPCB gerber export tutorial'].map(s=>`<div style="padding:6px 0;border-bottom:1px solid var(--b1)"><span class="b-link">${s}</span></div>`).join('')}</div></div>`,
+    'github.com':()=>`<div class="b-page"><div class="b-h1">GitHub</div><div class="b-h2">Your repositories</div>${['zack/torchform · Rust · Wayland compositor','zack/long-century · C++ · Grand strategy engine','zack/entropy · Python · AI consulting platform','zack/minerva-kicad · KiCad · CM5 carrier board','zack/hermes-agent · Python · Managed AI assistants'].map(r=>`<div style="padding:9px 0;border-bottom:1px solid var(--b1);font-size:12px"><span class="b-link">${r.split('·')[0]}</span><span style="color:var(--t3)">· ${r.split('·').slice(1).join('·')}</span></div>`).join('')}</div>`,
+    'news.ycombinator.com':()=>`<div class="b-page"><div class="b-h1" style="color:var(--org)">Hacker News</div>${['Show HN: I built a controller-first desktop OS on a CM5 handheld','Ask HN: What is the best open-source LLM for on-device coding?','Rust 2.0 edition: async traits, generators, and GATs stabilized','RISC-V overtakes ARM in embedded market share (2025 report)','KiCad 9.0 release: new interactive router and JLCPCB plugin'].map((h,i)=>`<div style="padding:9px 0;border-bottom:1px solid var(--b1)"><span style="color:var(--t3);margin-right:8px">${i+1}.</span><span class="b-link">${h}</span><div style="font-size:9px;color:var(--t3);margin-top:3px">${~~(Math.random()*400+50)} pts · ${~~(Math.random()*80+5)} comments · ${~~(Math.random()*8+1)}h ago</div></div>`).join('')}</div>`,
+    'docs.rust-lang.org':()=>`<div class="b-page"><div class="b-h1">The Rust Programming Language</div><p style="color:var(--t2);margin-bottom:14px">The official book — by Steve Klabnik and Carol Nichols.</p><div class="b-h2">Contents</div>${['1. Getting Started','2. Programming a Guessing Game','3. Common Programming Concepts','4. Understanding Ownership','5. Using Structs','6. Enums and Pattern Matching','7. Managing Growing Projects','8. Common Collections','9. Error Handling','10. Generic Types, Traits, Lifetimes','11. Automated Tests','13. Closures and Iterators','17. Async and Await'].map(c=>`<div style="padding:6px 0;border-bottom:1px solid var(--b1);font-size:12px"><span class="b-link">${c}</span></div>`).join('')}</div>`,
+    'headplane.zackdell.com':()=>`<div class="b-page"><div class="b-h1">Headplane · Headscale UI</div><div style="display:flex;gap:8px;margin-bottom:14px"><span style="background:rgba(63,192,96,.15);border:1px solid var(--grn);color:var(--grn);font-size:10px;padding:2px 8px;border-radius:4px">● Connected</span></div><div class="b-h2">Nodes (6 online)</div>${['minerva · 10.64.0.1 · this device','pyrospc · 10.64.0.2 · RTX 3060','blaze · 10.64.0.3 · Proxmox primary','inferno · 10.64.0.4 · Proxmox secondary','truenas · 10.64.0.5 · Storage','n8n-lxc · 10.64.0.6 · Automation'].map(n=>`<div style="padding:8px 0;border-bottom:1px solid var(--b1);font-size:11px;display:flex;justify-content:space-between"><span style="color:var(--t1)">${n.split('·')[0]}</span><span style="color:var(--grn)">● ${n.split('·').slice(1).join('·')}</span></div>`).join('')}</div>`,
+  },
+  nav(url){
+    if(!url) return;
+    this.url=url; this.hist=this.hist.slice(0,this.hIdx+1); this.hist.push(url); this.hIdx=this.hist.length-1;
+    const el=$('b-url'); if(el) el.value=url;
+    this.renderPage();
+  },
+  back(){ if(this.hIdx>0){this.hIdx--;this.url=this.hist[this.hIdx];const el=$('b-url');if(el)el.value=this.url;this.renderPage();} },
+  forward(){ if(this.hIdx<this.hist.length-1){this.hIdx++;this.url=this.hist[this.hIdx];const el=$('b-url');if(el)el.value=this.url;this.renderPage();} },
+  renderPage(){
+    const el=$('b-c'); if(!el) return;
+    const fn=this.PAGES[this.url];
+    el.innerHTML=fn?fn():`<div class="b-page"><div class="b-h1">Page not found</div><p style="color:var(--t2)">No page available for <code style="color:var(--acc)">${esc(this.url)}</code>.<br><br><span class="b-link" onclick="A.browser.nav('google.com')">Search Google</span></p></div>`;
+  },
+  render(){
+    $('acnt').innerHTML=`<div id="b-w"><div class="b-bar"><button class="b-nav" onclick="A.browser.back()">←</button><button class="b-nav" onclick="A.browser.forward()">→</button><button class="b-nav" onclick="A.browser.nav(A.browser.url)">↻</button><input id="b-url" value="${esc(this.url)}" onkeydown="if(event.key==='Enter'){A.browser.nav(this.value)}"></div><div id="b-c"></div></div>`;
+    this.renderPage();
+  },
+  input(btn){
+    if(btn==='L') this.back();
+    else if(btn==='R') this.forward();
+    else if(btn==='Y'){const el=$('b-url');if(el){el.focus();el.select();}}
+    else if(btn==='B') this.back();
+  }
+};
+
+/* ── FILES ──────────────────────────────────── */
+A.files={
+  cwd:'/home/zack', focus:0, sideIdx:0,
+  FS:{
+    '/home/zack':[{n:'Documents',t:'dir'},{n:'Downloads',t:'dir'},{n:'Projects',t:'dir'},{n:'Music',t:'dir'},{n:'Pictures',t:'dir'},{n:'.config',t:'dir'},{n:'README.md',t:'md',sz:'1.2K'},{n:'.bashrc',t:'sh',sz:'842B'}],
+    '/home/zack/Documents':[{n:'..',t:'dir'},{n:'thelongcentury.md',t:'md',sz:'4.2K'},{n:'notes.md',t:'md',sz:'2.8K'},{n:'resume.pdf',t:'pdf',sz:'128K'},{n:'ITAR-checklist.txt',t:'txt',sz:'6.4K'},{n:'minerva-spec.md',t:'md',sz:'18K'}],
+    '/home/zack/Downloads':[{n:'..',t:'dir'},{n:'qwen3-14b-q4_k_m.gguf',t:'bin',sz:'8.2G'},{n:'alpine-3.18.iso',t:'iso',sz:'196M'},{n:'RP2040-datasheet.pdf',t:'pdf',sz:'4.2M'},{n:'kicad_8.0.3.tar.gz',t:'gz',sz:'122M'}],
+    '/home/zack/Projects':[{n:'..',t:'dir'},{n:'torchform',t:'dir'},{n:'long-century',t:'dir'},{n:'entropy',t:'dir'},{n:'minerva-kicad',t:'dir'},{n:'hermes-agent',t:'dir'}],
+    '/home/zack/Music':[{n:'..',t:'dir'},{n:'aphex-twin-selected.flac',t:'flac',sz:'412M'},{n:'arca-kick-ii.flac',t:'flac',sz:'280M'},{n:'nails-tbeck.flac',t:'flac',sz:'195M'},{n:'eno-airports.flac',t:'flac',sz:'312M'}],
+    '/home/zack/Pictures':[{n:'..',t:'dir'},{n:'screenshots',t:'dir'},{n:'wallpapers',t:'dir'},{n:'minerva-pcb-render.png',t:'png',sz:'4.2M'}],
+  },
+  sides:[{icon:'🏠',label:'Home',path:'/home/zack'},{icon:'📄',label:'Documents',path:'/home/zack/Documents'},{icon:'⬇️',label:'Downloads',path:'/home/zack/Downloads'},{icon:'💻',label:'Projects',path:'/home/zack/Projects'},{icon:'🎵',label:'Music',path:'/home/zack/Music'},{icon:'🖼',label:'Pictures',path:'/home/zack/Pictures'}],
+  ICONS:{dir:'📁',md:'📝',pdf:'📄',sh:'⚡',txt:'📄',bin:'💾',iso:'💿',gz:'🗜',flac:'🎵',png:'🖼',default:'📄'},
+  render(){
+    const items=this.FS[this.cwd]||[];
+    $('acnt').innerHTML=`<div id="f-w"><div class="f-sb">${this.sides.map((s,i)=>`<div class="f-si ${this.sideIdx===i?'f':''}" onclick="A.files.goSide(${i})">${s.icon} ${s.label}</div>`).join('')}</div><div class="f-mn"><div class="f-tb"><button class="atb-b" onclick="A.files.up()">↑ Up</button>&nbsp;<span class="f-path">${esc(this.cwd)}</span></div><div class="f-l">${items.map((it,i)=>`<div class="f-it ${this.focus===i?'f':''}" onclick="A.files.open(${i})"><span class="f-ic">${this.ICONS[it.t]||this.ICONS.default}</span><span class="f-nm">${esc(it.n)}</span><span class="f-mt">${it.sz||''}</span></div>`).join('')}</div></div></div>`;
+  },
+  open(i){const it=(this.FS[this.cwd]||[])[i];if(!it)return;if(it.t==='dir'){const next=it.n==='..'?this.cwd.split('/').slice(0,-1).join('/')||'/':this.cwd+'/'+it.n;if(this.FS[next]){this.cwd=next;this.focus=0;this.render();}}},
+  up(){const p=this.cwd.split('/').slice(0,-1).join('/')||'/';if(this.FS[p]){this.cwd=p;this.focus=0;this.render();}},
+  goSide(i){this.sideIdx=i;this.cwd=this.sides[i].path;this.focus=0;this.render();},
+  input(btn){
+    const items=this.FS[this.cwd]||[];
+    if(btn==='DU'||btn==='CU'){this.focus=Math.max(0,this.focus-1);this.render();}
+    else if(btn==='DD'||btn==='CD'){this.focus=Math.min(items.length-1,this.focus+1);this.render();}
+    else if(btn==='A'){this.open(this.focus);}
+    else if(btn==='B'){this.up();}
+    else if(btn==='L'){this.sideIdx=Math.max(0,this.sideIdx-1);this.goSide(this.sideIdx);}
+    else if(btn==='R'){this.sideIdx=Math.min(this.sides.length-1,this.sideIdx+1);this.goSide(this.sideIdx);}
+  }
+};
+
+/* ── MEDIA ──────────────────────────────────── */
+A.media={
+  tracks:[
+    {t:'Blue Calx',a:'Aphex Twin',dur:340,e:'🌀',art:'#1a0a2a'},
+    {t:'Triangles & Rhombuses',a:'Arca',dur:218,e:'◈',art:'#0a1a2a'},
+    {t:'Music for Airports 1/1',a:'Brian Eno',dur:452,e:'✦',art:'#0a1a10'},
+    {t:'The Becoming',a:'Nine Inch Nails',dur:316,e:'⬟',art:'#2a0a0a'},
+    {t:'R Plus Seven',a:'Oneohtrix Point Never',dur:224,e:'∿',art:'#0a0a2a'},
+    {t:'Rhubarb',a:'Aphex Twin',dur:264,e:'⬡',art:'#0a1a20'},
+    {t:'Untitled 1',a:'Sigur Rós',dur:398,e:'~',art:'#101520'},
+  ],
+  cur:0,playing:false,pos:0,focus:0,_int:null,
+  toggle(){this.playing?this.pause():this.play();},
+  play(){
+    this.playing=true;clearInterval(this._int);
+    this._int=setInterval(()=>{
+      this.pos=Math.min(this.pos+1,this.tracks[this.cur].dur);
+      if(this.pos>=this.tracks[this.cur].dur){this.pos=0;this.cur=(this.cur+1)%this.tracks.length;}
+      const t=this.tracks[this.cur];
+      const pct=t.dur?Math.round(this.pos/t.dur*100):0;
+      const fg=$('m-fg');if(fg)fg.style.width=pct+'%';
+      const cur=$('m-cur');if(cur)cur.textContent=fmtTime(this.pos);
+      rSb();
+    },1000);
+    rSb();
+  },
+  pause(){this.playing=false;clearInterval(this._int);rSb();},
+  skip(d){this.cur=(this.cur+d+this.tracks.length)%this.tracks.length;this.pos=0;if(this.playing){clearInterval(this._int);this.play();}this.render();},
+  jumpTo(i){this.cur=i;this.pos=0;if(this.playing){clearInterval(this._int);this.play();}this.render();},
+  render(){
+    const t=this.tracks[this.cur];
+    const pct=t.dur?Math.round(this.pos/t.dur*100):0;
+    $('acnt').innerHTML=`<div id="m-w"><div class="m-pl">${this.tracks.map((tr,i)=>`<div class="m-tr ${this.cur===i?'ac':''} ${this.focus===i?'f':''}" onclick="A.media.jumpTo(${i})"><div class="m-tt">${esc(tr.t)}</div><div class="m-at">${esc(tr.a)}</div></div>`).join('')}</div><div class="m-mn"><div class="m-art" style="background:${t.art}">${t.e}</div><div style="text-align:center"><div class="m-ti">${esc(t.t)}</div><div class="m-ai">${esc(t.a)}</div></div><div class="m-pg"><div class="m-bg"><div class="m-fg" id="m-fg" style="width:${pct}%"></div></div><div class="m-ts"><span id="m-cur">${fmtTime(this.pos)}</span><span>${fmtTime(t.dur)}</span></div></div><div class="m-ct"><span class="m-bt" onclick="A.media.skip(-1)">⏮</span><span class="m-bt play" onclick="A.media.toggle()">${this.playing?'⏸':'▶'}</span><span class="m-bt" onclick="A.media.skip(1)">⏭</span></div><div style="font-size:10px;color:var(--t3);margin-top:8px">[A] play/pause &nbsp; [L/R] skip &nbsp; [↑↓] playlist</div></div></div>`;
+  },
+  input(btn){
+    if(btn==='A'){this.toggle();this.render();}
+    else if(btn==='DL'||btn==='L'){this.skip(-1);}
+    else if(btn==='DR'||btn==='R'){this.skip(1);}
+    else if(btn==='DU'||btn==='CU'){this.focus=Math.max(0,this.focus-1);this.render();}
+    else if(btn==='DD'||btn==='CD'){this.focus=Math.min(this.tracks.length-1,this.focus+1);this.render();}
+    else if(btn==='X'){this.jumpTo(this.focus);}
+  }
+};
+
+/* ── PHONE ──────────────────────────────────── */
+A.phone={
+  tab:'dialer',number:'',callActive:false,callContact:'',callTimer:0,_ct:null,focus:0,
+  dkeys:['1','2','3','4','5','6','7','8','9','*','0','#'],
+  dsub:{2:'ABC',3:'DEF',4:'GHI',5:'JKL',6:'MNO',7:'PQRS',8:'TUV',9:'WXYZ'},
+  contacts:[{n:'Alice Chen',a:'👩',last:'Outgoing · 3h ago'},{n:'Bob Martinez',a:'👨',last:'Incoming · Yesterday'},{n:'Mom',a:'👵',last:'Missed · 2 days ago'},{n:'Coastal AI Partners',a:'🏢',last:'Outgoing · 1 week ago'}],
+  startCall(name){this.callActive=true;this.callContact=name||this.number||'Unknown';this.callTimer=0;clearInterval(this._ct);this._ct=setInterval(()=>{this.callTimer++;const el=$('call-timer');if(el)el.textContent=String(~~(this.callTimer/60)).padStart(2,'0')+':'+String(this.callTimer%60).padStart(2,'0');},1000);this.render();},
+  endCall(){clearInterval(this._ct);this.callActive=false;this.callTimer=0;this.number='';this.render();},
+  setTab(t){this.tab=t;this.focus=0;this.render();},
+  press(k){this.number+=k;this.render();},
+  del(){this.number=this.number.slice(0,-1);this.render();},
+  render(){
+    if(this.callActive){$('acnt').innerHTML=`<div id="ph-w"><div class="call-screen"><div class="call-av">📞</div><div class="call-nm">${esc(this.callContact)}</div><div class="call-st" id="call-timer">00:00</div><div style="font-size:10px;color:var(--t2)">Call in progress</div><div class="call-acts"><div class="call-btn" title="Mute">🔇</div><div class="call-btn" title="Speaker">🔊</div><div class="call-btn end" onclick="A.phone.endCall()" title="End">📵</div></div><div style="font-size:9px;color:var(--t3);margin-top:12px">[A] end call</div></div></div>`;return;}
+    const tabs=['dialer','recents','contacts'];
+    const tabHtml=tabs.map(t=>`<div class="ph-ta ${this.tab===t?'on':''}" onclick="A.phone.setTab('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</div>`).join('');
+    let body='';
+    if(this.tab==='dialer'){
+      const btns=[...this.dkeys,'📞','⌫'];
+      body=`<div class="dl"><div class="dl-n">${esc(this.number)||'&nbsp;'}</div><div class="dl-g">${btns.map((b,i)=>`<div class="dlb ${i===12?'call':i===13?'del':''} ${this.focus===i?'f':''}" onclick="${i===12?'A.phone.startCall()':i===13?'A.phone.del()':'A.phone.press('+JSON.stringify(b)+')'}">${b}<div class="dlb-s">${this.dsub[b]||''}</div></div>`).join('')}</div><div style="font-size:9px;color:var(--t3)">[D-pad] navigate  [A] press  [B] delete</div></div>`;
+    } else {
+      const items=this.contacts;
+      body=`<div class="cl-l">${items.map((c,i)=>`<div class="cl-i" style="${this.focus===i?'background:rgba(232,255,71,.07);border-left:2px solid var(--acc)':''}" onclick="A.phone.startCall('${c.n}')"><div class="cl-av">${c.a}</div><div><div class="cl-nm">${esc(c.n)}</div><div class="cl-mt">${c.last}</div></div></div>`).join('')}</div>`;
+    }
+    $('acnt').innerHTML=`<div id="ph-w"><div class="ph-tb">${tabHtml}</div>${body}</div>`;
+  },
+  input(btn){
+    if(this.callActive){if(btn==='A'||btn==='B')this.endCall();return;}
+    if(btn==='L'){const tabs=['dialer','recents','contacts'];const i=tabs.indexOf(this.tab);this.setTab(tabs[Math.max(0,i-1)]);return;}
+    if(btn==='R'){const tabs=['dialer','recents','contacts'];const i=tabs.indexOf(this.tab);this.setTab(tabs[Math.min(2,i+1)]);return;}
+    if(this.tab==='dialer'){
+      const tot=14;
+      if(btn==='DR'||btn==='CR')this.focus=Math.min(tot-1,this.focus+1);
+      else if(btn==='DL'||btn==='CL')this.focus=Math.max(0,this.focus-1);
+      else if(btn==='DD'||btn==='CD')this.focus=Math.min(tot-1,this.focus+3);
+      else if(btn==='DU'||btn==='CU')this.focus=Math.max(0,this.focus-3);
+      else if(btn==='A'){if(this.focus<12)this.press(this.dkeys[this.focus]);else if(this.focus===12)this.startCall();else this.del();}
+      else if(btn==='B')this.del();
+    } else {
+      if(btn==='DU'||btn==='CU')this.focus=Math.max(0,this.focus-1);
+      else if(btn==='DD'||btn==='CD')this.focus=Math.min(this.contacts.length-1,this.focus+1);
+      else if(btn==='A')this.startCall(this.contacts[this.focus].n);
+    }
+    this.render();
+  }
+};
+
+/* ── SMS ────────────────────────────────────── */
+A.sms={
+  convFocus:0, activeConv:0,
+  convs:[
+    {name:'Alice Chen',msgs:[{out:false,t:'Hey! Are you coming to the meetup?'},{out:true,t:'What time does it start?'},{out:false,t:'7pm at the usual place 😊'},{out:false,t:'Are you free tonight?'}]},
+    {name:'Mom',msgs:[{out:false,t:'How is the project going?'},{out:true,t:"Pretty well! The CM5 arrived, starting PCB layout."},{out:false,t:'Call me when you get a chance'}]},
+    {name:'Bob Martinez',msgs:[{out:false,t:'Saw your PR — the async rewrite looks great'},{out:true,t:'Thanks! Cut latency by ~40ms'},{out:false,t:'Want to pair on the matchmaking server?'}]},
+    {name:'Coastal AI',msgs:[{out:false,t:'New client inquiry came in — ITAR adjacent'},{out:true,t:"On it. I'll review their requirements now."}]},
+  ],
+  render(){
+    const c=this.convs[this.activeConv];
+    $('acnt').innerHTML=`<div id="s-w"><div class="s-sb">${this.convs.map((cv,i)=>`<div class="s-cv ${this.convFocus===i?'f':''} ${this.activeConv===i?'on':''}" onclick="A.sms.openConv(${i})"><div class="s-cn">${esc(cv.name)}</div><div class="s-cp">${esc(cv.msgs.at(-1)?.t||'')}</div></div>`).join('')}</div><div class="s-mn"><div class="s-hd">${esc(c.name)}</div><div class="s-ms" id="s-ms">${c.msgs.map(m=>`<div class="s-msg ${m.out?'out':'in'}">${esc(m.t)}</div>`).join('')}</div><div class="s-cm"><input id="s-in" placeholder="Message ${esc(c.name)}…" onkeydown="if(event.key==='Enter'&&this.value.trim()){A.sms.send(this.value);this.value='';event.preventDefault()}"></div></div></div>`;
+    const ms=$('s-ms');if(ms)ms.scrollTop=ms.scrollHeight;
+  },
+  openConv(i){this.activeConv=i;this.convFocus=i;this.render();$('s-in')?.focus();},
+  send(txt){if(!txt.trim())return;this.convs[this.activeConv].msgs.push({out:true,t:txt});this.render();const ms=$('s-ms');if(ms)ms.scrollTop=ms.scrollHeight;},
+  input(btn){
+    if(btn==='DU'||btn==='CU'){this.convFocus=Math.max(0,this.convFocus-1);this.render();}
+    else if(btn==='DD'||btn==='CD'){this.convFocus=Math.min(this.convs.length-1,this.convFocus+1);this.render();}
+    else if(btn==='A'){this.openConv(this.convFocus);$('s-in')?.focus();}
+    else if(btn==='Y'){$('s-in')?.focus();}
+  }
+};
+
+/* ── EMAIL ──────────────────────────────────── */
+A.email={
+  folder:'inbox', msgFocus:0,
+  folders:[{id:'inbox',label:'Inbox',count:3},{id:'sent',label:'Sent',count:0},{id:'drafts',label:'Drafts',count:1},{id:'archive',label:'Archive',count:0}],
+  msgs:{
+    inbox:[
+      {from:'ci@github.com',subj:'Build passed · main',preview:'47 tests passed. Deployed to staging.',body:'All 47 tests passed.\nBuild time: 12.4s\nDeployment: staging.thelongcentury.com\n\nCommit: feat: async matchmaking server\nAuthor: zack <zack@zackdell.com>',time:'8m',unread:true},
+      {from:'alice@example.com',subj:'Meetup next week?',preview:'Hey, embedded Rust meetup Thursday?',body:"Hey!\n\nAre you going to the embedded Rust meetup next Thursday? I think a few of the KiCad folks will be there too.\n\nLet me know!\nAlice",time:'2h',unread:true},
+      {from:'hn@ycombinator.com',subj:'HN Digest · Top 5',preview:'Show HN: controller-first desktop shell',body:'Top Hacker News stories today:\n\n1. Show HN: I built a controller-first desktop OS on a CM5 handheld (412 pts)\n2. Rust 2.0 edition proposal open for feedback (289 pts)\n3. RISC-V market share overtakes ARM in embedded (201 pts)\n4. Ask HN: Best open-source LLM for on-device coding? (178 pts)\n5. KiCad 9.0: new router, JLCPCB plugin (164 pts)',time:'3h',unread:true},
+      {from:'stripe@stripe.com',subj:'Invoice paid · $240',preview:'Coastal AI Partners invoice settled.',body:'Invoice #1042 has been paid.\n\nAmount: $240.00 USD\nClient: Coastal AI Partners\nDate: January 15, 2025\n\nThank you for your business.',time:'1d',unread:false},
+    ],
+    sent:[{from:'me',subj:'Re: Meetup next week?',preview:"I'll be there! See you Thursday.",body:"I'll be there! See you Thursday.",time:'2h',unread:false}],
+    drafts:[{from:'me',subj:'Minerva power spec v0.3 [DRAFT]',preview:'Updated BQ25798 power path…',body:'[Draft] Updated power path schematic.\n\nBQ25798 → NVDC mode for simultaneous charge/discharge.\nTPS25751S PD sink @ 45W max.\nBattery constraint: ~10mm.',time:'1d',unread:false}],
+    archive:[],
+  },
+  setFolder(f){this.folder=f;this.msgFocus=0;this.render();},
+  openMsg(i){this.msgFocus=i;const m=(this.msgs[this.folder]||[])[i];if(m)m.unread=false;this.render();},
+  render(){
+    const items=this.msgs[this.folder]||[];
+    const msg=items[this.msgFocus];
+    $('acnt').innerHTML=`<div id="e-w"><div class="e-fb">${this.folders.map(f=>`<div class="e-fi ${this.folder===f.id?'on':''}" onclick="A.email.setFolder('${f.id}')">${f.label}${f.count?`<span class="e-bd">${f.count}</span>`:''}</div>`).join('')}</div><div class="e-ml">${items.map((m,i)=>`<div class="e-mi ${this.msgFocus===i?'f':''} ${m.unread?'ur':''}" onclick="A.email.openMsg(${i})"><div class="e-mf">${esc(m.from)}</div><div class="e-ms">${esc(m.subj)}</div><div class="e-mp">${esc(m.preview)}</div></div>`).join('')}</div><div class="e-dt">${msg?`<div class="e-df">From: ${esc(msg.from)} · ${msg.time}</div><div class="e-dsu">${esc(msg.subj)}</div><div class="e-db">${esc(msg.body)}</div>`:'<div style="color:var(--t3);padding:20px 0">Select a message to read</div>'}</div></div>`;
+  },
+  input(btn){
+    const items=this.msgs[this.folder]||[];
+    if(btn==='DU'||btn==='CU'){this.msgFocus=Math.max(0,this.msgFocus-1);this.render();}
+    else if(btn==='DD'||btn==='CD'){this.msgFocus=Math.min(items.length-1,this.msgFocus+1);this.render();}
+    else if(btn==='A'){this.openMsg(this.msgFocus);}
+    else if(btn==='L'){const fi=this.folders.findIndex(f=>f.id===this.folder);this.setFolder(this.folders[Math.max(0,fi-1)].id);}
+    else if(btn==='R'){const fi=this.folders.findIndex(f=>f.id===this.folder);this.setFolder(this.folders[Math.min(this.folders.length-1,fi+1)].id);}
+  }
+};
+
+/* ── SETTINGS ───────────────────────────────── */
+A.settings={
+  section:'display', sideFocus:0,
+  secs:[
+    {id:'display',label:'Display',icon:'🖥',g:'SYSTEM'},
+    {id:'audio',label:'Audio',icon:'🔊',g:'SYSTEM'},
+    {id:'input',label:'Input Mapping',icon:'🎮',g:'SYSTEM'},
+    {id:'power',label:'Power & Sleep',icon:'🔋',g:'SYSTEM'},
+    {id:'datetime',label:'Date & Time',icon:'🕐',g:'SYSTEM'},
+    {id:'storage',label:'Storage',icon:'💾',g:'SYSTEM'},
+    {id:'network',label:'Wi-Fi',icon:'📶',g:'CONNECTIVITY'},
+    {id:'bluetooth',label:'Bluetooth',icon:'📡',g:'CONNECTIVITY'},
+    {id:'vpn',label:'VPN',icon:'🛡',g:'CONNECTIVITY'},
+    {id:'cellular',label:'Cellular',icon:'📱',g:'CONNECTIVITY'},
+    {id:'netmon',label:'Network Monitor',icon:'📊',g:'CONNECTIVITY'},
+    {id:'security',label:'Security',icon:'🔒',g:'PRIVACY'},
+    {id:'permissions',label:'App Permissions',icon:'🧩',g:'PRIVACY'},
+    {id:'firewall',label:'Firewall',icon:'🧱',g:'PRIVACY'},
+    {id:'about',label:'About',icon:'ℹ️',g:'DEVICE'},
+  ],
+  rows:{
+    display:[
+      {l:'Brightness',s:`${S.cfg.bright}%`,r:{type:'sl',k:'bright',v:S.cfg.bright}},
+      {l:'Night mode',s:'Reduce blue light after 9 PM',r:{type:'tg',k:'nightMode',v:true}},
+      {l:'Refresh rate',s:'',r:{type:'sel',k:'hz',opts:['30 Hz','60 Hz'],v:'60 Hz'}},
+      {l:'Orientation',s:'',r:{type:'sel',k:'orient',opts:['Landscape','Portrait'],v:'Landscape'}},
+    ],
+    audio:[
+      {l:'Volume',s:`${S.cfg.vol}%`,r:{type:'sl',k:'vol',v:S.cfg.vol}},
+      {l:'Output device',s:'',r:{type:'sel',k:'out',opts:['Speaker','QCY H3 Pro','HDMI'],v:'Speaker'}},
+      {l:'Haptic feedback',s:'Vibrate on input',r:{type:'tg',k:'haptic',v:S.cfg.haptic}},
+      {l:'System sounds',s:'UI event audio',r:{type:'tg',k:'sysSound',v:false}},
+    ],
+    input:[
+      {l:'Button remapping',s:'A/B/X/Y swap',r:{type:'sel',k:'bmap',opts:['Default','Nintendo','Xbox','Custom'],v:'Default'}},
+      {l:'Circle pad deadzone',s:'',r:{type:'sl',k:'deadzone',v:12}},
+      {l:'Touchscreen gestures',s:'Swipe, tap, pinch',r:{type:'tg',k:'touch',v:true}},
+      {l:'C-Stick mode',s:'',r:{type:'sel',k:'cstick',opts:['Camera','Mouse','Scroll'],v:'Mouse'}},
+    ],
+    network:[
+      {l:'Wi-Fi',s:S.cfg.wifi?S.cfg.wifiNet:'Disabled',r:{type:'tg',k:'wifi',v:S.cfg.wifi}},
+      {l:'Network',s:'',r:{type:'sel',k:'wifiNet',opts:['HomeNet-5G','entropy-5G','iPhone Hotspot','eduroam'],v:S.cfg.wifiNet}},
+      {l:'DNS servers',s:'1.1.1.1, 8.8.8.8',r:{type:'none'}},
+      {l:'Auto-connect',s:'Join known networks',r:{type:'tg',k:'autoWifi',v:true}},
+    ],
+    bluetooth:[
+      {l:'Bluetooth',s:S.cfg.bt?`On · ${S.cfg.btDev}`:'Off',r:{type:'tg',k:'bt',v:S.cfg.bt}},
+      {l:'Connected device',s:S.cfg.bt?S.cfg.btDev:'None',r:{type:'none'}},
+      {l:'Auto-connect',s:'Reconnect to paired devices',r:{type:'tg',k:'btAuto',v:true}},
+      {l:'Visibility',s:'Visible to nearby devices',r:{type:'tg',k:'btVis',v:false}},
+    ],
+    vpn:[
+      {l:'VPN',s:'Tailscale',r:{type:'tg',k:'vpn',v:S.cfg.vpn}},
+      {l:'Provider',s:'Tailscale (Headscale)',r:{type:'none'}},
+      {l:'Server',s:'headscale.zackdell.com',r:{type:'none'}},
+      {l:'Kill switch',s:'Block non-VPN traffic',r:{type:'tg',k:'vpnKill',v:false}},
+    ],
+    cellular:[
+      {l:'Cellular data',s:'SIM7600G-H R2',r:{type:'tg',k:'cell',v:true}},
+      {l:'Data roaming',s:'',r:{type:'tg',k:'roam',v:false}},
+      {l:'APN',s:'internet',r:{type:'none'}},
+      {l:'Data usage this month',s:'1.2 GB of 10 GB',r:{type:'none'}},
+    ],
+    power:[
+      {l:'Battery saver',s:'Enable below 20%',r:{type:'tg',k:'batSave',v:S.cfg.batSave}},
+      {l:'Sleep timeout',s:'',r:{type:'sel',k:'sleep',opts:['1 min','5 min','10 min','Never'],v:'5 min'}},
+      {l:'CPU governor',s:'',r:{type:'sel',k:'cpu',opts:['Performance','Balanced','Powersave'],v:'Balanced'}},
+      {l:'USB charging only',s:'No data when locked',r:{type:'tg',k:'usbLock',v:true}},
+    ],
+    security:[
+      {l:'Lock screen PIN',s:'4-digit PIN set',r:{type:'none'}},
+      {l:'Auto-lock',s:'',r:{type:'sel',k:'autoLock',opts:['Immediately','30 sec','1 min','5 min'],v:'1 min'}},
+      {l:'Firewall',s:S.cfg.firewall?'Active · 3 rules':'Disabled',r:{type:'tg',k:'firewall',v:S.cfg.firewall}},
+      {l:'Closed captions',s:'For all media',r:{type:'tg',k:'captions',v:false}},
+    ],
+    permissions:[
+      {l:'Camera',s:'Terminal, Phone',r:{type:'none'}},
+      {l:'Microphone',s:'Phone, Messages',r:{type:'none'}},
+      {l:'Location',s:'No apps',r:{type:'none'}},
+      {l:'Contacts',s:'Phone, Messages, Email',r:{type:'none'}},
+      {l:'Notifications',s:'All apps',r:{type:'none'}},
+    ],
+    firewall:[
+      {l:'Firewall',s:'iptables + per-app rules',r:{type:'tg',k:'firewall',v:S.cfg.firewall}},
+      {l:'lm-studio',s:'Allow: 1234/tcp',r:{type:'none'}},
+      {l:'n8n',s:'Allow: 5678/tcp (Tailscale only)',r:{type:'none'}},
+      {l:'headscaled',s:'Allow: 41641/udp',r:{type:'none'}},
+      {l:'Block outbound DNS leak',s:'Route DNS over VPN',r:{type:'tg',k:'dnsLeak',v:true}},
+    ],
+    netmon:[
+      {l:'Current download',s:'2.4 Mbps',r:{type:'none'}},
+      {l:'Current upload',s:'0.8 Mbps',r:{type:'none'}},
+      {l:'Latency (1.1.1.1)',s:'14 ms',r:{type:'none'}},
+      {l:'Total today',s:'↓ 312 MB  ↑ 48 MB',r:{type:'none'}},
+      {l:'Per-app monitoring',s:'',r:{type:'tg',k:'perApp',v:true}},
+    ],
+    datetime:[
+      {l:'Date',s:new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}),r:{type:'none'}},
+      {l:'Time',s:new Date().toLocaleTimeString(),r:{type:'none'}},
+      {l:'Timezone',s:'America/Los_Angeles (PST)',r:{type:'none'}},
+      {l:'24-hour time',s:'',r:{type:'tg',k:'h24',v:false}},
+      {l:'Auto-set from network',s:'',r:{type:'tg',k:'autoTime',v:true}},
+    ],
+    storage:[
+      {l:'Internal (eMMC)',s:'34 GB used of 119 GB',r:{type:'none'}},
+      {l:'/mnt/storage (USB)',s:'1.1 TB used of 2.0 TB',r:{type:'none'}},
+      {l:'Cache',s:'2.4 GB',r:{type:'none'}},
+      {l:'Temp files',s:'128 MB',r:{type:'none'}},
+    ],
+    about:[
+      {l:'OS',s:'Torchform OS 0.3.0',r:{type:'none'}},
+      {l:'Kernel',s:'6.8.0-minerva',r:{type:'none'}},
+      {l:'Hardware',s:'Minerva CM5 · BCM2712 @ 2.4GHz',r:{type:'none'}},
+      {l:'RAM',s:'8 GB LPDDR4X',r:{type:'none'}},
+      {l:'Display',s:'JDI R63452 1080p + DSI 480p',r:{type:'none'}},
+      {l:'Modem',s:'SIM7600G-H R2 (LTE)',r:{type:'none'}},
+      {l:'Hostname',s:'minerva',r:{type:'none'}},
+      {l:'Build',s:'2025-01-15 · zack@pyrospc',r:{type:'none'}},
+    ],
+  },
+  setSection(id,i){this.section=id;this.sideFocus=i;this.render();},
+  toggle(k){S.cfg[k]=!S.cfg[k];this.render();rSb();},
+  render(){
+    const rows=this.rows[this.section]||this.rows.about;
+    const sec=this.secs;
+    let lastG='';
+    const sideHtml=sec.map((s,i)=>{let gh='';if(s.g!==lastG){gh=`<div class="st-g">${s.g}</div>`;lastG=s.g;}return gh+`<div class="st-i ${this.section===s.id?'on':''} ${this.sideFocus===i?'f':''}" onclick="A.settings.setSection('${s.id}',${i})">${s.icon} ${s.label}</div>`;}).join('');
+    $('acnt').innerHTML=`<div id="st-w"><div class="st-sb">${sideHtml}</div><div class="st-mn"><div class="st-tn">${this.secs.find(s=>s.id===this.section)?.label||'Settings'}</div>${rows.map(r=>`<div class="st-rw"><div><div class="st-rl">${r.l}</div>${r.s?`<div class="st-rs">${r.s}</div>`:''}</div>${r.r.type==='tg'?`<div class="st-tg ${S.cfg[r.r.k]?'on':''}" onclick="A.settings.toggle('${r.r.k}')"></div>`:r.r.type==='sl'?`<div style="display:flex;align-items:center;gap:8px"><input type="range" class="st-sl" min="0" max="100" value="${r.r.v}" oninput="S.cfg.${r.r.k}=+this.value;this.nextElementSibling.textContent=this.value+'%';rSb()"><span class="st-sv">${r.r.v}%</span></div>`:r.r.type==='sel'?`<select class="st-sel" onchange="S.cfg['${r.r.k}']=this.value">${r.r.opts.map(o=>`<option${r.r.v===o?' selected':''}>${o}</option>`).join('')}</select>`:''}</div>`).join('')}</div></div>`;
+  },
+  input(btn){
+    if(btn==='DU'||btn==='CU'){this.sideFocus=Math.max(0,this.sideFocus-1);this.setSection(this.secs[this.sideFocus].id,this.sideFocus);}
+    else if(btn==='DD'||btn==='CD'){this.sideFocus=Math.min(this.secs.length-1,this.sideFocus+1);this.setSection(this.secs[this.sideFocus].id,this.sideFocus);}
+  }
+};
+
+/* ── SYSMON ─────────────────────────────────── */
+A.sysmon={
+  cpuH:Array(20).fill(15),ramH:Array(20).fill(28),gpuH:Array(20).fill(8),_int:null,
+  procs:[
+    {n:'lm-studio',cpu:8.4,mem:12.1,pid:344},
+    {n:'n8n',cpu:3.2,mem:4.3,pid:401},
+    {n:'torchformd',cpu:1.8,mem:2.1,pid:42},
+    {n:'wayland-comp',cpu:1.2,mem:1.8,pid:88},
+    {n:'tailscaled',cpu:0.9,mem:0.6,pid:450},
+    {n:'sshd',cpu:0.3,mem:0.2,pid:201},
+    {n:'bash',cpu:0.1,mem:0.1,pid:512},
+  ],
+  tick(){
+    const c=12+~~(Math.random()*20),r=26+~~(Math.random()*6),g=5+~~(Math.random()*12);
+    this.cpuH.push(c);this.cpuH.shift();
+    this.ramH.push(r);this.ramH.shift();
+    this.gpuH.push(g);this.gpuH.shift();
+    this.procs[0].cpu=+(8+Math.random()*4).toFixed(1);
+    ['cpu','ram','gpu'].forEach((k,ki)=>{
+      const h=[this.cpuH,this.ramH,this.gpuH][ki];
+      const v=h.at(-1);
+      const vEl=$(k+'v');if(vEl)vEl.textContent=v+'%';
+      const bEl=$(k+'b');if(bEl)bEl.style.width=v+'%';
+      const gEl=$(k+'g');if(gEl)gEl.innerHTML=h.map(v=>`<div class="sm-gb" style="height:${Math.max(2,~~(v/100*34))}px;background:${['var(--org)','var(--blue)','var(--pur)'][ki]};opacity:.75"></div>`).join('');
+    });
+    this.procs.forEach((p,i)=>{const el=$('pr'+i);if(el)el.textContent=p.cpu.toFixed(1)+'%';});
+  },
+  bars(h,col){return h.map(v=>`<div class="sm-gb" style="height:${Math.max(2,~~(v/100*34))}px;background:${col};opacity:.75"></div>`).join('');},
+  render(){
+    const c=this.cpuH.at(-1),r=this.ramH.at(-1),g=this.gpuH.at(-1);
+    $('acnt').innerHTML=`<div id="sm-w">
+<div class="sm-c"><div class="sm-lb">CPU</div><div class="sm-vl" id="cpuv" style="color:var(--org)">${c}%</div><div class="sm-sb">BCM2712 · 4× Cortex-A76 · 2.4GHz</div><div class="sm-bw"><div class="sm-bf" id="cpub" style="width:${c}%;background:var(--org)"></div></div><div class="sm-gh" id="cpug">${this.bars(this.cpuH,'var(--org)')}</div></div>
+<div class="sm-c"><div class="sm-lb">RAM</div><div class="sm-vl" id="ramv" style="color:var(--blue)">${r}%</div><div class="sm-sb">2.1 GB used / 8.0 GB total</div><div class="sm-bw"><div class="sm-bf" id="ramb" style="width:${r}%;background:var(--blue)"></div></div><div class="sm-gh" id="ramg">${this.bars(this.ramH,'var(--blue)')}</div></div>
+<div class="sm-c"><div class="sm-lb">GPU / VideoCore VII</div><div class="sm-vl" id="gpuv" style="color:var(--pur)">${g}%</div><div class="sm-sb">Shared memory · OpenGL ES 3.1</div><div class="sm-bw"><div class="sm-bf" id="gpub" style="width:${g}%;background:var(--pur)"></div></div><div class="sm-gh" id="gpug">${this.bars(this.gpuH,'var(--pur)')}</div></div>
+<div class="sm-c w2"><div class="sm-lb">PROCESSES</div><div class="pr-l"><div class="pr-h"><span class="pr-n">Name</span><span class="pr-c">CPU%</span><span class="pr-m">MEM%</span></div>${this.procs.map((p,i)=>`<div class="pr-r"><span class="pr-n">${p.n} <span style="color:var(--t3);font-size:9px">${p.pid}</span></span><span class="pr-c" id="pr${i}">${p.cpu.toFixed(1)}%</span><span class="pr-m">${p.mem.toFixed(1)}%</span></div>`).join('')}</div></div></div>`;
+    clearInterval(this._int);this._int=setInterval(()=>this.tick(),1100);
+  },
+  input(){}
+};
+
+/* ── PACKAGE MANAGER ────────────────────────── */
+A.pkgman={
+  pkgs:[
+    {n:'neovim',v:'0.9.4',inst:true},{n:'ripgrep',v:'14.1.0',inst:true},{n:'fd-find',v:'9.0.0',inst:true},
+    {n:'bat',v:'0.24.0',inst:true},{n:'helix',v:'24.03',inst:false},{n:'zoxide',v:'0.9.4',inst:false},
+    {n:'starship',v:'1.18.2',inst:false},{n:'bottom',v:'0.9.6',inst:false},{n:'tokei',v:'12.1.2',inst:false},
+    {n:'gitui',v:'0.26.0',inst:false},{n:'glow',v:'1.5.1',inst:false},{n:'lazygit',v:'0.41.0',inst:false},
+  ],
+  log:'$ apk list --installed\nOK: 312 packages installed\n',
+  install(n){this.log+=`\n$ apk add ${n}\nfetch https://dl-cdn.alpinelinux.org/alpine/edge/community\n(1/1) Installing ${n}\nOK: 1 package(s) added\n`;this.pkgs.find(p=>p.n===n)&&(this.pkgs.find(p=>p.n===n).inst=true);this.render();},
+  search(q){
+    if(!q){this.log+='$ # Search cleared\n';this.render();return;}
+    const res=this.pkgs.filter(p=>p.n.includes(q));
+    this.log+=`\n$ apk search ${q}\n${res.length?res.map(p=>`${p.n}-${p.v}`).join('\n'):'No results'}\n`;
+    this.render();
+    const el=$('pk-out');if(el)el.scrollTop=el.scrollHeight;
+  },
+  render(){
+    $('acnt').innerHTML=`<div id="pk-w"><div class="pk-src"><input id="pk-in" placeholder="Search packages…" onkeydown="if(event.key==='Enter'){A.pkgman.search(this.value)}"><button class="pk-btn" onclick="A.pkgman.search($('pk-in')?.value)">Search</button><button class="pk-btn" onclick="A.pkgman.update()">↻ Update</button></div><div class="pk-list">${this.pkgs.map(p=>`<div class="pk-it"><div><div class="pk-nm">${esc(p.n)}</div><div class="pk-vr">${p.v}</div></div><button class="pk-ins" style="${p.inst?'color:var(--grn);border-color:var(--grn)':''}" onclick="A.pkgman.install('${p.n}')">${p.inst?'installed':'install'}</button></div>`).join('')}</div><div class="pk-out" id="pk-out">${esc(this.log)}</div></div>`;
+    const el=$('pk-out');if(el)el.scrollTop=el.scrollHeight;
+  },
+  update(){this.log+='\n$ apk update\nfetch https://dl-cdn.alpinelinux.org/alpine/edge/main\nOK: 18421 distinct packages available\n$ apk upgrade\nOK: 312 packages up to date\n';this.render();},
+  input(btn){const el=$('pk-in');if(el&&(btn==='Y'||btn==='A'))el.focus();}
+};
+
+/* ── LOG VIEWER ─────────────────────────────── */
+A.logview={
+  tab:'torchform',
+  LOGS:{
+    torchform:[
+      {c:'ok', t:'[12:44:01.002] INFO  compositor: wayland socket ready at /run/torchform/wayland-0'},
+      {c:'ok', t:'[12:44:01.145] INFO  input: RP2040 HID controller attached'},
+      {c:'ok', t:'[12:44:02.334] INFO  shell: home screen loaded (12 apps)'},
+      {c:'info',t:'[12:44:03.012] DEBUG input: button map loaded: default N3DS layout'},
+      {c:'warn',t:'[12:44:12.445] WARN  media: no audio device, using null sink'},
+      {c:'ok', t:'[12:45:00.100] INFO  app: terminal launched (pid 512)'},
+      {c:'ok', t:'[12:45:22.234] INFO  net: wifi connected: HomeNet-5G'},
+      {c:'info',t:'[12:46:11.567] DEBUG shell: notification received from sms'},
+      {c:'ok', t:'[12:47:00.003] INFO  app: browser launched (pid 620)'},
+      {c:'info',t:'[12:47:44.890] DEBUG qs: panel opened'},
+    ],
+    syslog:[
+      {c:'ok', t:'Jan 15 12:44:00 minerva kernel: BCM2712 CM5 board detected'},
+      {c:'ok', t:'Jan 15 12:44:00 minerva kernel: JDI R63452 display: 1080x1920 @ 60Hz'},
+      {c:'ok', t:'Jan 15 12:44:01 minerva kernel: BQ25798 charger: USB PD 45W detected'},
+      {c:'warn',t:'Jan 15 12:44:01 minerva kernel: SIM7600G: no SIM card detected'},
+      {c:'ok', t:'Jan 15 12:44:02 minerva systemd: torchformd started (pid 42)'},
+      {c:'ok', t:'Jan 15 12:44:02 minerva systemd: tailscaled started (pid 450)'},
+      {c:'info',t:'Jan 15 12:44:03 minerva tailscale: logged in as minerva'},
+    ],
+    dmesg:[
+      {c:'ok', t:'[    0.000000] Booting Linux 6.8.0-minerva #1 SMP PREEMPT_DYNAMIC'},
+      {c:'ok', t:'[    0.123456] BCM2712 Machine: Raspberry Pi CM5'},
+      {c:'ok', t:'[    0.234567] Memory: 8192MB / 8192MB available'},
+      {c:'ok', t:'[    0.567890] JDI R63452: initialized 1080×1920 DSI'},
+      {c:'ok', t:'[    0.890123] RP2040 USB HID: controller attached'},
+      {c:'ok', t:'[    1.045678] bq25798: USB PD charger detected, 45W'},
+      {c:'warn',t:'[    1.234567] SIM7600G-H: no SIM detected, modem standby'},
+      {c:'ok', t:'[    2.456789] Tailscale: interface ts0 up'},
+      {c:'ok', t:'[    3.012345] torchformd: Wayland compositor ready'},
+    ],
+  },
+  render(){
+    const tabs=['torchform','syslog','dmesg'];
+    const lines=this.LOGS[this.tab]||[];
+    const cls={ok:'lg-ok',warn:'lg-warn',err:'lg-err',info:'lg-info',dbg:'lg-dbg'};
+    $('acnt').innerHTML=`<div id="lg-w"><div class="lg-tb">${tabs.map(t=>`<button class="lg-tab ${this.tab===t?'on':''}" onclick="A.logview.setTab('${t}')">${t}</button>`).join('')}</div><div class="lg-l">${lines.map(l=>`<div class="lg-r ${cls[l.c]||'lg-info'}">${esc(l.t)}</div>`).join('')}</div></div>`;
+    const l=$('acnt')?.querySelector('.lg-l');if(l)l.scrollTop=l.scrollHeight;
+  },
+  setTab(t){this.tab=t;this.render();},
+  input(btn){
+    const l=$('acnt')?.querySelector('.lg-l');if(!l)return;
+    if(btn==='DU'||btn==='CU')l.scrollTop-=40;
+    else if(btn==='DD'||btn==='CD')l.scrollTop+=40;
+    else if(btn==='L'){const tabs=['torchform','syslog','dmesg'];const i=tabs.indexOf(this.tab);this.setTab(tabs[Math.max(0,i-1)]);}
+    else if(btn==='R'){const tabs=['torchform','syslog','dmesg'];const i=tabs.indexOf(this.tab);this.setTab(tabs[Math.min(2,i+1)]);}
+  }
+};
+
+/* NOTES stub */
+A.notes={render(){$('acnt').innerHTML=`<div style="height:100%;padding:16px;background:var(--bg)"><div style="font-family:var(--cond);font-size:20px;font-weight:700;margin-bottom:12px;color:var(--t1)">Notes</div><textarea style="width:100%;height:calc(100%-60px);background:var(--s1);border:1px solid var(--b1);color:var(--t1);font-family:var(--mono);font-size:12px;padding:10px;border-radius:6px;resize:none;outline:none;line-height:1.7" placeholder="Start typing…">## Quick notes\n\nMinerva PCB rev0.3:\n- Check BQ25798 trace widths\n- Verify USB PD resistor values\n- WWAN SIM tray alignment\n</textarea></div>`;},input(){}};
+
+/* ═══════════════════ RENDER ENGINE ═══════════════════ */
+function rSb(){
+  const now=new Date();
+  const t=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const np=A.media.playing?`<span class="sb-np">♫ ${esc(A.media.tracks[A.media.cur].t)}</span>`:'';
+  $('sb').innerHTML=`<div class="sb-ws">${[0,1,2].map(i=>`<div class="sb-wd ${S.workspace===i?'on':''}"></div>`).join('')}</div><div class="sb-app">${S.appId?esc(appDef(S.appId)?.name||''):''}</div><div class="sb-clk">${t}</div><div class="sb-r">${np}${S.cfg.airplane?'✈️':S.cfg.wifi?'📶':'📵'} ${S.cfg.bt?'📡':''}${S.cfg.dnd?'🔕':''}<div class="sb-nd ${S.notifs.length?'on':''}"></div><span>🔋87%</span></div>`;
+  const lk=$('lk-t');if(lk){lk.textContent=t;$('lk-d').textContent=fmtDate(now);}
+}
+
+function rHome(){
+  const grid=APPS_DEF.filter(a=>!DOCK_IDS.includes(a.id));
+  const dock=DOCK_IDS.map(id=>APPS_DEF.find(a=>a.id===id)).filter(Boolean);
+  const all=[...grid,...dock];
+  $('hgr').innerHTML=grid.map((ap,i)=>`<div class="ai ${S.homeFocus===i?'f':''}" onclick="launch('${ap.id}')"><div class="ai-b" style="background:${ap.bg}">${ap.icon}</div><div class="ai-n">${ap.name}</div></div>`).join('');
+  $('dck').innerHTML=dock.map((ap,i)=>{const gi=grid.length+i;return`<div class="di ${S.homeFocus===gi?'f':''} ${S.runApps.includes(ap.id)?'run':''}" onclick="launch('${ap.id}')">${ap.icon}</div>`;}).join('');
+}
+
+function rQs(){
+  const QT=[
+    {k:'wifi',i:S.cfg.wifi?'📶':'📵',n:'Wi-Fi',v:S.cfg.wifi?S.cfg.wifiNet:'Off'},
+    {k:'bt',i:'📡',n:'Bluetooth',v:S.cfg.bt?S.cfg.btDev:'Off'},
+    {k:'dnd',i:'🔕',n:'Do Not Disturb',v:S.cfg.dnd?'On':'Off'},
+    {k:'airplane',i:'✈️',n:'Airplane Mode',v:S.cfg.airplane?'On':'Off'},
+    {k:'_ss',i:'📷',n:'Screenshot',v:'Press A'},
+    {k:'_lock',i:'🔒',n:'Lock',v:'Press A'},
+    {k:'_ws0',i:'⬛',n:'Workspace 1',v:S.workspace===0?'Active':''},
+    {k:'_ws1',i:'⬜',n:'Workspace 2',v:S.workspace===1?'Active':''},
+  ];
+  $('qsg').innerHTML=QT.map((t,i)=>`<div class="qt ${S.cfg[t.k]?'on':''} ${S.qsFocus===i?'f':''}" onclick="qsTile('${t.k}',${i})"><div class="qt-i">${t.i}</div><div class="qt-n">${t.n}</div><div class="qt-v">${t.v}</div></div>`).join('');
+  const qt=$('qs-time');if(qt){const d=new Date();qt.textContent=d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+}
+
+function rNf(){
+  $('nf-c').textContent=S.notifs.length?`${S.notifs.length} new`:'All clear';
+  $('nfl').innerHTML=S.notifs.map((n,i)=>`<div class="nf-i ${S.nfFocus===i?'f':''}" onclick="nfAct(${i})"><span class="nf-tm">${n.time}</span><div class="nf-ap">${n.icon} ${n.app}</div><div class="nf-ti">${esc(n.title)}</div><div class="nf-bo">${esc(n.body)}</div></div>`).join('');
+}
+
+function rSw(){
+  const r=S.runApps;
+  $('swcs').innerHTML=r.length?r.map((id,i)=>{const ap=appDef(id);return`<div class="swc ${S.swFocus===i?'f':''}" onclick="S.swFocus=${i};resumeApp('${id}')"><div class="swc-p" style="background:${ap.bg}">${ap.icon}</div><div class="swc-n">${ap.name}<span class="swc-x" onclick="event.stopPropagation();killApp('${id}')">✕</span></div></div>`;}).join(''):`<div style="font-size:11px;color:var(--t3)">No running apps — launch one from Home</div>`;
+}
+
+function rHints(){
+  let h=[];
+  if(S.panel==='qs') h=[['ZL','Close'],['A','Toggle'],['↑↓','Navigate'],['B','Back']];
+  else if(S.panel==='nf') h=[['ZR','Close'],['A','Open'],['X','Dismiss'],['B','Back']];
+  else if(S.panel==='sw') h=[['A','Resume'],['X','Close'],['L/R','Scroll'],['B','Cancel']];
+  else if(S.screen==='lock') h=[['A','Unlock']];
+  else if(S.screen==='home') h=[['A','Launch'],['ZL','Quick Settings'],['ZR','Notifications'],['START','Switcher'],['Y','Search']];
+  else if(S.screen==='app'){
+    h=[['B','Back'],['SEL','Home'],['ZL','⚙'],['ZR','🔔'],['START','Switch']];
+    if(S.appId==='terminal') h.push(['↑↓','History']);
+    if(S.appId==='browser') h.push(['L','Back'],['Y','URL']);
+    if(S.appId==='media') h.push(['A','Play'],['L/R','Skip']);
+  }
+  $('hb').innerHTML=h.map(([k,v])=>`<div class="hn"><span class="hk">${k}</span> ${v}</div>`).join('');
+}
+
+function render(){
+  ['lock','home'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('on',S.screen===id);});
+  const apl=$('apl');if(apl)apl.classList.toggle('on',S.screen==='app');
+  ['pqs','pnf','psw'].forEach(id=>{const panel=$(id);if(panel)panel.classList.toggle('on',S.panel===({'pqs':'qs','pnf':'nf','psw':'sw'}[id]));});
+  if(S.screen==='home') rHome();
+  if(S.screen==='app'&&S.appId){
+    const ap=appDef(S.appId);
+    $('atb').innerHTML=`<span class="atb-i">${ap.icon}</span><span class="atb-n">${ap.name}</span><div class="atb-r"><button class="atb-b" onclick="goHome()">⌂</button><button class="atb-b" onclick="openPanel('sw')">⧉</button></div>`;
+  }
+  if(S.panel==='qs') rQs();
+  if(S.panel==='nf') rNf();
+  if(S.panel==='sw') rSw();
+  rSb(); rHints();
+}
+
+/* ═══════════════════ NAV ═══════════════════ */
+function launch(id){
+  clearInterval(A.sysmon._int);
+  if(!S.runApps.includes(id)) S.runApps.push(id);
+  S.appId=id; S.screen='app'; S.panel=null;
+  render();
+  if(A[id]&&A[id].render) A[id].render();
+}
+function goHome(){S.screen='home';S.panel=null;render();}
+function openPanel(p){S.panel=S.panel===p?null:p;render();}
+function closePanel(){S.panel=null;render();}
+function resumeApp(id){clearInterval(A.sysmon._int);S.appId=id;S.screen='app';S.panel=null;render();if(A[id]&&A[id].render)A[id].render();}
+function killApp(id){
+  clearInterval(A.sysmon._int);
+  S.runApps=S.runApps.filter(a=>a!==id);
+  if(S.appId===id){S.appId=S.runApps.at(-1)||null;if(S.appId)S.screen='app';else S.screen='home';}
+  rSw();render();if(S.appId&&A[S.appId]?.render)A[S.appId].render();
+}
+
+function qsTile(k,i){
+  S.qsFocus=i;
+  if(k==='wifi')S.cfg.wifi=!S.cfg.wifi;
+  else if(k==='bt')S.cfg.bt=!S.cfg.bt;
+  else if(k==='dnd')S.cfg.dnd=!S.cfg.dnd;
+  else if(k==='airplane')S.cfg.airplane=!S.cfg.airplane;
+  else if(k==='_lock'){S.panel=null;S.screen='lock';S.pinLen=0;}
+  else if(k==='_ws0')S.workspace=0;
+  else if(k==='_ws1')S.workspace=1;
+  else if(k==='_ss'){
+    showBanner({icon:'📷',app:'SCREENSHOT',title:'Screenshot saved',body:'Saved to Pictures/screenshots/'});
+  }
+  rQs(); rSb();
+}
+
+function nfAct(i){
+  const n=S.notifs[i];
+  if(n){closePanel();launch(n.srcApp);}
+}
+
+let _bannerT;
+function showBanner(n){
+  const el=$('banner');if(!el)return;
+  el.className='on';
+  el.innerHTML=`<div class="bn-i">${n.icon}</div><div class="bn-r"><div class="bn-ap">${n.app}</div><div class="bn-ti">${esc(n.title)}</div><div class="bn-bo">${esc(n.body)}</div></div>`;
+  clearTimeout(_bannerT);_bannerT=setTimeout(()=>{el.className='';},3500);
+}
+
+/* ═══════════════════ INPUT ═══════════════════ */
+const KM={
+  ArrowUp:'DU',ArrowDown:'DD',ArrowLeft:'DL',ArrowRight:'DR',
+  w:'CU',s:'CD',a:'CL',d:'CR',
+  j:'A',k:'B',i:'X',u:'Y',
+  q:'L',e:'R',z:'ZL',c:'ZR',
+  Enter:'START',Backspace:'SEL',' ':'HOME',
+};
+
+function handleInput(btn){
+  /* panel routing */
+  if(S.panel){
+    if((btn==='ZL'&&S.panel==='qs')||(btn==='ZR'&&S.panel==='nf')||(btn==='B')){closePanel();return;}
+    if(S.panel==='qs'){
+      const tot=8;
+      if(btn==='DU'||btn==='CU')S.qsFocus=Math.max(0,S.qsFocus-2);
+      else if(btn==='DD'||btn==='CD')S.qsFocus=Math.min(tot-1,S.qsFocus+2);
+      else if(btn==='DL'||btn==='CL')S.qsFocus=Math.max(0,S.qsFocus-1);
+      else if(btn==='DR'||btn==='CR')S.qsFocus=Math.min(tot-1,S.qsFocus+1);
+      else if(btn==='A'){const ks=['wifi','bt','dnd','airplane','_ss','_lock','_ws0','_ws1'];qsTile(ks[S.qsFocus],S.qsFocus);}
+      rQs();rHints();return;
+    }
+    if(S.panel==='nf'){
+      if(btn==='DU'||btn==='CU')S.nfFocus=Math.max(0,S.nfFocus-1);
+      else if(btn==='DD'||btn==='CD')S.nfFocus=Math.min(S.notifs.length-1,S.nfFocus+1);
+      else if(btn==='A')nfAct(S.nfFocus);
+      else if(btn==='X'){S.notifs.splice(S.nfFocus,1);S.nfFocus=Math.max(0,S.nfFocus-1);rNf();rSb();}
+      rNf();rHints();return;
+    }
+    if(S.panel==='sw'){
+      if(btn==='DL'||btn==='L')S.swFocus=Math.max(0,S.swFocus-1);
+      else if(btn==='DR'||btn==='R')S.swFocus=Math.min(S.runApps.length-1,S.swFocus+1);
+      else if(btn==='A'){const id=S.runApps[S.swFocus];if(id)resumeApp(id);}
+      else if(btn==='X'){const id=S.runApps[S.swFocus];if(id)killApp(id);}
+      rSw();rHints();return;
+    }
+    return;
+  }
+
+  /* global shortcuts */
+  if(btn==='ZL'){openPanel('qs');return;}
+  if(btn==='ZR'){openPanel('nf');return;}
+  if(btn==='START'){openPanel('sw');return;}
+  if(btn==='HOME'){S.screen='lock';S.pinLen=0;S.panel=null;render();return;}
+  if(btn==='SEL'&&S.screen==='app'){goHome();return;}
+
+  /* lock screen */
+  if(S.screen==='lock'){
+    if(S.lockKonami<KONAMI.length&&btn===KONAMI[S.lockKonami])S.lockKonami++; else S.lockKonami=0;
+    if(S.lockKonami===KONAMI.length){S.lockKonami=0;S.screen='home';render();return;}
+    if(btn==='A'){
+      S.pinLen=Math.min(4,S.pinLen+1);
+      const el=$('lk-pin');if(el)el.innerHTML=Array(4).fill(0).map((_,i)=>`<div class="lk-dot ${i<S.pinLen?'f':''}"></div>`).join('');
+      if(S.pinLen>=4)setTimeout(()=>{S.screen='home';S.pinLen=0;render();},220);
+    }
+    return;
+  }
+
+  /* home screen */
+  if(S.screen==='home'){
+    const grid=APPS_DEF.filter(a=>!DOCK_IDS.includes(a.id));
+    const dock=DOCK_IDS.map(id=>APPS_DEF.find(a=>a.id===id)).filter(Boolean);
+    const total=grid.length+dock.length;
+    const cols=6;
+    if(btn==='DR'||btn==='CR')S.homeFocus=Math.min(total-1,S.homeFocus+1);
+    else if(btn==='DL'||btn==='CL')S.homeFocus=Math.max(0,S.homeFocus-1);
+    else if(btn==='DD'||btn==='CD'){
+      if(S.homeFocus<grid.length)S.homeFocus=Math.min(grid.length-1,S.homeFocus+cols);
+      else S.homeFocus=Math.min(total-1,S.homeFocus+1);
+    }
+    else if(btn==='DU'||btn==='CU'){
+      if(S.homeFocus>=grid.length)S.homeFocus=grid.length-1;
+      else S.homeFocus=Math.max(0,S.homeFocus-cols);
+    }
+    else if(btn==='A'){
+      const all=[...grid,...dock];
+      const ap=all[S.homeFocus];if(ap)launch(ap.id);
+    }
+    else if(btn==='Y'){}
+    rHome();rHints();return;
+  }
+
+  /* app input */
+  if(S.screen==='app'&&S.appId){
+    if(btn==='B'){
+      if(S.runApps.length>1){const i=S.runApps.indexOf(S.appId);const p=S.runApps[(i-1+S.runApps.length)%S.runApps.length];resumeApp(p);}
+      else goHome();
+      return;
+    }
+    if(A[S.appId]?.input) A[S.appId].input(btn);
+  }
+}
+
+const held=new Set();
+const repeatBtns=new Set(['DU','DD','DL','DR','CU','CD','CL','CR']);
+window.addEventListener('keydown',e=>{
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
+  const btn=KM[e.key];if(!btn)return;
+  if(!held.has(e.key)||repeatBtns.has(btn))handleInput(btn);
+  held.add(e.key);
+});
+window.addEventListener('keyup',e=>held.delete(e.key));
+window.addEventListener('blur',()=>held.clear());
+
+/* ═══════════════════ BOOT ═══════════════════ */
+setInterval(rSb,1000);
+$('lk-pin').innerHTML=Array(4).fill('<div class="lk-dot"></div>').join('');
+render();
+</script>
+</body>
+</html>

@@ -32,8 +32,11 @@ import { AppFileManager }    from "../../torchform-apps/ui/app_file_manager.slin
 import { AppCamera }         from "../../torchform-apps/ui/app_camera.slint";
 import { AppWebBrowser }     from "../../torchform-apps/ui/app_web_browser.slint";
 import { AppMediaPlayer }    from "../../torchform-apps/ui/app_media_player.slint";
-import { AppNetworkManager } from "../../torchform-apps/ui/app_network_manager.slint";
+import { AppNetworkManager, WifiNetwork } from "../../torchform-apps/ui/app_network_manager.slint";
 import { AppTerminal, TermLine } from "../../torchform-apps/ui/app_terminal.slint";
+import { AppNotes, NoteEntry } from "../../torchform-apps/ui/app_notes.slint";
+import { AppSysmon }           from "../../torchform-apps/ui/app_sysmon.slint";
+import { AppLogview, LogLine } from "../../torchform-apps/ui/app_logview.slint";
 
 export {
     RadialItem, RadialLayer,
@@ -97,13 +100,62 @@ export component ShellOverlay inherits Window {
     in property <string> app-browser-url: "about:blank";
     in property <bool>   app-media-visible: false;
     in property <int>    app-media-focused-row: 0;
-    in property <bool>   app-network-visible: false;
-    in property <int>    app-network-focused-row: 0;
+    in property <bool>           app-network-visible: false;
+    in property <int>            app-network-focused-row: 0;
+    in property <[WifiNetwork]>  app-network-wifi-list;
+    in property <bool>           app-network-wifi-enabled: true;
+    in property <bool>           app-network-bt-enabled: false;
+    in property <bool>           app-network-cellular-enabled: false;
+    in property <bool>           app-network-vpn-active: false;
+    callback app-network-connect-wifi(string);
+    callback app-network-toggle-wifi();
+    callback app-network-toggle-bt();
+    callback app-network-toggle-cellular();
+    callback app-network-toggle-vpn();
     in property <bool>         app-keyboard-visible: false;
     in property <bool>         app-terminal-visible: false;
     in property <[TermLine]>   app-terminal-lines;
     in property <string>       app-terminal-input: "";
     in property <string>       app-terminal-cwd: "/home/user";
+
+    in property <bool>           app-notes-visible: false;
+    in property <int>            app-notes-focused-row: 0;
+    in property <[NoteEntry]>    app-notes-list;
+    in property <bool>           app-notes-editing: false;
+    in property <string>         app-notes-edit-title: "";
+    in property <string>         app-notes-edit-body: "";
+    callback app-notes-new();
+    callback app-notes-open(int);
+    callback app-notes-save(string, string);
+    callback app-notes-delete(int);
+    callback app-notes-back();
+
+    // Sysmon
+    in property <bool>     app-sysmon-visible: false;
+    in property <float>    app-sysmon-cpu-pct: 0.0;
+    in property <float>    app-sysmon-ram-pct: 0.0;
+    in property <float>    app-sysmon-gpu-pct: 0.0;
+    in property <float>    app-sysmon-temp-c:  40.0;
+    in property <int>      app-sysmon-ram-used-mb: 0;
+    in property <int>      app-sysmon-ram-total-mb: 4096;
+    in property <string>   app-sysmon-cpu-name: "Unknown CPU";
+    in property <[float]>  app-sysmon-core-pcts;
+    in property <[string]> app-sysmon-proc-names;
+    in property <[float]>  app-sysmon-proc-cpus;
+    in property <[int]>    app-sysmon-proc-mems;
+
+    // Logview
+    in property <bool>       app-logview-visible: false;
+    in property <[LogLine]>  app-logview-lines;
+    in property <bool>       app-logview-show-info:  true;
+    in property <bool>       app-logview-show-warn:  true;
+    in property <bool>       app-logview-show-error: true;
+    in property <bool>       app-logview-show-debug: false;
+    in property <bool>       app-logview-tail:       true;
+    callback app-logview-toggle-level(string);
+    callback app-logview-toggle-tail();
+    callback app-logview-clear();
+
     callback app-closed();
     callback app-settings-section-selected(int);
     callback app-settings-setting-activated(string);
@@ -298,8 +350,18 @@ export component ShellOverlay inherits Window {
                 if app-network-visible: AppNetworkManager {
                     x: 0; y: 0;
                     width: parent.width; height: parent.height;
-                    focused-row: app-network-focused-row;
-                    close-requested => { root.app-closed(); }
+                    focused-row:      app-network-focused-row;
+                    networks:         app-network-wifi-list;
+                    wifi-enabled:     app-network-wifi-enabled;
+                    bt-enabled:       app-network-bt-enabled;
+                    cellular-enabled: app-network-cellular-enabled;
+                    vpn-active:       app-network-vpn-active;
+                    close-requested   => { root.app-closed(); }
+                    connect-wifi(s)   => { root.app-network-connect-wifi(s); }
+                    toggle-wifi       => { root.app-network-toggle-wifi(); }
+                    toggle-bt         => { root.app-network-toggle-bt(); }
+                    toggle-cellular   => { root.app-network-toggle-cellular(); }
+                    toggle-vpn        => { root.app-network-toggle-vpn(); }
                 }
                 if app-terminal-visible: AppTerminal {
                     x: 0; y: 0;
@@ -308,6 +370,51 @@ export component ShellOverlay inherits Window {
                     input-text: app-terminal-input;
                     cwd:        app-terminal-cwd;
                     close-requested => { root.app-closed(); }
+                }
+                if app-notes-visible: AppNotes {
+                    x: 0; y: 0;
+                    width: parent.width; height: parent.height;
+                    focused-row:  app-notes-focused-row;
+                    notes:        app-notes-list;
+                    editing:      app-notes-editing;
+                    edit-title:   app-notes-edit-title;
+                    edit-body:    app-notes-edit-body;
+                    close-requested => { root.app-closed(); }
+                    new-note        => { root.app-notes-new(); }
+                    open-note(i)    => { root.app-notes-open(i); }
+                    save-note(t, b) => { root.app-notes-save(t, b); }
+                    delete-note(i)  => { root.app-notes-delete(i); }
+                    back-to-list    => { root.app-notes-back(); }
+                }
+                if app-sysmon-visible: AppSysmon {
+                    x: 0; y: 0;
+                    width: parent.width; height: parent.height;
+                    cpu-pct:      app-sysmon-cpu-pct;
+                    ram-pct:      app-sysmon-ram-pct;
+                    gpu-pct:      app-sysmon-gpu-pct;
+                    temp-c:       app-sysmon-temp-c;
+                    ram-used-mb:  app-sysmon-ram-used-mb;
+                    ram-total-mb: app-sysmon-ram-total-mb;
+                    cpu-name:     app-sysmon-cpu-name;
+                    core-pcts:    app-sysmon-core-pcts;
+                    proc-names:   app-sysmon-proc-names;
+                    proc-cpus:    app-sysmon-proc-cpus;
+                    proc-mems:    app-sysmon-proc-mems;
+                    close-requested => { root.app-closed(); }
+                }
+                if app-logview-visible: AppLogview {
+                    x: 0; y: 0;
+                    width: parent.width; height: parent.height;
+                    lines:       app-logview-lines;
+                    show-info:   app-logview-show-info;
+                    show-warn:   app-logview-show-warn;
+                    show-error:  app-logview-show-error;
+                    show-debug:  app-logview-show-debug;
+                    tail-mode:   app-logview-tail;
+                    close-requested => { root.app-closed(); }
+                    toggle-level(l) => { root.app-logview-toggle-level(l); }
+                    toggle-tail     => { root.app-logview-toggle-tail(); }
+                    clear           => { root.app-logview-clear(); }
                 }
                 if app-keyboard-visible: Rectangle {
                     x: 0; y: 0;

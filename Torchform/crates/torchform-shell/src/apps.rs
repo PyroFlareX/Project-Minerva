@@ -24,14 +24,14 @@ use crate::config::{AppsConfig, LaunchConfig};
 /// Per-app overrides in `launch_cfg.apps` can change the binary, add args,
 /// or set additional env vars.
 ///
-/// Returns `true` if a process was successfully spawned (real DE path).
-/// Returns `false` if the config maps no binary, the binary is not installed,
+/// Returns the PID if a process was successfully spawned (real DE path).
+/// Returns `None` if the config maps no binary, the binary is not installed,
 /// or spawn fails — the caller should show the built-in stub.
 pub fn try_launch_external(
     command_id: &str,
     apps_cfg: &AppsConfig,
     launch_cfg: &LaunchConfig,
-) -> bool {
+) -> Option<u32> {
     // Resolve binary: per-app override takes precedence over [apps] config.
     let override_entry = launch_cfg.apps.get(command_id);
     let binary = match override_entry.and_then(|o| o.binary.as_deref()) {
@@ -40,7 +40,7 @@ pub fn try_launch_external(
             Some(b) => b.to_owned(),
             None => {
                 tracing::debug!("No binary configured for {command_id} — showing stub");
-                return false;
+                return None;
             }
         },
     };
@@ -63,13 +63,13 @@ pub fn try_launch_external(
     }
 
     match cmd.spawn() {
-        Ok(_) => {
-            tracing::info!("Launched {command_id} → {binary}");
-            true
+        Ok(child) => {
+            tracing::info!("Launched {command_id} → {binary} (pid {})", child.id());
+            Some(child.id())
         }
         Err(e) => {
             tracing::debug!("Spawn failed for {command_id} ({binary}): {e} — showing stub");
-            false
+            None
         }
     }
 }
@@ -87,7 +87,7 @@ mod tests {
     fn returns_false_for_unknown_command() {
         let apps = AppsConfig::default();
         let launch = empty_launch();
-        assert!(!try_launch_external("app.unknown", &apps, &launch));
+        assert!(try_launch_external("app.unknown", &apps, &launch).is_none());
     }
 
     #[test]
@@ -95,7 +95,7 @@ mod tests {
         let mut apps = AppsConfig::default();
         apps.camera = String::new(); // empty = stub only
         let launch = empty_launch();
-        assert!(!try_launch_external("app.camera", &apps, &launch));
+        assert!(try_launch_external("app.camera", &apps, &launch).is_none());
     }
 
     #[test]
@@ -103,30 +103,26 @@ mod tests {
         let mut apps = AppsConfig::default();
         apps.settings = "this-binary-definitely-does-not-exist-xyz".into();
         let launch = empty_launch();
-        // spawn will fail because binary doesn't exist
-        assert!(!try_launch_external("app.settings", &apps, &launch));
+        assert!(try_launch_external("app.settings", &apps, &launch).is_none());
     }
 
     #[test]
     fn override_binary_is_used() {
         let apps = AppsConfig::default();
         let mut launch = empty_launch();
-        // Override with a non-existent binary — should still return false
-        // (binary missing) but use the override, not the default "firefox"
         launch.apps.insert("app.browser".into(), AppLaunchOverride {
             binary: Some("non-existent-override-browser".into()),
             ..Default::default()
         });
-        assert!(!try_launch_external("app.browser", &apps, &launch));
+        assert!(try_launch_external("app.browser", &apps, &launch).is_none());
     }
 
     #[test]
     fn global_env_does_not_panic() {
         let mut apps = AppsConfig::default();
-        apps.gpio = String::new(); // empty, returns false immediately
+        apps.gpio = String::new(); // empty, returns None immediately
         let mut launch = empty_launch();
         launch.env.insert("TEST_VAR".into(), "1".into());
-        // Should return false (no binary) without panicking
-        assert!(!try_launch_external("app.gpio", &apps, &launch));
+        assert!(try_launch_external("app.gpio", &apps, &launch).is_none());
     }
 }

@@ -130,7 +130,8 @@ fn main() -> Result<()> {
     info!("Listening on {}", cfg.shell_socket);
 
     let mut chord = ChordDetector::new();
-    let input_map = InputMap::load();
+    let input_map  = InputMap::load();
+    let chord_map  = ChordMap::load();
     let mut shell_clients: Vec<std::os::unix::net::UnixStream> = Vec::new();
 
     let mut last_cirque_x = 0.0f32;
@@ -206,7 +207,7 @@ fn main() -> Result<()> {
 
                     for action in actions {
                         debug!("Action: {:?}", action);
-                        if let Some(sa) = chord_action_to_shell(&action, &input_map) {
+                        if let Some(sa) = chord_action_to_shell_with_chords(&action, &input_map, &chord_map) {
                             publish_shell_action(&mut shell_clients, sa);
                         }
                     }
@@ -222,7 +223,7 @@ fn main() -> Result<()> {
         // -----------------------------------------------------------------
         let repeats = chord.tick_repeats();
         for action in repeats {
-            if let Some(sa) = chord_action_to_shell(&action, &input_map) {
+            if let Some(sa) = chord_action_to_shell_with_chords(&action, &input_map, &chord_map) {
                 publish_shell_action(&mut shell_clients, sa);
             }
         }
@@ -237,10 +238,6 @@ fn main() -> Result<()> {
 // ---------------------------------------------------------------------------
 // chord::Action → ShellAction translation via InputMap
 // ---------------------------------------------------------------------------
-
-fn chord_action_to_shell(action: &Action, map: &InputMap) -> Option<ShellAction> {
-    chord_action_to_shell_with_chords(action, map, &ChordMap::default())
-}
 
 fn chord_action_to_shell_with_chords(action: &Action, map: &InputMap, chord_map: &ChordMap) -> Option<ShellAction> {
     match action {
