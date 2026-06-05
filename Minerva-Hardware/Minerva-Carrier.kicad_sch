@@ -7,8 +7,6 @@
 	(title_block
 		(title "Minerva Carrier Board")
 		(rev "1")
-		(company "Zack Dell")
-		(comment 1 "zackdell.com")
 	)
 	(lib_symbols
 		(symbol "Battery_Management:BQ25798"
