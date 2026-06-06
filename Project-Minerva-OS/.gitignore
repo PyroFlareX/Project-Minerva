@@ -1,0 +1,19 @@
+# Build artifacts
+/target/
+*.img
+*.img.gz
+/qemu/boot/
+
+# Local config
+.env
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/settings.json
+
+# Devcontainer generated
+.devcontainer/.env
+

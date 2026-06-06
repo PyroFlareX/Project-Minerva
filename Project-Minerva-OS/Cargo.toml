@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/minerva-compositor",
+    "crates/minerva-shell",
+    "crates/minerva-workspaced",
+    "crates/minerva-inputd",
+]
+
+[workspace.dependencies]
+tokio       = { version = "1",    features = ["full"] }
+serde       = { version = "1",    features = ["derive"] }
+serde_json  = { version = "1" }
+toml        = { version = "0.8" }
+anyhow      = { version = "1" }
+thiserror   = { version = "1" }
+uuid        = { version = "1",    features = ["v4", "serde"] }
+chrono      = { version = "0.4",  features = ["serde"] }
+qoi         = { version = "0.4" }
+tracing     = { version = "0.1" }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+opt-level   = 3
+lto         = true
+codegen-units = 1
+strip       = true

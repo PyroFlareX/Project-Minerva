@@ -1,0 +1,10 @@
+[package]
+name    = "minerva-compositor"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+drm                = "0.14"
+anyhow             = { workspace = true }
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }
