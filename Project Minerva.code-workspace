@@ -6,16 +6,7 @@
   ],
   "settings": {
     "claudeCode.allowDangerouslySkipPermissions": false,
-    // "claudeCode.environmentVariables": [
-    //   {
-    //     "name": "ANTHROPIC_BASE_URL",
-    //     "value": "http://localhost:1234"
-    //   },
-    //   {
-    //     "name": "ANTHROPIC_AUTH_TOKEN",
-    //     "value": "lmstudio"
-    //   }
-    // ],
+    "claudeCode.environmentVariables": [],
     "rust-analyzer.cargo.target": "aarch64-unknown-linux-gnu",
     "rust-analyzer.checkOnSave.extraArgs": [
       "--target",
@@ -27,7 +18,9 @@
     "terminal.integrated.defaultProfile.linux": "bash",
     "editor.formatOnSave": true,
     "files.watcherExclude": {
-      "**/target/**": true
+      "**/target/**": true,
+      "**/.claude/**": true,
+      "**/**.lck": true
     },
     "claudeCode.usePythonEnvironment": false
   },

@@ -198,11 +198,14 @@ Single external USB-C port consolidates charging, data, and optional expansion.
 
 | Function | Implementation |
 |----------|---------------|
-| Charging | USB Power Delivery — 5V/3A minimum, 9V/2A preferred |
-| USB 2.0 data | Always available for keyboard, OTG peripherals |
-| DP alt mode | Routed from CM5 HDMI via bridge chip (e.g. PTN3460) |
-| Mux | TUSB1046 or HD3SS3220 for mode switching |
-| PD controller | FUSB302 — handles negotiation independently of CM5 |
+| Charging | USB Power Delivery — 5V/3A minimum, 5V/5A preferred (PD controller relays contract to BQ25798 via RP2350B) |
+| USB 2.0 data | Always available for keyboard, OTG peripherals — also carries nRPI_BOOT flashing (bootrom is USB2-device only) |
+| USB 3.0 data | CM5 USB3-1 (spare SS lane; USB3-0 stays on WWAN M.2) through alt-mode mux |
+| DP alt mode | CM5 DSI1 → TI SN65DSI86 (DSI→DP 1.2 bridge, mainline `ti-sn65dsi86` driver). 2-lane HBR2 + USB3 combo. NOT HDMI-converted — HDMI→DP source converters (LT6711A etc.) are EOL/unsourceable |
+| Mux | HD3SS460 crosspoint (USB3 ↔ USB3+2-lane DP, polarity switch) |
+| PD controller | TPS65987D — autonomous DRP: power sink + data/DP source, config in SPI NOR, events to RP2350B over I2C |
+
+Full design: `Minerva-Hardware/docs/dock-usbc-architecture.md` (BOM w/ LCSC part numbers, pinouts, datasheets in `Minerva-Hardware/datasheets/`).
 
 ---
 

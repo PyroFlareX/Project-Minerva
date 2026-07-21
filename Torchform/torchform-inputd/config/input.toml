@@ -1,0 +1,52 @@
+# torchform-inputd — default input config.
+# Install to ~/.config/torchform/input.toml (or point TORCHFORM_INPUT_CONFIG at it).
+#
+# The daemon maps any detected controller onto a normalized virtual gamepad.
+# Logical button names (controller-independent):
+#   south east west north         — face cluster (south = bottom, e.g. Xbox A)
+#   l1 r1 l2 r2                    — shoulders / triggers (digital)
+#   select start mode             — mode = guide/home
+#   thumbl thumbr                 — stick clicks
+#   dpad_up dpad_down dpad_left dpad_right
+# Sticks/triggers pass straight through as axes; the shell reads them directly.
+
+[timing]
+chord_window_ms      = 40    # all chord buttons must land within this window
+multiclick_window_ms = 250   # max gap between clicks of the same button
+# repeat_* are advisory: the SHELL implements nav auto-repeat in QML off the
+# held state, so the virtual pad keeps true physical state for games.
+repeat_delay_ms      = 350
+repeat_rate_ms       = 90
+
+# ── Chords ───────────────────────────────────────────────────────────────────
+# Several buttons held together fire a named action (pulsed on a virtual action
+# slot; the Quickshell.Gamepad plugin resolves the name via the manifest).
+[[chord]]
+buttons = ["l1", "r1"]
+action  = "switcher"
+
+[[chord]]
+buttons = ["select", "start"]
+action  = "power_menu"
+
+# ── Multiclick aliases ─────────────────────────────────────────────────────────
+# N presses of one button within multiclick_window_ms. NOTE: a button with a
+# multiclick rule becomes click-only (no hold) and gains the window's latency.
+[[multiclick]]
+button = "mode"
+count  = 2
+action = "home"
+
+# ── Per-device remaps ──────────────────────────────────────────────────────────
+# Oddball pads that don't report standard BTN_SOUTH/EAST/… codes. Match by a
+# case-insensitive substring of the device name, or a "vid:pid" hex pair.
+# Example: the DragonRise USB pad reports legacy joystick button codes.
+# [[devices]]
+# match = "0810:0001"          # or match = "DragonRise"
+# [devices.remap]
+# BTN_TRIGGER = "south"
+# BTN_THUMB   = "east"
+# BTN_THUMB2  = "west"
+# BTN_TOP     = "north"
+# BTN_TL      = "l1"
+# BTN_TR      = "r1"

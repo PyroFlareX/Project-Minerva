@@ -1,0 +1,4 @@
+(version 1)
+(rule "J23 shell pegs are part geometry"
+  (condition "A.memberOfFootprint('J23') && B.memberOfFootprint('J23')")
+  (constraint hole_clearance (min 0.05mm)))

@@ -1,0 +1,1795 @@
+                                                                                                                                TPS61088
+                                                                                               SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+                   TPS61088 10-A Fully-Integrated Synchronous Boost Converter
+
+1 Features                                                                 3 Description
+•   2.7-V to 12-V input voltage range                                      The TPS61088 is a high-power density, fully-
+•   4.5-V to 12.6-V output voltage range                                   integrated synchronous boost converter with a 11-mΩ
+•   10-A switch current                                                    power switch and a 13-mΩ rectifier switch to provide
+•   Up to 91% efficiency at VIN = 3.3 V, VOUT = 9 V,                       a high efficiency and small size solution in portable
+    and IOUT = 3 A                                                         systems. The TPS61088 has a wide input voltage
+•   Mode selection between PFM mode and forced                             range from 2.7 V to 12 V to support applications with
+    PWM mode at light load                                                 single-cell or two-cell Lithium batteries. The device
+•   1.0-µA current into the VIN pin during shutdown                        has 10-A switch current capability and is capable of
+•   Resistor-programmable switch peak current limit                        providing an output voltage up to 12.6 V.
+•   Adjustable switching frequency: 200 kHz to 2.2
+                                                                           The TPS61088 uses adaptive constant off-time peak
+    MHz
+                                                                           current control topology to regulate the output voltage.
+•   Programmable soft start
+                                                                           In moderate to heavy load condition, the TPS61088
+•   Output overvoltage protection at 13.2 V
+                                                                           works in pulse width modulation (PWM) mode. In
+•   Cycle-by-cycle overcurrent protection
+                                                                           light load condition, the device has two operation
+•   Thermal shutdown
+                                                                           modes selected by the MODE pin. One is the pulse
+•   4.50-mm × 3.50-mm 20-pin VQFN package
+                                                                           frequency modulation (PFM) mode to improve the
+•   Create a custom design using the TPS61088 with
+                                                                           efficiency and another one is forced PWM mode to
+    the WEBENCH Power Designer
+                                                                           avoid application problems caused by low switching
+2 Applications                                                             frequency. The switching frequency in PWM mode is
+                                                                           adjustable, ranging from 200 kHz to 2.2 MHz by an
+•   Portable POS terminal
+                                                                           external resistor. The TPS61088 also implements a
+•   Bluetooth™ speaker
+                                                                           programmable soft-start function and an adjustable
+•   E-cigarette
+                                                                           switching peak current limit function. In addition, the
+•   Thunderbolt interface
+                                                                           device provides 13.2-V output overvoltage protection,
+•   Quick charge power bank
+                                                                           cycle-by-cycle overcurrent protection, and thermal
+                                                                           shutdown protection.
+                                                                           The TPS61088 is available in a 4.50-mm × 3.50-mm
+                                                                           20-pin VQFN package.
+                                                                                           Device Information(1)
+                                                                             PART NUMBER              PACKAGE          BODY SIZE (NOM)
+                                                                           TPS61088            VQFN (20)               4.50 mm × 3.50 mm
+
+                                                              C6
+
+
+
+             VIN                     L1
+                                                                          BOOT                                          VOUT
+                                                                   SW            VOUT
+                                                                                                R1                C4
+                                                                   FSW                                       R2
+                           C2                       R3
+                   C1                                              VIN             FB
+                                                                                          R5            C5
+                                                                   VCC           COMP
+                                      C3
+                                                         ON                              R4
+                                                                   EN             ILIM
+                                             OFF
+                                                                                                 C7
+                                                                   PGND            SS
+
+                                                                   AGND          MODE
+
+
+                                                   Typical Application Circuit
+
+
+
+     An IMPORTANT NOTICE at the end of this data sheet addresses availability, warranty, changes, use in safety-critical applications,
+     intellectual property matters and other important disclaimers. PRODUCTION DATA.
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                                                                        www.ti.com
+
+
+                                                                        Table of Contents
+1 Features............................................................................1   8 Application and Implementation.................................. 14
+2 Applications..................................................................... 1       8.1 Application Information............................................. 14
+3 Description.......................................................................1       8.2 Typical Application.................................................... 14
+4 Revision History.............................................................. 2        9 Power Supply Recommendations................................22
+5 Pin Configuration and Functions...................................3                     10 Layout...........................................................................23
+6 Specifications.................................................................. 4        10.1 Layout Guidelines................................................... 23
+  6.1 Absolute Maximum Ratings........................................ 4                    10.2 Layout Example...................................................... 23
+  6.2 ESD Ratings............................................................... 4          10.3 Thermal Considerations..........................................24
+  6.3 Recommended Operating Conditions.........................4                          11 Device and Documentation Support..........................25
+  6.4 Thermal Information....................................................4              11.1 Device Support........................................................25
+  6.5 Electrical Characteristics.............................................5              11.2 Receiving Notification of Documentation Updates.. 25
+  6.6 Typical Characteristics................................................ 7             11.3 Support Resources................................................. 25
+7 Detailed Description........................................................9             11.4 Trademarks............................................................. 25
+  7.1 Overview..................................................................... 9       11.5 Electrostatic Discharge Caution.............................. 25
+  7.2 Functional Block Diagram......................................... 10                  11.6 Glossary.................................................................. 25
+  7.3 Feature Description...................................................10            12 Mechanical, Packaging, and Orderable
+  7.4 Device Functional Modes..........................................12                   Information.................................................................... 26
+
+
+
+4 Revision History
+NOTE: Page numbers for previous revisions may differ from page numbers in the current version.
+Changes from Revision C (February 2019) to Revision D (August 2021)                                        Page
+• Updated the numbering format for tables, figures and cross-references throughout the document. .................1
+
+Changes from Revision B (September 2018) to Revision C (February 2019)                                                                                   Page
+• Corrected spelling of 'resister' to 'resistor' in the Pin Functions table................................................................. 3
+• Added caption to Functional Block Diagram as auto-number Figure 7-1......................................................... 10
+• Added cross-reference hyperlink in the Enable and Startup section pointing to C7 reference in Figure 8-1... 10
+• Inserted missing cross-reference hyperlink in Section 8.2.2.4 section pointing to Figure 8-1 circuit in the
+  Typical Application section................................................................................................................................15
+
+
+
+
+2       Submit Document Feedback                                                                                           Copyright © 2021 Texas Instruments Incorporated
+
+                                                                     Product Folder Links: TPS61088
+                                                                                                                                        TPS61088
+www.ti.com                                                                                           SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+5 Pin Configuration and Functions
+
+
+
+
+                                                                                   AGND
+                                                                VCC
+                                                    EN                                        ILIM
+
+                                                  FSW                                         COMP
+
+                                                   SW                                         FB
+
+                                                   SW                                         VOUT
+                                                                        RHL
+                                                   SW                                         VOUT
+
+                                                   SW                  PGND                   VOUT
+
+                                                  BOOT                                        MODE
+
+                                                   VIN          SS                            NC
+
+
+
+
+                                                                                   NC
+                            Figure 5-1. 20-Pin VQFN With Thermal Pad RHL Package(Top View)
+
+                                                          Table 5-1. Pin Functions
+                 PIN
+                                           I/O                                             DESCRIPTION
+        NAME           NUMBER
+                                                   Output of the internal regulator. A ceramic capacitor of more than 1.0 µF is required between
+ VCC                        1              O
+                                                   this pin and ground.
+                                                   Enable logic input. Logic high level enables the device. Logic low level disables the device
+ EN                         2               I
+                                                   and turns it into shutdown mode.
+ FSW                        3               I      The switching frequency is programmed by a resistor between this pin and the SW pin.
+                                                   The switching node pin of the converter. It is connected to the drain of the internal low-side
+ SW                     4, 5, 6, 7          I
+                                                   power MOSFET and the source of the internal high-side power MOSFET.
+                                                   Power supply for high-side MOSFET gate driver. A ceramic capacitor of 0.1 µF must be
+ BOOT                       8              O
+                                                   connected between this pin and the SW pin.
+ VIN                        9               I      IC power supply input
+                                                   Soft-start programming pin. An external capacitor sets the ramp rate of the reference voltage
+ SS                        10              O
+                                                   of the internal error amplifier during soft start.
+                                                   No connection inside the device. Connect these two pins to the ground plane on the PCB for
+ NC                      11, 12            —
+                                                   good thermal dissipation.
+                                                   Operation mode selection pin for the device in light load condition. When this pin is
+ MODE                      13               I      connected to ground, the device works in PWM mode. When this pin is left floating, the
+                                                   device works in PFM mode.
+ VOUT                  14, 15, 16          O       Boost converter output
+                                                   Voltage feedback. Connect to the center tape of a resistor divider to program the output
+ FB                        17               I
+                                                   voltage.
+                                                   Output of the internal error amplifier, the loop compensation network must be connected
+ COMP                      18              O
+                                                   between this pin and the AGND pin.
+                                                   Adjustable switch peak current limit. An external resistor must be connected between this pin
+ ILIM                      19              O
+                                                   and the AGND pin.
+ AGND                      20              —       Signal ground of the IC
+ PGND                      21              —       Power ground of the IC. It is connected to the source of the low-side MOSFET.
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                                   Submit Document Feedback          3
+                                                          Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                                                     www.ti.com
+
+
+6 Specifications
+6.1 Absolute Maximum Ratings
+over operating free-air temperature (unless otherwise noted) (1)
+                                                                                                        MIN                   MAX             UNIT
+                      BOOT                                                                              –0.3                 SW + 7
+                      VIN, SW, FSW, VOUT                                                                –0.3                  14.5
+    Voltage(2)                                                                                                                                  V
+                      EN, VCC, SS, COMP, MODE                                                           –0.3                   7
+                      ILIM, FB                                                                          –0.3                  3.6
+    TJ                Operating junction temperature                                                    –40                   150               °C
+    Tstg              Storage temperature                                                               –65                   150               °C
+
+(1)        Stresses beyond those listed under Absolute Maximum Ratings may cause permanent damage to the device. These are stress
+           ratings only, which do not imply functional operation of the device at these or any other conditions beyond those indicated under
+           Recommended Operating Conditions. Exposure to absolute-maximum-rated conditions for extended periods may affect device
+           reliability.
+(2)        All voltage values are with respect to network ground terminal.
+
+6.2 ESD Ratings
+                                                                                                                                      VALUE       UNIT
+
+                Electrostatic    Human body model (HBM), per ANSI/ESDA/JEDEC JS-001, all pins(1)                                      ±2000
+    V(ESD)                                                                                                                                            V
+                discharge        Charged device model (CDM), per JEDEC specification JESD22-C101, all pins(2)                         ±500
+
+(1)        JEDEC document JEP155 states that 500-V HBM allows safe manufacturing with a standard ESD control process.
+(2)        JEDEC document JEP157 states that 250-V CDM allows safe manufacturing with a standard ESD control process.
+
+6.3 Recommended Operating Conditions
+over operating free-air temperature range (unless otherwise noted)
+                                                                                                    MIN              NOM              MAX      UNIT
+    VIN           Input voltage range                                                                2.7                                12       V
+    VOUT          Output voltage range                                                               4.5                              12.6       V
+    L             Inductance, effective value                                                       0.47               2.2              10       µH
+    CI            Input capacitance, effective value                                                    10                                       µF
+    CO            Output capacitance, effective value                                                6.8                47            1000       µF
+    TJ            Operating junction temperature                                                    –40                                125       °C
+
+
+6.4 Thermal Information
+                                                                                                TPS61088                     TPS61088
+                                  THERMAL METRIC(1)                                         RHL 20 PINS                   RHL 20 PINS           UNIT
+                                                                                                Standard                       EVM
+    RθJA           Junction-to-ambient thermal resistance                                         38.8                         29.7             °C/W
+    RθJC(top)      Junction-to-case (top) thermal resistance                                      39.8                         N/A              °C/W
+    RθJB           Junction-to-board thermal resistance                                           15.5                         N/A              °C/W
+    ψJT            Junction-to-top characterization parameter                                     0.6                           0.5             °C/W
+    ψJB            Junction-to-board characterization parameter                                   15.5                          9.8             °C/W
+    RθJC(bot)      Junction-to-case (bottom) thermal resistance                                   3.1                          N/A              °C/W
+
+(1)        For more information about traditional and new thermal metrics, see the Semiconductor and IC Package Thermal Metrics application
+           report, SPRA953.
+
+
+
+
+4          Submit Document Feedback                                                                           Copyright © 2021 Texas Instruments Incorporated
+
+                                                               Product Folder Links: TPS61088
+                                                                                                                              TPS61088
+www.ti.com                                                                                     SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+6.5 Electrical Characteristics
+Minimum and maximum values are at VIN = 2.7 V to 5.5 V and TJ = -40°C to 125°C. Typical values are at VIN = 3.6 V and TJ
+= 25°C
+                      PARAMETER                                      TEST CONDITIONS                       MIN     TYP    MAX     UNIT
+ POWER SUPPLY
+ VIN            Input voltage range                                                                         2.7             12     V
+
+                Undervoltage lockout (UVLO)            VIN rising                                                           2.7    V
+ VIN_UVLO
+                threshold                              VIN falling                                                  2.4     2.5    V
+ VIN_HYS        VIN UVLO hysteresis                                                                                200            mV
+ VCC_UVLO       UVLO threshold                         VCC falling                                                  2.1            V
+                Operating quiescent current from the
+                                                                                                                     1       3    µA
+                VIN pin                                IC enabled, VEN = 2 V, no load, RILIM = 100 kΩ ,
+ IQ
+                Operating quiescent current from the   VFB = 1.3 V, VOUT = 12 V, TJ up to 85°C
+                                                                                                                   110     250    µA
+                VOUT pin
+                                                       IC disabled, VEN = 0 V, no load, no feedback
+ ISD            Shutdown current into the VIN pin      resistor divider connected to the VOUT pin, TJ                1       3    µA
+                                                       up to 85°C
+ VCC            VCC regulation                         IVCC = 5 mA, VIN = 8 V                                       5.8            V
+ EN AND MODE INPUT
+ VENH           EN high threshold voltage              VCC = 6 V                                                            1.2    V
+ VENL           EN low threshold voltage               VCC = 6 V                                            0.4                    V
+ REN            EN internal pull-down resistance       VCC = 6 V                                                   800            kΩ
+ VMODEH         MODE high threshold voltage            VCC = 6 V                                                            4.0    V
+ VMODEL         MODE low threshold voltage             VCC = 6 V                                            1.5                    V
+ RMODE          MODE internal pull-up resistance       VCC = 6 V                                                   800            kΩ
+ OUTPUT
+ VOUT           Output voltage range                                                                        4.5            12.6    V
+                                                       PWM mode                                           1.186   1.204   1.222
+ VREF           Reference voltage at the FB pin                                                                                    V
+                                                       PFM mode                                                   1.212
+ ILKG_FB        FB pin leakage current                 VFB = 1.2 V                                                         100    nA
+ ISS            Soft-start charging current                                                                          5            μA
+ ERROR AMPLIFIER
+ ISINK          COMP pin sink current                  VFB = VREF +200 mV, VCOMP = 1.5 V                            20            µA
+ ISOURCE        COMP pin source current                VFB = VREF –200 mV, VCOMP = 1.5 V                            20            µA
+ VCCLPH         High clamp voltage at the COMP pin     VFB = 1 V, RILIM = 100 kΩ                                    2.3
+                                                                                                                                   V
+ VCCLPL         Low clamp voltage at the COMP pin      VFB = 1.5 V, RILIM = 100 kΩ, MODE pin floating               1.4
+ GEA            Error amplifier transconductance       VCOMP = 1.5 V                                               190            µA/V
+ POWER SWITCH
+                High-side MOSFET on-resistance         VCC = 6 V                                                    13      18    mΩ
+ RDS(on)
+                Low-side MOSFET on-resistance          VCC = 6 V                                                    11     16.5   mΩ
+ CURRENT LIMIT
+                Peak switch current limit in PFM mode RILIM = 100 kΩ, VCC = 6 V, MODE pin floating         10.6    11.9     13     A
+ ILIM           Peak switch current limit in FPWM      RILIM = 100 kΩ, VCC = 6 V, MODE pin short to
+                                                                                                            9.0    10.3    11.4    A
+                mode                                   ground
+ VILIM          Reference voltage at the ILIM pin                                                                 1.204            V
+ SWITCHING FREQUENCY
+ ƒSW            Switching frequency                    RFREQ = 301 kΩ, VIN = 3.6 V, VOUT = 12 V                    500            kHz
+ tON_min        Minimum on-time                        RFREQ = 301 kΩ, VIN = 3.6 V, VOUT = 12 V                     90     180     ns
+ PROTECTION
+
+Copyright © 2021 Texas Instruments Incorporated                                                            Submit Document Feedback        5
+                                                       Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                            www.ti.com
+
+Minimum and maximum values are at VIN = 2.7 V to 5.5 V and TJ = -40°C to 125°C. Typical values are at VIN = 3.6 V and TJ
+= 25°C
+                      PARAMETER                                TEST CONDITIONS                MIN       TYP      MAX      UNIT
+                 Output overvoltage protection
+    VOVP                                         VOUT rising                                  12.7      13.2      13.6      V
+                 threshold
+                 Output overvoltage protection
+    VOVP_HYS                                     VOUT falling below VOVP                                0.25                V
+                 hysteresis
+    THERMAL SHUTDOWN
+    TSD          Thermal shutdown threshold      TJ rising                                               150               °C
+    TSD_HYS      Thermal shutdown hysteresis     TJ falling below TSD                                     20               °C
+
+
+
+
+6          Submit Document Feedback                                                   Copyright © 2021 Texas Instruments Incorporated
+
+                                                 Product Folder Links: TPS61088
+                                                                                                                                                                                  TPS61088
+www.ti.com                                                                                                                                   SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+6.6 Typical Characteristics
+
+                           100%                                                                                         100%
+                           90%                                                                                          90%
+                           80%                                                                                          80%
+                           70%                                                                                          70%
+                           60%                                                                                          60%
+
+
+
+
+                                                                                                    Efficiency
+    Efficiency
+
+
+
+
+                           50%                                                                                          50%
+                           40%                                                                                          40%
+                           30%                                                                                          30%
+                           20%                                                                                          20%                                                5-V Output
+                                                                               3-V Input
+                           10%                                                 3.6-V Input                              10%                                                9-V Output
+                                                                               4.2-V Input                                                                                 12-V Output
+                              0                                                                                            0
+                             0.0001         0.001     0.01        0.1 0.2 0.5 1    2 3 5 710                              0.0001         0.001      0.01        0.1 0.2 0.5 1   2 3 5 710
+                                                     Output Current (A)                                                                            Output Current (A)                    D002
+                                                                                             D001
+
+   Figure 6-1. Efficiency vs Output Current, VOUT = 9                                               Figure 6-2. Efficiency vs Output Current, VIN = 3.6
+                        V, FPWM                                                                                          V, FPWM
+                           100%                                                                                         100%
+
+                           90%                                                                                          90%
+
+                           80%                                                                                          80%
+
+                           70%                                                                                          70%
+                                                                                                    Efficiency
+    Efficiency
+
+
+
+
+                           60%                                                                                          60%
+
+                           50%                                                                                          50%
+
+                           40%                                                                                          40%
+                                                                              3-V Input                                                                                    5-V Output
+                           30%                                                3.6-V Input                               30%                                                9-V Output
+                                                                              4.2-V Input                                                                                  12-V Output
+                           20%                                                                                          20%
+                             0.0001         0.001     0.01        0.1 0.2 0.5 1    2 3 5 710                              0.0001         0.001      0.01        0.1 0.2 0.5 1   2 3 5 710
+                                                     Output Current (A)                      D003
+                                                                                                                                                   Output Current (A)                    D004
+
+   Figure 6-3. Efficiency vs Output Current, VOUT = 9                                               Figure 6-4. Efficiency vs Output Current, VIN = 3.6
+                         V, PFM                                                                                           V, PFM
+                           14                                                                                           2500
+                                                                             PFM Mode
+                           12                                                FPWM Mode
+                                                                                                                        2000
+                           10
+                                                                                                      Frequency (kHz)
+       Current Limit (A)
+
+
+
+
+                                                                                                                        1500
+                            8
+
+                            6                                                                                           1000
+
+                            4
+                                                                                                                         500
+                            2
+
+                                                                                                                           0
+                            0
+                                                                                                                               0   100    200    300     400 500 600     700    800   900
+                             80       120      160    200      240     280        320   360
+                                                                                                                                                       Resistance (k:)
+                                                     Resistance (k:)                        D005
+                                                                                                                                                                                         D006
+
+
+       Figure 6-5. Current Limit vs Setting Resistance                                                                  Figure 6-6. Switching Frequency vs Setting
+                                                                                                                                        Resistance
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                                                                             Submit Document Feedback            7
+                                                                              Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                                                                                                        www.ti.com
+
+                             1.21                                                                                                          140
+                            1.209
+                                                                                                                                           120
+                            1.208
+
+
+
+
+                                                                                                                  Quiescent Current (PA)
+    Reference Votlage (V)
+
+
+
+
+                            1.207                                                                                                          100
+                            1.206
+                                                                                                                                            80
+                            1.205
+                            1.204                                                                                                           60
+
+                            1.203
+                                                                                                                                            40
+                            1.202
+                            1.201                                                                                                           20
+
+                              1.2
+                                                                                                                                            0
+                                -40   -20   0   20   40     60                          80    100   120130
+                                                                                                                                            -40 -30 -20 -10   0    10 20 30 40 50 60 70 80 90
+                                                 Temperature (°C)                                       D007                                                       Temperature (°C)         D008
+                Figure 6-7. Reference Voltage vs Temperature                                                                Figure 6-8. Quiescent Current vs Temperature
+                                                                                  1
+                                                                                 0.9
+                                                                                 0.8
+                                                         Shutdown Current (PA)
+
+
+
+
+                                                                                 0.7
+                                                                                 0.6
+                                                                                 0.5
+                                                                                 0.4
+                                                                                 0.3
+                                                                                 0.2
+                                                                                 0.1
+                                                                                  0
+                                                                                  -40        -20    0      20      40                            60   80      100
+                                                                                                         Temperature (°C)                                         D009
+
+                                                                   Figure 6-9. Shutdown Current vs Temperature
+
+
+
+
+8                           Submit Document Feedback                                                                                                              Copyright © 2021 Texas Instruments Incorporated
+
+                                                                                               Product Folder Links: TPS61088
+                                                                                                                 TPS61088
+www.ti.com                                                                         SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+7 Detailed Description
+7.1 Overview
+The TPS61088 is a fully-integrated synchronous boost converter with a 11-mΩ power switch and a 13-mΩ
+rectifier switch to output high power from a single-cell or two-cell Lithium batteries. The device is capable of
+providing an output voltage of 12.6 V and delivering up to 30-W power from a single-cell Lithium battery.
+The TPS61088 uses adaptive constant off-time peak current control topology to regulate the output voltage. In
+moderate-to-heavy load condition, the TPS61088 works in the quasi-constant frequency pulse width modulation
+(PWM) mode. The switching frequency in PWM mode is adjustable ranging from 200 kHz to 2.2 MHz by an
+external resistor. In light load condition, the device has two operation modes selected by the MODE pin. When
+the MODE pin is left floating, the TPS61088 works in pulse frequency modulation (PFM) mode. The PFM mode
+brings high efficiency at the light load. When the MODE pin is short to ground, the TPS61088 works in forced
+PWM mode (FPWM). The FPWM mode can avoid the acoustic noise and other problems caused by the low
+switching frequency. The TPS61088 implements cycle-by-cycle current limit to protect the device from overload
+conditions during boost switching. The switch peak current limit is programmable by an external resistor. The
+TPS61088 uses external loop compensation, which provides flexibility to use different inductors and output
+capacitors. The adaptive off-time peak current control scheme gives excellent transient line and load response
+with minimal output capacitance.
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                               Submit Document Feedback         9
+                                                  Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                                               www.ti.com
+
+7.2 Functional Block Diagram
+                                                      L1
+      VIN
+
+
+      C1                                                                    C3
+
+                        VIN                                         BOOT           SW
+                                                                                                                VOUT
+                       VOUT
+             C2
+                                                   Deadtime
+                                                  Control Logic                                                                             C4
+                         LDO
+
+
+
+
+                                                      Shutdown
+             VCC
+                                                Q
+
+                                                                   Comp                                         PGND        R3
+        C5
+                                            R
+                                            S
+
+
+
+
+                                                                          CLMIT
+                                         Comp
+
+
+
+
+                                                                                                                FB
+             FSW                                                   Comp
+                                                                                    gm
+                                                                                                                            R4
+ R1                                                                                                             SS
+                                            1/K
+                                                                                                  Comp
+       SW                                    VIN
+             COMP                                                                                        Vref   C7
+
+ R2                                                                                      SS Vref
+
+                                                     Shutdown         Shutdown                                  AGND
+                  EN           ON/                                                              Vref
+C6                             OFF                    Control
+                                                                                      CLMIT
+                          VOUT        OVP
+                                                                                                                ILIM
+
+                              VIN     UVLO
+                                                                                     Mode
+                                                                                    Selection
+                                      Thermal                                                                        R5
+                                     Shutdown
+
+
+                                                                                          MODE
+
+                                             Figure 7-1. Functional Block Diagram
+
+7.3 Feature Description
+7.3.1 Enable and Start-up
+The TPS61088 has an adjustable soft start function to prevent high inrush current during start-up. To minimize
+the inrush current during start-up, an external capacitor, connected to the SS pin and charged with a constant
+current, is used to slowly ramp up the internal positive input of the error amplifier. When the EN pin is pulled
+high, the soft-start capacitor CSS (C7 in Figure 8-1) is charged with a constant current of 5 μA typically. During
+this time, the SS pin voltage is compared with the internal reference (1.204 V), the lower one is fed into the
+internal positive input of the error amplifier. The output of the error amplifier (which determines the inductor peak
+current value) ramps up slowly as the SS pin voltage goes up. The soft-start phase is completed after the SS
+pin voltage exceeds the internal reference (1.204 V). The larger the capacitance at the SS pin, the slower the
+ramp of the output voltage and the longer the soft-start time. A 47-nF capacitor is usually sufficient for most
+applications. When the EN pin is pulled low, the voltage of the soft-start capacitor is discharged to ground.
+Use Equation 1 to calculate the soft-start time.
+
+
+10      Submit Document Feedback                                                                         Copyright © 2021 Texas Instruments Incorporated
+
+                                                             Product Folder Links: TPS61088
+                                                                                                                     TPS61088
+www.ti.com                                                                             SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+              VREF u CSS
+      t SS
+                 ISS                                                                                                    (1)
+
+where
+•    tSS is the soft start time
+•    VREF is the internal reference voltage of 1.204 V
+•    CSS is the capacitance between the SS pin and ground
+•    ISS is the soft-start charging current of 5 µA
+7.3.2 Undervoltage Lockout (UVLO)
+The UVLO circuit prevents the device from malfunctioning at low input voltage and the battery from excessive
+discharge. The TPS61088 has both VIN UVLO function and VCC UVLO function. It disables the device from
+switching when the falling voltage at the VIN pin trips the UVLO threshold VIN_UVLO , which is typically 2.4 V. The
+device starts operating when the rising voltage at the VIN pin is 200 mV above VIN_UVLO. It also disables the
+device when the falling voltage at the VCC pin trips the UVLO threshold VCC_UVLO, which is typically 2.1 V.
+7.3.3 Adjustable Switching Frequency
+This device features a wide adjustable switching frequency ranging from 200 kHz to 2.2 MHz. The switching
+frequency is set by a resistor connected between the FSW pin and the SW pin of the TPS61088. A resistor must
+always be connected from the FSW pin to SW pin for proper operation. The resistor value required for a desired
+frequency can be calculated using Equation 2.
+
+                          1                  VOUT
+                  4u(            tDELAY u         )
+                        ¦SW                   9IN
+      RFREQ
+                               CFREQ                                                                                    (2)
+
+where
+•    RFREQ is the resistance connected between the FSW pin and the SW pin
+•    CFREQ is 23 pF
+•    ƒSW is the desired switching frequency
+•    tDELAY is 89 ns
+•    VIN is the input voltage
+•    VOUT is the output voltage
+7.3.4 Adjustable Peak Current Limit
+To avoid an accidental large peak current, an internal cycle-by-cycle current limit is adopted. The low-side switch
+is turned off immediately as soon as the switch current touches the limit. The peak switch current limit can be set
+by a resistor at the ILIM pin to ground. The relationship between the current limit and the resistance depends on
+the status of the MODE pin.
+When the MODE pin is floating, namely the TPS61088, is set to work in the PFM mode at light load, use
+Equation 3 to calculate the resistor value:
+
+             1190000
+      ILIM
+              RILIM                                                                                                     (3)
+
+where
+•    RILIM is the resistance between the ILIM pin and ground
+•    ILIM is the switch peak current limit
+When the resistor value is 100 kΩ, the typical current limit is 11.9 A.
+When the MODE pin is connected to ground, namely the TPS61088 is set to work in forced PWM mode at light
+load, use Equation 4 to calculate the resistor value.
+
+Copyright © 2021 Texas Instruments Incorporated                                                   Submit Document Feedback     11
+                                                      Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                        www.ti.com
+
+            1190000
+     ILIM           1.6
+             RILIM                                                                                                   (4)
+
+When the resistor value is 100 kΩ, the typical current limit is 10.3 A.
+Considering the device variation and the tolerance over temperature, the minimum current limit at the worst case
+can be 1.3 A lower than the value calculated by above equations.
+7.3.5 Overvoltage Protection
+If the output voltage at the VOUT pin is detected above 13.2 V (typical value), the TPS61088 stops switching
+immediately until the voltage at the VOUT pin drops the hysteresis value lower than the output overvoltage
+protection threshold. This function prevents overvoltage on the output and secures the circuits connected to the
+output from excessive overvoltage.
+7.3.6 Thermal Shutdown
+A thermal shutdown is implemented to prevent damages due to excessive heat and power dissipation. Typically,
+the thermal shutdown happens at a junction temperature of 150°C. When the thermal shutdown is triggered, the
+device stops switching until the junction temperature falls below typically 130°C, then the device starts switching
+again.
+7.4 Device Functional Modes
+7.4.1 Operation
+The synchronous boost converter TPS61088 operates at a quasi-constant frequency pulse width modulation
+(PWM) in moderate-to-heavy load condition. Based on the VIN to VOUT ratio, a circuit predicts the required
+off-time of the switching cycle. At the beginning of each switching cycle, the low-side N-MOSFET switch, as
+shown in Section 7.2, is turned on, and the inductor current ramps up to a peak current that is determined
+by the output of the internal error amplifier. After the peak current is reached, the current comparator trips. It
+turns off the low-side N-MOSFET switch and the inductor current goes through the body diode of the high-side
+N-MOSFET in a dead-time duration. After the dead-time duration, the high-side N-MOSFET switch is turned on.
+Since the output voltage is higher than the input voltage, the inductor current decreases. The high-side switch
+is not turned off until the fixed off-time is reached. After a short dead-time duration, the low-side switch turns on
+again and the switching cycle is repeated.
+In light load condition, the TPS61088 implements two operation modes, PFM mode and forced PWM mode, to
+meet different application requirements. The operation mode is set by the status of the MODE pin. When the
+MODE pin is connected to ground, the device works in forced PWM mode. When the MODE pin is left floating,
+the device works in PFM mode.
+7.4.1.1 PWM Mode
+In forced PWM mode, the TPS61088 keeps the switching frequency unchanged in light load condition. When
+the load current decreases, the output of the internal error amplifier decreases as well to keep the inductor peak
+current down, delivering less power from input to output. When the output current further reduces, the current
+through the inductor decreases to zero during the off-time. The high-side N-MOSFET is not turned off even if
+the current through the MOSFET is zero. Thus, the inductor current changes its direction after it runs to zero.
+The power flow is from output side to input side. The efficiency is low in this mode. But with the fixed switching
+frequency, there is no audible noise and other problems which might be caused by low switching frequency in
+light load condition.
+7.4.1.2 PFM Mode
+The TPS61088 improves the efficiency at light load with PFM mode. When the converter operates in light load
+condition, the output of the internal error amplifier decreases to make the inductor peak current down, delivering
+less power to the load. When the output current further reduces, the current through the inductor decrease to
+zero during the off-time. Once the current through the high side N-MOSFET is zero, the high-side MOSFET is
+turned off until the beginning of the next switching cycle. When the output of the error amplifier continuously
+goes down and reaches a threshold with respect to the peak current of ILIM / 12, the output of the error amplifier
+
+
+12    Submit Document Feedback                                                    Copyright © 2021 Texas Instruments Incorporated
+
+                                             Product Folder Links: TPS61088
+                                                                                                                          TPS61088
+www.ti.com                                                                                  SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+is clamped at this value and does not decrease any more. If the load current is smaller than what the TPS61088
+delivers, the output voltage increases above the nominal setting output voltage. The TPS61088 extends its
+off-time of the switching period to deliver less energy to the output and regulate the output voltage to 0.7%
+higher than the nominal setting voltage. With PFM operation mode, the TPS61088 keeps the efficiency above
+80% even when the load current decreases to 1 mA. In addition, the output voltage ripple is much smaller at light
+load due to low peak current. Refer to Figure 7-2.
+                           Output Voltage
+
+
+
+
+                                           PFM mode at light load
+
+
+
+                                                                                                   1.007 × VOUT_NOM
+
+
+
+
+                                                                                                             VOUT_NOM
+
+
+
+
+                                                                               PWM mode at heavy load
+
+                                                    Figure 7-2. PFM Mode Diagram
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                         Submit Document Feedback    13
+                                                        Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                                           www.ti.com
+
+
+8 Application and Implementation
+                                                                    Note
+      Information in the following applications sections is not part of the TI component specification,
+      and TI does not warrant its accuracy or completeness. TI’s customers are responsible for
+      determining suitability of components for their purposes, as well as validating and testing their design
+      implementation to confirm system functionality.
+
+8.1 Application Information
+The TPS61088 is designed for outputting voltage up to 12.6 V with 10-A switch current capability to deliver
+more than 30-W power. The TPS61088 operates at a quasi-constant frequency pulse-width modulation (PWM)
+in moderate-to-heavy load condition. In light load condition, the converter can either operate in PFM mode or
+in forced PWM mode according to the mode selection. The PFM mode brings high efficiency over entire load
+range, but PWM mode can avoid the acoustic noise as the switching frequency is fixed. The converter uses
+the adaptive constant off-time peak current control scheme, which provides excellent transient line and load
+response with minimal output capacitance. The TPS61088 can work with different inductor and output capacitor
+combination by external loop compensation. It also supports adjustable switching frequency ranging from 200
+kHz to 2.2 MHz.
+8.2 Typical Application
+                                                         C6
+                                                       0.1 µF
+                                                                                                                              VOUT = 9 V
+                            L1    1.2 µH                                                                                      IOUT = 3 A
+VIN = 3.3 to 4.2 V                                                             VOUT
+                                                                      BOOT
+                                                              SW                                C9             C4
+                                                                                                                               R1
+                                               R3                                             1 µF         3× 22 µF           360 k
+                                                              FSW                                                                     R2
+      C1                                      255 k                                FB
+                                                              VIN                                       C8                           56 k
+      10 µF
+                 C2                                                                            R5                   C5
+                                                              VCC              COMP
+                0.1 µF       C3
+                                                    ON                                         R4 100 k
+                            2.2 µF     OFF                    EN                 ILIM
+
+                                                              PGND                             C7
+                                                                                   SS
+                                                                                              47 nF
+                                                              AGND             MODE
+
+
+                              Figure 8-1. TPS61088 3.3 V to 9-V/3-A Output Converter
+
+8.2.1 Design Requirements
+                                                  Table 8-1. Design Parameters
+                                      DESIGN PARAMETERS                    EXAMPLE VALUES
+                                         Input voltage range                   3.3 to 4.2 V
+                                             Output voltage                        9V
+                                        Output voltage ripple              100 mV peak to peak
+                                        Output current rating                      3A
+                                        Operating frequency                      600 kHz
+                                     Operation mode at light load                 PFM
+
+
+
+
+14    Submit Document Feedback                                                                       Copyright © 2021 Texas Instruments Incorporated
+
+                                                      Product Folder Links: TPS61088
+                                                                                                                     TPS61088
+www.ti.com                                                                             SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+8.2.2 Detailed Design Procedure
+8.2.2.1 Custom Design with WEBENCH Tools
+Click here to create a custom design using the TPS61088 device with the WEBENCH® Power Designer.
+1. Start by entering your VIN, VOUT and IOUT requirements.
+2. Optimize your design for key parameters like efficiency, footprint and cost using the optimizer dial and
+   compare this design with other possible solutions from Texas Instruments.
+3. WEBENCH Power Designer provides you with a customized schematic along with a list of materials with real
+   time pricing and component availability.
+4. In most cases, you will also be able to:
+   • Run electrical simulations to see important waveforms and circuit performance,
+   • Run thermal simulations to understand the thermal performance of your board,
+   • Export your customized schematic and layout into popular CAD formats,
+   • Print PDF reports for the design, and share your design with colleagues.
+5. Get more information about WEBENCH tools at www.ti.com/webench.
+8.2.2.2 Setting Switching Frequency
+The switching frequency is set by a resistor connected between the FSW pin and the SW pin of the TPS61088.
+The resistor value required for a desired frequency can be calculated using Equation 5.
+
+                          1                  VOUT
+                  4u(            tDELAY u         )
+                        ¦SW                   9IN
+      RFREQ
+                               CFREQ                                                                                    (5)
+
+where
+•    RFREQ is the resistance connected between the FSW pin and the SW pin
+•    CFREQ is 23 pF
+•    ƒSW is the desired switching frequency
+•    tDELAY is 89 ns
+•    VIN is the input voltage
+•    VOUT is the output voltage
+8.2.2.3 Setting Peak Current Limit
+The peak input current is set by selecting the correct external resistor value correlating to the required current
+limit. Since the TPS61088 is configured to work in PFM mode in light load condition, use Equation 6 to calculate
+the correct resistor value:
+
+             1190000
+      ILIM
+              RILIM                                                                                                     (6)
+
+where
+•    RILIM is the resistance connected between the ILIM pin and ground
+•    ILIM is the switching peak current limit
+For a typical current limit of 11.9 A, the resistor value is 100 kΩ. Considering the device variation and the
+tolerance over temperature, the minimum current limit at the worst case can be 1.3 A lower than the value
+calculated by Equation 6. The minimum current limit must be higher than the required peak switch current at the
+lowest input voltage and the highest output power to make sure the TPS61088 does not hit the current limit and
+can still regulate the output voltage in these conditions.
+8.2.2.4 Setting Output Voltage
+The output voltage is set by an external resistor divider (R1, R2 in Figure 8-1). Typically, a minimum current of
+20 μA flowing through the feedback divider gives good accuracy and noise covering. A standard 56-kΩ resistor
+is typically selected for low-side resistor R2.
+
+Copyright © 2021 Texas Instruments Incorporated                                                   Submit Document Feedback     15
+                                                      Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                        www.ti.com
+
+The value of R1 is then calculated as:
+
+              (VOUT    VREF ) u R2
+     R1
+                      VREF                                                                                           (7)
+
+8.2.2.5 Inductor Selection
+Because the selection of the inductor affects the steady state operation of the power supply, transient behavior,
+loop stability, and boost converter efficiency, the inductor is the most important component in switching power
+regulator design. Three most important specifications to the performance of the inductor are the inductor value,
+DC resistance, and saturation current.
+The TPS61088 is designed to work with inductor values between 0.47 and 10 µH. A 0.47-µH inductor is typically
+available in a smaller or lower-profile package, while a 10-µH inductor produces lower inductor current ripple. If
+the boost output current is limited by the peak current protection of the IC, using a 10-µH inductor can maximize
+the output current capability of the controller.
+Inductor values can have ±20% or even ±30% tolerance with no current bias. When the inductor current
+approaches saturation level, its inductance can decrease 20% to 35% from the value at 0-A current depending
+on how the inductor vendor defines saturation. When selecting an inductor, make sure its rated current,
+especially the saturation current, is larger than its peak current during the operation.
+Follow Equation 8 to Equation 10 to calculate the peak current of the inductor. To calculate the current in
+the worst case, use the minimum input voltage, maximum output voltage, and maximum load current of the
+application. To leave enough design margin, TI recommends using the minimum switching frequency, the
+inductor value with –30% tolerance, and a low-power conversion efficiency for the calculation.
+In a boost regulator, calculate the inductor DC current as in Equation 8.
+
+              VOUT u IOUT
+     IDC
+                VIN u K                                                                                              (8)
+
+where
+•    VOUT is the output voltage of the boost regulator
+•    IOUT is the output current of the boost regulator
+•    VIN is the input voltage of the boost regulator
+•    η is the power conversion efficiency
+Calculate the inductor current peak-to-peak ripple as in Equation 9.
+
+                             1
+     IPP
+                       1          1
+              /u                     u ¦SW
+                   VOUT VIN      VIN                                                                                 (9)
+
+where
+•    IPP is the inductor peak-to-peak ripple
+•    L is the inductor value
+•    ƒSW is the switching frequency
+•    VOUT is the output voltage
+•    VIN is the input voltage
+Therefore, the peak current, ILpeak, seen by the inductor is calculated with Equation 10.
+
+                       IPP
+     ILpeak     IDC
+                        2                                                                                          (10)
+
+
+
+
+16    Submit Document Feedback                                                    Copyright © 2021 Texas Instruments Incorporated
+
+                                               Product Folder Links: TPS61088
+                                                                                                                       TPS61088
+www.ti.com                                                                               SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+Set the current limit of the TPS61088 higher than the peak current ILpeak. Then select the inductor with saturation
+current higher than the setting current limit.
+Boost converter efficiency is dependent on the resistance of its current path, the switching loss associated with
+the switching MOSFETs, and the core loss of the inductor. The TPS61088 has optimized the internal switch
+resistance. However, the overall efficiency is affected significantly by the DC resistance (DCR) of the inductor,
+equivalent series resistance (ESR) at the switching frequency, and the core loss. Core loss is related to the core
+material and different inductors have different core loss. For a certain inductor, larger current ripple generates
+higher DCR and ESR conduction losses and higher core loss. Usually, a data sheet of an inductor does not
+provide the ESR and core loss information. If needed, consult the inductor vendor for detailed information.
+Generally, TI would recommend an inductor with lower DCR and ESR. However, there is a tradeoff among the
+inductance of the inductor, DCR and ESR resistance, and its footprint. Furthermore, shielded inductors typically
+have higher DCR than unshielded inductors. Table 8-2 lists recommended inductors for the TPS61088. Verify
+whether the recommended inductor can support your target application with the previous calculations and bench
+evaluation. In this application, the Sumida's inductor CDMC8D28NP-1R2MC is selected for its small size and
+low DCR.
+                                                  Table 8-2. Recommended Inductors
+ PART NUMBER                     L (µH)           DCR MAX (mΩ) SATURATION CURRENT /         SIZE MAX               VENDOR
+                                                               HEAT RATING CURRENT (A)      (L × W × H mm)
+    CDMC8D28NP-1R2MC                    1.2            7.0                 12.2 / 12.9          9.5 x 8.7 x 3.0       Sumida
+          744311150                     1.5            7.2                 14.0 / 11.0          7.3 x 7.2 x 4.0       Wurth
+      PIMB104T-2R2MS                    2.2            7.0                  18 / 12            11.2 × 10.3 × 4.0      Cyntec
+      PIMB103T-2R2MS                    2.2            9.0                  16 / 13            11.2 × 10.3 × 3.0      Cyntec
+      PIMB065T-2R2MS                    2.2           12.5                  12 / 10.5           7.4 × 6.8 × 5.0       Cyntec
+
+
+8.2.2.6 Input Capacitor Selection
+For good input voltage filtering, TI recommends low-ESR ceramic capacitors. The VIN pin is the power supply for
+the TPS61088. A 0.1-μF ceramic bypass capacitor is recommended as close as possible to the VIN pin of the
+TPS61088. The VCC pin is the output of the internal LDO. A ceramic capacitor of more than 1.0 μF is required at
+the VCC pin to get a stable operation of the LDO.
+For the power stage, because of the inductor current ripple, the input voltage changes if there is parasite
+inductance and resistance between the power supply and the inductor. It is recommended to have enough input
+capacitance to make the input voltage ripple less than 100mV. Generally, 10-μF input capacitance is sufficient for
+most applications.
+
+                                                                   Note
+       DC bias effect: High-capacitance ceramic capacitors have a DC bias effect, which has a strong
+       influence on the final effective capacitance. Therefore, the right capacitor value must be chosen
+       carefully. The differences between the rated capacitor value and the effective capacitance result from
+       package size and voltage rating in combination with material. A 10-V rated 0805 capacitor with 10 μF
+       can have an effective capacitance of less 5 μF at an output voltage of 5 V.
+
+8.2.2.7 Output Capacitor Selection
+For small output voltage ripple, TI recommends a low-ESR output capacitor like a ceramic capacitor. Typically,
+three 22-μF ceramic output capacitors work for most applications. Higher capacitor values can be used to
+improve the load transient response. Take care when evaluating the derating of a capacitor under DC bias.
+The bias can significantly reduce capacitance. Ceramic capacitors can lose most of their capacitance at
+rated voltage. Therefore, leave margin on the voltage rating to ensure adequate effective capacitance. From
+the required output voltage ripple, use the following equations to calculate the minimum required effective
+capacitance COUT:
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                     Submit Document Feedback     17
+                                                       Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                           www.ti.com
+
+                      (VOUT    VIN _ MIN ) u IOUT
+     Vripple _ dis
+                       9OUT u ¦SW u &OUT                                                                               (11)
+
+     Vripple _ ESR     ILpeak u RC _ ESR                                                                              (12)
+
+where
+•    Vripple_dis is output voltage ripple caused by charging and discharging of the output capacitor
+•    Vripple_ESR is output voltage ripple caused by ESR of the output capacitor
+•    VIN_MIN is the minimum input voltage of boost converter
+•    VOUT is the output voltage
+•    IOUT is the output current
+•    ILpeak is the peak current of the inductor
+•    ƒSW is the converter switching frequency
+•    RC_ESR is the ESR of the output capacitors
+8.2.2.8 Loop Stability
+The TPS61088 requires external compensation, which allows the loop response to be optimized for each
+application. The COMP pin is the output of the internal error amplifier. An external compensation network
+comprised of resistor R5, ceramic capacitors C5 and C8 is connected to the COMP pin.
+The power stage small signal loop response of constant off-time (COT) with peak current control can be
+modeled by Equation 13.
+
+                                        §        S       ·§          S       ·
+                                        ¨1               ¸¨ 1                ¸
+                     5O u      '        ©    u S u ¦ESRZ ¹ ©     u S u ¦RHPZ ¹
+     GPS (S)                          u
+                     2 u Rsense                              S
+                                                   1
+                                                        u S u ¦P                                                      (13)
+
+where
+•    D is the switching duty cycle
+•    RO is the output load resistance
+•    Rsense is the equivalent internal current sense resistor, which is 0.08 Ω
+
+                  2
+     ¦P
+            2S u RO u CO                                                                                              (14)
+
+where
+•    CO is output capacitor
+
+                        1
+     ¦ESRZ
+                 2S u RESR u CO                                                                                       (15)
+
+where
+•    RESR is the equivalent series resistance of the output capacitor
+
+                                  2
+                 RO u 1 D
+     ¦RHPZ
+                      2S u L                                                                                          (16)
+
+The COMP pin is the output of the internal transconductance amplifier. Equation 17 shows the small signal
+transfer function of compensation network.
+
+
+18    Submit Document Feedback                                                       Copyright © 2021 Texas Instruments Incorporated
+
+                                                    Product Folder Links: TPS61088
+                                                                                                                   TPS61088
+www.ti.com                                                                           SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+                                                       §          S      ·
+                                                       ¨1                ¸
+                 GEA u REA u VREF                      ©    u S u ¦COMZ ¹
+      Gc(S)                       u
+                       VOUT         §                  S       ·§          S       ·
+                                    ¨1                         ¸¨ 1                ¸
+                                    ©             u S u ¦COMP1 ¹©     u S u ¦COMP2 ¹                                (17)
+
+where
+•    GEA is the transconductance of the amplifier
+•    REA is the output resistance of the amplifier
+•    VREF is the reference voltage at the FB pin
+•    VOUT is the output voltage
+•    ƒCOMP1, ƒCOMP2 are the poles' frequency of the compensation network
+•    ƒCOMZ is the zero's frequency of the compensation network
+The next step is to choose the loop crossover frequency, ƒC. The higher in frequency that the loop gain stays
+above zero before crossing over, the faster the loop response is. It is generally accepted that the loop gain cross
+over no higher than the lower of either 1/10 of the switching frequency, ƒSW, or 1/5 of the RHPZ frequency,
+ƒRHPZ.
+Then set the value of R5, C5, and C8 (in Figure 8-1) by following these equations.
+
+               S u 9OUT u 5sense u ¦C u &O
+      R5
+                    ± ' u 9REF u *EA                                                                                (18)
+
+where
+•    ƒC is the selected crossover frequency
+The value of C5 can be set by Equation 19.
+
+             RO u CO
+      C5
+              2R5                                                                                                   (19)
+
+The value of C8 can be set by Equation 20.
+
+             RESR u CO
+      C8
+                R5                                                                                                  (20)
+
+If the calculated value of C8 is less than 10 pF, it can be left open.
+Designing the loop for greater than 45° of phase margin and greater than 10-dB gain margin eliminates output
+voltage ringing during the line and load transient.
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                 Submit Document Feedback     19
+                                                    Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                              www.ti.com
+
+8.2.3 Application Curves
+
+
+       Vout(AC)                                                  Vout(AC)
+     100 mV/div                                                 20 mV/div
+
+        Inductor
+         Current                                                      SW
+          2 A/div                                                  5 V/div
+            SW
+         5 V/div
+                                                                  Inductor
+                                                                   Current
+                                                                    1 A/div
+
+
+
+          Figure 8-2. Switching Waveforms in CCM                     Figure 8-3. Switching Waveforms in DCM
+
+      Vout(AC)
+     20 mV/div                                                       EN
+                                                                 1 V/div
+
+
+           SW
+                                                                   Vout
+        5 V/div
+                                                                 2 V/div
+
+
+       Inductor                                                 Inductor
+        Current                                                  Current
+         1 A/div                                                 2 A/div
+
+
+      Figure 8-4. Switching Waveforms in PFM Mode                             Figure 8-5. Startup Waveforms
+
+         EN
+     1 V/div
+                                                                    Output
+       Vout                                                         Current
+     2 V/div                                                        1 A/div
+
+
+  Inductor
+   Current                                                        Vout(AC)
+    2 A/div                                                     500 mV/div
+
+
+
+
+                                                               Figure 8-7. Load Transient (VOUT = 9 V, IOUT = 1 to 2
+                    Figure 8-6. Shutdown Waveforms                                     A)
+
+
+
+
+20      Submit Document Feedback                                                        Copyright © 2021 Texas Instruments Incorporated
+
+                                               Product Folder Links: TPS61088
+                                                                                                                      TPS61088
+www.ti.com                                                                              SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+
+                                               Input
+                                             Voltage
+                                          500 mV/div
+
+
+
+                                            Vout(AC)
+                                          100 mV/div
+
+
+
+
+                                    Figure 8-8. Line Transient (VOUT = 9 V, VIN = 3.3 to 3.6 V)
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                    Submit Document Feedback     21
+                                                       Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                     www.ti.com
+
+
+9 Power Supply Recommendations
+The device is designed to operate from an input voltage supply range between 2.7 V to 12 V. This input supply
+must be well regulated. If the input supply is located more than a few inches from the converter, additional bulk
+capacitance may be required in addition to the ceramic bypass capacitors. A typical choice is an electrolytic or
+tantalum capacitor with a value of 47 μF.
+
+
+
+
+22    Submit Document Feedback                                                 Copyright © 2021 Texas Instruments Incorporated
+
+                                            Product Folder Links: TPS61088
+                                                                                                                            TPS61088
+www.ti.com                                                                                    SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+10 Layout
+10.1 Layout Guidelines
+As for all switching power supplies, especially those running at high switching frequency and high currents,
+layout is an important design step. If layout is not carefully done, the regulator could suffer from instability
+and noise problems. To maximize efficiency, switch rise and fall times are very fast. To prevent radiation of high-
+frequency noise (for example, EMI), proper layout of the high-frequency switching path is essential. Minimize
+the length and area of all traces connected to the SW pin, and always use a ground plane under the switching
+regulator to minimize interplane coupling.
+The input capacitor needs to be close to the VIN pin and GND pin in order to reduce the Iinput supply ripple.
+The layout should also be done with well consideration of the thermal as this is a high power density device. A
+thermal pad that improves the thermal capabilities of the package should be soldered to the large ground plate,
+using thermal vias underneath the thermal pad.
+10.2 Layout Example
+The bottom layer is a large ground plane connected to the PGND plane and AGND plane on top layer by vias.
+
+
+
+                                  L1                        AGND
+                                                                                AGND
+                                                                   VCC
+
+
+
+
+VIN                                                          EN
+                                                            FSW
+                                                                                       ILIM
+                                                                                       COMP
+                                                             SW                        FB
+                                                             SW                        VOUT
+                                                             SW
+                                                             SW
+                                                            BOOT         PGND
+                                                                                       VOUT
+
+                                                                                       VOUT
+                                                                                       MODE
+                                                                                                                        VOUT
+                                                             VIN                       NC
+
+
+
+
+                                CIN
+                                                                   SS
+
+
+
+
+                                                                                NC
+
+
+
+
+                                                                   PGND                             COUT
+
+                                                  Figure 10-1. Bottom Layer
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                          Submit Document Feedback     23
+                                                  Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                        www.ti.com
+
+10.3 Thermal Considerations
+The maximum IC junction temperature should be restricted to 125°C under normal operating conditions.
+Calculate the maximum allowable dissipation, PD(max), and keep the actual power dissipation less than or equal
+to PD(max). The maximum-power-dissipation limit is determined using Equation 21.
+
+               125 TA
+     PD(max)
+                 RTJA                                                                                              (21)
+
+where
+•    TA is the maximum ambient temperature for the application.
+•    RθJA is the junction-to-ambient thermal resistance given in the Thermal Information table.
+The TPS61088 comes in a thermally-enhanced VQFN package. This package includes a thermal pad that
+improves the thermal capabilities of the package. The real junction-to-ambient thermal resistance of the package
+greatly depends on the PCB type, layout, and thermal pad connection. Using thick PCB copper and soldering
+the thermal pad to a large ground plate enhance the thermal performance. Using more vias connects the ground
+plate on the top layer and bottom layer around the IC without solder mask also improves the thermal capability.
+
+
+
+
+24    Submit Document Feedback                                                    Copyright © 2021 Texas Instruments Incorporated
+
+                                             Product Folder Links: TPS61088
+                                                                                                                                TPS61088
+www.ti.com                                                                                     SLVSCM8D – MAY 2015 – REVISED AUGUST 2021
+
+
+11 Device and Documentation Support
+11.1 Device Support
+11.1.1 Third-Party Products Disclaimer
+TI'S PUBLICATION OF INFORMATION REGARDING THIRD-PARTY PRODUCTS OR SERVICES DOES NOT
+CONSTITUTE AN ENDORSEMENT REGARDING THE SUITABILITY OF SUCH PRODUCTS OR SERVICES
+OR A WARRANTY, REPRESENTATION OR ENDORSEMENT OF SUCH PRODUCTS OR SERVICES, EITHER
+ALONE OR IN COMBINATION WITH ANY TI PRODUCT OR SERVICE.
+11.1.2 Development Support
+11.1.2.1 Custom Design with WEBENCH Tools
+Click here to create a custom design using the TPS61088 device with the WEBENCH® Power Designer.
+1. Start by entering your VIN, VOUT and IOUT requirements.
+2. Optimize your design for key parameters like efficiency, footprint and cost using the optimizer dial and
+   compare this design with other possible solutions from Texas Instruments.
+3. WEBENCH Power Designer provides you with a customized schematic along with a list of materials with real
+   time pricing and component availability.
+4. In most cases, you will also be able to:
+   • Run electrical simulations to see important waveforms and circuit performance,
+   • Run thermal simulations to understand the thermal performance of your board,
+   • Export your customized schematic and layout into popular CAD formats,
+   • Print PDF reports for the design, and share your design with colleagues.
+5. Get more information about WEBENCH tools at www.ti.com/webench.
+11.2 Receiving Notification of Documentation Updates
+To receive notification of documentation updates, navigate to the device product folder on ti.com. Click on
+Subscribe to updates to register and receive a weekly digest of any product information that has changed. For
+change details, review the revision history included in any revised document.
+11.3 Support Resources
+TI E2E™ support forums are an engineer's go-to source for fast, verified answers and design help — straight
+from the experts. Search existing answers or ask your own question to get the quick design help you need.
+Linked content is provided "AS IS" by the respective contributors. They do not constitute TI specifications and do
+not necessarily reflect TI's views; see TI's Terms of Use.
+11.4 Trademarks
+Bluetooth™ is a trademark of Bluetooth SIG.
+TI E2E™ is a trademark of Texas Instruments.
+WEBENCH® are registered trademarks of Texas Instruments.
+All trademarks are the property of their respective owners.
+11.5 Electrostatic Discharge Caution
+                    This integrated circuit can be damaged by ESD. Texas Instruments recommends that all integrated circuits be handled
+                    with appropriate precautions. Failure to observe proper handling and installation procedures can cause damage.
+                    ESD damage can range from subtle performance degradation to complete device failure. Precision integrated circuits may
+                    be more susceptible to damage because very small parametric changes could cause the device not to meet its published
+                    specifications.
+
+
+11.6 Glossary
+ TI Glossary             This glossary lists and explains terms, acronyms, and definitions.
+
+
+
+
+Copyright © 2021 Texas Instruments Incorporated                                                            Submit Document Feedback          25
+                                                       Product Folder Links: TPS61088
+TPS61088
+SLVSCM8D – MAY 2015 – REVISED AUGUST 2021                                                                     www.ti.com
+
+
+12 Mechanical, Packaging, and Orderable Information
+The following pages include mechanical, packaging, and orderable information. This information is the most
+current data available for the designated devices. This data is subject to change without notice and revision of
+this document. For browser-based versions of this data sheet, refer to the left-hand navigation.
+
+
+
+
+26    Submit Document Feedback                                                 Copyright © 2021 Texas Instruments Incorporated
+
+                                            Product Folder Links: TPS61088
+                                                                                                                                                                      PACKAGE OPTION ADDENDUM
+
+       www.ti.com                                                                                                                                                                                                     8-Jan-2026
+
+
+
+
+PACKAGING INFORMATION
+
+       Orderable part number          Status     Material type      Package | Pins      Package qty | Carrier        RoHS             Lead finish/              MSL rating/               Op temp (°C)          Part marking
+                                        (1)            (2)                                                             (3)            Ball material             Peak reflow                                           (6)
+                                                                                                                                            (4)                      (5)
+
+           TPS61088RHLR               Active      Production       VQFN (RHL) | 20       3000 | LARGE T&R             Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125             S61088A
+         TPS61088RHLR.A               Active      Production       VQFN (RHL) | 20       3000 | LARGE T&R             Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125             S61088A
+         TPS61088RHLRG4               Active      Production       VQFN (RHL) | 20       3000 | LARGE T&R             Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125             S61088A
+        TPS61088RHLRG4.A              Active      Production       VQFN (RHL) | 20       3000 | LARGE T&R             Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125             S61088A
+           TPS61088RHLT               Active      Production       VQFN (RHL) | 20        250 | SMALL T&R             Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125             S61088A
+          TPS61088RHLT.A              Active      Production       VQFN (RHL) | 20        250 | SMALL T&R             Yes                NIPDAU            Level-1-260C-UNLIM              -40 to 125             S61088A
+
+(1)
+      Status: For more details on status, see our product life cycle.
+
+(2)
+   Material type: When designated, preproduction parts are prototypes/experimental devices, and are not yet approved or released for full production. Testing and final process, including without limitation quality assurance,
+reliability performance testing, and/or process qualification, may not yet be complete, and this item is subject to further changes or possible discontinuation. If available for ordering, purchases will be subject to an additional
+waiver at checkout, and are intended for early internal evaluation purposes only. These items are sold without warranties of any kind.
+
+(3)
+      RoHS values: Yes, No, RoHS Exempt. See the TI RoHS Statement for additional information and value definition.
+
+(4)
+   Lead finish/Ball material: Parts may have multiple material finish options. Finish options are separated by a vertical ruled line. Lead finish/Ball material values may wrap to two lines if the finish value exceeds the maximum
+column width.
+
+(5)
+  MSL rating/Peak reflow: The moisture sensitivity level ratings and peak solder (reflow) temperatures. In the event that a part has multiple moisture sensitivity ratings, only the lowest level per JEDEC standards is shown.
+Refer to the shipping label for the actual reflow temperature that will be used to mount the part to the printed circuit board.
+
+(6)
+      Part marking: There may be an additional marking, which relates to the logo, the lot trace code information, or the environmental category of the part.
+
+Multiple part markings will be inside parentheses. Only one part marking contained in parentheses and separated by a "~" will appear on a part. If a line is indented then it is a continuation of the previous line and the two
+combined represent the entire part marking for that device.
+
+Important Information and Disclaimer:The information provided on this page represents TI's knowledge and belief as of the date that it is provided. TI bases its knowledge and belief on information provided by third parties, and
+makes no representation or warranty as to the accuracy of such information. Efforts are underway to better integrate information from third parties. TI has taken and continues to take reasonable steps to provide representative
+and accurate information but may not have conducted destructive testing or chemical analysis on incoming materials and chemicals. TI and TI suppliers consider certain information to be proprietary, and thus CAS numbers
+and other limited information may not be available for release.
+
+In no event shall TI's liability arising out of such information exceed the total purchase price of the TI part(s) at issue in this document sold by TI to Customer on an annual basis.
+
+
+
+                                                                                                          Addendum-Page 1
+                                                                                                                          PACKAGE OPTION ADDENDUM
+
+   www.ti.com                                                                                                                               8-Jan-2026
+
+
+
+
+OTHER QUALIFIED VERSIONS OF TPS61088 :
+
+• Automotive : TPS61088-Q1
+
+NOTE: Qualified Version Definitions:
+
+       • Automotive - Q100 devices qualified for high-reliability automotive applications targeting zero defects
+
+
+
+
+                                                                                                        Addendum-Page 2
+                                                                               PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                                                        18-Jun-2025
+
+
+
+TAPE AND REEL INFORMATION
+
+       REEL DIMENSIONS                                                                      TAPE DIMENSIONS
+                                                                                       K0       P1
+
+
+
+                                                                                                                       B0 W
+                                        Reel
+                                      Diameter
+                                                                                    Cavity           A0
+                                                                A0   Dimension designed to accommodate the component width
+                                                                B0   Dimension designed to accommodate the component length
+                                                                K0   Dimension designed to accommodate the component thickness
+                                                                W    Overall width of the carrier tape
+                                                                P1   Pitch between successive cavity centers
+
+
+                                       Reel Width (W1)
+                              QUADRANT ASSIGNMENTS FOR PIN 1 ORIENTATION IN TAPE
+
+                                                                                                      Sprocket Holes
+
+
+                                                 Q1        Q2          Q1    Q2
+
+                                                 Q3        Q4          Q3    Q4                  User Direction of Feed
+
+
+
+                                                            Pocket Quadrants
+
+
+*All dimensions are nominal
+             Device           Package Package Pins              SPQ        Reel   Reel   A0                  B0         K0     P1     W     Pin1
+                               Type Drawing                              Diameter Width (mm)                (mm)       (mm)   (mm)   (mm) Quadrant
+                                                                           (mm) W1 (mm)
+     TPS61088RHLR              VQFN     RHL           20        3000        330.0        12.4        3.71   4.71       1.1    8.0    12.0    Q1
+   TPS61088RHLRG4              VQFN     RHL           20        3000        330.0        12.4        3.71   4.71       1.1    8.0    12.0    Q1
+     TPS61088RHLT              VQFN     RHL           20         250        180.0        12.4        3.71   4.71       1.1    8.0    12.0    Q1
+
+
+
+
+                                                                       Pack Materials-Page 1
+                                                                PACKAGE MATERIALS INFORMATION
+
+www.ti.com                                                                                                              18-Jun-2025
+
+
+
+ TAPE AND REEL BOX DIMENSIONS
+
+
+
+
+                                                               Width (mm)
+                                                                              H
+                      W
+
+
+
+
+                                                          L
+
+
+
+
+*All dimensions are nominal
+             Device           Package Type   Package Drawing   Pins         SPQ    Length (mm)   Width (mm)   Height (mm)
+     TPS61088RHLR                VQFN             RHL           20          3000      346.0        346.0         33.0
+    TPS61088RHLRG4               VQFN             RHL           20          3000      346.0        346.0         33.0
+      TPS61088RHLT               VQFN             RHL           20          250       210.0        185.0         35.0
+
+
+
+
+                                                        Pack Materials-Page 2
+                                                                                                      PACKAGE OUTLINE
+RHL0020A                                                                                             VQFN - 1 mm max height
+                                                                                               PLASTIC QUAD FLATPACK- NO LEAD
+                                                         3.6                         A
+                                     B                   3.4
+
+
+
+
+                PIN 1 INDEX AREA
+
+                                                                                     4.6
+                                                                                     4.4
+
+
+
+
+                                                                                           C
+                             1 MAX
+                                                                                                  SEATING PLANE
+                                                                                            0.08 C
+                                                       2.05±0.1
+
+                                                       2X 1.5
+                                                       SYMM                         20X 0.5
+                                                                                        0.3
+                                                                                                                  (0.2) TYP
+                                                 10                 11
+                          14X 0.5
+                                         9
+                                                                               12
+
+
+
+
+                            2X      SYMM                   21
+                            3.5                                                     3.05±0.1
+
+
+
+
+                                                                               19
+                                          2
+                                                                                      20X 0.29
+                                                                                          0.19
+                                                   1              20
+                               PIN 1 ID
+                            (OPTIONAL)                              4X (0.2)               0.1     C A B
+                                                                                           0.05     C
+                                                                  2X (0.55)
+
+
+                                                                                                                  4219071 / A 05/2017
+NOTES:
+
+ 1.   All linear dimensions are in millimeters. Any dimensions in parenthesis are for reference only. Dimensioning and tolerancing
+      per ASME Y14.5M.
+ 2.   This drawing is subject to change without notice.
+ 3.   The package thermal pad must be soldered to the printed circuit board for thermal and mechanical performance.
+
+
+
+
+                                                                www.ti.com
+                                                                                     EXAMPLE BOARD LAYOUT
+RHL0020A                                                                                        VQFN - 1 mm max height
+                                                                                          PLASTIC QUAD FLATPACK- NO LEAD
+                                                                   (3.3)
+                                                                  (2.05)
+                                                                 2X (1.5)
+                                                                  SYMM
+                                                       1                        20
+                             20X (0.6)                                                                   2X (0.4)
+
+
+
+                                        2                                                       19
+
+                        20X (0.24)
+
+
+
+
+                        14X (0.5)
+                          SYMM                                          21
+                                                                                                                    (3.05)   (4.3)
+                                                                                                  6X (0.525)
+
+
+
+                SOLDER MASK                                                                          2X (0.75)
+                    OPENING
+               METAL UNDER
+               SOLDER MASK
+                                        9                                                       12
+
+                   (R0.05) TYP
+
+                                    (Ø0.2) VIA
+                                                       10                       11
+                                      TYP)
+                                                  4X (0.2)                             4X
+                                                                                     (0.775)
+                                                    2X (0.55)
+
+                                                     LAND PATTERN EXAMPLE
+                                                           EXPOSED METAL SHOWN
+                                                                SCALE: 18X
+
+                              0.07 MAX
+                                                                  0.07 MIN                       SOLDER MASK
+                            ALL AROUND
+                                                                ALL AROUND                       OPENING
+
+                       EXPOSED METAL                                                           EXPOSED METAL
+                                                                METAL
+
+                                                                                                METAL UNDER
+                   SOLDER MASK                                                                  SOLDER MASK
+                       OPENING              NON SOLDER MASK                  SOLDER MASK
+                                                DEFINED                        DEFINED
+                                              (PREFERRED)
+
+                                                   SOLDER MASK DETAILS                                                4219071 / A 05/2017
+
+NOTES: (continued)
+
+ 4.   This package is designed to be soldered to a thermal pad on the board. For more information, see Texas Instruments
+      literature number SLUA271 (www.ti.com/lit/slua271) .
+ 5.   Solder mask tolerances between and around signal pads can vary based on board fabrication site.
+ 6.   Vias are optional depending on application, refer to device data sheet. If any vias are implemented, refer to theri
+      locations shown on this view. It is recommended that vias under paste be filled, plugged or tented.
+
+
+
+
+                                                                www.ti.com
+                                                                                EXAMPLE STENCIL DESIGN
+RHL0020A                                                                                      VQFN - 1 mm max height
+                                                                                        PLASTIC QUAD FLATPACK- NO LEAD
+
+
+                                                                 (3.3)
+
+                                                               2X (1.5)
+                                                               (0.55)
+                                                                TYP                 (0.56)
+                                                                                     TYP
+                                                       1                       20                        SOLDER MASK EDGE
+                           20X (0.6)                                                                     TYP
+
+
+
+                                       2                                                            19
+
+                     20X (0.24)
+
+
+
+
+                     14X (0.5)                                                                              (1.05)
+                                                                                                             TYP
+                      SYMM
+
+
+                                                                                                                     (4.3)
+                                                                         21
+
+
+                                                                                                           6X
+                 (R0.05) TYP                                                                             (0.85)
+
+                       METAL
+                         TYP
+                                       9                                                            12
+                                               2X
+                                             (0.775)
+                                                                                        2X (0.25)
+                                                       10                     11
+                                                 4X (0.2)
+                                                                                      6X (0.92)
+                                                                SYMM
+
+
+
+                                                    SOLDER PASTE EXAMPLE
+                                                   BASED ON 0.1mm THICK STENCIL
+
+                                                           EXPOSED PAD
+                                                  75% PRINTED COVERAGE BY AREA
+                                                            SCALE: 20X
+
+
+
+                                                                                                                        4219071 / A 05/2017
+
+NOTES: (continued)
+
+7.    Laser cutting apertures with trapezoidal walls and rounded corners may offer better paste release. IPC-7525 may have alternate
+design recommendations..
+
+
+
+
+                                                              www.ti.com
+                                         IMPORTANT NOTICE AND DISCLAIMER
+TI PROVIDES TECHNICAL AND RELIABILITY DATA (INCLUDING DATASHEETS), DESIGN RESOURCES (INCLUDING REFERENCE
+DESIGNS), APPLICATION OR OTHER DESIGN ADVICE, WEB TOOLS, SAFETY INFORMATION, AND OTHER RESOURCES “AS IS”
+AND WITH ALL FAULTS, AND DISCLAIMS ALL WARRANTIES, EXPRESS AND IMPLIED, INCLUDING WITHOUT LIMITATION ANY
+IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NON-INFRINGEMENT OF THIRD
+PARTY INTELLECTUAL PROPERTY RIGHTS.
+These resources are intended for skilled developers designing with TI products. You are solely responsible for (1) selecting the appropriate
+TI products for your application, (2) designing, validating and testing your application, and (3) ensuring your application meets applicable
+standards, and any other safety, security, regulatory or other requirements.
+These resources are subject to change without notice. TI grants you permission to use these resources only for development of an
+application that uses the TI products described in the resource. Other reproduction and display of these resources is prohibited. No license
+is granted to any other TI intellectual property right or to any third party intellectual property right. TI disclaims responsibility for, and you fully
+indemnify TI and its representatives against any claims, damages, costs, losses, and liabilities arising out of your use of these resources.
+TI’s products are provided subject to TI’s Terms of Sale, TI’s General Quality Guidelines, or other applicable terms available either on
+ti.com or provided in conjunction with such TI products. TI’s provision of these resources does not expand or otherwise alter TI’s applicable
+warranties or warranty disclaimers for TI products. Unless TI explicitly designates a product as custom or customer-specified, TI products
+are standard, catalog, general purpose devices.
+TI objects to and rejects any additional or different terms you may propose.
+IMPORTANT NOTICE
+
+                                                Copyright © 2026, Texas Instruments Incorporated
+                                                                Last updated 10/2025
+

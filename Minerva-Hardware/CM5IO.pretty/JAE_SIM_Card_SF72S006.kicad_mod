@@ -1,0 +1,422 @@
+(footprint "JAE_SIM_Card_SF72S006"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "SIM Card, Push-Push, https://www.jae.com/direct/topics/topics_file_download/topics_id=68892&ext_no=06&index=0&_lang=en&v=202003111511468456809")
+	(tags "SIM Card with Detect Switch")
+	(property "Reference" "J7"
+		(at 2.667 10.541 0)
+		(layer "F.SilkS")
+		(uuid "d9bd3356-d949-4fc6-8abb-e5800664bbfe")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "JAE_SIM_Card_SF72S006"
+		(at -0.98 -6.485 0)
+		(layer "F.Fab")
+		(uuid "c2efc077-bea2-4f49-80bf-0575d5bb2b7b")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" "https://www.jae.com/direct/topics/topics_file_download/topics_id=68892&ext_no=06&index=0&_lang=en&v=202003111511468456809"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "d5f0bcc1-edc4-4e33-a40a-64dd076c1e70")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Nano-SIM Card (4FF) connector with Detect Switch"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1781eb24-5722-4184-8ad4-05647ae1e28d")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property ki_fp_filters "JAE*SIM*Card*SF72S006*")
+	(sheetname "/PCIe-M2/")
+	(sheetfile "PCIe-M2.kicad_sch")
+	(attr smd)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -6.7945 -4.7625)
+		(end -6.7945 -5.2705)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "f7113a33-98c9-4284-af40-c95289bdd221")
+	)
+	(fp_line
+		(start -6.7945 0.5715)
+		(end -6.7945 -1.524)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "d42b071a-bb00-4268-95ec-965773c76f29")
+	)
+	(fp_line
+		(start -6.7945 5.461)
+		(end -6.7945 2.815)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "3ba2143c-44c1-408c-bbdd-a76bf6e7c86e")
+	)
+	(fp_line
+		(start -6.7945 9.4615)
+		(end -6.7945 8.1915)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "3a5d36b7-b9f9-4b2a-988d-c4e6d8770219")
+	)
+	(fp_line
+		(start -4.0005 9.4615)
+		(end -6.7945 9.4615)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "57eb5d69-a46b-408b-8883-d20f3a27d6e1")
+	)
+	(fp_line
+		(start -4.0005 9.4615)
+		(end -4.0005 9.017)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "2fa09167-d81d-4ff9-a9e7-a7de3ff6dd62")
+	)
+	(fp_line
+		(start -3.048 9.015)
+		(end -4.0005 9.015)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "b2adebc4-163f-4103-b6c0-8a24fa0b4f32")
+	)
+	(fp_line
+		(start 1.397 9.017)
+		(end -1.397 9.015)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "850fe5e0-812e-452e-a8c6-ec8085cc65c6")
+	)
+	(fp_line
+		(start 4.82 -5.2705)
+		(end -6.7945 -5.2705)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "641f5300-3077-4223-847d-8d6fd457fef1")
+	)
+	(fp_line
+		(start 4.82 -5.2705)
+		(end 4.82 -4.7625)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "5584b0a0-42f7-4c2e-98f2-0c1215c8b1d9")
+	)
+	(fp_line
+		(start 4.826 -1.524)
+		(end 4.826 0.5715)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "b8438ce6-294b-4ccd-a42c-9a6dbcaf827c")
+	)
+	(fp_line
+		(start 4.826 2.815)
+		(end 4.826 9.015)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "22cf391e-28f5-44b3-bea3-e59fc3a94147")
+	)
+	(fp_line
+		(start 4.826 9.015)
+		(end 3.048 9.015)
+		(stroke
+			(width 0.12)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0489eaa3-aebf-495a-b7f7-f3331912db85")
+	)
+	(fp_line
+		(start -6.98 -5.46)
+		(end -6.98 9.69)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "9ad886d4-f6ed-4c20-bc52-db37df8f1f4e")
+	)
+	(fp_line
+		(start -6.98 9.69)
+		(end 5.02 9.69)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "a4e5952c-eda4-4e53-84e3-9e0be6ca149b")
+	)
+	(fp_line
+		(start 5.02 -5.46)
+		(end -6.98 -5.46)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "4ace6286-5e49-425d-a0ac-5a99162b7fc4")
+	)
+	(fp_line
+		(start 5.02 9.69)
+		(end 5.02 -5.46)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "d44db751-b196-44ba-9dba-8179ecec9465")
+	)
+	(fp_line
+		(start -6.58 9.29)
+		(end -6.58 -5.06)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "eb5187da-3e81-4e63-9e5c-1046d0ff3769")
+	)
+	(fp_line
+		(start -4.18 8.84)
+		(end -4.18 9.29)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "ddad53c6-e913-446b-a8f5-8a1a11d7c8ac")
+	)
+	(fp_line
+		(start -4.18 9.29)
+		(end -6.58 9.29)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "fffb62a3-9a1f-4fb5-bd31-2d3546cd8eec")
+	)
+	(fp_line
+		(start 4.62 -5.06)
+		(end -6.58 -5.06)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "45e97fa8-c0ca-4d32-8576-bfd80f3a882d")
+	)
+	(fp_line
+		(start 4.62 -5.06)
+		(end 4.62 8.84)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "5be6fe92-f41b-4f5d-b642-e933989da4cb")
+	)
+	(fp_line
+		(start 4.62 8.84)
+		(end -4.18 8.84)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "c64840f1-87ec-437d-ba6d-782272bdc5b4")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 2.54 0)
+		(layer "F.Fab")
+		(uuid "b8528363-04d9-49b3-ab4b-7df39ff8dbcc")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "C1" smd rect
+		(at -2.54 -2.46 180)
+		(size 0.9 0.7)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "f72f00a5-227f-4bf1-a27e-6cb49cc5665c")
+	)
+	(pad "C2" smd rect
+		(at 0 -2.46 180)
+		(size 0.9 0.7)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "bfd6298f-bfaa-4d69-a72b-59300371d81f")
+	)
+	(pad "C3" smd rect
+		(at 2.54 -2.46 180)
+		(size 0.9 0.7)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "977c49da-3a02-41ca-ae68-7b2f12e9668f")
+	)
+	(pad "C5" smd rect
+		(at -2.54 0.71 180)
+		(size 0.9 0.7)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "7097660a-26d6-4169-b595-58656569a920")
+	)
+	(pad "C6" smd rect
+		(at 0 0.71 180)
+		(size 0.9 0.7)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "63c5be77-2ff4-462c-810d-8dfc82b7e58f")
+	)
+	(pad "C7" smd rect
+		(at 2.54 0.71 180)
+		(size 0.9 0.7)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "4d5033cd-7705-425b-bd66-46f172efc980")
+	)
+	(pad "CSW" smd rect
+		(at 4.27 4.04 180)
+		(size 0.7 0.7)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "cd333582-e047-4e80-9007-702fccf8177f")
+	)
+	(pad "DSW" smd rect
+		(at 0.55 7.715 180)
+		(size 1.2 0.65)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "7d577d66-c0e7-4dad-bde0-49dd8b68e120")
+	)
+	(pad "SH" smd rect
+		(at -6.555 -3.16 180)
+		(size 0.45 2.9)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "8da4cac7-7b52-47bd-af17-62aa50130357")
+	)
+	(pad "SH" smd rect
+		(at -6.555 1.69 180)
+		(size 0.45 1.9)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "96781f95-4355-42d3-8ebb-a5464285613e")
+	)
+	(pad "SH" smd rect
+		(at -6.555 6.84 180)
+		(size 0.45 2.4)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "3c75dd4e-26cb-4377-a4a9-edf49e68ef15")
+	)
+	(pad "SH" smd rect
+		(at -2.2 8.79 180)
+		(size 1.4 0.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "051462d4-93fb-48f0-9bf8-bb644274079e")
+	)
+	(pad "SH" smd rect
+		(at -1.22 -4.31 180)
+		(size 0.3 0.6)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "966e0e7a-ae35-44ee-b82e-aa8069013306")
+	)
+	(pad "SH" smd rect
+		(at 1.22 -4.31 180)
+		(size 0.3 0.6)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "cad75946-3591-4443-9106-77a04ef315b9")
+	)
+	(pad "SH" smd rect
+		(at 2.22 8.79 180)
+		(size 1.4 0.5)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "22d0d4ba-1341-4646-b63c-fbdce48f811e")
+	)
+	(pad "SH" smd rect
+		(at 4.095 5.84 180)
+		(size 0.75 0.7)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "d21941fd-4b2c-4a21-be77-48fca726c495")
+	)
+	(pad "SH" smd rect
+		(at 4.595 -3.16 180)
+		(size 0.45 2.9)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "202219ec-ae54-4fef-9e50-f4f845138331")
+	)
+	(pad "SH" smd rect
+		(at 4.595 1.69 180)
+		(size 0.45 1.9)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "5e72ad3c-f624-461c-8d91-3ccd9c5a8eb7")
+	)
+	(embedded_fonts no)
+	(model "${KICAD10_3DMODEL_DIR}/Connector_JAE.3dshapes/JAE_SIM_Card_SF72S006.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)

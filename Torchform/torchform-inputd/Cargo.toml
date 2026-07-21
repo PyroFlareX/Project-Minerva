@@ -1,0 +1,23 @@
+[package]
+name = "torchform-inputd"
+version = "0.1.0"
+edition = "2021"
+description = "Torchform input daemon: maps any evdev controller to a normalized uinput virtual gamepad, with chord and multiclick aliasing driven by a TOML config."
+license = "MIT"
+
+[[bin]]
+name = "torchform-inputd"
+path = "src/main.rs"
+
+[dependencies]
+evdev = "0.12"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+serde_json = "1"
+anyhow = "1"
+log = "0.4"
+env_logger = "0.11"
+
+[profile.release]
+opt-level = 2
+lto = true

@@ -154,7 +154,7 @@
         "min_connection": 0.0,
         "min_copper_edge_clearance": 0.381,
         "min_groove_width": 0.0,
-        "min_hole_clearance": 0.19,
+        "min_hole_clearance": 0.15,
         "min_hole_to_hole": 0.127,
         "min_microvia_diameter": 0.2032,
         "min_microvia_drill": 0.1016,
@@ -162,9 +162,9 @@
         "min_silk_clearance": 0.0,
         "min_text_height": 0.8,
         "min_text_thickness": 0.08,
-        "min_through_hole_diameter": 0.254,
+        "min_through_hole_diameter": 0.2,
         "min_track_width": 0.1524,
-        "min_via_annular_width": 0.127,
+        "min_via_annular_width": 0.11,
         "min_via_annulus": 0.049999999999999996,
         "min_via_diameter": 0.508,
         "solder_mask_to_copper_clearance": 0.0,
@@ -913,7 +913,7 @@
         "uuid": "d2e469ef-08ba-421a-bf0f-150328b21723"
       }
     ],
-    "used_designators": "",
+    "used_designators": "J24,U1,U30-31,R2,R9,R13,R17-20,R76-82,L2-3,D4,C1,C5,C23-34,C102-110,#PWR3,#PWR5,#PWR31-32,#PWR52,#PWR54-55,#PWR59-68,#PWR70-73",
     "variants": []
   },
   "sheets": [
@@ -936,6 +936,10 @@
     [
       "d2e469ef-08ba-421a-bf0f-150328b21723",
       "Face Board"
+    ],
+    [
+      "cc2c8a97-c7c7-43b6-903f-4be30b474af7",
+      "Power and UserIO"
     ]
   ],
   "text_variables": {},

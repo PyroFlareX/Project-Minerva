@@ -1,0 +1,262 @@
+                                   1                                            2                                                                         3                                                                                4                                                5                                                                            6
+
+
+
+
+                                                                                                                                    1V1                              3V3                                                                                                                                  VBUS                            U1                                            3V3
+                                                                                                                                                                                                                                                                                                                                      1                                  5        3V3
+                                                                                                            C1      C2   C3   C4                                                     C5           C6      C7     C8      C9        C10   C11       GND                              C12                     C13                       2    VIN           VOUT
+                                                                                                                                                                                                                                                                                                                                           GND                                    C14      C15
+A                                                                                                                                                                                                                                                                  Y1                                                C16              3                                  4                       A
+                                                                                                                                                                                                                                                                                                                                           CE                   NC
+                                                                                                            100nF 100nF 10uF 100nF                                                   100nF 100nF 100nF 100nF 100nF 100nF 100nF                                 4               3 15pF       R1XOUT         10uF    100nF                                                        10uF     100nF
+
+
+
+
+                                                                                                                                                                                                                                                                                                                             3V3_EN
+                                                                                                                                                                                                                                                                     GND OUT
+                                                                                                                                                                                                                                                         XIN   1               2            1K                                            ME6217C33M5G
+                                                                                                                                                                                                                                                                     IN  GND
+                                                                                       C17                                                                                               ADC_VREF         C18      R2       220R
+                                                                                                          GND                                                                                                                        GND                        C1912MHz                                  GND                                                                           GND
+                                                                        GND                                                                                                                                                                                     15pF                                                            R3
+               BOOTSEL
+
+
+
+
+                                                                                       10uF                  VREG_AVDD                                                                                     2.2uF              3V3                  GND                                                                          100K
+                                                              GND                                                                                                                               U2
+
+
+
+
+                                                                                                                                    51
+                                                                                                                                    32
+                                                                                                                                    10
+
+
+                                                                                                                                           69
+
+                                                                                                                                                         76
+                                                                                                                                                         60
+                                                                                                                                                         50
+                                                                                                                                                         41
+                                                                                                                                                         24
+                                                                                                                                                         15
+                                                                                                                                                         29
+
+
+                                                                                                                                                                     68
+
+                                                                                                                                                                                    59
+                                                                                                                                                                                                                GND
+
+
+
+
+                                                                                                                                                         5
+                                                                                                                 C20                                                                            RP2350B
+                                                                                      R4                         2.2uF                                                                                           close to RP2350
+                                                                         VREG_AVDD
+
+
+
+
+                                                                                                                                    DVDD
+                                                                                                                                    DVDD
+                                                                                                                                    DVDD
+
+
+                                                                                                                                            QSPI_IOVDD
+
+                                                                                                                                                         IOVDD
+                                                                                                                                                         IOVDD
+                                                                                                                                                         IOVDD
+                                                                                                                                                         IOVDD
+                                                                                                                                                         IOVDD
+                                                                                                                                                         IOVDD
+                                                                                                                                                         IOVDD
+                                                                                                                                                         IOVDD
+
+                                                                                                                                                                      USB_OTP_VDD
+
+                                                                                                                                                                                     ADC_AVDD
+                                                                                                    3V3                                                                                                                                                                                                                    VBUS
+                                                                                                                                                                                                          67 USB_P       R5         27R USBD_P
+           R6                                                     C21                 27R                                                                                                       USB_DP
+                                                                                                                                                                                                USB_DM
+                                                                                                                                                                                                          66 USB_N       R7         27R USBD_N   XTAL
+           1K                       U3                            1uF                                      GND           61
+                                                                                                                              VREG_AVDD                                                                                                                                                                                                   U4
+       QSPI_SS                 1                      8                                                                  64                                                                               77          GPIO0
+                                       /CS  VCC                   3V3           1V1                                           VREG_VIN                                                            GPIO0
+       QSPI_SD1                2                      7 QSPI_SD3                                                         65                                                                               78          GPIO1
+                                       DO /HOLD                                             L1                                VREG_FB                                                             GPIO1
+       QSPI_SD2                3                      6 QSPI_SCLK                                            VREG_LX     63                                                                               79          GPIO2
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                               6
+                                                                                                                                                                                                                                                                                                                                               5
+                                                                                                                                                                                                                                                                                                                                               4
+                                                                                                                                                                                                                                                                                                                                               3
+                                                                                                                                                                                                                                                                                                                                               2
+                                                                                                                                                                                                                                                                                                                                               1
+                                       /WP  CLK                                                                               VREG_LX                                                             GPIO2
+       GND                     4                      5 QSPI_SD0                            3.3uH                        62                                                                               80          GPIO3
+                                       GND   DI                                                                  GND          VREG_PGND                                                           GPIO3
+                                                                                                                                                                                                          1           GPIO4
+                                                                                                                                                                                                  GPIO4
+                                    W25Q128JVSIQ                                                                                                                                                          2           GPIO5
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                           BOOTSEL
+                                                                                                                                                                                                  GPIO5
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                               USBD_N
+                                                                                                                                                                                                                                                                                                                                                               USBD_P
+                                                                                                             QSPI_SS     75                                                                               3           GPIO6
+                                                                                                                              QSPI_SS                                                             GPIO6
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                           VBUS
+                                                                                                                                                                                                          4           GPIO7
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                           GND
+                                                                                                                                                                                                                                                    W
+                                                                                                                                                                                                  GPIO7
+                                                                                                             QSPI_SD0 72                                                                                  6           GPIO8
+B                                                                                                                             QSPI_SD0                                                            GPIO8                                                                                                                                                                                          B
+                                                                                                             QSPI_SD1 74                                                                                  7           GPIO9
+                                                                                                                              QSPI_SD1                                                            GPIO9                                                        aveshare
+                                                                                                             QSPI_SD2 73                                                                                  8           GPIO10
+                                                                                                             QSPI_SD3 70
+                                                                                                             QSPI_SCLK 71
+                                                                                                                              QSPI_SD2
+                                                                                                                              QSPI_SD3
+                                                                                                                                                                                                 GPIO10
+                                                                                                                                                                                                 GPIO11
+                                                                                                                                                                                                          9
+                                                                                                                                                                                                          11
+                                                                                                                                                                                                                      GPIO11
+                                                                                                                                                                                                                      GPIO12
+                                                                                                                                                                                                                                                    Waveshare_logo        Core2350B                                                                 R8
+                                                                                                                                                                                                                                                                                                                                                    1K
+                                                                                                                              QSPI_SCLK                                                          GPIO12
+                                                                                                                                                                                                          12          GPIO13
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                         RUN
+                                                                                                                                                                                                 GPIO13
+                                                                                                                                                                                                          13          GPIO14
+                                                                                                                                                                                                 GPIO14
+                                                                                                                                                                                                          14          GPIO15
+                                                                                                                                                                                                 GPIO15
+                                                                                                             XIN         30                                                                               16          GPIO16
+                                                                                                                              XIN                                                                GPIO16
+                                                                                                                                                                                                          17          GPIO17
+    FLASH                                                                                                    XOUT        31
+                                                                                                                              XOUT
+                                                                                                                                                                                                 GPIO17
+                                                                                                                                                                                                 GPIO18
+                                                                                                                                                                                                          18          GPIO18                                                                             POWER
+                                                                                                                                                         RP2350B                                 GPIO19
+                                                                                                                                                                                                 GPIO20
+                                                                                                                                                                                                          19
+                                                                                                                                                                                                          20
+                                                                                                                                                                                                                      GPIO19
+                                                                                                                                                                                                                      GPIO20
+                                                                                                                                                                                                          21          GPIO21
+                                                                                                                                                                                                 GPIO21
+                                                                                                             RUN         35                                                                               22          GPIO22
+                                                                                                                              RUN                                                                GPIO22
+                                                                                                                                                                                                          23          GPIO23
+                                                                                                                                                                                                 GPIO23
+                                                                                                                                                                                                          25          GPIO24
+                                                                                                             SWCLK       33                                                                      GPIO24   26          GPIO25                                    GND                                                GND
+                                                                                                                              SWCLK                                                              GPIO25
+                                                                                                             SWD         34                                                                               27          GPIO26                                                   P1                                                          P2
+                                                                                                                              SWD                                                                GPIO26
+                                                                                                                                                                                                          28          GPIO27                                                                     GPIO0                                                                   GPIO45
+                                                                                                                                                                                                 GPIO27                                                                         1     2                                                        1      2
+                                                                                                                                                                                                          36          GPIO28                                       GPIO2                         GPIO1     GPIO47    R11   0R                                            GPIO46
+                                                                                                                                                                                                 GPIO28   37          GPIO29                                       GPIO4        3     4          GPIO3              BOOTSEL                    3      4                    SWD
+                                                                                                                                                                                                 GPIO29                                                                         5     6                                                        5      6
+C                                                                                                                                                                                                         38          GPIO30                                       GPIO6                         GPIO5              USBD_N                                                                       C
+                                                                                                                                                                                                 GPIO30                                                                         7     8                                                        7      8                                 GND
+                                                                                                                                                                                                          39          GPIO31                                       GPIO8                         GPIO7              USBD_P                                               SWCLK
+                                                                                                                                                                                                 GPIO31                                                                         9    10                                                        9     10
+                                                                                                                                                                                                          40          GPIO32                                       GPIO10                        GPIO9              RUN                                                 ADC_VREF
+                                                                                                                                                                                                 GPIO32                                                                         11   12                                                        11    12
+                           3V3                                                                                                                                                                            42          GPIO33                                       GPIO12                       GPIO11              3V3_EN
+                                                                                                                                                                                                 GPIO33                                                                         13   14                                                        13    14                                 GND
+                                                                                                                                                                                                          43          GPIO34                                       GPIO14                       GPIO13
+                                                                                                                                                                                                 GPIO34                                                                         15   16                     VBUS                               15    16
+                                                                                                                                                                                                          44          GPIO35
+                                                C22        3V3                                                                                                                                   GPIO35
+                         R9                                                                                                                                                                               45          GPIO36                                                   Header 8X2                                                  Header 8X2                           3V3
+                                                                                                                                                                                                 GPIO36
+                         10K           GND                                                                                                                                                                46          GPIO37          LED1
+                                                                                                                                                                                                 GPIO37
+                                                100nF                                                                                                                                                     47          GPIO38
+                                       U5                                                                                                                                                        GPIO38
+                                                                                                                                                                                                          48          GPIO39        A       K
+            PSRAM_CS 1                                  8                                                                                                                                        GPIO39
+                                         /CS  VDD                                                                                                                                                                            470R R10
+            QSPI_SD1 2                                  7 QSPI_SD3
+                                         DO /HOLD                                                                                                                                                         49          GPIO40          RED
+            QSPI_SD2 3                                  6 QSPI_SCLK                                                                                                                 GPIO40_ADC0
+                                         /WP  CLK                                                                                                                                                         52          GPIO41               GND
+            GND      4                                  5 QSPI_SD0                                                                                                                  GPIO41_ADC1
+                                         GND    DI                                                                                                                                                        53          GPIO42                                    GND                                                 GND
+                                                                                                                                                                                    GPIO42_ADC2
+                                                                                                                                                                                                          54          GPIO43                                                   P3                                                              P4
+                                                                                                                                                                                    GPIO43_ADC3
+                                                                                                                                                                                                          55          GPIO44                                                                    GPIO15                                                                       GPIO30
+                                   PSRAM                                                                                                                                            GPIO44_ADC4                                                                                 1     2                                                         1         2
+                                                                                                                                                                                                          56          GPIO45                                       GPIO17                       GPIO16               GPIO32                                                  GPIO31
+                                                                                                                                                                                    GPIO45_ADC5                                                                                 3     4                                                         3         4
+                                                                                                                                                                                                          57          GPIO46                                       GPIO19                       GPIO18               GPIO34                                                  GPIO33
+                                                                                                                                                                                    GPIO46_ADC6                                                                                 5     6                                                         5         6
+                                                                                                                                                                                                          58          GPIO47    PSRAM_CS                           GPIO21                       GPIO20               GPIO36                                                  GPIO35
+                                                                                                                                                               GND
+
+
+
+
+                                                                                                                                                                                    GPIO47_ADC7                                                                                 7     8                                                         7         8
+                                                                                                                                                                                                                                                                   GPIO23                       GPIO22               GPIO38                                                  GPIO37
+                                                                                                                                                                                                                                                                                9    10                                                         9        10
+                                                                                                                                                                                                                                                                   GPIO25                       GPIO24               GPIO40                                                  GPIO39
+                                                                                                                                                                                                                                                                                11   12                                                         11       12
+D                                                                                                                                                                                                                                                                  GPIO27                       GPIO26               GPIO42                                                  GPIO41              D
+                                                                                                                                                                                                                                                                                13   14                                                         13       14
+                                                                                                                                                              81
+
+
+
+
+                                                                                                                                                                                                                                                                   GPIO29                       GPIO28               GPIO44                                                  GPIO43
+                                                                                                                                                                                                                                                                                15   16                                                         15       16
+                                                                                                                                                                                                                                                                               Header 8X2                                                      Header 8X2
+                                                                                                                                                              GND
+
+
+    PSRAM                                                               RP2350B                                                                                                                                                                  GPIO
+                                   1                                            2                                                                         3                                                                                4                                                5                                                                            6
+
