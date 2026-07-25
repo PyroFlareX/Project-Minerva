@@ -5017,6 +5017,16 @@
 	)
 	(wire
 		(pts
+			(xy 0.1588 2.2862) (xy 0.1588 3.5562)
+		)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(uuid "1c969227-4602-4e15-98c4-1985f84ef16a")
+	)
+	(wire
+		(pts
 			(xy 59.69 162.56) (xy 64.77 162.56)
 		)
 		(stroke
@@ -6095,6 +6105,16 @@
 		)
 		(uuid "4a354f62-88d3-4c11-97ef-f4f2de88a464")
 	)
+	(label "PCIE_nRST"
+		(at 0.1588 2.2862 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4e50be7a-9ec5-4a1e-a256-fba67ffd5e1b")
+	)
 	(label "FB"
 		(at 59.69 162.56 0)
 		(effects
@@ -6586,6 +6606,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL21A106KPFNNNE"
+			(at 152.4 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 152.4 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "1a2a68d9-eca5-42e6-8db9-393c0f77437e")
 		)
@@ -6810,6 +6852,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL21A106KPFNNNE"
+			(at 46.99 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 46.99 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "8b733c12-9688-4a6f-adb6-5086fb94825c")
 		)
@@ -6882,6 +6946,28 @@
 			)
 		)
 		(property "Description" "M.2 Socket 3 Mechanical Key M"
+			(at 71.12 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1-2199230-6"
+			(at 71.12 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "TE Connectivity"
 			(at 71.12 82.55 0)
 			(hide yes)
 			(show_name no)
@@ -7211,7 +7297,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "M.2 Screw"
+		(property "Value" "M2x3 DIN 7985H screw"
 			(at 143.51 58.4199 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7222,7 +7308,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2"
+		(property "Footprint" ""
 			(at 135.89 57.15 0)
 			(hide yes)
 			(show_name no)
@@ -7256,6 +7342,39 @@
 			)
 		)
 		(property "Part Description" "M.2 Screw"
+			(at 135.89 57.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "M2X3-DIN7985H-A2"
+			(at 135.89 57.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "ISO/DIN commodity"
+			(at 135.89 57.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "M2 x 3 mm, 0.4 mm pitch, A2 stainless Phillips pan-head screw; quantity 2"
 			(at 135.89 57.15 0)
 			(hide yes)
 			(show_name no)
@@ -7527,6 +7646,28 @@
 		)
 		(property "Field5" "SRP5030CC-2R2M"
 			(at 101.6 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "SRP5030CC-2R2M"
+			(at 101.6 167.64 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Bourns"
+			(at 101.6 167.64 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7827,6 +7968,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 119.38 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 119.38 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "64724efb-1b56-481b-9a94-34ecb9e23e36")
 		)
@@ -7974,6 +8137,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-07100KL"
+			(at 88.9 173.99 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 88.9 173.99 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "f4c539de-bc1a-4b33-9180-cc85871167ab")
 		)
@@ -8089,6 +8274,28 @@
 			)
 		)
 		(property "Part Description" "Resistor 2.2K M1005 1% 63mW"
+			(at 119.38 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RT0402FRE072K2L"
+			(at 119.38 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
 			(at 119.38 180.34 0)
 			(hide yes)
 			(show_name no)
@@ -8248,6 +8455,28 @@
 		)
 		(property "Sim.Pins" "1=K 2=A"
 			(at 101.6 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "SML-A12M8TT86"
+			(at 101.6 71.12 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "ROHM"
+			(at 101.6 71.12 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8483,6 +8712,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL21A106KPFNNNE"
+			(at 38.1 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 38.1 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "cfafd1af-90d8-46cc-8d21-f3d0f46f44a0")
 		)
@@ -8597,6 +8848,28 @@
 			)
 		)
 		(property "Part Description" "3A DC-DC converter"
+			(at 73.66 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "AP3441SHE-7B"
+			(at 73.66 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Diodes Incorporated"
 			(at 73.66 167.64 0)
 			(hide yes)
 			(show_name no)
@@ -8775,6 +9048,28 @@
 				)
 			)
 		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 55.88 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 55.88 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "bf3649ee-6c06-4953-abda-cb7012a3e139")
 		)
@@ -8912,6 +9207,28 @@
 			)
 		)
 		(property "Part Description" "	10uF 10% 10V Ceramic Capacitor X7R 0805 (2012 Metric)"
+			(at 132.08 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL21A106KPFNNNE"
+			(at 132.08 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 132.08 172.72 0)
 			(hide yes)
 			(show_name no)
@@ -9124,6 +9441,28 @@
 				)
 			)
 		)
+		(property "MPN" "ASEK-32.768KHZ-L-R-T"
+			(at 120.65 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Abracon"
+			(at 120.65 127 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "1fac4f1c-a22d-4e50-b94e-1fb67be85e21")
 		)
@@ -9168,7 +9507,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "M.2 Solder Nut"
+		(property "Value" "SMTSO-M2-4ET M2 standoff"
 			(at 139.7 45.7199 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9179,7 +9518,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_DIN965_Pad"
+		(property "Footprint" "Minerva:SMTSO-M2-4ET"
 			(at 134.62 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -9213,6 +9552,39 @@
 			)
 		)
 		(property "Part Description" "Solder nut for M.2 slot"
+			(at 134.62 44.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "SMTSO-M2-4ET"
+			(at 134.62 44.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "PennEngineering (PEM)"
+			(at 134.62 44.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "M2 x 0.4 ReelFast surface-mount standoff, 4 mm height, 6.2 mm minimum solder pad; quantity 2"
 			(at 134.62 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -9332,7 +9704,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "100nF"
 			(at 182.88 109.2199 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9366,6 +9738,28 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 179.07 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 179.07 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
 			(at 179.07 107.95 0)
 			(hide yes)
 			(show_name no)
@@ -9668,6 +10062,28 @@
 			)
 		)
 		(property "Part Description" "	0.1uF 10% 16V Ceramic Capacitor X7R 0402 (1005 Metric)"
+			(at 138.43 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 138.43 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
 			(at 138.43 137.16 0)
 			(hide yes)
 			(show_name no)
@@ -10232,6 +10648,28 @@
 				)
 			)
 		)
+		(property "MPN" "GRM155R71H472KA01D"
+			(at 109.22 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
+			(at 109.22 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "1315c287-850c-4b9e-baa6-144fa435d756")
 		)
@@ -10621,6 +11059,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-07100KL"
+			(at 24.13 182.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 24.13 182.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "4ea65851-21f0-4bd2-8ef4-02191b4b033d")
 		)
@@ -10768,6 +11228,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL21A106KPFNNNE"
+			(at 142.24 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 142.24 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5e1fd3ca-78c4-4c28-9eeb-489941c8616d")
 		)
@@ -10840,6 +11322,28 @@
 			)
 		)
 		(property "Description" "M.2 Socket 2 Mechanical Key B"
+			(at 229.87 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1-2199230-3"
+			(at 229.87 68.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "TE Connectivity"
 			(at 229.87 68.58 0)
 			(hide yes)
 			(show_name no)
@@ -11202,6 +11706,28 @@
 				)
 			)
 		)
+		(property "MPN" "SF72S006VBDR2500"
+			(at 175.26 86.36 180)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "JAE"
+			(at 175.26 86.36 180)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "DSW"
 			(uuid "3e32dcd4-7cb7-492e-80bc-044d7b54e427")
 		)
@@ -11370,6 +11896,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL21A106KPFNNNE"
+			(at 162.56 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 162.56 172.72 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e67d528a-c90d-4cdd-810a-d09600466276")
 		)
@@ -11472,10 +12020,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "f4722198-6963-4261-85b8-927c8a893d64")
 		(property "Reference" "C13"
-			(at 205.74 11.43 90)
+			(at 200.914 16.002 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11484,8 +12031,8 @@
 				)
 			)
 		)
-		(property "Value" "C"
-			(at 205.74 13.97 90)
+		(property "Value" "100nF"
+			(at 201.168 18.034 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11518,6 +12065,28 @@
 		)
 		(property "Description" "Unpolarized capacitor"
 			(at 205.74 19.05 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 205.74 19.05 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 205.74 19.05 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11664,6 +12233,28 @@
 			)
 		)
 		(property "Field8" "125049511"
+			(at 101.6 85.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RK73H1ETTP1001F"
+			(at 101.6 85.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "KOA Speer"
 			(at 101.6 85.09 0)
 			(hide yes)
 			(show_name no)

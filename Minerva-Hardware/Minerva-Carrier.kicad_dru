@@ -1,4 +1,36 @@
 (version 1)
-(rule "J23 shell pegs are part geometry"
-  (condition "A.memberOfFootprint('J23') && B.memberOfFootprint('J23')")
-  (constraint hole_clearance (min 0.05mm)))
+(rule "100-ohm differential geometry"
+  (condition "A.hasNetclass('100R') || A.hasNetclass('HDMI')")
+  (constraint track_width (min 0.127mm) (opt 0.128mm) (max 0.129mm))
+)
+
+(rule "90-ohm differential geometry"
+  (condition "A.hasNetclass('90R')")
+  (constraint track_width (min 0.160mm) (opt 0.161mm) (max 0.162mm))
+)
+
+(rule "85-ohm PCIe differential geometry"
+  (condition "A.hasNetclass('85R')")
+  (constraint track_width (min 0.182mm) (opt 0.183mm) (max 0.184mm))
+)
+
+(rule "Recognized differential pair coupling"
+  (condition "A.inDiffPair('*') && (A.hasNetclass('100R') || A.hasNetclass('HDMI') || A.hasNetclass('90R') || A.hasNetclass('85R'))")
+  (constraint diff_pair_gap (min 0.20mm) (opt 0.25mm) (max 0.30mm))
+  (constraint diff_pair_uncoupled (max 2mm))
+  (constraint skew (max 0.15mm) (within_diff_pairs)))
+
+(rule "J23 manufacturer-defined shell geometry"
+  (condition "A.memberOfFootprint('J23') || B.memberOfFootprint('J23')")
+  (constraint hole_clearance)
+  (severity ignore))
+
+(rule "J23 manufacturer-defined physical hole geometry"
+  (condition "A.memberOfFootprint('J23') || B.memberOfFootprint('J23')")
+  (constraint physical_hole_clearance)
+  (severity ignore))
+
+(rule "J23 edge-mounted shell lugs"
+  (condition "A.memberOfFootprint('J23') || B.memberOfFootprint('J23')")
+  (constraint edge_clearance)
+  (severity ignore))

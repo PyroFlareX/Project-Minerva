@@ -1,0 +1,172 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-07-22T18:06:10",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.4",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/7ca2fca0-2a55-4e6f-b318-8ff6d8c9433c",
+            "violations": [
+                {
+                    "description": "The current configuration does not include the footprint library 'Minerva'",
+                    "items": [
+                        {
+                            "description": "Symbol A1 [Core2350B]",
+                            "pos": {
+                                "x": 1.7907,
+                                "y": 0.9144
+                            },
+                            "uuid": "a0264ee1-a738-433f-8159-3a6f7db93963"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol A1 [Core2350B]",
+                            "pos": {
+                                "x": 1.7907,
+                                "y": 0.9144
+                            },
+                            "uuid": "a0264ee1-a738-433f-8159-3a6f7db93963"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'RP_3V3'",
+                            "pos": {
+                                "x": 2.0447,
+                                "y": 1.0414
+                            },
+                            "uuid": "cfcc6dab-f0de-4fba-9c69-e93933849115"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'RP_BOOTSEL'",
+                            "pos": {
+                                "x": 2.0447,
+                                "y": 1.1176
+                            },
+                            "uuid": "2a9c25bd-91f8-419a-b38c-763dc3c92d74"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'RP_RUN'",
+                            "pos": {
+                                "x": 2.0447,
+                                "y": 1.2954
+                            },
+                            "uuid": "e1f7d3c6-7823-4e51-8a2c-23aeece15ee7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'RP_SWCLK'",
+                            "pos": {
+                                "x": 2.0447,
+                                "y": 1.3208
+                            },
+                            "uuid": "af0016e0-31f5-4c54-b169-1fe0436ee2d6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'RP_SWDIO'",
+                            "pos": {
+                                "x": 2.0447,
+                                "y": 1.3462
+                            },
+                            "uuid": "acd9eac8-a1fe-46cd-9abb-c6d4a65ac3ce"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'RP_USB_N'",
+                            "pos": {
+                                "x": 2.0447,
+                                "y": 1.3716
+                            },
+                            "uuid": "477ae5d9-91ae-419e-9809-62c424954acb"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'RP_USB_P'",
+                            "pos": {
+                                "x": 2.0447,
+                                "y": 1.397
+                            },
+                            "uuid": "8a4d26b1-75bf-4dfd-ac07-f5bcbb2a214c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                }
+            ]
+        }
+    ],
+    "source": "face_board.kicad_sch"
+}

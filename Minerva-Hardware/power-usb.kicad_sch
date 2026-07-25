@@ -627,6 +627,129 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Connector:TestPoint"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.762)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "test point"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
+				(pin passive line
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Connector_Generic:Conn_01x02"
 			(pin_names
 				(offset 1.016)
@@ -2721,129 +2844,17 @@
 			)
 			(embedded_fonts no)
 		)
-	(symbol "Connector:TestPoint"
-		(pin_numbers
-			(hide yes)
-		)
-		(pin_names
-			(offset 0.762)
-			(hide yes)
-		)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(duplicate_pin_numbers_are_jumpers no)
-		(property "Reference" "TP"
-			(at 0 6.858 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 0 5.08 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 5.08 0 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 5.08 0 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "test point"
-			(at 0 0 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "ki_keywords" "test point tp"
-			(at 0 0 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "ki_fp_filters" "Pin* Test*"
-			(at 0 0 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(symbol "TestPoint_0_1"
-			(circle
-				(center 0 3.302)
-				(radius 0.762)
-				(stroke
-					(width 0)
-					(type default)
-				)
-				(fill
-					(type none)
-				)
-			)
-		)
-		(symbol "TestPoint_1_1"
-			(pin passive line
-				(at 0 0 90)
-				(length 2.54)
-				(name "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-		)
-		(embedded_fonts no)
 	)
+	(text "Sheet I/O"
+		(exclude_from_sim no)
+		(at 193.04 35.56 0)
+		(effects
+			(font
+				(size 1.6 1.6)
+			)
+			(justify left bottom)
+		)
+		(uuid "45fab322-aedb-46f4-96bc-d24dcd093523")
 	)
 	(text "Discharge Resistor\nNeeded by some\nType C PSUs"
 		(exclude_from_sim no)
@@ -2855,9 +2866,20 @@
 		)
 		(uuid "6b045d41-d395-46d5-b6b7-5c0d7cfbea3e")
 	)
+	(text "Solder pads: manual 5V power tap"
+		(exclude_from_sim no)
+		(at 215.9 130.81 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e16460d0-16cf-49e6-9d2d-79b8dc52d858")
+	)
 	(text "Dock plumbing: CC1/CC2 -> TPS65987D (CM5_HighSpeed). PD_I2C_* + DSI86_EN + BQ_SDA/SCL\nroute between CM5_HighSpeed (PD controller) and CM5_GPIO (RP2350B / CM5 GPIO26)."
 		(exclude_from_sim no)
-		(at 110.49 134.62 0)
+		(at 133.604 123.19 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2964,6 +2986,16 @@
 	)
 	(wire
 		(pts
+			(xy 157.48 176.53) (xy 162.56 176.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "036e6626-dfe2-4238-9ac1-e93d7feb5109")
+	)
+	(wire
+		(pts
 			(xy 54.61 118.11) (xy 57.15 118.11)
 		)
 		(stroke
@@ -2971,6 +3003,16 @@
 			(type default)
 		)
 		(uuid "050057ff-a7d7-413a-b7e4-544caa282a89")
+	)
+	(wire
+		(pts
+			(xy 228.6 138.43) (xy 228.6 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "09d1f5b0-73fe-4f21-8077-a99c0d145954")
 	)
 	(wire
 		(pts
@@ -3054,7 +3096,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 157.48) (xy 111.76 157.48)
+			(xy 102.87 157.48) (xy 104.14 157.48)
 		)
 		(stroke
 			(width 0)
@@ -3101,6 +3143,16 @@
 			(type default)
 		)
 		(uuid "2a8ee84a-638a-4c5a-9bd8-6bbc8c28a4c1")
+	)
+	(wire
+		(pts
+			(xy 73.66 81.28) (xy 71.12 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2ad2d598-1d19-45f8-a5c8-f969f6e4ee1a")
 	)
 	(wire
 		(pts
@@ -3314,6 +3366,16 @@
 	)
 	(wire
 		(pts
+			(xy 193.04 50.8) (xy 200.66 50.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4bfd7d30-3329-4329-9502-8d4821fb6676")
+	)
+	(wire
+		(pts
 			(xy 96.52 81.28) (xy 96.52 80.01)
 		)
 		(stroke
@@ -3454,6 +3516,26 @@
 	)
 	(wire
 		(pts
+			(xy 193.04 60.96) (xy 200.66 60.96)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "610448de-4c8f-47d9-a832-ce444081d437")
+	)
+	(wire
+		(pts
+			(xy 238.76 138.43) (xy 238.76 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "61e73b7a-aab5-4dca-b06c-e8a440956ff4")
+	)
+	(wire
+		(pts
 			(xy 100.33 143.51) (xy 104.14 143.51)
 		)
 		(stroke
@@ -3554,7 +3636,7 @@
 	)
 	(wire
 		(pts
-			(xy 83.82 157.48) (xy 83.82 160.02)
+			(xy 30.48 194.31) (xy 33.02 194.31)
 		)
 		(stroke
 			(width 0)
@@ -3634,7 +3716,17 @@
 	)
 	(wire
 		(pts
-			(xy 95.25 157.48) (xy 96.52 157.48)
+			(xy 248.92 138.43) (xy 248.92 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7d4463d5-7ab4-4a2f-8e05-a6135fd5e0a9")
+	)
+	(wire
+		(pts
+			(xy 87.63 157.48) (xy 88.9 157.48)
 		)
 		(stroke
 			(width 0)
@@ -3691,6 +3783,16 @@
 			(type default)
 		)
 		(uuid "8eaf1d1f-3733-475c-a372-c3f4cde0ed89")
+	)
+	(wire
+		(pts
+			(xy 193.04 45.72) (xy 200.66 45.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8f6a540f-67fc-4cc5-83c7-b1848ac9143d")
 	)
 	(wire
 		(pts
@@ -3754,6 +3856,16 @@
 	)
 	(wire
 		(pts
+			(xy 218.44 138.43) (xy 218.44 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9f64cf24-e3c4-4141-abc0-4ec9d704e137")
+	)
+	(wire
+		(pts
 			(xy 157.48 151.13) (xy 162.56 151.13)
 		)
 		(stroke
@@ -3771,6 +3883,16 @@
 			(type default)
 		)
 		(uuid "a4964ed8-0b8a-4f67-9dfd-740555e36862")
+	)
+	(wire
+		(pts
+			(xy 193.04 40.64) (xy 200.66 40.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a8ef7d83-a31a-46f7-b7b3-f9d7705f8186")
 	)
 	(wire
 		(pts
@@ -3804,7 +3926,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 157.48) (xy 91.44 160.02)
+			(xy 30.48 186.69) (xy 33.02 186.69)
 		)
 		(stroke
 			(width 0)
@@ -3894,13 +4016,33 @@
 	)
 	(wire
 		(pts
-			(xy 91.44 149.86) (xy 91.44 147.32)
+			(xy 22.86 186.69) (xy 20.32 186.69)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "bbc4a5af-833c-4fe4-80e6-7f60a65a50ed")
+	)
+	(wire
+		(pts
+			(xy 193.04 66.04) (xy 200.66 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be231343-b42e-47e3-973c-d9d5b879debe")
+	)
+	(wire
+		(pts
+			(xy 193.04 55.88) (xy 200.66 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf5674a8-3f80-41d5-9d03-eda79c9b8d67")
 	)
 	(wire
 		(pts
@@ -3934,7 +4076,7 @@
 	)
 	(wire
 		(pts
-			(xy 83.82 149.86) (xy 83.82 147.32)
+			(xy 22.86 194.31) (xy 20.32 194.31)
 		)
 		(stroke
 			(width 0)
@@ -3974,7 +4116,7 @@
 	)
 	(wire
 		(pts
-			(xy 101.6 157.48) (xy 102.87 157.48)
+			(xy 93.98 157.48) (xy 95.25 157.48)
 		)
 		(stroke
 			(width 0)
@@ -4203,7 +4345,7 @@
 		(uuid "072afa6e-9899-4491-862a-50ad39f669ab")
 	)
 	(label "BOOST_SW"
-		(at 74.93 156.21 270)
+		(at 74.93 156.21 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4243,7 +4385,7 @@
 		(uuid "0d9e0228-66c4-4ab6-8257-9520e499bbaa")
 	)
 	(label "+3.3v"
-		(at 95.25 157.48 180)
+		(at 87.63 157.48 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4282,6 +4424,26 @@
 		)
 		(uuid "16178598-41e8-47ac-b14d-698e5538de23")
 	)
+	(label "GND"
+		(at 248.92 143.51 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "1bd989fc-defa-4e16-9ca0-8eb77d3827a6")
+	)
+	(label "GND"
+		(at 238.76 143.51 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "1c49dc45-ad67-4f9f-ad35-7ca7103d7e81")
+	)
 	(label "CRG_IND_SIG"
 		(at 105.41 111.76 0)
 		(effects
@@ -4303,12 +4465,12 @@
 		(uuid "1ef9f41c-de9c-47ce-8412-4a344f262f8f")
 	)
 	(label "+5v"
-		(at 66.04 158.75 270)
+		(at 66.04 158.75 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "202a0db2-eded-4c58-8853-c31feee86738")
 	)
@@ -4342,6 +4504,16 @@
 		)
 		(uuid "268db562-fba1-4dde-a70c-44487116b58b")
 	)
+	(label "BQ_SDA"
+		(at 193.04 60.96 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2b4fa6e7-d07d-4046-9451-6f15aece1258")
+	)
 	(label "SYS_OUT"
 		(at 95.25 121.92 0)
 		(effects
@@ -4372,6 +4544,26 @@
 		)
 		(uuid "365066e6-1c4f-4a69-b029-f95e28ed5dbe")
 	)
+	(label "VBUS"
+		(at 71.12 81.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "379a2bf6-f0b6-4d88-a3a8-0dbe145e584a")
+	)
+	(label "+5v"
+		(at 228.6 143.51 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3d90ed93-91b7-4b04-b1ec-b396e8c8a1f7")
+	)
 	(label "BTST1"
 		(at 95.25 87.63 90)
 		(effects
@@ -4392,13 +4584,33 @@
 		)
 		(uuid "49857963-4cc4-41fb-8f6e-d928523d320d")
 	)
-	(label "GND"
-		(at 91.44 160.02 270)
+	(label "QON"
+		(at 193.04 55.88 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right bottom)
+		)
+		(uuid "49e42328-3740-4d7f-8d2a-754052f71fdf")
+	)
+	(label "BQ_SCL"
+		(at 193.04 66.04 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4aa12564-966e-4e7b-ba3e-369326d21fe8")
+	)
+	(label "GND"
+		(at 33.02 186.69 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
 		)
 		(uuid "517dedd0-6821-4faf-aa13-a3091292d042")
 	)
@@ -4442,6 +4654,16 @@
 		)
 		(uuid "666ef86f-3dec-49cd-97b1-c6b117933436")
 	)
+	(label "+5v"
+		(at 193.04 45.72 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "69bcf21a-2176-4a63-a613-739fab326f08")
+	)
 	(label "BOOST_FSW"
 		(at 127 168.91 180)
 		(effects
@@ -4463,12 +4685,12 @@
 		(uuid "7094da96-5a84-4f17-b4a4-ada19d614fe6")
 	)
 	(label "TS"
-		(at 83.82 160.02 270)
+		(at 33.02 194.31 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "70b089e5-0fc9-44f3-a56c-0933618a40d5")
 	)
@@ -4503,7 +4725,7 @@
 		(uuid "74f175d2-dea2-42f9-906e-d466fff8a8c6")
 	)
 	(label "BOOST_CZ"
-		(at 48.26 156.21 270)
+		(at 48.26 156.21 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4513,12 +4735,12 @@
 		(uuid "75c57528-2a49-4e62-9ec8-6cc23a805a39")
 	)
 	(label "TS"
-		(at 91.44 147.32 270)
+		(at 20.32 186.69 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "75f08e88-cad6-4cbf-a572-84b883d6632a")
 	)
@@ -4563,7 +4785,7 @@
 		(uuid "806b3341-21b9-4aa4-ade2-b7b7818929c1")
 	)
 	(label "CRG_IND_SIG"
-		(at 111.76 157.48 0)
+		(at 104.14 157.48 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4653,7 +4875,7 @@
 		(uuid "90c13546-dd63-4d73-8d48-2bd6e1b53f0d")
 	)
 	(label "BOOST_VCC"
-		(at 30.48 158.75 270)
+		(at 30.48 158.75 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4713,12 +4935,12 @@
 		(uuid "9fc90566-3651-4d4c-b69a-1dfd8593ba65")
 	)
 	(label "GND"
-		(at 66.04 156.21 270)
+		(at 66.04 156.21 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "a107cd1a-b008-4d73-bd98-5b66128dcaf4")
 	)
@@ -4743,12 +4965,12 @@
 		(uuid "a7281d40-876d-4e72-9bf8-b331b866f9cc")
 	)
 	(label "GND"
-		(at 57.15 156.21 270)
+		(at 57.15 156.21 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "a9b1cdb7-d702-4920-a227-f1cd737d8686")
 	)
@@ -4842,8 +5064,18 @@
 		)
 		(uuid "c236bf47-8683-4b4a-a77f-92afcc00c4df")
 	)
+	(label "+3.3v"
+		(at 193.04 50.8 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "cd0f66d6-b420-4978-95f6-d0f1c85e5463")
+	)
 	(label "BOOST_FB"
-		(at 30.48 156.21 270)
+		(at 30.48 156.21 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4851,6 +5083,16 @@
 			(justify right bottom)
 		)
 		(uuid "cf185893-9a9b-42ca-9d1f-6d95f36c4413")
+	)
+	(label "+5v"
+		(at 218.44 143.51 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d015c13b-5da4-4ed0-9a48-2aae16e5820d")
 	)
 	(label "SW2"
 		(at 39.37 120.65 0)
@@ -4861,6 +5103,16 @@
 			(justify left bottom)
 		)
 		(uuid "d0dc86d6-e3a2-4002-a07d-b8050473f5da")
+	)
+	(label "VBUS"
+		(at 193.04 40.64 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d4d9aed0-59f0-4681-950b-489455808654")
 	)
 	(label "+5v"
 		(at 30.48 143.51 270)
@@ -4933,7 +5185,7 @@
 		(uuid "e2df7fd8-4e61-42ba-adad-c71c8cfa2ed0")
 	)
 	(label "BOOST_ILIM"
-		(at 21.59 158.75 270)
+		(at 21.59 158.75 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4973,7 +5225,7 @@
 		(uuid "f68295ab-c4c7-40f2-802e-70de487bfa60")
 	)
 	(label "BOOST_SW"
-		(at 21.59 156.21 270)
+		(at 21.59 156.21 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4983,7 +5235,7 @@
 		(uuid "f786b7a4-1c2b-47eb-b652-d746112bcbb7")
 	)
 	(label "BOOST_BOOT"
-		(at 39.37 158.75 270)
+		(at 39.37 158.75 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4993,22 +5245,22 @@
 		(uuid "fc238dad-40b8-4f3e-88e0-cfa6c6ae21ad")
 	)
 	(label "+5v"
-		(at 57.15 158.75 270)
+		(at 57.15 158.75 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "fe543b85-1670-4553-a632-d188f965cf14")
 	)
 	(label "REGN"
-		(at 83.82 147.32 270)
+		(at 20.32 194.31 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "fe8d97c8-817a-4edb-9fdc-9dbd80980869")
 	)
@@ -5021,6 +5273,72 @@
 			(justify left bottom)
 		)
 		(uuid "fefa69e2-b560-4f0b-be91-402ffe504b2b")
+	)
+	(hierarchical_label "BQ_SDA"
+		(shape bidirectional)
+		(at 200.66 60.96 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "16e15a49-aac5-4160-a102-74a7e95ee040")
+	)
+	(hierarchical_label "BQ_SCL"
+		(shape bidirectional)
+		(at 200.66 66.04 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "53304772-eb0c-473d-8bb4-4e80d7d53bad")
+	)
+	(hierarchical_label "+5v"
+		(shape output)
+		(at 200.66 45.72 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "77e5b706-982b-43a3-a8e6-7b6ca8e9667f")
+	)
+	(hierarchical_label "VBUS"
+		(shape input)
+		(at 200.66 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7943f0e1-6f63-49d3-b94a-8732ae66ddda")
+	)
+	(hierarchical_label "QON"
+		(shape input)
+		(at 200.66 55.88 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "bfe2d24c-a3d7-4b29-84d4-542dd7544d35")
+	)
+	(hierarchical_label "+3.3v"
+		(shape input)
+		(at 200.66 50.8 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "dc77f6f5-76d2-4ded-a817-403b1885979f")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -5363,7 +5681,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 49.53 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -5386,6 +5704,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 49.53 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 49.53 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 49.53 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -5475,6 +5815,28 @@
 				)
 			)
 		)
+		(property "MPN" "MAX17048G+T10"
+			(at 157.48 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Analog Devices / Maxim Integrated"
+			(at 157.48 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "e0aeeed2-46cb-4274-848c-b6a167139ad7")
 		)
@@ -5544,7 +5906,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 99.06 82.55 0)
 			(hide yes)
 			(show_name no)
@@ -5567,6 +5929,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 99.06 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM155R71H104KE14D"
+			(at 99.06 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
 			(at 99.06 82.55 0)
 			(hide yes)
 			(show_name no)
@@ -5647,6 +6031,28 @@
 		)
 		(property "Description" "Resistor, small US symbol"
 			(at 97.79 143.51 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-07100RL"
+			(at 97.79 143.51 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 97.79 143.51 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5812,6 +6218,28 @@
 				)
 			)
 		)
+		(property "MPN" "B2B-PH-K-S(LF)(SN)"
+			(at 125.73 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "JST"
+			(at 125.73 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "53b1473b-a8e2-4621-9e3e-89f3b2ecd6eb")
 		)
@@ -5822,6 +6250,115 @@
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
 					(reference "J24")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 218.44 138.43 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "1fd2d0d1-9191-496f-aa67-67df8ec2d666")
+		(property "Reference" "TP10"
+			(at 218.44 133.35 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5v PAD"
+			(at 218.44 135.89 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
+			(at 218.44 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 218.44 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Manual power solder pad"
+			(at 218.44 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 218.44 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "PCB fabrication"
+			(at 218.44 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "PCB feature; not purchased or placed"
+			(at 218.44 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "33c10ac7-f4fa-4896-9de3-201d1ebb349d")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
+					(reference "TP10")
 					(unit 1)
 				)
 			)
@@ -5860,7 +6397,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 114.3 119.38 0)
 			(hide yes)
 			(show_name no)
@@ -5883,6 +6420,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 114.3 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM188R61E475KE11D"
+			(at 114.3 119.38 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
 			(at 114.3 119.38 0)
 			(hide yes)
 			(show_name no)
@@ -6074,7 +6633,7 @@
 		(dnp no)
 		(uuid "2e95ce37-2ed4-4feb-bdfa-7d15f5d480f9")
 		(property "Reference" "L3"
-			(at 21.59 147.86 0)
+			(at 23.368 145.542 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6084,7 +6643,7 @@
 			)
 		)
 		(property "Value" "1.8uH XAL7070-182ME"
-			(at 21.59 151.86 0)
+			(at 14.986 148.59 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6126,6 +6685,28 @@
 				)
 			)
 		)
+		(property "MPN" "XAL7070-182MEC"
+			(at 21.59 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Coilcraft"
+			(at 21.59 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "299a3e78-2e97-46a5-ac24-6cffbbd9c17f")
 		)
@@ -6143,7 +6724,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small_US")
-		(at 99.06 157.48 90)
+		(at 91.44 157.48 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6154,7 +6735,7 @@
 		(fields_autoplaced yes)
 		(uuid "35e11db8-b34b-40d1-bfab-6ea7d8c8f5dc")
 		(property "Reference" "R2"
-			(at 99.06 151.13 90)
+			(at 91.44 151.13 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6164,7 +6745,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 99.06 153.67 90)
+			(at 91.44 153.67 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6173,8 +6754,8 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
-			(at 99.06 157.48 0)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 91.44 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6185,7 +6766,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 99.06 157.48 0)
+			(at 91.44 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6196,7 +6777,29 @@
 			)
 		)
 		(property "Description" "Resistor, small US symbol"
-			(at 99.06 157.48 0)
+			(at 91.44 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 91.44 157.48 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 91.44 157.48 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6363,6 +6966,28 @@
 				)
 			)
 		)
+		(property "MPN" "GRM21BR61A226ME44L"
+			(at 66.04 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
+			(at 66.04 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "099106ca-455b-461c-b61e-efbe106bdd91")
 		)
@@ -6433,6 +7058,28 @@
 		)
 		(property "Description" "Resistor, small US symbol"
 			(at 67.31 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-073KL"
+			(at 67.31 132.08 270)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 67.31 132.08 270)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6521,6 +7168,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 59.69 105.41 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 59.69 105.41 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "ff94f022-1b80-4dc4-806e-322ad0a4e613")
 		)
@@ -6531,6 +7200,115 @@
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
 					(reference "R19")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 228.6 138.43 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "43bcf1c5-3873-4ebb-8fcd-13897b68ee06")
+		(property "Reference" "TP11"
+			(at 228.6 133.35 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+5v PAD"
+			(at 228.6 135.89 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
+			(at 228.6 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 228.6 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Manual power solder pad"
+			(at 228.6 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 228.6 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "PCB fabrication"
+			(at 228.6 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "PCB feature; not purchased or placed"
+			(at 228.6 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9a0257a9-4b69-4d65-abb3-6575fb9c3d81")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
+					(reference "TP11")
 					(unit 1)
 				)
 			)
@@ -6677,6 +7455,28 @@
 				)
 			)
 		)
+		(property "MPN" "GRM21BR61A226ME44L"
+			(at 48.26 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
+			(at 48.26 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "56d3248f-556b-41cf-a3fe-098e4e32ca05")
 		)
@@ -6756,6 +7556,28 @@
 				)
 			)
 		)
+		(property "MPN" "RT0402FRE078K2L"
+			(at 48.26 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 48.26 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "3130f0a4-77a2-4d6f-85c3-88f8301f1ae9")
 		)
@@ -6804,7 +7626,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 121.92 82.55 0)
 			(hide yes)
 			(show_name no)
@@ -6827,6 +7649,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 121.92 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM21BR61E106KA73L"
+			(at 121.92 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
 			(at 121.92 82.55 0)
 			(hide yes)
 			(show_name no)
@@ -6916,6 +7760,28 @@
 				)
 			)
 		)
+		(property "MPN" "CRCW040264K9FKED"
+			(at 74.93 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Vishay"
+			(at 74.93 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "6a395e2f-7786-4e46-acee-480c8ea50d7d")
 		)
@@ -6926,6 +7792,115 @@
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
 					(reference "R81")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 238.76 138.43 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "634ffcdf-5363-4486-a09a-99b6605070f3")
+		(property "Reference" "TP12"
+			(at 238.76 133.35 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND PAD"
+			(at 238.76 135.89 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
+			(at 238.76 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 238.76 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Manual power solder pad"
+			(at 238.76 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 238.76 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "PCB fabrication"
+			(at 238.76 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "PCB feature; not purchased or placed"
+			(at 238.76 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "be793689-c14e-443b-8707-a8a42fd43d7f")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
+					(reference "TP12")
 					(unit 1)
 				)
 			)
@@ -6998,6 +7973,28 @@
 				)
 			)
 		)
+		(property "MPN" "SRP5030T-1R0M"
+			(at 96.52 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Bourns"
+			(at 96.52 96.52 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "5246448a-b205-4a69-9baf-046b4db06884")
 		)
@@ -7015,7 +8012,7 @@
 	)
 	(symbol
 		(lib_id "Device:LED")
-		(at 106.68 157.48 180)
+		(at 99.06 157.48 180)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7026,7 +8023,7 @@
 		(fields_autoplaced yes)
 		(uuid "78068e7a-9af1-478a-acea-d86ed5a4b424")
 		(property "Reference" "D4"
-			(at 108.2675 149.86 0)
+			(at 100.6475 149.86 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7036,7 +8033,7 @@
 			)
 		)
 		(property "Value" "LED"
-			(at 108.2675 152.4 0)
+			(at 100.6475 152.4 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7045,8 +8042,8 @@
 				)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_0201_0603Metric"
-			(at 106.68 157.48 0)
+		(property "Footprint" "LED_SMD:LED_0402_1005Metric"
+			(at 99.06 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7057,7 +8054,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 106.68 157.48 0)
+			(at 99.06 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7068,7 +8065,7 @@
 			)
 		)
 		(property "Description" "Light emitting diode"
-			(at 106.68 157.48 0)
+			(at 99.06 157.48 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7079,7 +8076,29 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
-			(at 106.68 157.48 0)
+			(at 99.06 157.48 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "SML-P12UTT86R"
+			(at 99.06 157.48 180)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "ROHM"
+			(at 99.06 157.48 180)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7168,6 +8187,28 @@
 				)
 			)
 		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 175.26 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 175.26 137.16 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "f204eeb7-da80-4486-9f08-84c624d8c3ed")
 		)
@@ -7216,7 +8257,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 26.67 116.84 0)
 			(hide yes)
 			(show_name no)
@@ -7239,6 +8280,28 @@
 			)
 		)
 		(property "Description" "47nF, 25V X7R"
+			(at 26.67 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM155R71E473KA88D"
+			(at 26.67 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
 			(at 26.67 116.84 0)
 			(hide yes)
 			(show_name no)
@@ -7298,7 +8361,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 99.06 129.54 0)
 			(hide yes)
 			(show_name no)
@@ -7321,6 +8384,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 99.06 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 99.06 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 99.06 129.54 0)
 			(hide yes)
 			(show_name no)
@@ -7379,7 +8464,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 41.91 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -7412,6 +8497,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 41.91 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 41.91 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "39c9efd9-06e3-4575-9f5f-df58f4754f53")
 		)
@@ -7429,7 +8536,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 83.82 153.67 0)
+		(at 26.67 194.31 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7439,7 +8546,7 @@
 		(dnp no)
 		(uuid "7fed43a2-fa41-4a18-9f73-dbd84280e50f")
 		(property "Reference" "R76"
-			(at 83.82 151.67 0)
+			(at 26.67 192.278 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7449,7 +8556,7 @@
 			)
 		)
 		(property "Value" "5.23kΩ"
-			(at 83.82 155.67 0)
+			(at 26.924 196.85 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7459,7 +8566,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 83.82 153.67 0)
+			(at 26.67 194.31 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7470,7 +8577,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 83.82 153.67 0)
+			(at 26.67 194.31 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7481,7 +8588,29 @@
 			)
 		)
 		(property "Description" ""
-			(at 83.82 153.67 0)
+			(at 26.67 194.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CRCW04025K23FKED"
+			(at 26.67 194.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Vishay"
+			(at 26.67 194.31 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7570,6 +8699,28 @@
 				)
 			)
 		)
+		(property "MPN" "GRM21BR61A226ME44L"
+			(at 74.93 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
+			(at 74.93 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "cf1c80b0-28a2-4a14-af3e-cd7a2756714b")
 		)
@@ -7597,7 +8748,7 @@
 		(dnp no)
 		(uuid "880484e1-1280-41c7-8ab4-a1f1f22ca9e0")
 		(property "Reference" "R82"
-			(at 21.59 163.1 0)
+			(at 23.622 159.766 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7607,7 +8758,7 @@
 			)
 		)
 		(property "Value" "100kΩ 1%"
-			(at 21.59 167.1 0)
+			(at 18.288 166.37 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7639,6 +8790,28 @@
 			)
 		)
 		(property "Description" ""
+			(at 21.59 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-07100KL"
+			(at 21.59 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
 			(at 21.59 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -7742,6 +8915,115 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 248.92 138.43 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(in_pos_files no)
+		(dnp no)
+		(uuid "908ad1a9-3f22-4a1d-8b4b-f1026a67dd0d")
+		(property "Reference" "TP13"
+			(at 248.92 133.35 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND PAD"
+			(at 248.92 135.89 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
+			(at 248.92 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 248.92 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Manual power solder pad"
+			(at 248.92 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "N/A"
+			(at 248.92 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "PCB fabrication"
+			(at 248.92 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "PCB feature; not purchased or placed"
+			(at 248.92 138.43 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "13d1d402-09e0-4998-91d8-da9edf00428c")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
+					(reference "TP13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 30.48 165.1 0)
 		(unit 1)
@@ -7805,6 +9087,28 @@
 				)
 			)
 		)
+		(property "MPN" "CC0402KRX5R6BB105"
+			(at 30.48 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 30.48 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "730e1f2b-c5c5-4d32-8d31-8dd75ceb6465")
 		)
@@ -7853,7 +9157,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 106.68 82.55 0)
 			(hide yes)
 			(show_name no)
@@ -7876,6 +9180,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 106.68 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM21BR61E106KA73L"
+			(at 106.68 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
 			(at 106.68 82.55 0)
 			(hide yes)
 			(show_name no)
@@ -8013,7 +9339,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 109.22 129.54 0)
 			(hide yes)
 			(show_name no)
@@ -8036,6 +9362,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 109.22 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 109.22 129.54 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 109.22 129.54 0)
 			(hide yes)
 			(show_name no)
@@ -8115,6 +9463,28 @@
 			)
 		)
 		(property "Description" ""
+			(at 57.15 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM1555C1H332JE01D"
+			(at 57.15 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
 			(at 57.15 149.86 0)
 			(hide yes)
 			(show_name no)
@@ -8272,6 +9642,28 @@
 		)
 		(property "Description" "Resistor, small US symbol"
 			(at 59.69 118.11 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 59.69 118.11 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 59.69 118.11 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8560,7 +9952,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 57.15 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -8593,6 +9985,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 57.15 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 57.15 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "70349e08-5b80-40c4-9071-c557f7e79a79")
 		)
@@ -8610,7 +10024,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 91.44 153.67 0)
+		(at 26.67 186.69 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8620,7 +10034,7 @@
 		(dnp no)
 		(uuid "b2026a56-1742-4a46-936b-af4eb09aa70a")
 		(property "Reference" "R77"
-			(at 91.44 151.67 0)
+			(at 26.416 184.15 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8630,7 +10044,7 @@
 			)
 		)
 		(property "Value" "10kΩ"
-			(at 91.44 155.67 0)
+			(at 26.416 189.484 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8640,7 +10054,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 91.44 153.67 0)
+			(at 26.67 186.69 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8651,7 +10065,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 91.44 153.67 0)
+			(at 26.67 186.69 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8662,7 +10076,29 @@
 			)
 		)
 		(property "Description" ""
-			(at 91.44 153.67 0)
+			(at 26.67 186.69 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 26.67 186.69 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 26.67 186.69 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8699,7 +10135,7 @@
 		(dnp no)
 		(uuid "b64a15c4-5431-4cdb-9a70-551017ee3aa1")
 		(property "Reference" "R79"
-			(at 39.37 147.86 0)
+			(at 41.656 146.05 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8741,6 +10177,28 @@
 			)
 		)
 		(property "Description" ""
+			(at 39.37 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-0756KL"
+			(at 39.37 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
 			(at 39.37 149.86 0)
 			(hide yes)
 			(show_name no)
@@ -8820,6 +10278,28 @@
 			)
 		)
 		(property "Description" ""
+			(at 39.37 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 39.37 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
 			(at 39.37 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -9032,7 +10512,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 39.37 116.84 0)
 			(hide yes)
 			(show_name no)
@@ -9055,6 +10535,28 @@
 			)
 		)
 		(property "Description" "47nF, 25V X7R"
+			(at 39.37 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM155R71E473KA88D"
+			(at 39.37 116.84 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
 			(at 39.37 116.84 0)
 			(hide yes)
 			(show_name no)
@@ -9113,7 +10615,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
 			(at 114.3 82.55 0)
 			(hide yes)
 			(show_name no)
@@ -9136,6 +10638,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 114.3 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM21BR61E106KA73L"
+			(at 114.3 82.55 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
 			(at 114.3 82.55 0)
 			(hide yes)
 			(show_name no)
@@ -9194,7 +10718,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 34.29 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -9217,6 +10741,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 34.29 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 34.29 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 34.29 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -9254,7 +10800,7 @@
 		(dnp no)
 		(uuid "cb542894-539a-4eec-adb3-9f05150132b9")
 		(property "Reference" "R78"
-			(at 30.48 147.86 0)
+			(at 32.766 146.05 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9264,7 +10810,7 @@
 			)
 		)
 		(property "Value" "182kΩ 1%"
-			(at 30.48 151.86 0)
+			(at 26.924 150.114 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9296,6 +10842,28 @@
 			)
 		)
 		(property "Description" ""
+			(at 30.48 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-07182KL"
+			(at 30.48 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
 			(at 30.48 149.86 0)
 			(hide yes)
 			(show_name no)
@@ -9616,6 +11184,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0730K1L"
+			(at 71.12 140.97 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 71.12 140.97 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "53df7471-e0b0-408d-9b74-7aa1db875d43")
 		)
@@ -9840,6 +11430,28 @@
 				)
 			)
 		)
+		(property "MPN" "RT0402FRE072K2L"
+			(at 97.79 24.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 97.79 24.13 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "7f2ac85e-a036-42ed-8cd4-57fe721e9f01")
 		)
@@ -9909,6 +11521,28 @@
 			)
 		)
 		(property "Description" ""
+			(at 57.15 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM21BR61A226ME44L"
+			(at 57.15 165.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
 			(at 57.15 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -9990,6 +11624,28 @@
 		)
 		(property "Description" "I2C controlled, 5A Buck-Boost battery charger (1-4 cell, Li-Ion / Li-Polymer), USB BC1.2 / HVDCP detection, 3.6..24V VBUS, 3..18.8V charge voltage regulation, 0.75..1.5 MHz, VQFN-29 (Texas RQM0029A)"
 			(at 83.82 167.64 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "BQ25798RQMR"
+			(at 83.82 109.22 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 83.82 109.22 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10159,6 +11815,28 @@
 				)
 			)
 		)
+		(property "MPN" "GRM155R71E473KA88D"
+			(at 66.04 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
+			(at 66.04 149.86 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5d411612-b4a5-4870-9f5e-a905d8ab2e33")
 		)
@@ -10207,7 +11885,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 26.67 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -10230,6 +11908,28 @@
 			)
 		)
 		(property "Description" "capacitor, small US symbol"
+			(at 26.67 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 26.67 132.08 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
 			(at 26.67 132.08 0)
 			(hide yes)
 			(show_name no)
@@ -10277,7 +11977,7 @@
 			)
 		)
 		(property "Value" "TPS61088RHLR"
-			(at 144.78 165.83 0)
+			(at 144.018 180.594 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10309,6 +12009,28 @@
 			)
 		)
 		(property "Description" "SYS->5.1V/5A boost (LCSC C87357)"
+			(at 144.78 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPS61088RHLR"
+			(at 144.78 163.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
 			(at 144.78 163.83 0)
 			(hide yes)
 			(show_name no)
@@ -10390,579 +12112,5 @@
 				)
 			)
 		)
-	)
-(wire
-		(pts
-			(xy 73.66 81.28) (xy 71.12 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2ad2d598-1d19-45f8-a5c8-f969f6e4ee1a")
-	)
-(label "VBUS"
-		(at 71.12 81.28 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "379a2bf6-f0b6-4d88-a3a8-0dbe145e584a")
-	)
-(wire
-		(pts
-			(xy 157.48 176.53) (xy 162.56 176.53)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "036e6626-dfe2-4238-9ac1-e93d7feb5109")
-	)
-(text "Sheet I/O"
-		(exclude_from_sim no)
-		(at 193.04 35.56 0)
-		(effects
-			(font
-				(size 1.6 1.6)
-			)
-			(justify left bottom)
-		)
-		(uuid "45fab322-aedb-46f4-96bc-d24dcd093523")
-	)
-(label "VBUS"
-		(at 193.04 40.64 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "d4d9aed0-59f0-4681-950b-489455808654")
-	)
-(wire
-		(pts
-			(xy 193.04 40.64) (xy 200.66 40.64)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a8ef7d83-a31a-46f7-b7b3-f9d7705f8186")
-	)
-(hierarchical_label "VBUS"
-		(shape input)
-		(at 200.66 40.64 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "7943f0e1-6f63-49d3-b94a-8732ae66ddda")
-	)
-(label "+5v"
-		(at 193.04 45.72 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "69bcf21a-2176-4a63-a613-739fab326f08")
-	)
-(wire
-		(pts
-			(xy 193.04 45.72) (xy 200.66 45.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8f6a540f-67fc-4cc5-83c7-b1848ac9143d")
-	)
-(hierarchical_label "+5v"
-		(shape output)
-		(at 200.66 45.72 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "77e5b706-982b-43a3-a8e6-7b6ca8e9667f")
-	)
-(label "+3.3v"
-		(at 193.04 50.8 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "cd0f66d6-b420-4978-95f6-d0f1c85e5463")
-	)
-(wire
-		(pts
-			(xy 193.04 50.8) (xy 200.66 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4bfd7d30-3329-4329-9502-8d4821fb6676")
-	)
-(hierarchical_label "+3.3v"
-		(shape input)
-		(at 200.66 50.8 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "dc77f6f5-76d2-4ded-a817-403b1885979f")
-	)
-(label "QON"
-		(at 193.04 55.88 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "49e42328-3740-4d7f-8d2a-754052f71fdf")
-	)
-(wire
-		(pts
-			(xy 193.04 55.88) (xy 200.66 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bf5674a8-3f80-41d5-9d03-eda79c9b8d67")
-	)
-(hierarchical_label "QON"
-		(shape input)
-		(at 200.66 55.88 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "bfe2d24c-a3d7-4b29-84d4-542dd7544d35")
-	)
-(label "BQ_SDA"
-		(at 193.04 60.96 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2b4fa6e7-d07d-4046-9451-6f15aece1258")
-	)
-(wire
-		(pts
-			(xy 193.04 60.96) (xy 200.66 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "610448de-4c8f-47d9-a832-ce444081d437")
-	)
-(hierarchical_label "BQ_SDA"
-		(shape bidirectional)
-		(at 200.66 60.96 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "16e15a49-aac5-4160-a102-74a7e95ee040")
-	)
-(label "BQ_SCL"
-		(at 193.04 66.04 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "4aa12564-966e-4e7b-ba3e-369326d21fe8")
-	)
-(wire
-		(pts
-			(xy 193.04 66.04) (xy 200.66 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "be231343-b42e-47e3-973c-d9d5b879debe")
-	)
-(hierarchical_label "BQ_SCL"
-		(shape bidirectional)
-		(at 200.66 66.04 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "53304772-eb0c-473d-8bb4-4e80d7d53bad")
-	)
-(text "Solder pads: manual 5V power tap"
-		(exclude_from_sim no)
-		(at 231.14 152.4 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "e16460d0-16cf-49e6-9d2d-79b8dc52d858")
-	)
-(symbol
-		(lib_id "Connector:TestPoint")
-		(at 233.68 160.02 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "1fd2d0d1-9191-496f-aa67-67df8ec2d666")
-		(property "Reference" "TP10"
-			(at 233.68 154.94 0)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Value" "+5v PAD"
-			(at 233.68 157.48 0)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
-			(at 233.68 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Datasheet" "~"
-			(at 233.68 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Description" "Manual power solder pad"
-			(at 233.68 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(pin "1"
-			(uuid "33c10ac7-f4fa-4896-9de3-201d1ebb349d")
-		)
-		(instances
-			(project "Minerva-Carrier"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
-					(reference "TP10")
-					(unit 1)
-				)
-			)
-		)
-	)
-(wire
-		(pts
-			(xy 233.68 160.02) (xy 233.68 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9f64cf24-e3c4-4141-abc0-4ec9d704e137")
-	)
-(label "+5v"
-		(at 233.68 165.1 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "d015c13b-5da4-4ed0-9a48-2aae16e5820d")
-	)
-(symbol
-		(lib_id "Connector:TestPoint")
-		(at 243.84 160.02 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "43bcf1c5-3873-4ebb-8fcd-13897b68ee06")
-		(property "Reference" "TP11"
-			(at 243.84 154.94 0)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Value" "+5v PAD"
-			(at 243.84 157.48 0)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
-			(at 243.84 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Datasheet" "~"
-			(at 243.84 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Description" "Manual power solder pad"
-			(at 243.84 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(pin "1"
-			(uuid "9a0257a9-4b69-4d65-abb3-6575fb9c3d81")
-		)
-		(instances
-			(project "Minerva-Carrier"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
-					(reference "TP11")
-					(unit 1)
-				)
-			)
-		)
-	)
-(wire
-		(pts
-			(xy 243.84 160.02) (xy 243.84 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "09d1f5b0-73fe-4f21-8077-a99c0d145954")
-	)
-(label "+5v"
-		(at 243.84 165.1 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "3d90ed93-91b7-4b04-b1ec-b396e8c8a1f7")
-	)
-(symbol
-		(lib_id "Connector:TestPoint")
-		(at 254.0 160.02 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "634ffcdf-5363-4486-a09a-99b6605070f3")
-		(property "Reference" "TP12"
-			(at 254.0 154.94 0)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Value" "GND PAD"
-			(at 254.0 157.48 0)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
-			(at 254.0 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Datasheet" "~"
-			(at 254.0 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Description" "Manual power solder pad"
-			(at 254.0 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(pin "1"
-			(uuid "be793689-c14e-443b-8707-a8a42fd43d7f")
-		)
-		(instances
-			(project "Minerva-Carrier"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
-					(reference "TP12")
-					(unit 1)
-				)
-			)
-		)
-	)
-(wire
-		(pts
-			(xy 254.0 160.02) (xy 254.0 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "61e73b7a-aab5-4dca-b06c-e8a440956ff4")
-	)
-(label "GND"
-		(at 254.0 165.1 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "1c49dc45-ad67-4f9f-ad35-7ca7103d7e81")
-	)
-(symbol
-		(lib_id "Connector:TestPoint")
-		(at 264.16 160.02 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "908ad1a9-3f22-4a1d-8b4b-f1026a67dd0d")
-		(property "Reference" "TP13"
-			(at 264.16 154.94 0)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Value" "GND PAD"
-			(at 264.16 157.48 0)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D2.0mm"
-			(at 264.16 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Datasheet" "~"
-			(at 264.16 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(property "Description" "Manual power solder pad"
-			(at 264.16 160.02 0)
-			(hide yes)
-			(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		)
-		(pin "1"
-			(uuid "13d1d402-09e0-4998-91d8-da9edf00428c")
-		)
-		(instances
-			(project "Minerva-Carrier"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7"
-					(reference "TP13")
-					(unit 1)
-				)
-			)
-		)
-	)
-(wire
-		(pts
-			(xy 264.16 160.02) (xy 264.16 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7d4463d5-7ab4-4a2f-8e05-a6135fd5e0a9")
-	)
-(label "GND"
-		(at 264.16 165.1 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "1bd989fc-defa-4e16-9ca0-8eb77d3827a6")
 	)
 )

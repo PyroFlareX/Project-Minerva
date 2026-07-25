@@ -30,7 +30,7 @@
 	(fp_line (start 1.00 1.00) (end 1.00 -1.00) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 1.00 -1.00) (end -1.00 -1.00) (layer F.CrtYd) (width 0.05))
 	(fp_line (start -1.00 -1.00) (end -1.00 1.00) (layer F.CrtYd) (width 0.05))
-	(model "/tmp/lcsclib.3dshapes/TDFN-8_L2.0-W2.0-P0.50-BL-EP1.2.wrl"
+	(model "${KIPRJMOD}/Minerva.3dshapes/MAX17048_TDFN8.step"
 		(offset (xyz 0.000 0.000 0.000))
 		(scale (xyz 1 1 1))
 		(rotate (xyz 0 0 0))

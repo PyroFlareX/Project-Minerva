@@ -112,6 +112,7 @@ font_mono = "JetBrains Mono, DejaVu Sans Mono, monospace"
 # -----------------------------------------------------------------------------
 
 [apps]
+terminal = "kitty"
 settings = "gnome-control-center"
 files    = "thunar"
 editor   = "micro"

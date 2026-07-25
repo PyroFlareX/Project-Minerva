@@ -1,0 +1,1137 @@
+{
+  "BT3": {
+    "dnp": false,
+    "manufacturer": "Panasonic Energy",
+    "mpn": "ML-1220",
+    "note": ""
+  },
+  "C1": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C10": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C100": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "C101": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "C102": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C103": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM1555C1H332JE01D",
+    "note": ""
+  },
+  "C104": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM155R71E473KA88D",
+    "note": ""
+  },
+  "C105": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "C106": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C107": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM21BR61A226ME44L",
+    "note": ""
+  },
+  "C108": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM21BR61A226ME44L",
+    "note": ""
+  },
+  "C109": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM21BR61A226ME44L",
+    "note": ""
+  },
+  "C11": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM155R71H472KA01D",
+    "note": ""
+  },
+  "C110": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM21BR61A226ME44L",
+    "note": ""
+  },
+  "C12": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C13": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C14": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL21A106KPFNNNE",
+    "note": ""
+  },
+  "C15": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL21A106KPFNNNE",
+    "note": ""
+  },
+  "C16": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL21A106KPFNNNE",
+    "note": ""
+  },
+  "C17": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL21A106KPFNNNE",
+    "note": ""
+  },
+  "C18": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C19": {
+    "dnp": true,
+    "manufacturer": "N/A",
+    "mpn": "DELETE",
+    "note": "Electrically orphaned capacitor cluster removed"
+  },
+  "C2": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL21A106KPFNNNE",
+    "note": ""
+  },
+  "C20": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C21": {
+    "dnp": true,
+    "manufacturer": "N/A",
+    "mpn": "DELETE",
+    "note": "Electrically orphaned capacitor cluster removed"
+  },
+  "C22": {
+    "dnp": true,
+    "manufacturer": "N/A",
+    "mpn": "DELETE",
+    "note": "Electrically orphaned capacitor cluster removed"
+  },
+  "C23": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C24": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM21BR61E106KA73L",
+    "note": ""
+  },
+  "C25": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM21BR61E106KA73L",
+    "note": ""
+  },
+  "C26": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM21BR61E106KA73L",
+    "note": ""
+  },
+  "C27": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM155R71H104KE14D",
+    "note": ""
+  },
+  "C28": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C29": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C3": {
+    "dnp": false,
+    "manufacturer": "KEMET",
+    "mpn": "T491D107K010AT",
+    "note": ""
+  },
+  "C30": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C31": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C32": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C33": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM155R71E473KA88D",
+    "note": ""
+  },
+  "C34": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM155R71E473KA88D",
+    "note": ""
+  },
+  "C4": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL21A106KPFNNNE",
+    "note": ""
+  },
+  "C5": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM188R61E475KE11D",
+    "note": ""
+  },
+  "C6": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL21A106KPFNNNE",
+    "note": ""
+  },
+  "C7": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL21A106KPFNNNE",
+    "note": ""
+  },
+  "C70": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C71": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C72": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C73": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C74": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C75": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C76": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C77": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "C78": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "C79": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "C8": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL21A106KPFNNNE",
+    "note": ""
+  },
+  "C80": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C81": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C82": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C83": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C84": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "C85": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "C86": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM1555C1H391JA01D",
+    "note": ""
+  },
+  "C87": {
+    "dnp": false,
+    "manufacturer": "Murata",
+    "mpn": "GRM1555C1H391JA01D",
+    "note": ""
+  },
+  "C88": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C89": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C9": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C90": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "C91": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C92": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C93": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C94": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C95": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C96": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C97": {
+    "dnp": false,
+    "manufacturer": "Taiyo Yuden",
+    "mpn": "EMK105B7104KV-F",
+    "note": ""
+  },
+  "C98": {
+    "dnp": false,
+    "manufacturer": "Samsung Electro-Mechanics",
+    "mpn": "CL10A106KP8NNNC",
+    "note": ""
+  },
+  "C99": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "CC0402KRX5R6BB105",
+    "note": ""
+  },
+  "D1": {
+    "dnp": false,
+    "manufacturer": "ROHM",
+    "mpn": "SML-A12U8TT86",
+    "note": ""
+  },
+  "D10": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E01B04DPYR",
+    "note": ""
+  },
+  "D11": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E01B04DPYR",
+    "note": ""
+  },
+  "D12": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E01B04DPYR",
+    "note": ""
+  },
+  "D13": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E01B04DPYR",
+    "note": ""
+  },
+  "D14": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E01B04DPYR",
+    "note": ""
+  },
+  "D15": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E01B04DPYR",
+    "note": ""
+  },
+  "D16": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E05U06DPYR",
+    "note": ""
+  },
+  "D17": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E05U06DPYR",
+    "note": ""
+  },
+  "D18": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E05U06DPYR",
+    "note": ""
+  },
+  "D19": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E05U06DPYR",
+    "note": ""
+  },
+  "D2": {
+    "dnp": false,
+    "manufacturer": "ROHM",
+    "mpn": "SML-A12M8TT86",
+    "note": ""
+  },
+  "D20": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E05U06DPYR",
+    "note": ""
+  },
+  "D21": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E05U06DPYR",
+    "note": ""
+  },
+  "D22": {
+    "dnp": false,
+    "manufacturer": "Littelfuse",
+    "mpn": "SMBJ24CA",
+    "note": ""
+  },
+  "D4": {
+    "dnp": false,
+    "manufacturer": "ROHM",
+    "mpn": "SML-P12UTT86R",
+    "note": ""
+  },
+  "D5": {
+    "dnp": false,
+    "manufacturer": "ROHM",
+    "mpn": "SML-A12M8TT86",
+    "note": ""
+  },
+  "D6": {
+    "dnp": false,
+    "manufacturer": "Diodes Incorporated",
+    "mpn": "BAT54-7-F",
+    "note": ""
+  },
+  "D7": {
+    "dnp": false,
+    "manufacturer": "Diodes Incorporated",
+    "mpn": "BAT54-7-F",
+    "note": ""
+  },
+  "D8": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E01B04DPYR",
+    "note": ""
+  },
+  "D9": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPD1E01B04DPYR",
+    "note": ""
+  },
+  "H2": {
+    "dnp": true,
+    "manufacturer": "PCB fabrication",
+    "mpn": "N/A",
+    "note": "PCB feature; not purchased or placed"
+  },
+  "H3": {
+    "dnp": true,
+    "manufacturer": "PCB fabrication",
+    "mpn": "N/A",
+    "note": "PCB feature; not purchased or placed"
+  },
+  "J1": {
+    "dnp": false,
+    "manufacturer": "TE Connectivity",
+    "mpn": "2-1734839-0",
+    "note": ""
+  },
+  "J14": {
+    "dnp": false,
+    "manufacturer": "JST",
+    "mpn": "BM04B-SRSS-TB(LF)(SN)",
+    "note": ""
+  },
+  "J20": {
+    "dnp": false,
+    "manufacturer": "Molex",
+    "mpn": "53398-0471",
+    "note": ""
+  },
+  "J21": {
+    "dnp": false,
+    "manufacturer": "Molex",
+    "mpn": "53398-0471",
+    "note": ""
+  },
+  "J22": {
+    "dnp": false,
+    "manufacturer": "JST",
+    "mpn": "BM03B-SRSS-TB(LF)(SN)",
+    "note": ""
+  },
+  "J23": {
+    "dnp": false,
+    "manufacturer": "SHOU HAN",
+    "mpn": "QT143",
+    "note": "LCSC C5156605"
+  },
+  "J24": {
+    "dnp": false,
+    "manufacturer": "JST",
+    "mpn": "B2B-PH-K-S(LF)(SN)",
+    "note": ""
+  },
+  "J25": {
+    "dnp": false,
+    "manufacturer": "Molex",
+    "mpn": "53047-1410",
+    "note": ""
+  },
+  "J3": {
+    "dnp": false,
+    "manufacturer": "TE Connectivity",
+    "mpn": "1-2199230-3",
+    "note": ""
+  },
+  "J4": {
+    "dnp": false,
+    "manufacturer": "TE Connectivity",
+    "mpn": "1-2199230-6",
+    "note": ""
+  },
+  "J5": {
+    "dnp": false,
+    "manufacturer": "Hirose",
+    "mpn": "FH12-22S-0.5SH(55)",
+    "note": ""
+  },
+  "J7": {
+    "dnp": false,
+    "manufacturer": "JAE",
+    "mpn": "SF72S006VBDR2500",
+    "note": ""
+  },
+  "J8": {
+    "dnp": false,
+    "manufacturer": "Toby Electronics",
+    "mpn": "THD-20-R",
+    "note": ""
+  },
+  "L1": {
+    "dnp": false,
+    "manufacturer": "Bourns",
+    "mpn": "SRP5030CC-2R2M",
+    "note": ""
+  },
+  "L2": {
+    "dnp": false,
+    "manufacturer": "Bourns",
+    "mpn": "SRP5030T-1R0M",
+    "note": ""
+  },
+  "L3": {
+    "dnp": false,
+    "manufacturer": "Coilcraft",
+    "mpn": "XAL7070-182MEC",
+    "note": ""
+  },
+  "M6": {
+    "dnp": false,
+    "manufacturer": "PennEngineering (PEM)",
+    "mpn": "SMTSO-M2-4ET",
+    "note": "M2 x 0.4 ReelFast surface-mount standoff, 4 mm height, 6.2 mm minimum solder pad; quantity 2"
+  },
+  "M7": {
+    "dnp": false,
+    "manufacturer": "ISO/DIN commodity",
+    "mpn": "M2X3-DIN7985H-A2",
+    "note": "M2 x 3 mm, 0.4 mm pitch, A2 stainless Phillips pan-head screw; quantity 2"
+  },
+  "Module1": {
+    "dnp": "",
+    "manufacturer": "Raspberry Pi Ltd",
+    "mpn": "CM5008032",
+    "note": "CM5 8GB LPDDR4X / 32GB eMMC per CONTEXT.md"
+  },
+  "R1": {
+    "dnp": false,
+    "manufacturer": "KOA Speer",
+    "mpn": "RK73H1ETTP1001F",
+    "note": ""
+  },
+  "R10": {
+    "dnp": false,
+    "manufacturer": "KOA Speer",
+    "mpn": "RK73H1ETTP1001F",
+    "note": ""
+  },
+  "R11": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R12": {
+    "dnp": false,
+    "manufacturer": "Vishay",
+    "mpn": "CRCW040215K0FKED",
+    "note": ""
+  },
+  "R13": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100RL",
+    "note": ""
+  },
+  "R14": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R15": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R16": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RT0402FRE072K2L",
+    "note": ""
+  },
+  "R17": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-073KL",
+    "note": ""
+  },
+  "R18": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0730K1L",
+    "note": ""
+  },
+  "R19": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R2": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R20": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R3": {
+    "dnp": false,
+    "manufacturer": "KOA Speer",
+    "mpn": "RK73H1ETTP1001F",
+    "note": ""
+  },
+  "R4": {
+    "dnp": true,
+    "manufacturer": "N/A",
+    "mpn": "N/A",
+    "note": "Not fitted"
+  },
+  "R5": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0805JR-070RL",
+    "note": ""
+  },
+  "R50": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0751KL",
+    "note": ""
+  },
+  "R51": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R52": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R53": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R54": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R55": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R56": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R57": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R58": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-071ML",
+    "note": ""
+  },
+  "R59": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R6": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RT0402FRE072K2L",
+    "note": ""
+  },
+  "R60": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R61": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R62": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R63": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R64": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R65": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R66": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R7": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RT0402FRE072K2L",
+    "note": ""
+  },
+  "R71": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R72": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R73": {
+    "dnp": true,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402JR-070RL",
+    "note": "DNP option"
+  },
+  "R74": {
+    "dnp": true,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402JR-070RL",
+    "note": "DNP option"
+  },
+  "R75": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-071KL",
+    "note": ""
+  },
+  "R76": {
+    "dnp": false,
+    "manufacturer": "Vishay",
+    "mpn": "CRCW04025K23FKED",
+    "note": ""
+  },
+  "R77": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0710KL",
+    "note": ""
+  },
+  "R78": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07182KL",
+    "note": ""
+  },
+  "R79": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-0756KL",
+    "note": ""
+  },
+  "R80": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RT0402FRE078K2L",
+    "note": ""
+  },
+  "R81": {
+    "dnp": false,
+    "manufacturer": "Vishay",
+    "mpn": "CRCW040264K9FKED",
+    "note": ""
+  },
+  "R82": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R84": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RC0402FR-07100KL",
+    "note": ""
+  },
+  "R85": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RT0402FRE072K2L",
+    "note": ""
+  },
+  "R86": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RT0402FRE072K2L",
+    "note": ""
+  },
+  "R9": {
+    "dnp": false,
+    "manufacturer": "Yageo",
+    "mpn": "RT0402FRE072K2L",
+    "note": ""
+  },
+  "SW1": {
+    "datasheet": "https://datasheet.lcsc.com/datasheet/pdf/a49770589cdc0a298df683691a354b36.pdf?productCode=C2837542",
+    "dnp": false,
+    "manufacturer": "Kinghelm",
+    "mpn": "KH-6X6X6H-ZJ",
+    "note": "Footprint verified against vendor drawing: 4.5 mm signal-pin pitch, 7.0 mm anchor pitch, 2.5 mm row spacing; active substitute for NRND PTS645VH58-2LFS."
+  },
+  "TP10": {
+    "dnp": true,
+    "manufacturer": "PCB fabrication",
+    "mpn": "N/A",
+    "note": "PCB feature; not purchased or placed"
+  },
+  "TP11": {
+    "dnp": true,
+    "manufacturer": "PCB fabrication",
+    "mpn": "N/A",
+    "note": "PCB feature; not purchased or placed"
+  },
+  "TP12": {
+    "dnp": true,
+    "manufacturer": "PCB fabrication",
+    "mpn": "N/A",
+    "note": "PCB feature; not purchased or placed"
+  },
+  "TP13": {
+    "dnp": true,
+    "manufacturer": "PCB fabrication",
+    "mpn": "N/A",
+    "note": "PCB feature; not purchased or placed"
+  },
+  "TP3": {
+    "dnp": true,
+    "manufacturer": "PCB fabrication",
+    "mpn": "N/A",
+    "note": "PCB feature; not purchased or placed"
+  },
+  "TP5": {
+    "dnp": true,
+    "manufacturer": "PCB fabrication",
+    "mpn": "N/A",
+    "note": "PCB feature; not purchased or placed"
+  },
+  "U1": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "BQ25798RQMR",
+    "note": ""
+  },
+  "U2": {
+    "dnp": false,
+    "manufacturer": "Abracon",
+    "mpn": "ASEK-32.768KHZ-L-R-T",
+    "note": ""
+  },
+  "U20": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "SN65DSI86ZQER",
+    "note": ""
+  },
+  "U21": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "HD3SS460RHRT",
+    "note": ""
+  },
+  "U22": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPS65987DDJRSHR",
+    "note": ""
+  },
+  "U23": {
+    "dnp": false,
+    "manufacturer": "Winbond",
+    "mpn": "W25Q32JVSSIQ",
+    "note": ""
+  },
+  "U24": {
+    "dnp": false,
+    "manufacturer": "Diodes Incorporated",
+    "mpn": "AP2112K-1.8TRG1",
+    "note": ""
+  },
+  "U25": {
+    "dnp": false,
+    "manufacturer": "Diodes Incorporated",
+    "mpn": "AP2112K-1.2TRG1",
+    "note": ""
+  },
+  "U29": {
+    "dnp": false,
+    "manufacturer": "Diodes Incorporated",
+    "mpn": "PAM8406DR",
+    "note": ""
+  },
+  "U30": {
+    "dnp": false,
+    "manufacturer": "Texas Instruments",
+    "mpn": "TPS61088RHLR",
+    "note": ""
+  },
+  "U31": {
+    "dnp": false,
+    "manufacturer": "Analog Devices / Maxim Integrated",
+    "mpn": "MAX17048G+T10",
+    "note": ""
+  },
+  "U6": {
+    "dnp": false,
+    "manufacturer": "Diodes Incorporated",
+    "mpn": "AP22653W6-7",
+    "note": ""
+  },
+  "U8": {
+    "dnp": false,
+    "manufacturer": "Diodes Incorporated",
+    "mpn": "AP3441SHE-7B",
+    "note": ""
+  }
+}

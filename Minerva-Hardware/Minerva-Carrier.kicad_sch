@@ -2437,6 +2437,172 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Device:D_TVS"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "D"
+				(at 0 2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "D_TVS"
+				(at 0 -2.54 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Bidirectional transient-voltage-suppression diode"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "diode TVS thyrector"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "D_TVS_0_1"
+				(polyline
+					(pts
+						(xy -2.54 1.27) (xy -2.54 -1.27) (xy 2.54 1.27) (xy 2.54 -1.27) (xy -2.54 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.508 1.27) (xy 0 1.27) (xy 0 -1.27) (xy -0.508 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 0) (xy -1.27 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "D_TVS_1_1"
+				(pin passive line
+					(at -3.81 0 0)
+					(length 2.54)
+					(name "A1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 2.54)
+					(name "A2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:R"
 			(pin_numbers
 				(hide yes)
@@ -2974,40 +3140,10 @@
 		(uuid "e41b155f-eeca-4135-bf82-dacca2050535")
 	)
 	(junction
-		(at 46.99 101.6)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3f125389-f4eb-44bf-94a8-c7dc3801fbe0")
-	)
-	(junction
-		(at 97.79 72.39)
+		(at 93.98 41.91)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "51d0995a-36a4-4376-aac6-6e0766377c4c")
-	)
-	(junction
-		(at 39.37 101.6)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a05fe134-f19e-4e7c-b805-7d0075b643c0")
-	)
-	(junction
-		(at 54.61 101.6)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a41637e4-bf07-4403-bcae-20142ee36bc1")
-	)
-	(junction
-		(at 69.85 39.37)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "bee52e7f-4a34-4360-a938-0e2bd4319ecb")
-	)
-	(junction
-		(at 46.99 107.95)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f3162a84-dc58-4a5f-a9a7-81dec9826d55")
 	)
 	(no_connect
 		(at 229.87 34.29)
@@ -3075,7 +3211,7 @@
 	)
 	(wire
 		(pts
-			(xy 242.57 29.21) (xy 187.96 29.21)
+			(xy 242.57 27.94) (xy 187.96 27.94)
 		)
 		(stroke
 			(width 0)
@@ -3125,16 +3261,6 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 39.37) (xy 69.85 39.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1f824ac4-3539-4018-b317-f4592bacf20a")
-	)
-	(wire
-		(pts
 			(xy 204.47 68.58) (xy 214.63 68.58)
 		)
 		(stroke
@@ -3175,16 +3301,6 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 102.87) (xy 54.61 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "342cb2e2-4976-49ff-b448-e7c051a5a72d")
-	)
-	(wire
-		(pts
 			(xy 62.23 46.99) (xy 69.85 46.99)
 		)
 		(stroke
@@ -3195,7 +3311,7 @@
 	)
 	(wire
 		(pts
-			(xy 97.79 72.39) (xy 109.22 72.39)
+			(xy 93.98 41.91) (xy 105.41 41.91)
 		)
 		(stroke
 			(width 0)
@@ -3235,16 +3351,6 @@
 	)
 	(wire
 		(pts
-			(xy 46.99 107.95) (xy 46.99 113.03)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "43f40278-cbab-47d7-9205-33868f16e9af")
-	)
-	(wire
-		(pts
 			(xy 139.7 111.76) (xy 147.32 111.76)
 		)
 		(stroke
@@ -3252,16 +3358,6 @@
 			(type solid)
 		)
 		(uuid "44300bab-0ab4-4be4-98bf-2c7e183bb27c")
-	)
-	(wire
-		(pts
-			(xy 167.64 96.52) (xy 167.64 104.14)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "44f248e5-7e3d-4277-981e-868f83cad8fe")
 	)
 	(wire
 		(pts
@@ -3285,7 +3381,7 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 34.29) (xy 190.5 30.48)
+			(xy 190.5 34.29) (xy 190.5 29.21)
 		)
 		(stroke
 			(width 0)
@@ -3365,16 +3461,6 @@
 	)
 	(wire
 		(pts
-			(xy 69.85 34.29) (xy 69.85 39.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5c5e908b-0e4a-42f3-a846-b59e8d6971fd")
-	)
-	(wire
-		(pts
 			(xy 62.23 64.77) (xy 69.85 64.77)
 		)
 		(stroke
@@ -3405,16 +3491,6 @@
 	)
 	(wire
 		(pts
-			(xy 54.61 101.6) (xy 69.85 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6cad9647-1202-4212-896b-14f719ffe82b")
-	)
-	(wire
-		(pts
 			(xy 180.34 96.52) (xy 180.34 104.14)
 		)
 		(stroke
@@ -3435,6 +3511,36 @@
 	)
 	(wire
 		(pts
+			(xy 223.52 144.78) (xy 220.98 144.78)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "75126f33-34e5-4aa5-ac1b-ad36b64d4c6b")
+	)
+	(wire
+		(pts
+			(xy 223.52 147.32) (xy 220.98 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7581b61f-e50b-4979-947e-a2b4b3c77a46")
+	)
+	(wire
+		(pts
+			(xy 223.52 142.24) (xy 220.98 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "778d3639-a9e9-4944-b185-8cf7943827db")
+	)
+	(wire
+		(pts
 			(xy 182.88 26.67) (xy 252.73 26.67)
 		)
 		(stroke
@@ -3445,17 +3551,7 @@
 	)
 	(wire
 		(pts
-			(xy 46.99 101.6) (xy 54.61 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "79f72a55-2845-4fe5-8469-5422c88f93e6")
-	)
-	(wire
-		(pts
-			(xy 97.79 72.39) (xy 97.79 74.93)
+			(xy 93.98 41.91) (xy 93.98 44.45)
 		)
 		(stroke
 			(width 0)
@@ -3485,13 +3581,13 @@
 	)
 	(wire
 		(pts
-			(xy 46.99 102.87) (xy 46.99 101.6)
+			(xy 147.32 67.31) (xy 139.7 67.31)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "855583eb-53d9-4e00-b40d-8c8f030dde83")
+		(uuid "8842618e-2430-41be-bceb-e96990b65250")
 	)
 	(wire
 		(pts
@@ -3505,17 +3601,7 @@
 	)
 	(wire
 		(pts
-			(xy 46.99 101.6) (xy 39.37 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8a5ecac8-dd56-4867-87dc-e162a100d1cd")
-	)
-	(wire
-		(pts
-			(xy 97.79 64.77) (xy 109.22 64.77)
+			(xy 93.98 34.29) (xy 105.41 34.29)
 		)
 		(stroke
 			(width 0)
@@ -3535,13 +3621,13 @@
 	)
 	(wire
 		(pts
-			(xy 163.83 96.52) (xy 163.83 104.14)
+			(xy 223.52 134.62) (xy 220.98 134.62)
 		)
 		(stroke
 			(width 0)
-			(type solid)
+			(type default)
 		)
-		(uuid "94ffeb03-fafb-49bb-befc-3371b5c996c5")
+		(uuid "95aa41f4-1ef3-4757-a949-d66dd36463ea")
 	)
 	(wire
 		(pts
@@ -3555,7 +3641,7 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 29.21) (xy 187.96 34.29)
+			(xy 187.96 27.94) (xy 187.96 34.29)
 		)
 		(stroke
 			(width 0)
@@ -3575,17 +3661,7 @@
 	)
 	(wire
 		(pts
-			(xy 39.37 101.6) (xy 39.37 100.33)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9e0317c5-ff90-491a-9b83-2815a09e1066")
-	)
-	(wire
-		(pts
-			(xy 240.03 30.48) (xy 240.03 34.29)
+			(xy 240.03 29.21) (xy 240.03 34.29)
 		)
 		(stroke
 			(width 0)
@@ -3655,7 +3731,7 @@
 	)
 	(wire
 		(pts
-			(xy 226.7012 31.75) (xy 217.17 31.75)
+			(xy 219.71 33.02) (xy 217.17 33.02)
 		)
 		(stroke
 			(width 0)
@@ -3675,7 +3751,7 @@
 	)
 	(wire
 		(pts
-			(xy 226.7012 34.29) (xy 226.7012 31.75)
+			(xy 219.71 33.02) (xy 219.71 34.29)
 		)
 		(stroke
 			(width 0)
@@ -3715,7 +3791,7 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 30.48) (xy 240.03 30.48)
+			(xy 190.5 29.21) (xy 240.03 29.21)
 		)
 		(stroke
 			(width 0)
@@ -3755,7 +3831,7 @@
 	)
 	(wire
 		(pts
-			(xy 62.23 39.37) (xy 69.85 39.37)
+			(xy 62.23 39.37) (xy 73.66 39.37)
 		)
 		(stroke
 			(width 0)
@@ -3805,11 +3881,11 @@
 	)
 	(wire
 		(pts
-			(xy 46.99 107.95) (xy 46.99 105.41)
+			(xy 46.99 105.41) (xy 46.99 113.03)
 		)
 		(stroke
 			(width 0)
-			(type default)
+			(type solid)
 		)
 		(uuid "de4cdaf1-e8b4-4fb2-9636-03f0e42b3202")
 	)
@@ -3855,7 +3931,7 @@
 	)
 	(wire
 		(pts
-			(xy 242.57 34.29) (xy 242.57 29.21)
+			(xy 242.57 34.29) (xy 242.57 27.94)
 		)
 		(stroke
 			(width 0)
@@ -3865,13 +3941,13 @@
 	)
 	(wire
 		(pts
-			(xy 31.75 101.6) (xy 39.37 101.6)
+			(xy 223.52 139.7) (xy 220.98 139.7)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "e5c2cf1d-8a5d-4e72-a79d-4bc6d0f66a7d")
+		(uuid "e66fa1bb-f674-4c38-a576-e9c778730d71")
 	)
 	(wire
 		(pts
@@ -3902,6 +3978,16 @@
 			(type default)
 		)
 		(uuid "fa92842d-37e8-4687-b4f4-0cfd415b8d84")
+	)
+	(wire
+		(pts
+			(xy 223.52 137.16) (xy 220.98 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fc83de6f-48e8-4303-ac9e-9a9fdf5b6e73")
 	)
 	(wire
 		(pts
@@ -3943,8 +4029,18 @@
 		)
 		(uuid "08068731-5378-454c-9079-191e6271199d")
 	)
+	(label "USB2_N"
+		(at 66.04 181.61 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "09df1f23-6a4b-4f63-8143-aad3e76b06b3")
+	)
 	(label "+5v"
-		(at 97.79 64.77 0)
+		(at 93.98 34.29 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3954,7 +4050,7 @@
 		(uuid "09f3f04e-f789-44e1-b801-79a009ead9da")
 	)
 	(label "PCIE_nRST"
-		(at 217.17 31.75 180)
+		(at 217.17 33.02 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3972,6 +4068,16 @@
 			(justify left bottom)
 		)
 		(uuid "0c6e9e9f-13d2-4a01-a9ff-c0a880b5480a")
+	)
+	(label "USBC_TX1_P"
+		(at 20.32 140.97 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "0d9fd1c6-8644-4e02-b21c-ff5cdabf02fc")
 	)
 	(label "VBUS"
 		(at 73.66 39.37 0)
@@ -3993,6 +4099,16 @@
 		)
 		(uuid "15cabd71-2eb1-4df4-a405-94931c5c7549")
 	)
+	(label "USBC_RX1_P"
+		(at 20.32 161.29 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "18463aa7-8137-4c61-a34d-930edfe84b5d")
+	)
 	(label "QON"
 		(at 139.7 139.7 180)
 		(effects
@@ -4002,6 +4118,16 @@
 			(justify right bottom)
 		)
 		(uuid "1857824a-e7c3-4a28-963f-f1792dd34066")
+	)
+	(label "GND"
+		(at 73.66 171.45 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "18e87721-dfd2-495a-a0f7-d763d04d1609")
 	)
 	(label "CC2"
 		(at 139.7 81.28 180)
@@ -4013,6 +4139,16 @@
 		)
 		(uuid "21132ba1-c0bc-420b-aca4-6b3485610266")
 	)
+	(label "CC1"
+		(at 113.03 161.29 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "25407a57-f231-44c3-9ca8-8bd2e8e6c0dd")
+	)
 	(label "CM5_CC1"
 		(at 142.24 123.19 180)
 		(effects
@@ -4023,6 +4159,26 @@
 		)
 		(uuid "28c76331-1bb2-429e-88ba-1bacab9de126")
 	)
+	(label "USB2_P"
+		(at 66.04 171.45 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "36d4da86-942b-45f0-84d3-77091e7534d5")
+	)
+	(label "GND"
+		(at 27.94 161.29 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "37803792-d03b-4745-a338-b37b7d33d04d")
+	)
 	(label "CM5_CC2"
 		(at 107.95 116.84 0)
 		(effects
@@ -4032,6 +4188,26 @@
 			(justify left bottom)
 		)
 		(uuid "40456ba9-6def-429b-bde9-5e0687c4d8b9")
+	)
+	(label "USBC_SBU1"
+		(at 113.03 140.97 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "4129ba49-0391-409b-82e9-ab8706dfdfbe")
+	)
+	(label "GND"
+		(at 73.66 181.61 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "446792d3-f5ba-4830-9c61-7b0cb45c5e83")
 	)
 	(label "BQ_SCL"
 		(at 139.7 116.84 180)
@@ -4052,6 +4228,16 @@
 			(justify right bottom)
 		)
 		(uuid "472fd7ea-ce2f-4e97-bffc-46e1b7b99dbe")
+	)
+	(label "USBC_RX2_N"
+		(at 66.04 161.29 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "47a675cb-7fbf-454d-8063-d8f47270d876")
 	)
 	(label "+3.3v"
 		(at 209.55 123.19 0)
@@ -4074,6 +4260,16 @@
 		(uuid "4b65faae-876d-4805-98a6-165e3f69919c")
 	)
 	(label "GND"
+		(at 27.94 151.13 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "4ce7e391-f742-42fa-a063-0c8602e00984")
+	)
+	(label "GND"
 		(at 39.37 110.49 0)
 		(effects
 			(font
@@ -4082,16 +4278,6 @@
 			(justify left bottom)
 		)
 		(uuid "4d74c4be-b657-4849-afde-74b0070a13d6")
-	)
-	(label "PCIE_nRST"
-		(at 209.55 64.77 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "4e50be7a-9ec5-4a1e-a256-fba67ffd5e1b")
 	)
 	(label "+5v"
 		(at 261.62 74.93 0)
@@ -4102,6 +4288,16 @@
 			(justify left bottom)
 		)
 		(uuid "4e66a44f-7fa6-4e16-bf9b-62ec864301a5")
+	)
+	(label "GND"
+		(at 120.65 171.45 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "54a5c07a-4a93-4950-afe9-991fc14f118a")
 	)
 	(label "+5v"
 		(at 209.55 118.11 0)
@@ -4123,6 +4319,96 @@
 		)
 		(uuid "5740c959-93d8-47fd-8f68-62f0109e753d")
 	)
+	(label "+3.3v"
+		(at 220.98 139.7 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "57b97ab9-0aac-42cc-91f1-30f6734a63a9")
+	)
+	(label "GND"
+		(at 120.65 151.13 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "59b9262a-d17d-4141-8716-baedf1bcd4d2")
+	)
+	(label "USBC_TX1_N"
+		(at 20.32 151.13 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "66cc47c6-eeb6-4744-ad3c-4f08981ab064")
+	)
+	(label "USBC_TX2_N"
+		(at 66.04 140.97 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "72694d30-354d-43d1-9052-2f4b965b8641")
+	)
+	(label "GND"
+		(at 73.66 140.97 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "75424241-efd4-4bed-a4fc-e62bd53aa0a4")
+	)
+	(label "USBC_SBU2"
+		(at 113.03 151.13 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "7acb7f96-8e38-4d30-b686-6cc424acc8f7")
+	)
+	(label "+5v"
+		(at 220.98 137.16 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "831a72c3-a5b3-4172-b478-46ce463e7021")
+	)
+	(label "CC2"
+		(at 113.03 171.45 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "83fa8f5e-7f10-4c26-ab9f-a8950868ae34")
+	)
+	(label "GND"
+		(at 120.65 140.97 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "855f0c60-7c12-4566-80b8-0dd86f6c7715")
+	)
 	(label "CC2"
 		(at 69.85 46.99 0)
 		(effects
@@ -4132,6 +4418,16 @@
 			(justify left bottom)
 		)
 		(uuid "87c1748d-1d5a-476a-a158-3a324ad321e7")
+	)
+	(label "GND"
+		(at 27.94 140.97 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9228257a-48d2-492e-badf-3af2a33fb102")
 	)
 	(label "DSI86_EN"
 		(at 139.7 119.38 180)
@@ -4152,6 +4448,16 @@
 			(justify left bottom)
 		)
 		(uuid "9c9399cc-4a57-45c7-9d2b-df77a59d391f")
+	)
+	(label "GND"
+		(at 27.94 171.45 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "9d4d7eb4-ecb9-48b5-a6fc-2701f2ba2d0c")
 	)
 	(label "PD_I2C_IRQ"
 		(at 139.7 111.76 180)
@@ -4183,6 +4489,16 @@
 		)
 		(uuid "a610d934-8815-4d11-b266-c848bf89760f")
 	)
+	(label "GND"
+		(at 120.65 181.61 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a85b0515-1868-4c48-b5ef-c47f36b669c7")
+	)
 	(label "USB2_N"
 		(at 139.7 57.15 180)
 		(effects
@@ -4203,6 +4519,16 @@
 		)
 		(uuid "aa8883af-204c-467e-98ee-b543e703085c")
 	)
+	(label "VBUS"
+		(at 220.98 134.62 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "aa9a7a6f-7f92-4865-8a83-76f7f02777ce")
+	)
 	(label "USB2_P"
 		(at 69.85 59.69 0)
 		(effects
@@ -4222,6 +4548,36 @@
 			(justify right bottom)
 		)
 		(uuid "adf52fff-ccaf-4f05-8dc1-8f466d701556")
+	)
+	(label "GND"
+		(at 27.94 181.61 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "af37f46d-ad4c-4778-831c-5bec1295854d")
+	)
+	(label "GND"
+		(at 120.65 161.29 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "afbc587c-c572-4b83-b921-3959b236e335")
+	)
+	(label "VBUS"
+		(at 139.7 67.31 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b4752528-84c9-4e37-92af-c839c36777d8")
 	)
 	(label "DSI86_EN"
 		(at 139.7 91.44 180)
@@ -4293,6 +4649,56 @@
 		)
 		(uuid "c84ba51c-6574-4622-ad20-22137bf2128c")
 	)
+	(label "GND"
+		(at 73.66 161.29 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "cabd7074-9371-4f86-8df7-fe9756b012ab")
+	)
+	(label "USBC_RX2_P"
+		(at 66.04 151.13 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d2cc1f2b-5e5a-40a2-8b48-da0f478e3fc7")
+	)
+	(label "QON"
+		(at 220.98 142.24 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d5fd327f-4027-4f47-8d0d-a4dd0641ae7b")
+	)
+	(label "VBUS"
+		(at 113.03 181.61 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "d7373c31-31c0-41d3-9b9d-f0eef9f09094")
+	)
+	(label "BQ_SDA"
+		(at 220.98 144.78 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "dbf5b77c-df42-4f14-a899-3570fad07002")
+	)
 	(label "CM5_CC1"
 		(at 96.52 116.84 0)
 		(effects
@@ -4302,6 +4708,46 @@
 			(justify left bottom)
 		)
 		(uuid "e51df4b8-69a5-4255-a3b7-c2277ad1cd99")
+	)
+	(label "USBC_RX1_N"
+		(at 20.32 171.45 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e6ac7ffb-90c0-421c-ab2d-6178b387ea4c")
+	)
+	(label "GND"
+		(at 73.66 151.13 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ee991c14-3e23-4d85-b576-50e02d5b784d")
+	)
+	(label "BQ_SCL"
+		(at 220.98 147.32 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f0055294-f5a1-424f-ba8a-f862420f6d75")
+	)
+	(label "USBC_TX2_P"
+		(at 20.32 181.61 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "f3c07b29-bcf3-4944-a0b4-562fb179d097")
 	)
 	(label "BQ_SDA"
 		(at 139.7 114.3 180)
@@ -4541,7 +4987,7 @@
 		(exclude_from_sim yes)
 		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp yes)
 		(uuid "00000000-0000-0000-0000-00005e3b25a9")
 		(property "Reference" "H3"
@@ -4654,6 +5100,39 @@
 				)
 			)
 		)
+		(property "MPN" "N/A"
+			(at 248.92 113.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "PCB fabrication"
+			(at 248.92 113.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "PCB feature; not purchased or placed"
+			(at 248.92 113.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(instances
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
@@ -4671,7 +5150,7 @@
 		(exclude_from_sim yes)
 		(in_bom no)
 		(on_board yes)
-		(in_pos_files yes)
+		(in_pos_files no)
 		(dnp yes)
 		(uuid "00000000-0000-0000-0000-00005e3b2cb2")
 		(property "Reference" "H2"
@@ -4784,6 +5263,39 @@
 				)
 			)
 		)
+		(property "MPN" "N/A"
+			(at 248.92 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "PCB fabrication"
+			(at 248.92 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "PCB feature; not purchased or placed"
+			(at 248.92 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(instances
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
@@ -4794,8 +5306,210 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:D_TVS")
+		(at 116.84 140.97 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "1a266fcd-b3cd-41ca-a321-e39415f86d15")
+		(property "Reference" "D18"
+			(at 116.84 138.43 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E05U06DPYR"
+			(at 116.84 143.51 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 116.84 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf"
+			(at 116.84 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.5 pF 6 Gbps 5.5 V ESD protection"
+			(at 116.84 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E05U06DPYR"
+			(at 116.84 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 116.84 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "6fc32255-0587-4270-9a08-d9ef5164149c")
+		)
+		(pin "2"
+			(uuid "82bd34ba-7b2e-4e42-8a38-080e9b0dd2bf")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D18")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 69.85 181.61 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "230ab1c3-a378-4dc0-ad04-431fb65c7630")
+		(property "Reference" "D17"
+			(at 69.85 179.07 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E05U06DPYR"
+			(at 69.85 184.15 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 69.85 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf"
+			(at 69.85 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.5 pF 6 Gbps 5.5 V ESD protection"
+			(at 69.85 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E05U06DPYR"
+			(at 69.85 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 69.85 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "e3eb6405-8252-4ed7-8518-9768a907d8fe")
+		)
+		(pin "2"
+			(uuid "9aca1fa1-8dc9-4c01-836c-cc9ade209b68")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D17")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
-		(at 109.22 68.58 0)
+		(at 105.41 38.1 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4805,7 +5519,7 @@
 		(dnp no)
 		(uuid "3c5f4bb0-04d2-46c1-9c7f-c06460df6a62")
 		(property "Reference" "C18"
-			(at 112.141 67.4116 0)
+			(at 108.331 36.9316 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4816,7 +5530,7 @@
 			)
 		)
 		(property "Value" "100n"
-			(at 112.141 69.723 0)
+			(at 108.331 39.243 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4827,7 +5541,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 110.1852 72.39 0)
+			(at 106.3752 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4838,7 +5552,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 109.22 68.58 0)
+			(at 105.41 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4849,7 +5563,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 109.22 68.58 0)
+			(at 105.41 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4860,7 +5574,7 @@
 			)
 		)
 		(property "Field4" "Farnell"
-			(at 109.22 68.58 0)
+			(at 105.41 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4871,7 +5585,7 @@
 			)
 		)
 		(property "Field5" "2611911"
-			(at 109.22 68.58 0)
+			(at 105.41 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4882,7 +5596,7 @@
 			)
 		)
 		(property "Field6" "RM EMK105 B7104KV-F"
-			(at 109.22 68.58 0)
+			(at 105.41 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4893,7 +5607,7 @@
 			)
 		)
 		(property "Field7" "TAIYO YUDEN EUROPE GMBH"
-			(at 109.22 68.58 0)
+			(at 105.41 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4904,7 +5618,7 @@
 			)
 		)
 		(property "Field8" "110091611"
-			(at 109.22 68.58 0)
+			(at 105.41 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4915,7 +5629,29 @@
 			)
 		)
 		(property "Part Description" "	0.1uF 10% 16V Ceramic Capacitor X7R 0402 (1005 Metric)"
-			(at 109.22 68.58 0)
+			(at 105.41 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 105.41 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 105.41 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4941,8 +5677,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C_Small_US")
-		(at 39.37 102.87 0)
+		(lib_id "Device:D_TVS")
+		(at 69.85 161.29 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4950,31 +5686,29 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "49140ded-504b-439c-9e50-57222014b8c8")
-		(property "Reference" "C22"
-			(at 36.068 97.028 0)
+		(uuid "4046408e-c161-4054-9217-13b4f2d3b97a")
+		(property "Reference" "D15"
+			(at 69.85 158.75 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
-		(property "Value" "10uF"
-			(at 35.814 98.806 0)
+		(property "Value" "TPD1E01B04DPYR"
+			(at 69.85 163.83 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
-			(at 39.37 102.87 0)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 69.85 161.29 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4984,8 +5718,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 39.37 102.87 0)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e01b04.pdf"
+			(at 69.85 161.29 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4995,8 +5729,30 @@
 				)
 			)
 		)
-		(property "Description" "capacitor, small US symbol"
-			(at 39.37 102.87 0)
+		(property "Description" "0.18 pF 20 Gbps ESD protection"
+			(at 69.85 161.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E01B04DPYR"
+			(at 69.85 161.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 69.85 161.29 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5007,15 +5763,318 @@
 			)
 		)
 		(pin "1"
-			(uuid "363d86b5-fa31-454f-9de5-4fd5e0d4a9b3")
+			(uuid "aebed1d5-d486-47a6-a6e4-5b343884ec21")
 		)
 		(pin "2"
-			(uuid "9cf2f79d-7384-4b16-9aaf-11978a5091e8")
+			(uuid "e3f27ff6-aac8-4978-8fd9-ada89dba67cb")
 		)
 		(instances
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-					(reference "C22")
+					(reference "D15")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 116.84 151.13 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "40b2064c-cb35-4b05-9d06-aa927ab3c8ea")
+		(property "Reference" "D19"
+			(at 116.84 148.59 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E05U06DPYR"
+			(at 116.84 153.67 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 116.84 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf"
+			(at 116.84 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.5 pF 6 Gbps 5.5 V ESD protection"
+			(at 116.84 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E05U06DPYR"
+			(at 116.84 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 116.84 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "d80dc96d-cd35-4872-a1a9-5287374c10cf")
+		)
+		(pin "2"
+			(uuid "b0a25c9f-8b38-400a-afa0-164f581f49d5")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D19")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 116.84 171.45 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "493d91ff-5f5e-46d1-a709-f4818aa64478")
+		(property "Reference" "D21"
+			(at 116.84 168.91 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E05U06DPYR"
+			(at 116.84 173.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 116.84 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf"
+			(at 116.84 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.5 pF 6 Gbps 5.5 V ESD protection"
+			(at 116.84 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E05U06DPYR"
+			(at 116.84 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 116.84 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "6877c2d1-d4f9-457d-9844-3422399bb23d")
+		)
+		(pin "2"
+			(uuid "015bdfde-6930-4b40-b683-c8013dd6d914")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 24.13 171.45 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "56b18ea8-cc27-489f-a822-c5d99388e87d")
+		(property "Reference" "D11"
+			(at 24.13 168.91 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E01B04DPYR"
+			(at 24.13 173.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 24.13 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e01b04.pdf"
+			(at 24.13 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.18 pF 20 Gbps ESD protection"
+			(at 24.13 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E01B04DPYR"
+			(at 24.13 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 24.13 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "5fc349d0-4ecd-4e79-ba6b-d037c9cc012f")
+		)
+		(pin "2"
+			(uuid "4bf0b150-aa1a-45e8-a0ca-0c8998ac63dc")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D11")
 					(unit 1)
 				)
 			)
@@ -5030,7 +6089,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "6559018a-791e-453b-9124-61f21aa7e06c")
 		(property "Reference" "R74"
 			(at 109.22 107.95 0)
@@ -5084,6 +6143,39 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402JR-070RL"
+			(at 106.68 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 106.68 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "DNP option"
+			(at 106.68 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "f151ed27-0bd7-4806-8919-9f5182318850")
 		)
@@ -5094,6 +6186,107 @@
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
 					(reference "R74")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 116.84 181.61 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "700b0642-23b8-40a5-bb44-f8693a5ebed3")
+		(property "Reference" "D22"
+			(at 116.84 179.07 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SMBJ24CA"
+			(at 116.84 184.15 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Diode_SMD:D_SMB"
+			(at 116.84 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.littelfuse.com/media?resourcetype=datasheets&itemid=8a337998-d54d-45fd-a22b-2c5fb7820e60&filename=littelfuse-tvs-diode-smbj-datasheet"
+			(at 116.84 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "24 V bidirectional VBUS TVS diode"
+			(at 116.84 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "SMBJ24CA"
+			(at 116.84 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Littelfuse"
+			(at 116.84 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "701938d1-31e5-4460-8443-0f5a7889ad17")
+		)
+		(pin "2"
+			(uuid "ba92f198-2c09-4758-bd65-e85bb3bfa7aa")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D22")
 					(unit 1)
 				)
 			)
@@ -5130,7 +6323,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Minerva:USBC_24P_QT143"
+		(property "Footprint" "Connector_USB:USB_C_Receptacle_Amphenol_12401610E4-2A_CircularHoles"
 			(at 46.99 64.77 0)
 			(hide yes)
 			(show_name no)
@@ -5163,6 +6356,39 @@
 			)
 		)
 		(property "Part Description" "Full-featured USB-C receptacle: PD sink + DP alt-mode source + USB3. SHOU HAN TYPE-C 24P QT 143"
+			(at 46.99 64.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "QT143"
+			(at 46.99 64.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "SHOU HAN"
+			(at 46.99 64.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "LCSC C5156605"
 			(at 46.99 64.77 0)
 			(hide yes)
 			(show_name no)
@@ -5266,7 +6492,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(in_pos_files yes)
-		(dnp no)
+		(dnp yes)
 		(uuid "7cb55308-811f-40de-a74f-400f028c0b66")
 		(property "Reference" "R73"
 			(at 93.98 107.95 0)
@@ -5320,6 +6546,39 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402JR-070RL"
+			(at 96.52 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 96.52 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "DNP option"
+			(at 96.52 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "350a3e63-6117-47a2-8113-18e2c463074c")
 		)
@@ -5336,8 +6595,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 54.61 107.95 0)
+		(lib_id "Device:D_TVS")
+		(at 24.13 181.61 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5345,9 +6604,29 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "85501087-1502-4a5b-928c-738f3e91955c")
-		(property "Reference" "#PWR058"
-			(at 54.61 114.3 0)
+		(uuid "8ce8a6a0-f68d-4c22-bffb-04a3be3a0b80")
+		(property "Reference" "D12"
+			(at 24.13 179.07 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E01B04DPYR"
+			(at 24.13 184.15 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 24.13 181.61 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5357,18 +6636,8 @@
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 51.308 108.966 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 54.61 107.95 0)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e01b04.pdf"
+			(at 24.13 181.61 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5378,8 +6647,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 54.61 107.95 0)
+		(property "Description" "0.18 pF 20 Gbps ESD protection"
+			(at 24.13 181.61 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5389,8 +6658,19 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 54.61 107.95 0)
+		(property "MPN" "TPD1E01B04DPYR"
+			(at 24.13 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 24.13 181.61 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5401,101 +6681,23 @@
 			)
 		)
 		(pin "1"
-			(uuid "e48f93c7-795d-47d1-a594-739832687738")
-		)
-		(instances
-			(project "Minerva-Carrier"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-					(reference "#PWR058")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Small_US")
-		(at 54.61 105.41 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "9afc5353-0f2e-41ef-8438-d063fbc60f7b")
-		(property "Reference" "C19"
-			(at 50.8 99.822 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "0.1uF"
-			(at 50.8 101.6 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
-			(at 54.61 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 54.61 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "capacitor, small US symbol"
-			(at 54.61 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ce4950c6-dbb1-452e-ab14-64a075be1115")
+			(uuid "cb0ccd35-c9be-4a23-98b6-b96cef3ae717")
 		)
 		(pin "2"
-			(uuid "a2a76c82-a770-4740-b493-886cd082c4fd")
+			(uuid "d1594809-bf6c-41c7-b798-0ab3c4099478")
 		)
 		(instances
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-					(reference "C19")
+					(reference "D12")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 46.99 107.95 0)
+		(lib_id "Device:D_TVS")
+		(at 24.13 161.29 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5503,9 +6705,29 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c5dd438d-79c8-4132-acd1-5818e7467682")
-		(property "Reference" "#PWR057"
-			(at 46.99 114.3 0)
+		(uuid "9eeec614-fb1d-4004-9222-a8b82f1ff043")
+		(property "Reference" "D10"
+			(at 24.13 158.75 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E01B04DPYR"
+			(at 24.13 163.83 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 24.13 161.29 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5515,18 +6737,8 @@
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 43.688 108.966 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 46.99 107.95 0)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e01b04.pdf"
+			(at 24.13 161.29 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5536,8 +6748,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 46.99 107.95 0)
+		(property "Description" "0.18 pF 20 Gbps ESD protection"
+			(at 24.13 161.29 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5547,8 +6759,19 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 46.99 107.95 0)
+		(property "MPN" "TPD1E01B04DPYR"
+			(at 24.13 161.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 24.13 161.29 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5559,12 +6782,217 @@
 			)
 		)
 		(pin "1"
-			(uuid "fcc42d15-a715-4995-b7dd-735f40c62d42")
+			(uuid "bec3e585-5a2f-474e-bd78-2cefa41929de")
+		)
+		(pin "2"
+			(uuid "306e81de-5c18-48b1-b604-140dbaa37c0a")
 		)
 		(instances
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-					(reference "#PWR057")
+					(reference "D10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 24.13 140.97 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "a42dffc4-0ffd-4d1f-9262-dac6b1a6016d")
+		(property "Reference" "D8"
+			(at 24.13 138.43 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E01B04DPYR"
+			(at 24.13 143.51 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 24.13 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e01b04.pdf"
+			(at 24.13 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.18 pF 20 Gbps ESD protection"
+			(at 24.13 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E01B04DPYR"
+			(at 24.13 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 24.13 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "55f8a7bf-0499-4b0b-900f-b3def89f5dac")
+		)
+		(pin "2"
+			(uuid "46cd0b88-7247-41d8-8a67-ebb9e0f57660")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 116.84 161.29 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "bdcd659b-cd6c-45fa-9b88-4337aac942c0")
+		(property "Reference" "D20"
+			(at 116.84 158.75 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E05U06DPYR"
+			(at 116.84 163.83 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 116.84 161.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf"
+			(at 116.84 161.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.5 pF 6 Gbps 5.5 V ESD protection"
+			(at 116.84 161.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E05U06DPYR"
+			(at 116.84 161.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 116.84 161.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c8ebe119-595c-4369-9303-a257d94396aa")
+		)
+		(pin "2"
+			(uuid "9bcf10fd-56c1-4906-acbc-c4efb68a83c8")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D20")
 					(unit 1)
 				)
 			)
@@ -5572,7 +7000,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 97.79 68.58 0)
+		(at 93.98 38.1 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5582,7 +7010,7 @@
 		(dnp no)
 		(uuid "cf24492d-8526-4d53-a0eb-2486aa3ca298")
 		(property "Reference" "C9"
-			(at 100.711 67.4116 0)
+			(at 96.901 36.9316 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5593,7 +7021,7 @@
 			)
 		)
 		(property "Value" "100n"
-			(at 100.711 69.723 0)
+			(at 96.901 39.243 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5604,7 +7032,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
-			(at 98.7552 72.39 0)
+			(at 94.9452 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5615,7 +7043,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 97.79 68.58 0)
+			(at 93.98 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5626,7 +7054,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 97.79 68.58 0)
+			(at 93.98 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5637,7 +7065,7 @@
 			)
 		)
 		(property "Field4" "Farnell"
-			(at 97.79 68.58 0)
+			(at 93.98 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5648,7 +7076,7 @@
 			)
 		)
 		(property "Field5" "2611911"
-			(at 97.79 68.58 0)
+			(at 93.98 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5659,7 +7087,7 @@
 			)
 		)
 		(property "Field6" "RM EMK105 B7104KV-F"
-			(at 97.79 68.58 0)
+			(at 93.98 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5670,7 +7098,7 @@
 			)
 		)
 		(property "Field7" "TAIYO YUDEN EUROPE GMBH"
-			(at 97.79 68.58 0)
+			(at 93.98 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5681,7 +7109,7 @@
 			)
 		)
 		(property "Field8" "110091611"
-			(at 97.79 68.58 0)
+			(at 93.98 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5692,7 +7120,29 @@
 			)
 		)
 		(property "Part Description" "	0.1uF 10% 16V Ceramic Capacitor X7R 0402 (1005 Metric)"
-			(at 97.79 68.58 0)
+			(at 93.98 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 93.98 38.1 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 93.98 38.1 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5718,8 +7168,8 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 39.37 105.41 0)
+		(lib_id "Device:D_TVS")
+		(at 69.85 151.13 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5727,9 +7177,29 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f27ebde0-9e2f-46a3-bc99-3bb1ec6f0db4")
-		(property "Reference" "#PWR056"
-			(at 39.37 111.76 0)
+		(uuid "d03a8ceb-6f17-4679-8d51-299ad82b1c30")
+		(property "Reference" "D14"
+			(at 69.85 148.59 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E01B04DPYR"
+			(at 69.85 153.67 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 69.85 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5739,18 +7209,8 @@
 				)
 			)
 		)
-		(property "Value" "GND"
-			(at 36.068 106.426 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 39.37 105.41 0)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e01b04.pdf"
+			(at 69.85 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5760,8 +7220,8 @@
 				)
 			)
 		)
-		(property "Datasheet" ""
-			(at 39.37 105.41 0)
+		(property "Description" "0.18 pF 20 Gbps ESD protection"
+			(at 69.85 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5771,8 +7231,19 @@
 				)
 			)
 		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 39.37 105.41 0)
+		(property "MPN" "TPD1E01B04DPYR"
+			(at 69.85 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 69.85 151.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5783,93 +7254,318 @@
 			)
 		)
 		(pin "1"
-			(uuid "b5d99dfd-eefc-471f-b870-bb4ab60e89f9")
-		)
-		(instances
-			(project "Minerva-Carrier"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-					(reference "#PWR056")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Small_US")
-		(at 46.99 105.41 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "fbe7cbe2-8f96-4eba-a9f5-6658608ef487")
-		(property "Reference" "C21"
-			(at 43.434 99.568 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "10uF"
-			(at 43.18 101.346 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_01005_0402Metric"
-			(at 46.99 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 46.99 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "capacitor, small US symbol"
-			(at 46.99 105.41 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f79e7ad3-0022-4073-96dc-66e55a5ec855")
+			(uuid "b1f86bed-c04f-4aaf-b23e-cdd3f697e193")
 		)
 		(pin "2"
-			(uuid "b69d09fa-8831-4172-8f01-c2eefbd9f778")
+			(uuid "8046ba88-e819-46e6-b07c-0f30132e566d")
 		)
 		(instances
 			(project "Minerva-Carrier"
 				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
-					(reference "C21")
+					(reference "D14")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 69.85 140.97 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "dbd3b2de-8d16-40e4-acfa-426767546e54")
+		(property "Reference" "D13"
+			(at 69.85 138.43 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E01B04DPYR"
+			(at 69.85 143.51 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 69.85 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e01b04.pdf"
+			(at 69.85 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.18 pF 20 Gbps ESD protection"
+			(at 69.85 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E01B04DPYR"
+			(at 69.85 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 69.85 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "73cf026c-cdfb-4181-8ebd-85ffdec885e8")
+		)
+		(pin "2"
+			(uuid "81afcb94-ef0e-43bf-9e99-527d93f5998e")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 24.13 151.13 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ef6d327c-1a4a-4b37-9069-751ffc04c445")
+		(property "Reference" "D9"
+			(at 24.13 148.59 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E01B04DPYR"
+			(at 24.13 153.67 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 24.13 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e01b04.pdf"
+			(at 24.13 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.18 pF 20 Gbps ESD protection"
+			(at 24.13 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E01B04DPYR"
+			(at 24.13 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 24.13 151.13 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "9126bac3-4754-409f-bce0-796e2ac3fb33")
+		)
+		(pin "2"
+			(uuid "ae5e6aeb-6f73-4ce9-a0c6-bb822c0b33b6")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:D_TVS")
+		(at 69.85 171.45 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "f94f21c7-4a59-4005-80ff-b83324cd848c")
+		(property "Reference" "D16"
+			(at 69.85 168.91 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TPD1E05U06DPYR"
+			(at 69.85 173.99 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:Texas_DPY0002A_0.6x1mm_P0.65mm"
+			(at 69.85 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tpd1e05u06.pdf"
+			(at 69.85 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "0.5 pF 6 Gbps 5.5 V ESD protection"
+			(at 69.85 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPD1E05U06DPYR"
+			(at 69.85 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
+			(at 69.85 171.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "46cafbfb-1121-422f-99d8-b35fa5bc65dc")
+		)
+		(pin "2"
+			(uuid "df2cedb3-5e6c-4712-993c-d4a75997301f")
+		)
+		(instances
+			(project "Minerva-Carrier"
+				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55"
+					(reference "D16")
 					(unit 1)
 				)
 			)
@@ -5877,7 +7573,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 97.79 74.93 0)
+		(at 93.98 44.45 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5887,7 +7583,7 @@
 		(dnp no)
 		(uuid "fc0d6f0d-075c-4218-becf-ed01d64d2241")
 		(property "Reference" "#PWR013"
-			(at 97.79 81.28 0)
+			(at 93.98 50.8 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5898,7 +7594,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 97.917 79.3242 0)
+			(at 94.107 48.8442 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5908,7 +7604,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 97.79 74.93 0)
+			(at 93.98 44.45 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5919,7 +7615,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 97.79 74.93 0)
+			(at 93.98 44.45 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5930,7 +7626,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 97.79 74.93 0)
+			(at 93.98 44.45 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5988,26 +7684,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left top)
-			)
-		)
-		(pin "ID_SC" output
-			(at 167.64 104.14 90)
-			(uuid "ac264c30-3e9a-4be2-b97a-9949b68bd497")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(pin "ID_SD" output
-			(at 163.83 104.14 90)
-			(uuid "54365317-1355-4216-bb75-829375abc4ec")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 			)
 		)
 		(pin "SCL0" output
@@ -6229,26 +7905,6 @@
 		(pin "USB2_P" bidirectional
 			(at 147.32 62.23 180)
 			(uuid "0eaa98f0-9565-4637-ace3-42a5231b07f7")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "ID_SC" input
-			(at 167.64 96.52 270)
-			(uuid "181abe7a-f941-42b6-bd46-aaa3131f90fb")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "ID_SD" input
-			(at 163.83 96.52 270)
-			(uuid "ce83728b-bebd-48c2-8734-b6a50d837931")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6546,15 +8202,15 @@
 				(justify left)
 			)
 		)
-				(pin "VBUS" input
+		(pin "VBUS" input
 			(at 147.32 67.31 180)
+			(uuid "846b8dbd-4b32-45de-acfa-014e63e92641")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
 			)
-			(uuid "846b8dbd-4b32-45de-acfa-014e63e92641")
 		)
 		(instances
 			(project "Minerva-Carrier"
@@ -6571,7 +8227,6 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(stroke
 			(width 0.152)
 			(type solid)
@@ -6582,7 +8237,7 @@
 		)
 		(uuid "00000000-0000-0000-0000-00005ed4bb5b")
 		(property "Sheetname" "PCIe-M2"
-			(at 214.63 33.5786 0)
+			(at 244.094 82.042 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6724,7 +8379,7 @@
 			)
 		)
 		(pin "PERST" bidirectional
-			(at 226.7012 34.29 90)
+			(at 219.71 34.29 90)
 			(uuid "3acdd170-10e0-41dd-b637-fa514a46bd11")
 			(effects
 				(font
@@ -6839,65 +8494,65 @@
 				(justify left top)
 			)
 		)
-				(pin "VBUS" input
+		(pin "VBUS" input
 			(at 223.52 134.62 180)
+			(uuid "241f3665-832c-4e57-81ef-08814ca7fa0e")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
-			(uuid "241f3665-832c-4e57-81ef-08814ca7fa0e")
 		)
 		(pin "+5v" output
 			(at 223.52 137.16 180)
+			(uuid "806895ff-b324-4d31-acb5-28c8b69ca1bd")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
-			(uuid "806895ff-b324-4d31-acb5-28c8b69ca1bd")
 		)
 		(pin "+3.3v" input
 			(at 223.52 139.7 180)
+			(uuid "97b1cf56-7acd-4021-810a-5138bc35811a")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
-			(uuid "97b1cf56-7acd-4021-810a-5138bc35811a")
 		)
 		(pin "QON" input
 			(at 223.52 142.24 180)
+			(uuid "12163e37-d03f-40ce-9983-903465d647c1")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
-			(uuid "12163e37-d03f-40ce-9983-903465d647c1")
 		)
 		(pin "BQ_SDA" bidirectional
 			(at 223.52 144.78 180)
+			(uuid "7e465efc-cc5a-4e83-bb9b-e77f6b75034e")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
-			(uuid "7e465efc-cc5a-4e83-bb9b-e77f6b75034e")
 		)
 		(pin "BQ_SCL" bidirectional
 			(at 223.52 147.32 180)
+			(uuid "f96ee341-66c3-4074-bfcf-514ca005a61e")
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 			)
-			(uuid "f96ee341-66c3-4074-bfcf-514ca005a61e")
 		)
 		(instances
 			(project "Minerva-Carrier"
@@ -6913,144 +8568,4 @@
 		)
 	)
 	(embedded_fonts no)
-(wire
-		(pts
-			(xy 223.52 134.62) (xy 215.9 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "95aa41f4-1ef3-4757-a949-d66dd36463ea")
-	)
-(label "VBUS"
-		(at 215.9 134.62 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "aa9a7a6f-7f92-4865-8a83-76f7f02777ce")
-	)
-(wire
-		(pts
-			(xy 223.52 137.16) (xy 215.9 137.16)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fc83de6f-48e8-4303-ac9e-9a9fdf5b6e73")
-	)
-(label "+5v"
-		(at 215.9 137.16 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "831a72c3-a5b3-4172-b478-46ce463e7021")
-	)
-(wire
-		(pts
-			(xy 223.52 139.7) (xy 215.9 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e66fa1bb-f674-4c38-a576-e9c778730d71")
-	)
-(label "+3.3v"
-		(at 215.9 139.7 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "57b97ab9-0aac-42cc-91f1-30f6734a63a9")
-	)
-(wire
-		(pts
-			(xy 223.52 142.24) (xy 215.9 142.24)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "778d3639-a9e9-4944-b185-8cf7943827db")
-	)
-(label "QON"
-		(at 215.9 142.24 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "d5fd327f-4027-4f47-8d0d-a4dd0641ae7b")
-	)
-(wire
-		(pts
-			(xy 223.52 144.78) (xy 215.9 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "75126f33-34e5-4aa5-ac1b-ad36b64d4c6b")
-	)
-(label "BQ_SDA"
-		(at 215.9 144.78 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "dbf5b77c-df42-4f14-a899-3570fad07002")
-	)
-(wire
-		(pts
-			(xy 223.52 147.32) (xy 215.9 147.32)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7581b61f-e50b-4979-947e-a2b4b3c77a46")
-	)
-(label "BQ_SCL"
-		(at 215.9 147.32 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "f0055294-f5a1-424f-ba8a-f862420f6d75")
-	)
-(wire
-		(pts
-			(xy 147.32 67.31) (xy 139.7 67.31)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8842618e-2430-41be-bceb-e96990b65250")
-	)
-(label "VBUS"
-		(at 139.7 67.31 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "b4752528-84c9-4e37-92af-c839c36777d8")
-	)
 )

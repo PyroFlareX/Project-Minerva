@@ -1,7 +1,12 @@
 {
   "folders": [
     {
+      "name": "Project Minerva",
       "path": "."
+    },
+    {
+      "name": "Minerva Home",
+      "uri": "vscode-remote://ssh-remote+Minerva/home/pyros"
     }
   ],
   "settings": {

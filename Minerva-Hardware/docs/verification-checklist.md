@@ -48,7 +48,7 @@ Method: every net exported via `kicad-cli sch export netlist`; every component p
 ### Face board (28/28)
 
 - [x] 15 buttons `BUT_A..BUT_HOME` each reach A1 (Core2350B GP12–GP26); 11 on local switches SW2–SW12, 4 shoulder (`BUT_L/ZL/R/ZR`) on J3 flex connector
-- [x] 11 control signals (`PD_I2C_*`, `SDA/SCL_I2C`, `BQ_*`, `PWR_BUT`, `nRPIBOOT`, `AMP_n*`) each connect A1 GP0–GP11 ↔ J2
+- [x] 10 MCU control signals (`PD_I2C_*`, `SDA/SCL_I2C`, `BQ_*`, `PWR_BUT`, `AMP_n*`) connect A1 ↔ J2; `nRPIBOOT` intentionally bypasses A1 and runs SW11 → J2.11
 - [x] `+5V`: A1.VBUS + J2.1 + PWR_FLAG; `GND`: J2.2/14, J3.3/6, all A1 GND pins
 
 ## 2. Board-to-board interconnect contract (J25 carrier = J2 face, pin-for-pin)
@@ -109,19 +109,19 @@ All 189 components have footprint assignments; corrections applied this pass:
 | J5,J16→J5 only | broken CM5IO ref | `Connector_FFC-FPC:Hirose_FH12-22S` |
 | L1,L2 | broken CM5IO/rev2 refs | `Inductor_SMD:L_Bourns_SRP5030T` |
 | U21 | nonexistent EP variant | `WQFN-28-1EP_3.5x5.5mm_P0.5mm_EP2.05x4.05mm_ThermalVias` |
-| U22 | nonexistent EP5.15 name | `QFN-56-1EP_7x7mm_P0.4mm_EP5.6x5.6mm_ThermalVias` — **verify EP vs TI 5.15×5.15 at layout** |
-| U31 | nonexistent EP0.64x1.36 name | `TDFN-8-1EP_2x2mm_P0.5mm_EP0.8x1.2mm` — **verify EP vs MAX17048 drawing** |
-| M6/M7 | empty | M2 mounting-hole pads |
+| U22 | nonexistent EP5.15 name | `Minerva:TPS65987D_VQFN56_RSH` from the TI RSH mechanical drawing |
+| U31 | nonexistent EP0.64x1.36 name | `Minerva:MAX17048_TDFN8` from the Maxim TDFN drawing |
+| M6/M7 | empty | Manual M.2 standoff/screw hardware; parked PCB documentation footprints excluded from pick-and-place |
 | H2/H3 | broken CM5IO ref | `MountingHole_2.7mm_M2.5_DIN965` |
 
-### Custom footprints still to draw before layout (blocker list)
+### Custom footprint blocker resolution
 
-- [ ] `Minerva:USBC_24P_QT143` (SHOU HAN TYPE-C 24P QT 143)
-- [ ] `Minerva:Core2350B_stamp64` (Waveshare wiki drawing, 64 stamp holes)
-- [ ] `Minerva:nFBGA-64_ZQE_5x5mm_P0.5mm` (SN65DSI86)
-- [ ] `Minerva:VQFN-20-1EP_3.5x4.5mm_P0.5mm_EP2.15x3.15mm` (TPS61088)
-- [ ] `Minerva:L_Coilcraft_XAL7070-152`
-- [ ] **`CM5IO.pretty` library is referenced by fp-lib-table but missing from the repo** — CM5 module footprint, M.2 M-key socket, B-key socket (`M.2B:CONN67_2199230_TEC`). Copy from the RPi CM5 IO board design files or redraw.
+- [x] `Minerva:USBC_24P_QT143` (SHOU HAN TYPE-C 24P QT 143, LCSC C5156605 CAD)
+- [x] `Minerva:Core2350B_stamp64` (Waveshare Core2350B0 wiki drawing, 64 stamp holes)
+- [x] `Minerva:nFBGA-64_ZQE_5x5mm_P0.5mm` (SN65DSI86)
+- [x] `Minerva:VQFN-20-1EP_3.5x4.5mm_P0.5mm_EP2.15x3.15mm` (TPS61088)
+- [x] `Inductor_SMD:L_Coilcraft_XAL7070-XXX` for selected XAL7070-182MEC
+- [x] `CM5IO.pretty` recovered from the official Raspberry Pi CM5 IO board design for the CM5 module and both M.2 sockets
 
 ## 7. Per-component connectivity (auto-verified)
 
@@ -307,7 +307,7 @@ Legend: conn = pins on multi-node nets, NC = no-connect flagged, stub = single-n
 
 | ✓ | Ref | Value | Footprint | conn | NC | stub |
 |---|---|---|---|---|---|---|
-| [x] | A1 | Core2350B | Core2350B_stamp64 | 33 | 24 | 7 |
+| [x] | A1 | Core2350B0 | Core2350B_stamp64 | 33 | 24 | 7 |
 | [x] | J2 | CARRIER 14P | Molex_PicoBlade_53047-1410_1x14_P1.25mm_ | 14 | 0 | 0 |
 | [x] | J3 | SHOULDER 6P | Molex_PicoBlade_53047-0610_1x06_P1.25mm_ | 6 | 0 | 0 |
 | [x] | SW2 | SW_Push | SW_SPST_SKQG_WithStem | 2 | 0 | 0 |
@@ -325,3 +325,17 @@ Legend: conn = pins on multi-node nets, NC = no-connect flagged, stub = single-n
 ## 8. Process warning
 
 Three schematic-state losses occurred when the KiCad GUI saved stale buffers over scripted edits (22:53 / 23:02 / 23:23). **Close KiCad or reload the project from disk before/after any scripted editing session.**
+
+## 9. PCB status (reviewed snapshot)
+
+- **Schematic↔PCB parity: 0 issues.** The carrier remains a routing work-in-progress: 499 unconnected items and 53 differential-routing violations (38 pair-gap warnings, 12 uncoupled-length errors, and 3 skew errors). There are no placement overlaps or cross-net shorts in this snapshot.
+- The carrier contains 190 footprints. The six locked anchors remain untouched: Module1, J4, J3, J5, J14, and SW1.
+- Floorplan: J23 USB-C is now at the top-left edge; its VBUS protection, U6 source switch, and U1/L2 charger cluster occupy the freed upper-left area. J8 is removed. J1 HDMI FFC remains top-right; boost U30/L3/caps remain center-left; audio U29 plus J20/J21 speakers and J24 battery remain on the left edge; the U20/U21/U22/U23/U24/U25 high-speed chain remains on the bottom side under the CM5; BT3 and test pads remain bottom-side.
+- Rule areas: the existing `Wireless` keepout is honored; `M2_2230_card_envelope` reserves the NVMe card volume. Verify J14 height against the card-standoff volume during enclosure review.
+- Libraries: `CM5IO.pretty` recovered from board-embedded footprints (7 parts incl. CM5 module + M.2 sockets); `Minerva.pretty` created with JLC-CAD-sourced footprints (USBC_24P_QT143 from LCSC C5156605 CAD, SN65DSI86 BGA-64, TPS61088 VQFN-20, TPS65987D VQFN-56 RSH, MAX17048 TDFN-8, BAT54 SOT-23 with corrected A/K pad map) plus project-local STEP models.
+- **BAT54 polarity fix**: 2-pin diode symbol vs SOT-23 (A=1, K=3) — custom `D_SOT-23_BAT54_AK` footprint maps symbol K→pin 3. D6/D7 would have been assembled dead otherwise.
+- **L3 changed to XAL7070-182ME (1.8 µH)** — no 1.5 µH variant exists in the XAL7070 family; 1.8 µH is inside TPS61088's 1–2.2 µH window, Isat 25 A.
+- **J6 and J8 removed.** ID_SC/ID_SD remain intentional single-node CM5 EEPROM-ID stubs; DSI86 I2C remains probeable at R6/R7.
+- USB-C shield/lugs tie to GND; J1 pad 20+MP ties to GND; M.2 B mount posts tie to GND; J23 locating pegs are NPTH.
+- Board constraints target the selected six-layer HDI process: 0.20 mm minimum through drill, 0.10 mm microvia drill, and 0.075 mm minimum annular width. `Minerva-Carrier.kicad_dru` covers J23's manufacturer-defined shell geometry and its edge-mounted shield lugs.
+- M6 solder nut mounts at J4's M1 pad position (2230 standoff); M6/M7 footprints remain parked as manual mounting hardware.

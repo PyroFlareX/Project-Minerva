@@ -204,7 +204,7 @@ pub const DOCK: [AppId; 5] = [
 ];
 
 /// Number of columns in the home grid (matches the HTML CSS grid).
-const HOME_COLS: usize = 6;
+const HOME_COLS: usize = 4;
 
 /// The full focusable home order: grid first, then dock.
 fn home_order() -> Vec<AppId> {
@@ -402,10 +402,11 @@ pub struct Shell {
     pub pid_map:  HashMap<AppId, u32>,   // app → OS pid for externally-launched apps
 
     pub home_focus:   usize,
-    pub qs_focus:     usize,
-    pub nf_focus:     usize,
-    pub sw_focus:     usize,
-    pub qm_focus:     usize,
+    pub qs_focus:        usize,
+    pub qs_slider_focus: i32,   // -1 = on tiles; 0 = vol slider; 1 = bright slider
+    pub nf_focus:        usize,
+    pub sw_focus:        usize,
+    pub qm_focus:        usize,
     pub pin_len:      usize,
 
     // Settings two-pane state
@@ -472,7 +473,8 @@ impl Shell {
             run_apps: Vec::new(),
             pid_map:  HashMap::new(),
             home_focus:   0,
-            qs_focus:     0,
+            qs_focus:        0,
+            qs_slider_focus: -1,
             nf_focus:     0,
             sw_focus:     0,
             qm_focus:     0,
@@ -676,7 +678,7 @@ impl Shell {
     fn toggle_panel(&mut self, p: Panel) {
         self.panel = if self.panel == Some(p) { None } else { Some(p) };
         match self.panel {
-            Some(Panel::QuickSettings) => self.qs_focus = 0,
+            Some(Panel::QuickSettings) => { self.qs_focus = 0; self.qs_slider_focus = -1; }
             Some(Panel::Notifications) => self.nf_focus = 0,
             Some(Panel::Switcher)      => self.sw_focus = 0,
             Some(Panel::QuickMenu)     => self.qm_focus = 0,
@@ -876,7 +878,7 @@ impl Shell {
         }
         // 3. Panel
         if let Some(panel) = self.panel {
-            self.nav_panel(panel, dir);
+            self.nav_panel(panel, dir, fx);
             return;
         }
         // 4. Screen
@@ -962,17 +964,65 @@ impl Shell {
     // Panel navigation / confirm
     // -----------------------------------------------------------------------
 
-    fn nav_panel(&mut self, panel: Panel, dir: Nav) {
+    fn nav_panel(&mut self, panel: Panel, dir: Nav, fx: &mut Vec<Effect>) {
+        let _ = fx; // used by QS slider L/R path below
         match panel {
             Panel::QuickSettings => {
-                // 2-column grid, 8 tiles.
-                let n = QS_KEYS.len();
-                self.qs_focus = match dir {
-                    Nav::Up    => self.qs_focus.saturating_sub(2),
-                    Nav::Down  => (self.qs_focus + 2).min(n - 1),
-                    Nav::Left  => self.qs_focus.saturating_sub(1),
-                    Nav::Right => (self.qs_focus + 1).min(n - 1),
-                };
+                // Focus zones: qs_slider_focus >= 0 means on a slider (0=vol, 1=bright);
+                // -1 means focus is on the 2-column tile grid.
+                let n = QS_KEYS.len(); // 8 tiles
+                if self.qs_slider_focus >= 0 {
+                    let sf = self.qs_slider_focus as usize;
+                    match dir {
+                        Nav::Up => {
+                            if sf > 0 { self.qs_slider_focus -= 1; }
+                            // At vol (0): no-op, already at top.
+                        }
+                        Nav::Down => {
+                            if sf < 1 {
+                                // vol → bright
+                                self.qs_slider_focus += 1;
+                            } else {
+                                // bright → exit to top row of tiles
+                                self.qs_slider_focus = -1;
+                                self.qs_focus = 0;
+                            }
+                        }
+                        Nav::Left => {
+                            if sf == 0 { self.cfg.vol = (self.cfg.vol - 5).max(0); }
+                            else       { self.cfg.bright = (self.cfg.bright - 5).max(0); }
+                        }
+                        Nav::Right => {
+                            if sf == 0 { self.cfg.vol = (self.cfg.vol + 5).min(100); }
+                            else       { self.cfg.bright = (self.cfg.bright + 5).min(100); }
+                        }
+                    }
+                } else {
+                    // On tiles — 2-column grid.
+                    match dir {
+                        Nav::Up => {
+                            if self.qs_focus < 2 {
+                                // Top row → enter bright slider
+                                self.qs_slider_focus = 1;
+                            } else {
+                                self.qs_focus -= 2;
+                            }
+                        }
+                        Nav::Down => {
+                            self.qs_focus = (self.qs_focus + 2).min(n - 1);
+                        }
+                        Nav::Left => {
+                            // Stay within row: only move if on the right column.
+                            if self.qs_focus % 2 == 1 { self.qs_focus -= 1; }
+                        }
+                        Nav::Right => {
+                            // Stay within row: only move if on the left column and slot exists.
+                            if self.qs_focus % 2 == 0 && self.qs_focus + 1 < n {
+                                self.qs_focus += 1;
+                            }
+                        }
+                    }
+                }
             }
             Panel::Notifications => {
                 let n = self.notifs.len();
@@ -991,7 +1041,6 @@ impl Shell {
                 };
             }
             Panel::QuickMenu => {
-                // 4 fixed items: Power Off, Sleep, Lock, Settings
                 let n = 4usize;
                 self.qm_focus = match dir {
                     Nav::Up   => self.qm_focus.saturating_sub(1),

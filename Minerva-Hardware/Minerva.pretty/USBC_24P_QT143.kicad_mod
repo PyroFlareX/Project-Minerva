@@ -52,7 +52,7 @@
 	(fp_line (start -4.47 -2.61) (end 4.47 -2.61) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 4.47 -2.61) (end 4.47 5.29) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 4.47 5.29) (end -4.47 5.29) (layer F.CrtYd) (width 0.05))
-	(model "/tmp/qt143lib.3dshapes/TYPE-C-SMD_C9900025773.wrl"
+	(model "${KIPRJMOD}/Minerva.3dshapes/USBC_24P_QT143.step"
 		(offset (xyz 0.000 0.000 0.000))
 		(scale (xyz 1 1 1))
 		(rotate (xyz 0 0 0))

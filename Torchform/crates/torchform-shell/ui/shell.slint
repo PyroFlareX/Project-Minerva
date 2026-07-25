@@ -204,6 +204,7 @@ export component ShellOverlay inherits Window {
     in property <int>       qs-bright: 85;
     in property <[QsTile]>  qs-tiles;
     in property <int>       qs-focus: 0;
+    in property <int>       qs-slider-focus: -1;
     callback qs-volume-changed(int);
     callback qs-brightness-changed(int);
     callback qs-tile-activated(int);
@@ -470,7 +471,8 @@ export component ShellOverlay inherits Window {
             vol:         root.qs-vol;
             bright:      root.qs-bright;
             tiles:       root.qs-tiles;
-            focus-index: root.qs-focus;
+            focus-index:  root.qs-focus;
+            slider-focus: root.qs-slider-focus;
             volume-changed(v)     => { root.qs-volume-changed(v); }
             brightness-changed(v) => { root.qs-brightness-changed(v); }
             tile-activated(i)     => { root.qs-tile-activated(i); }

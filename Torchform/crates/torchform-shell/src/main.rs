@@ -171,6 +171,7 @@ macro_rules! push_shell_render {
         ui.set_qs_bright(s.cfg.bright);
         ui.set_qs_tiles(build_qs_tiles(s));
         ui.set_qs_focus(s.qs_focus as i32);
+        ui.set_qs_slider_focus(s.qs_slider_focus);
 
         // Notifications panel
         ui.set_nf_open(s.panel == Some(shell::Panel::Notifications));

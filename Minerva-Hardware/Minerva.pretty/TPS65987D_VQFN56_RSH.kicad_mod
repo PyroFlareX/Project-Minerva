@@ -84,4 +84,9 @@
 	(fp_line (start -3.50 -3.50) (end 3.50 -3.50) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 3.50 -3.50) (end 3.50 3.50) (layer F.CrtYd) (width 0.05))
 	(fp_line (start 3.50 3.50) (end -3.50 3.50) (layer F.CrtYd) (width 0.05))
+	(model "${KIPRJMOD}/Minerva.3dshapes/TPS65987D_RSH.step"
+		(offset (xyz 0 0 0))
+		(scale (xyz 1 1 1))
+		(rotate (xyz 0 0 0))
+	)
 )

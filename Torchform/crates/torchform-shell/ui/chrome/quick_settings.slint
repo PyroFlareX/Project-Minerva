@@ -17,12 +17,13 @@ export struct QsTile {
 }
 
 // A simple click/drag track (0–100) used for volume + brightness.
+// `focused` highlights the row when D-pad focus is on this slider.
 component SliderRow inherits Rectangle {
     in property <string> label;
     in property <string> icon;
     in property <int>    value;
+    in property <bool>   focused: false;
     callback changed(int);
-
     height: 34px;
 
     VerticalLayout {
@@ -106,6 +107,8 @@ export component QuickSettings inherits Rectangle {
     in property <int>        vol: 70;
     in property <int>        bright: 85;
     in property <[QsTile]>   tiles;
+    // -1=none on tiles; 0=vol focused; 1=bright focused
+    in property <int> slider-focus: -1;
     in property <int>        focus-index: 0;
 
     callback volume-changed(int);
@@ -161,10 +164,12 @@ export component QuickSettings inherits Rectangle {
 
             SliderRow {
                 label: "Volume"; icon: "🔊"; value: vol;
+                focused: slider-focus == 0;
                 changed(v) => { root.volume-changed(v); }
             }
             SliderRow {
                 label: "Brightness"; icon: "☀️"; value: bright;
+                focused: slider-focus == 1;
                 changed(v) => { root.brightness-changed(v); }
             }
 

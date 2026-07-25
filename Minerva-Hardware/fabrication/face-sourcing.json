@@ -1,0 +1,31 @@
+{
+  "A1": {
+    "mpn": "Core2350B0",
+    "manufacturer": "Waveshare",
+    "datasheet": "https://www.waveshare.com/wiki/Core2350B0",
+    "note": "0 MB PSRAM variant selected; 16 MB flash and 520 KB internal SRAM are sufficient for the controller/housekeeping firmware."
+  },
+  "J2": {
+    "mpn": "53047-1410",
+    "manufacturer": "Molex",
+    "datasheet": "https://www.molex.com/en-us/products/part-detail/530471410",
+    "note": "PicoBlade 1.25 mm, vertical through-hole, 14 circuits."
+  },
+  "J3": {
+    "mpn": "53047-0610",
+    "manufacturer": "Molex",
+    "datasheet": "https://www.molex.com/en-us/products/part-detail/530470610",
+    "note": "PicoBlade 1.25 mm, vertical through-hole, 6 circuits."
+  },
+  "SW2": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW3": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW4": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW5": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW6": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW7": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW8": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW9": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW10": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW11": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""},
+  "SW12": {"mpn": "SKQGAFE010", "manufacturer": "Alps Alpine", "datasheet": "https://tech.alpsalpine.com/e/products/detail/SKQGAFE010/", "note": ""}
+}

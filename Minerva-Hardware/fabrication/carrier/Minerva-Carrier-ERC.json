@@ -1,0 +1,2119 @@
+{
+    "$schema": "https://schemas.kicad.org/erc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-07-22T18:11:34",
+    "ignored_checks": [
+        {
+            "description": "Global label only appears once in the schematic",
+            "key": "single_global_label"
+        },
+        {
+            "description": "Four connection points are joined together",
+            "key": "four_way_junction"
+        },
+        {
+            "description": "SPICE model issue",
+            "key": "simulation_model_issue"
+        },
+        {
+            "description": "Assigned footprint doesn't match footprint filters",
+            "key": "footprint_filter"
+        }
+    ],
+    "included_severities": [
+        "error",
+        "warning"
+    ],
+    "kicad_version": "10.0.4",
+    "sheets": [
+        {
+            "path": "/",
+            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55",
+            "violations": [
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Vertical Wire, length 0.0508 mm",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.3429
+                            },
+                            "uuid": "5c5e908b-0e4a-42f3-a846-b59e8d6971fd"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_RX1_N'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.6477
+                            },
+                            "uuid": "2fadc2e1-07a1-401c-b9ab-e6bd3a04368c"
+                        },
+                        {
+                            "description": "Label 'USBC_RX1_N'",
+                            "pos": {
+                                "x": 0.2032,
+                                "y": 1.7145
+                            },
+                            "uuid": "e6ac7ffb-90c0-421c-ab2d-6178b387ea4c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_RX1_P'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.6731
+                            },
+                            "uuid": "2e70b5ce-7881-4d61-a440-d4498b74c9b7"
+                        },
+                        {
+                            "description": "Label 'USBC_RX1_P'",
+                            "pos": {
+                                "x": 0.2032,
+                                "y": 1.6129
+                            },
+                            "uuid": "18463aa7-8137-4c61-a34d-930edfe84b5d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_TX1_N'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.7239
+                            },
+                            "uuid": "e36af562-ec67-48ef-b160-4ebb648a98b5"
+                        },
+                        {
+                            "description": "Label 'USBC_TX1_N'",
+                            "pos": {
+                                "x": 0.2032,
+                                "y": 1.5113
+                            },
+                            "uuid": "66cc47c6-eeb6-4744-ad3c-4f08981ab064"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_TX1_P'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.7493
+                            },
+                            "uuid": "da4eee10-e88a-4fea-8a6a-963995e79315"
+                        },
+                        {
+                            "description": "Label 'USBC_TX1_P'",
+                            "pos": {
+                                "x": 0.2032,
+                                "y": 1.4097
+                            },
+                            "uuid": "0d9fd1c6-8644-4e02-b21c-ff5cdabf02fc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_RX2_N'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.8001
+                            },
+                            "uuid": "70d6a323-a146-4b0b-a33d-7e1ac8f2cff4"
+                        },
+                        {
+                            "description": "Label 'USBC_RX2_N'",
+                            "pos": {
+                                "x": 0.6604,
+                                "y": 1.6129
+                            },
+                            "uuid": "47a675cb-7fbf-454d-8063-d8f47270d876"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_RX2_P'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.8255
+                            },
+                            "uuid": "0de3eb86-dd70-4cd4-b8ae-deadbe978551"
+                        },
+                        {
+                            "description": "Label 'USBC_RX2_P'",
+                            "pos": {
+                                "x": 0.6604,
+                                "y": 1.5113
+                            },
+                            "uuid": "d2cc1f2b-5e5a-40a2-8b48-da0f478e3fc7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_TX2_N'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.8763
+                            },
+                            "uuid": "d31fa304-2493-4256-b500-d160812414b6"
+                        },
+                        {
+                            "description": "Label 'USBC_TX2_N'",
+                            "pos": {
+                                "x": 0.6604,
+                                "y": 1.4097
+                            },
+                            "uuid": "72694d30-354d-43d1-9052-2f4b965b8641"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_TX2_P'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.9017
+                            },
+                            "uuid": "584942eb-6c58-4682-a964-409efc7cbcb1"
+                        },
+                        {
+                            "description": "Label 'USBC_TX2_P'",
+                            "pos": {
+                                "x": 0.2032,
+                                "y": 1.8161
+                            },
+                            "uuid": "f3c07b29-bcf3-4944-a0b4-562fb179d097"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_SBU1'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.9525
+                            },
+                            "uuid": "e443a55b-2231-4e86-9713-ad1b624a2e78"
+                        },
+                        {
+                            "description": "Label 'USBC_SBU1'",
+                            "pos": {
+                                "x": 1.1303,
+                                "y": 1.4097
+                            },
+                            "uuid": "4129ba49-0391-409b-82e9-ab8706dfdfbe"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Local and global labels have same name",
+                    "items": [
+                        {
+                            "description": "Global Label 'USBC_SBU2'",
+                            "pos": {
+                                "x": 0.6985,
+                                "y": 0.9779
+                            },
+                            "uuid": "0af07292-7e10-4b85-9194-30183b15776c"
+                        },
+                        {
+                            "description": "Label 'USBC_SBU2'",
+                            "pos": {
+                                "x": 1.1303,
+                                "y": 1.5113
+                            },
+                            "uuid": "7acb7f96-8e38-4d30-b686-6cc424acc8f7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "same_local_global_label"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1016 mm",
+                            "pos": {
+                                "x": 1.3716,
+                                "y": 1.2319
+                            },
+                            "uuid": "a7718b99-db62-4471-a028-6fab195e940a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1016 mm",
+                            "pos": {
+                                "x": 1.3716,
+                                "y": 1.2573
+                            },
+                            "uuid": "ff661ccd-830d-405c-9aa3-608340c5d16d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0953 mm",
+                            "pos": {
+                                "x": 2.267012,
+                                "y": 0.3175
+                            },
+                            "uuid": "b3b97d04-3342-4493-9bde-81a9f908926f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Vertical Wire, length 0.0254 mm",
+                            "pos": {
+                                "x": 2.267012,
+                                "y": 0.3429
+                            },
+                            "uuid": "ba502e25-a2ad-461e-8ee7-e3b243a975cf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "The symbol library 'CM5IO' was not found at '/mnt/Projects/Project-Minerva/Minerva-Hardware/CM5IO.kicad_sym'",
+                    "items": [
+                        {
+                            "description": "Symbol Module1 [ComputeModule5-CM5]",
+                            "pos": {
+                                "x": -0.7112,
+                                "y": 0.8636
+                            },
+                            "uuid": "00000000-0000-0000-0000-00005e471fb9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The symbol library 'CM5IO' was not found at '/mnt/Projects/Project-Minerva/Minerva-Hardware/CM5IO.kicad_sym'",
+                    "items": [
+                        {
+                            "description": "Symbol U6 [AP2553W6]",
+                            "pos": {
+                                "x": 0.5969,
+                                "y": 1.778
+                            },
+                            "uuid": "bf051790-2c52-4db9-8be2-608cdd970d8a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.381
+                            },
+                            "uuid": "0a79db37-f1d9-40b1-a24d-8bdfb8f637e2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.4318
+                            },
+                            "uuid": "9dee739a-3e36-4988-a0f4-9808f5bcbc05"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.4572
+                            },
+                            "uuid": "749b9cd6-d902-4b9c-8550-e882a7c64e71"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.508
+                            },
+                            "uuid": "4f330aa5-65c0-4333-a8f0-3ea8f9a3a6f5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.5334
+                            },
+                            "uuid": "c0a05375-ac43-43d5-97e3-2b183790de8b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.5842
+                            },
+                            "uuid": "82907d2e-4560-49c2-9cfc-01b127317195"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.6096
+                            },
+                            "uuid": "ab34b936-8ca5-4be1-8599-504cb86609fc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.6604
+                            },
+                            "uuid": "93afd2e8-e16c-4e06-b872-cf0e624aee35"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.6858
+                            },
+                            "uuid": "7df9ce6f-7f38-4582-a049-7f92faf1abc9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.7366
+                            },
+                            "uuid": "71a9f036-1f13-462e-ac9e-81caaaa7f807"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.762
+                            },
+                            "uuid": "50a799a7-f8f3-4f13-9288-b10696e9a7da"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 0.9652
+                            },
+                            "uuid": "b7e94efd-3614-4070-b5e4-1fa301d1f280"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 1.1557,
+                                "y": 0.9906
+                            },
+                            "uuid": "b83b087e-7ec9-44e7-a1c9-81d5d26bbf79"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.0414
+                            },
+                            "uuid": "cd2580a0-9e4c-4895-a13c-3b2ee33bafc4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.0668
+                            },
+                            "uuid": "d337c492-7429-4618-b378-df29f72737e3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.1176
+                            },
+                            "uuid": "fd34aa56-ded2-4e97-965a-a39457716f0c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.143
+                            },
+                            "uuid": "e002a979-85bc-451a-a77b-29ce2a8f19f9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.1938
+                            },
+                            "uuid": "2765a021-71f1-4136-b72b-81c2c6882946"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.2192
+                            },
+                            "uuid": "d70bfdec-de0f-45e5-9452-2cd5d12b83b9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.27
+                            },
+                            "uuid": "ac3ea7ab-b638-4289-bdeb-fa7661c93690"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.2954
+                            },
+                            "uuid": "c30bc236-0a72-439f-88ef-ca4818cb4763"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.3462
+                            },
+                            "uuid": "8fd0b33a-45bf-4216-9d7e-a62e1c071730"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.3716
+                            },
+                            "uuid": "fc13962a-a464-4fa2-b9a6-4c26667104ee"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.4224
+                            },
+                            "uuid": "a4911204-1308-4d17-90a9-1ff5f9c57c9b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 0.9906,
+                                "y": 1.4478
+                            },
+                            "uuid": "01c59306-91a3-452b-92b5-9af8f8f257d6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Vertical Wire, length 0.0762 mm",
+                            "pos": {
+                                "x": 1.4859,
+                                "y": 0.9652
+                            },
+                            "uuid": "3d70e675-48ae-4edd-b95d-3ca51e634018"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0889 mm",
+                            "pos": {
+                                "x": 2.0701,
+                                "y": 0.889
+                            },
+                            "uuid": "ae3157ef-354d-409f-adef-ead0cbf5e619"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1651 mm",
+                            "pos": {
+                                "x": 1.9939,
+                                "y": 0.9144
+                            },
+                            "uuid": "7c1458dd-e4e2-4be3-b6c7-0fdeb211bb35"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0381 mm",
+                            "pos": {
+                                "x": 2.2479,
+                                "y": 1.0922
+                            },
+                            "uuid": "c35680a5-f452-4711-8c2f-cd2a5b98722b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0381 mm",
+                            "pos": {
+                                "x": 2.2479,
+                                "y": 1.1176
+                            },
+                            "uuid": "668a61e8-db9c-45ce-b02e-8a87bf45ca7c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0381 mm",
+                            "pos": {
+                                "x": 2.2479,
+                                "y": 1.1684
+                            },
+                            "uuid": "078ea6e8-bd14-46da-8e32-9d0bc309e934"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0381 mm",
+                            "pos": {
+                                "x": 2.2479,
+                                "y": 1.1938
+                            },
+                            "uuid": "fb6491c8-603c-41da-a60c-b0fe273a23dd"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0381 mm",
+                            "pos": {
+                                "x": 2.2479,
+                                "y": 1.2446
+                            },
+                            "uuid": "990ba3c7-8e31-4c9f-b620-90c34b77417a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0381 mm",
+                            "pos": {
+                                "x": 2.2479,
+                                "y": 1.27
+                            },
+                            "uuid": "443cadb3-c9cd-4867-9e5e-85545e7e596b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol U20 [SN65DSI86]",
+                            "pos": {
+                                "x": 2.8067,
+                                "y": 0.8001
+                            },
+                            "uuid": "eb2ce552-6f3e-4a7c-a3fd-b1ccc4bff8b4"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol U22 [TPS65987D]",
+                            "pos": {
+                                "x": 2.8067,
+                                "y": 1.9558
+                            },
+                            "uuid": "973cec95-b0ee-4dca-a0f3-70f5cf72a01d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'DSI86_IRQ'",
+                            "pos": {
+                                "x": 3.0861,
+                                "y": 0.6731
+                            },
+                            "uuid": "76fb8e32-bb3e-4f9f-845e-326f03601254"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'TPS_GPIO0'",
+                            "pos": {
+                                "x": 3.0988,
+                                "y": 1.9812
+                            },
+                            "uuid": "1a3dadc5-0ffa-4308-b0d8-a38730323c10"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol U21 [HD3SS460]",
+                            "pos": {
+                                "x": 3.5687,
+                                "y": 0.6604
+                            },
+                            "uuid": "f8af2ecd-a12c-4020-b313-11403b2d0773"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol U25 [LDO_SOT23-5]",
+                            "pos": {
+                                "x": 3.7211,
+                                "y": 1.4097
+                            },
+                            "uuid": "8aebf802-0f6b-4ac1-b353-7fa5ea249b7a"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol U24 [LDO_SOT23-5]",
+                            "pos": {
+                                "x": 3.7719,
+                                "y": 1.143
+                            },
+                            "uuid": "0b78910d-b436-498c-bed6-3d8cd0919abb"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Symbol pin or wire end off connection grid",
+                    "items": [
+                        {
+                            "description": "Vertical Wire, length 0.0889 mm",
+                            "pos": {
+                                "x": 0.001588,
+                                "y": 0.022862
+                            },
+                            "uuid": "aea6efdd-f912-4b03-aca7-8486d9d8e22f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "endpoint_off_grid"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Vertical Wire, length 0.0889 mm",
+                            "pos": {
+                                "x": 0.001588,
+                                "y": 0.022862
+                            },
+                            "uuid": "aea6efdd-f912-4b03-aca7-8486d9d8e22f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0508 mm",
+                            "pos": {
+                                "x": 0.2159,
+                                "y": 1.0287
+                            },
+                            "uuid": "250055af-bc22-44b8-a2cb-aea06a9f81d5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0508 mm",
+                            "pos": {
+                                "x": 0.2159,
+                                "y": 1.0541
+                            },
+                            "uuid": "4b5c8f31-e339-4d6b-8c94-28f82c40249c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Label connected to only one pin",
+                    "items": [
+                        {
+                            "description": "Label 'EEPROM_nWP'",
+                            "pos": {
+                                "x": 0.2413,
+                                "y": 0.4445
+                            },
+                            "uuid": "439a0826-2a4b-4f2a-9a85-b9cbf2766a09"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "isolated_pin_label"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 0.254,
+                                "y": 1.3081
+                            },
+                            "uuid": "83058c9b-309f-4f4d-b8e7-c7c6ed97bc4b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 0.254,
+                                "y": 1.3589
+                            },
+                            "uuid": "4613e1dd-ddaa-4616-a143-d8286cfedb2f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "The symbol library 'CM5IO' was not found at '/mnt/Projects/Project-Minerva/Minerva-Hardware/CM5IO.kicad_sym'",
+                    "items": [
+                        {
+                            "description": "Symbol Module1 [ComputeModule5-CM5]",
+                            "pos": {
+                                "x": 0.7239,
+                                "y": 0.7747
+                            },
+                            "uuid": "00000000-0000-0000-0000-00005dc6d7d8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0508 mm",
+                            "pos": {
+                                "x": 1.1176,
+                                "y": 0.1905
+                            },
+                            "uuid": "d227fc0c-bf2f-4fed-b7fc-74a4cfce6442"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.5207
+                            },
+                            "uuid": "80974d09-14d4-49e4-885a-2070ecdadbdc"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.5461
+                            },
+                            "uuid": "9ce7d010-913b-4e34-8311-b9fad075fcaf"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.5715
+                            },
+                            "uuid": "3398ffa0-8151-4ab9-9a1e-05a8f3e68625"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.5969
+                            },
+                            "uuid": "b2a6f153-6152-4b4a-a95b-ba79228f774c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.6477
+                            },
+                            "uuid": "994fc6db-04e3-467f-a34e-4a116e6eee69"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.6731
+                            },
+                            "uuid": "b7378d4f-15e7-48c2-b38c-9dd31063481b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.6985
+                            },
+                            "uuid": "9e68a39c-8e96-496e-9540-23ea32b85a2c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.7239
+                            },
+                            "uuid": "cb0f55e2-3db9-424f-95d5-cc3e943c6710"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.7747
+                            },
+                            "uuid": "f08b78e3-00cc-4545-b76f-007757fa75b3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.8001
+                            },
+                            "uuid": "3a11d195-28e0-457d-8a65-fd02d49a1f78"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.8255
+                            },
+                            "uuid": "f6bd7aba-1f99-4f1e-b21f-516a44b7739d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.8509
+                            },
+                            "uuid": "a7065f1e-dcee-43b5-a342-a4982c31c272"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1397 mm",
+                            "pos": {
+                                "x": 1.0033,
+                                "y": 0.9017
+                            },
+                            "uuid": "1b6100b1-6db6-46ed-838f-9445ada9c264"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0381 mm",
+                            "pos": {
+                                "x": 1.3589,
+                                "y": 1.5875
+                            },
+                            "uuid": "bc0ff502-61a8-4d9d-ae0c-724d5efd09a2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.3843,
+                                "y": 1.7399
+                            },
+                            "uuid": "ebcd0dc8-9487-4b2c-82a3-c3ae292efd5f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.3843,
+                                "y": 1.8161
+                            },
+                            "uuid": "b43536d1-43a9-495b-95c7-526b195691f6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.2667
+                            },
+                            "uuid": "aa9c9fa8-922d-4661-b6ba-f949438fcd13"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.2921
+                            },
+                            "uuid": "a4649f24-d20d-45cd-afcf-e14e3a6451b5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.3175
+                            },
+                            "uuid": "b8e9f158-11ed-47d8-aeca-b823f9f18779"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.3683
+                            },
+                            "uuid": "9a685b37-4a30-4b2a-9c54-4a8e4fc58508"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.3937
+                            },
+                            "uuid": "b9601a0d-d977-4b3d-b39f-d76ae64bf1a5"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.4191
+                            },
+                            "uuid": "e904e67d-687b-4696-862e-14a432e67103"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.4699
+                            },
+                            "uuid": "648efa99-1bab-4fd0-bb68-0877ea0a00d2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.4953
+                            },
+                            "uuid": "4d68bfd0-600e-4f1c-a4c7-76529ae0afbb"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.5207
+                            },
+                            "uuid": "e70e5b60-a459-4c08-abff-54232432d8fa"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.5715
+                            },
+                            "uuid": "aed451a7-38ba-4d37-91a4-86065f3970c8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.5969
+                            },
+                            "uuid": "53ded23b-dad2-4c6d-9d77-91fa13f8ed66"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.6223
+                            },
+                            "uuid": "77da69f1-4a7e-4daf-b100-27fb75871e8c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.6477
+                            },
+                            "uuid": "e48c2411-8cec-4a56-a964-fc311cc46655"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.6731
+                            },
+                            "uuid": "5b55646c-afd9-4127-85d7-7d899753820b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.4097,
+                                "y": 0.6985
+                            },
+                            "uuid": "c9549976-7e08-4d60-8899-3ba07e9939f9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0635 mm",
+                            "pos": {
+                                "x": 1.4351,
+                                "y": 0.2413
+                            },
+                            "uuid": "86bba780-a183-42d2-86e6-b1ca627942a1"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0889 mm",
+                            "pos": {
+                                "x": 1.4351,
+                                "y": 0.9144
+                            },
+                            "uuid": "a99fd9b5-8940-4c26-9884-c49137a564b7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0889 mm",
+                            "pos": {
+                                "x": 1.4351,
+                                "y": 0.9525
+                            },
+                            "uuid": "3ea03728-7a77-4313-bf8a-27a007c9d6a6"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0381 mm",
+                            "pos": {
+                                "x": 1.6002,
+                                "y": 1.0922
+                            },
+                            "uuid": "caa4298d-02d5-4f80-9b9d-47f1bd739f15"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.0508 mm",
+                            "pos": {
+                                "x": 1.6637,
+                                "y": 0.2413
+                            },
+                            "uuid": "4fa99099-f9f2-4dd5-ac40-ec35aef9f960"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1524 mm",
+                            "pos": {
+                                "x": 1.6002,
+                                "y": 0.9144
+                            },
+                            "uuid": "c7a234a1-ffa5-48e7-99f2-0165a3be0943"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.3175
+                            },
+                            "uuid": "ad660c70-c749-4a2b-b6f8-2d6803a806d8"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.3429
+                            },
+                            "uuid": "0dda1646-a646-4a28-a8d2-393b8c94d637"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.3683
+                            },
+                            "uuid": "43e1e6bc-da65-4644-935c-20e1310f6db3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.4191
+                            },
+                            "uuid": "5bc6c1c5-1078-47c0-bb58-2c09d06acf6d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.4445
+                            },
+                            "uuid": "d6ace78d-04f5-4e4f-a59a-9296b53097d3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.4953
+                            },
+                            "uuid": "cc35063f-3def-4196-bca4-fc65afdf4d1b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.5207
+                            },
+                            "uuid": "0c1f89ce-0c30-4b40-9919-454d5a2b39e2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.5461
+                            },
+                            "uuid": "fcad587d-8ae7-4c7d-a56f-02c87f607c8d"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.5715
+                            },
+                            "uuid": "fab03173-e991-4b31-9f3e-4fd52fb45287"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.6223
+                            },
+                            "uuid": "ae5d10fb-0c1f-487f-bf73-01918e8dbf6f"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.6731
+                            },
+                            "uuid": "2f680110-9ea0-4f48-b5a6-990648d3cde2"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.6985
+                            },
+                            "uuid": "f2578955-12d7-4c02-87e0-8a8e60f919b9"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1143 mm",
+                            "pos": {
+                                "x": 1.651,
+                                "y": 0.7239
+                            },
+                            "uuid": "7a7c8fd8-e6cb-4215-acf6-72a01929c4aa"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol U29 [PAM8406]",
+                            "pos": {
+                                "x": 2.6162,
+                                "y": 0.635
+                            },
+                            "uuid": "e9cb98f8-0020-4e6f-85da-0acb027e60e7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Footprint 'M.2 M Key socket 2230' not found in library 'CM5 IO Board-rev2'",
+                    "items": [
+                        {
+                            "description": "Symbol J4 [Bus_M.2_Socket_M]",
+                            "pos": {
+                                "x": 0.7112,
+                                "y": 0.8255
+                            },
+                            "uuid": "1c9d3164-2dff-4763-9768-564a696172b7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The symbol library 'CM5IO' was not found at '/mnt/Projects/Project-Minerva/Minerva-Hardware/CM5IO.kicad_sym'",
+                    "items": [
+                        {
+                            "description": "Symbol J4 [Bus_M.2_Socket_M]",
+                            "pos": {
+                                "x": 0.7112,
+                                "y": 0.8255
+                            },
+                            "uuid": "1c9d3164-2dff-4763-9768-564a696172b7"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The symbol library 'CM5IO' was not found at '/mnt/Projects/Project-Minerva/Minerva-Hardware/CM5IO.kicad_sym'",
+                    "items": [
+                        {
+                            "description": "Symbol U8 [AP3441SHE-7B]",
+                            "pos": {
+                                "x": 0.7366,
+                                "y": 1.6764
+                            },
+                            "uuid": "5c664c96-7c36-411e-8bbd-30cfb6a7d05b"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The symbol library 'CM5IO' was not found at '/mnt/Projects/Project-Minerva/Minerva-Hardware/CM5IO.kicad_sym'",
+                    "items": [
+                        {
+                            "description": "Symbol U2 [ASEK-32.768KHZ-L-R-T]",
+                            "pos": {
+                                "x": 1.2065,
+                                "y": 1.27
+                            },
+                            "uuid": "640e9cb0-ecc9-4fbc-b5ed-38e0ceefc780"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The symbol library 'CM5IO' was not found at '/mnt/Projects/Project-Minerva/Minerva-Hardware/CM5IO.kicad_sym'",
+                    "items": [
+                        {
+                            "description": "Symbol M6 [SolderNut]",
+                            "pos": {
+                                "x": 1.3462,
+                                "y": 0.4445
+                            },
+                            "uuid": "654f2ab0-a98d-49bd-85e8-423b2a2a2140"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The symbol library 'CM5IO' was not found at '/mnt/Projects/Project-Minerva/Minerva-Hardware/CM5IO.kicad_sym'",
+                    "items": [
+                        {
+                            "description": "Symbol M7 [M.2_Screw]",
+                            "pos": {
+                                "x": 1.3589,
+                                "y": 0.5715
+                            },
+                            "uuid": "24bc3dad-2edb-49e3-b622-8debe6651496"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the footprint library 'M.2B'",
+                    "items": [
+                        {
+                            "description": "Symbol J3 [Bus_M.2_Socket_B]",
+                            "pos": {
+                                "x": 2.2987,
+                                "y": 0.6858
+                            },
+                            "uuid": "cae78eb6-a391-41f2-8868-40f81543266c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "footprint_link_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol J3 [Bus_M.2_Socket_B]",
+                            "pos": {
+                                "x": 2.2987,
+                                "y": 0.6858
+                            },
+                            "uuid": "cae78eb6-a391-41f2-8868-40f81543266c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "Unconnected wire endpoint",
+                    "items": [
+                        {
+                            "description": "Horizontal Wire, length 0.1016 mm",
+                            "pos": {
+                                "x": 2.5527,
+                                "y": 0.7874
+                            },
+                            "uuid": "8e007b89-632a-42cb-bc0a-c72103a2d345"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "unconnected_wire_endpoint"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol U30 [TPS61088]",
+                            "pos": {
+                                "x": 1.4478,
+                                "y": 1.6383
+                            },
+                            "uuid": "fa43c0f6-2894-45d7-9935-d85c10eee07c"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                },
+                {
+                    "description": "The current configuration does not include the symbol library 'Minerva_Dock'",
+                    "items": [
+                        {
+                            "description": "Symbol U31 [MAX17048]",
+                            "pos": {
+                                "x": 1.5748,
+                                "y": 1.3716
+                            },
+                            "uuid": "08c545ec-a676-48ae-b2c3-161047ecc6e3"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "lib_symbol_issues"
+                }
+            ]
+        },
+        {
+            "path": "/CM5_HighSpeed/",
+            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/00000000-0000-0000-0000-00005cff70b1",
+            "violations": [
+                {
+                    "description": "Pins of type Bidirectional and Power output are connected",
+                    "items": [
+                        {
+                            "description": "Symbol U23 Pin 3 [~{WP}/IO_{2}, Bidirectional, Line]",
+                            "pos": {
+                                "x": 3.4544,
+                                "y": 1.9304
+                            },
+                            "uuid": "b1861fa2-629b-4767-accd-f94408842257"
+                        },
+                        {
+                            "description": "Symbol U22 Pin 9 [LDO_3V3, Power output, Line]",
+                            "pos": {
+                                "x": 3.0226,
+                                "y": 1.4732
+                            },
+                            "uuid": "40b131c9-e19b-48a2-afc3-39b40bc22584"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "pin_to_pin"
+                },
+                {
+                    "description": "Pins of type Bidirectional and Power output are connected",
+                    "items": [
+                        {
+                            "description": "Symbol U23 Pin 7 [~{HOLD}/~{RESET}/IO_{3}, Bidirectional, Line]",
+                            "pos": {
+                                "x": 3.4544,
+                                "y": 1.9558
+                            },
+                            "uuid": "717f1378-7058-4a8a-a006-d379ba90064b"
+                        },
+                        {
+                            "description": "Symbol U22 Pin 9 [LDO_3V3, Power output, Line]",
+                            "pos": {
+                                "x": 3.0226,
+                                "y": 1.4732
+                            },
+                            "uuid": "40b131c9-e19b-48a2-afc3-39b40bc22584"
+                        }
+                    ],
+                    "severity": "warning",
+                    "type": "pin_to_pin"
+                }
+            ]
+        },
+        {
+            "path": "/CM5_GPIO/",
+            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/00000000-0000-0000-0000-00005cff706a",
+            "violations": []
+        },
+        {
+            "path": "/PCIe-M2/",
+            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/00000000-0000-0000-0000-00005ed4bb5b",
+            "violations": []
+        },
+        {
+            "path": "/Power and UserIO/",
+            "uuid_path": "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/cc2c8a97-c7c7-43b6-903f-4be30b474af7",
+            "violations": []
+        }
+    ],
+    "source": "Minerva-Carrier.kicad_sch"
+}

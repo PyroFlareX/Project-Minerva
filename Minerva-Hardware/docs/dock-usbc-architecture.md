@@ -248,9 +248,9 @@ Datasheets: `datasheets/tps61088.pdf`, `datasheets/max17048.pdf`.
    whine at bring-up. Fallback: repopulate I2S amps (MAX98357A, C910544) — the
    PCM GPIOs 18/19/21 remain free.
 
-## As built in the schematic (2026-07-18)
+## As built in the schematic (2026-07-23)
 
-All parts are now placed and wired in the KiCad project:
+All parts are placed and wired in the current KiCad project:
 
 | Ref | Part | Sheet |
 |---|---|---|
@@ -260,13 +260,13 @@ All parts are now placed and wired in the KiCad project:
 | U23 | W25Q32JVSS config flash | CM5_HighSpeed |
 | U24/U25 | AP2112K-1.8 / AP2112K-1.2 | CM5_HighSpeed |
 | U29 | PAM8406DR + J22 aux-in from display jack, J20/J21 speaker connectors, R71/R72, C95–C101 | CM5_GPIO |
-| U28 | Waveshare Core2350B module (symbol pins 1–16 = P1, 17–32 = P2, 33–48 = P3, 49–64 = P4 of the wiki pinout) | CM5_GPIO |
+| A1 | Waveshare Core2350B0 module (0 MB PSRAM; symbol pins 1–16 = P1, 17–32 = P2, 33–48 = P3, 49–64 = P4 of the wiki pinout) | face_board |
 
-Cross-sheet nets (hierarchical labels + root wiring): `CC1`, `CC2`,
-`PD_I2C_SDA/SCL/IRQ` (TPS65987D I2C1 ↔ RP2350B GP0/GP1/GP2), `BQ_SDA/BQ_SCL`
-(BQ25798 ↔ RP2350B GP6/GP7), `DSI86_EN` (CM5 GPIO26 → bridge EN).
-RP2350B also takes `PWR_BUT` (GP10) and `nRPIBOOT` (GP11 — drive low to put the
-CM5 in USB-boot for flashing).
+Cross-board nets pass through carrier J25 and face-board J2: `PD_I2C_SDA/SCL/IRQ`
+(TPS65987D I2C1 ↔ RP2350B GP0/GP2/GP1), `BQ_SDA/BQ_SCL`,
+`SDA_I2C/SCL_I2C`, `PWR_BUT`, and `AMP_nMUTE/nSD`. `nRPIBOOT` is not
+MCU-driven: face-board Select switch SW11 directly grounds J2.11, which maps
+through J25.11 to CM5 pin 93 for intentional USB-boot entry.
 
 Receptacle (added 2026-07-18, second pass): **J23** full-featured 24-pin USB-C
 (`Connector:USB_C_Receptacle`, part: SHOU HAN TYPE-C 24P QT 143, C5156605) on
@@ -289,7 +289,27 @@ Removed: old J11 + its stubs, and the original grounding strap that parked all
 six unused `USB3-1-*` signals to GND (`#PWR0136` + 6 wire segments at x=224.79
 on CM5_HighSpeed) — USB3-1 now feeds the mux.
 
-Still open on the schematic side: footprints for U20/U21/U22/U28/J23
-(placeholders set — J23 needs the QT-143 land pattern), TVS/ESD arrays on
-VBUS/USB2/CC/SS per CONTEXT §5.1 (note placed on root sheet), and the
-TPS65987D config image.
+USB-C protection is populated on the root sheet and carrier PCB:
+
+- D8–D15: `TPD1E01B04DPYR`, 0.18 pF / 20 Gbps, on the eight SuperSpeed/DP
+  conductors.
+- D16–D21: `TPD1E05U06DPYR`, 0.5 pF / 6 Gbps / 5.5 V, on USB2 D±, SBU1/2,
+  and CC1/2.
+- D22: `SMBJ24CA` on VBUS; the 24 V bidirectional standoff is compatible with
+  the BQ25798 high-voltage PD input.
+- Signal clamps are paired immediately behind J23 on B.Cu so each protected
+  conductor can route through its signal pad rather than through a branch
+  stub. Every clamp returns directly into the continuous In1.Cu GND plane.
+
+Controlled-impedance geometry uses the JLCPCB `JLC06161H-3313` six-layer
+stack. L1 pairs reference the continuous L2 GND plane with 0.25 mm pair
+spacing: 100 Ω = 0.128 mm traces; 90 Ω = 0.161 mm traces; 85 Ω =
+0.183 mm traces. DSI pairs that escape on L4 use 0.128 mm / 0.25 mm and
+reference the continuous L3 GND plane. L5 is the +5 V distribution plane.
+The fabrication order must request controlled impedance.
+
+All listed bridge, mux, PD, MCU, connector, and protection footprints are now
+present on the carrier PCB with 3D models for the critical mechanical parts.
+The remaining bring-up artifact is the board-specific TPS65987D configuration
+image, which must be programmed into U23 before R73/R74 are depopulated.
+This firmware image is not a schematic or PCB fabrication input.

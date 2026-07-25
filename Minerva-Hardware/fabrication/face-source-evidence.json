@@ -1,0 +1,51 @@
+{
+  "checked_at_utc": "2026-07-23T00:55:00+00:00",
+  "build_quantity_assumption": 1,
+  "method": "Live manufacturer and rendered LCSC product pages; distributor API credentials absent",
+  "parts": [
+    {
+      "mpn": "Core2350B0",
+      "status": "AVAILABLE_DIRECT",
+      "source": "Waveshare",
+      "source_url": "https://www.waveshare.com/core2350b.htm",
+      "supplier_part": "31689 / Core2350B0 option",
+      "stock": null,
+      "minimum_order": 1,
+      "price_evidence": "$4.99-$7.99 depending on option",
+      "note": "Official product page offers the 0 MB PSRAM Core2350B0 option and add-to-cart flow."
+    },
+    {
+      "mpn": "53047-1410",
+      "status": "IN_STOCK_LOW",
+      "source": "LCSC browser",
+      "source_url": "https://www.lcsc.com/search?q=53047-1410",
+      "supplier_part": "C588274",
+      "stock": 1,
+      "minimum_order": 1,
+      "price_evidence": "$1.5495 @ 1",
+      "note": "Enough for one EVT0 board only; use a Molex authorized distributor before a multi-unit build."
+    },
+    {
+      "mpn": "53047-0610",
+      "status": "IN_STOCK",
+      "source": "LCSC browser",
+      "source_url": "https://www.lcsc.com/search?q=53047-0610",
+      "supplier_part": "C385109",
+      "stock": 10745,
+      "minimum_order": 5,
+      "price_evidence": "$0.1964 @ 5",
+      "note": "Live rendered LCSC result."
+    },
+    {
+      "mpn": "SKQGAFE010",
+      "status": "IN_STOCK",
+      "source": "LCSC browser",
+      "source_url": "https://www.lcsc.com/search?q=SKQGAFE010",
+      "supplier_part": "C202424",
+      "stock": 9815,
+      "minimum_order": 5,
+      "price_evidence": "$0.1366 @ 5",
+      "note": "Eleven switches required per face board."
+    }
+  ]
+}

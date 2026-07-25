@@ -9729,6 +9729,17 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "Upper display: HDMI0 over FFC ribbon = J1 (HDMI_D_1.4). DSI1 is dedicated to U20 SN65DSI86 (USB-C DP out).\nLower display: J5 = DSI0 + I2C0 touch (SPI alternative available on 40-pin header J8)."
+		(exclude_from_sim no)
+		(at 126.21 86.92 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "03e75358-081b-499f-8ec4-f304ca65a490")
+	)
 	(text "Jumpers to be fitted if DPHY1 is used\n"
 		(exclude_from_sim no)
 		(at 214.63 97.536 0)
@@ -9795,6 +9806,17 @@
 		)
 		(uuid "c7aa973f-9a43-402a-907c-ceac197a1829")
 	)
+	(text "Debug: ID_SC/ID_SD on J8 pins 27/28; DSI86 I2C (SDA1/SCL1) probe at R6/R7. (J6 header removed - no board space.)"
+		(exclude_from_sim no)
+		(at 240.03 18.542 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ea417f1a-3d9f-4b1c-962b-d8ccc79a783c")
+	)
 	(junction
 		(at 148.59 33.02)
 		(diameter 1.016)
@@ -9826,12 +9848,6 @@
 		(uuid "18cf1537-83e6-4374-a277-6e3e21479ab0")
 	)
 	(junction
-		(at 148.59 119.38)
-		(diameter 1.016)
-		(color 0 0 0 0)
-		(uuid "1b5a32e4-0b8e-4f38-b679-71dc277c2087")
-	)
-	(junction
 		(at 101.6 132.08)
 		(diameter 1.016)
 		(color 0 0 0 0)
@@ -9856,18 +9872,6 @@
 		(uuid "2ed386d8-1a92-4875-a5f8-9de71531e06f")
 	)
 	(junction
-		(at 148.59 142.24)
-		(diameter 1.016)
-		(color 0 0 0 0)
-		(uuid "414f80f7-b2d5-43c3-a018-819efe44fe30")
-	)
-	(junction
-		(at 148.59 134.62)
-		(diameter 1.016)
-		(color 0 0 0 0)
-		(uuid "494d4ce3-60c4-4021-8bd1-ab41a12b14ed")
-	)
-	(junction
 		(at 101.6 147.32)
 		(diameter 1.016)
 		(color 0 0 0 0)
@@ -9878,12 +9882,6 @@
 		(diameter 1.016)
 		(color 0 0 0 0)
 		(uuid "57543893-39bf-4d83-b4e0-8d020b4a6d48")
-	)
-	(junction
-		(at 148.59 104.14)
-		(diameter 1.016)
-		(color 0 0 0 0)
-		(uuid "5a889284-4c9f-49be-8f02-e43e18550914")
 	)
 	(junction
 		(at 101.6 40.64)
@@ -9928,12 +9926,6 @@
 		(uuid "76b368fc-e28c-4af0-80d3-6e5e2bcd1542")
 	)
 	(junction
-		(at 207.01 88.9)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7b7a8d51-c055-4255-8bdb-1f4947e92e10")
-	)
-	(junction
 		(at 35.56 78.74)
 		(diameter 1.016)
 		(color 0 0 0 0)
@@ -9944,12 +9936,6 @@
 		(diameter 1.016)
 		(color 0 0 0 0)
 		(uuid "7e498af5-a41b-4f8f-8a13-10c00a9160aa")
-	)
-	(junction
-		(at 148.59 127)
-		(diameter 1.016)
-		(color 0 0 0 0)
-		(uuid "84febc35-87fd-4cad-8e04-2b66390cfc12")
 	)
 	(junction
 		(at 35.56 48.26)
@@ -9974,12 +9960,6 @@
 		(diameter 1.016)
 		(color 0 0 0 0)
 		(uuid "a5060d2e-a950-4e40-9be0-ca0a20e44554")
-	)
-	(junction
-		(at 199.39 91.44)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a5f02bdf-d321-4ac0-be7a-bc23a529fbfb")
 	)
 	(junction
 		(at 101.6 48.26)
@@ -10058,12 +10038,6 @@
 		(diameter 1.016)
 		(color 0 0 0 0)
 		(uuid "df9a1242-2d73-4343-b170-237bc9a8080f")
-	)
-	(junction
-		(at 148.59 111.76)
-		(diameter 1.016)
-		(color 0 0 0 0)
-		(uuid "eb7e294c-b398-413b-8b78-85a66ed5f3ea")
 	)
 	(junction
 		(at 87.63 175.26)
@@ -10791,16 +10765,6 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 104.14) (xy 148.59 111.76)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "1d1a7683-c090-4798-9b40-7ed0d9f3ce3b")
-	)
-	(wire
-		(pts
 			(xy 148.59 63.5) (xy 151.13 63.5)
 		)
 		(stroke
@@ -11461,7 +11425,7 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 96.52) (xy 148.59 104.14)
+			(xy 148.59 96.52) (xy 148.59 151.13)
 		)
 		(stroke
 			(width 0)
@@ -11588,16 +11552,6 @@
 			(type solid)
 		)
 		(uuid "45484f82-420e-44d0-a58e-382bb939dac5")
-	)
-	(wire
-		(pts
-			(xy 196.85 91.44) (xy 199.39 91.44)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "47484446-e64c-4a82-88af-15de92cf6ad4")
 	)
 	(wire
 		(pts
@@ -11801,16 +11755,6 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 119.38) (xy 148.59 127)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "54d76293-1ce2-46f8-9be7-a3d7f9f28112")
-	)
-	(wire
-		(pts
 			(xy 54.61 219.71) (xy 54.61 222.25)
 		)
 		(stroke
@@ -11888,16 +11832,6 @@
 			(type solid)
 		)
 		(uuid "58a87288-e2bf-4c88-9871-a753efc69e9d")
-	)
-	(wire
-		(pts
-			(xy 196.85 88.9) (xy 207.01 88.9)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "5923aa13-1e0e-4f65-81de-030eca5cc6bc")
 	)
 	(wire
 		(pts
@@ -12088,6 +12022,16 @@
 			(type default)
 		)
 		(uuid "668a61e8-db9c-45ce-b02e-8a87bf45ca7c")
+	)
+	(wire
+		(pts
+			(xy 274.32 35.56) (xy 281.94 35.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6753eec0-648c-484c-b685-67d73a71b0fc")
 	)
 	(wire
 		(pts
@@ -12328,16 +12272,6 @@
 			(type solid)
 		)
 		(uuid "7241233c-be14-4c02-a887-a4c6f1600c7d")
-	)
-	(wire
-		(pts
-			(xy 148.59 111.76) (xy 148.59 119.38)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "7247fe96-7885-4063-8282-ea2fd2b28b0d")
 	)
 	(wire
 		(pts
@@ -12601,16 +12535,6 @@
 	)
 	(wire
 		(pts
-			(xy 148.59 142.24) (xy 148.59 151.13)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "81ab7ed7-7160-4650-b711-4daa2902dc8b")
-	)
-	(wire
-		(pts
 			(xy 13.97 229.87) (xy 13.97 227.33)
 		)
 		(stroke
@@ -12718,16 +12642,6 @@
 			(type solid)
 		)
 		(uuid "86c37e50-3bc4-41e9-af8b-f4771cdda654")
-	)
-	(wire
-		(pts
-			(xy 177.8 88.9) (xy 184.15 88.9)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "87a0ffb1-5477-4b20-a3ac-fef5af129a33")
 	)
 	(wire
 		(pts
@@ -12888,16 +12802,6 @@
 			(type default)
 		)
 		(uuid "8dbb0d97-6aae-447f-959e-1359d458a89f")
-	)
-	(wire
-		(pts
-			(xy 148.59 134.62) (xy 148.59 142.24)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "8e75264b-b45e-45ec-b230-7e1dce7d68b3")
 	)
 	(wire
 		(pts
@@ -13971,16 +13875,6 @@
 	)
 	(wire
 		(pts
-			(xy 177.8 91.44) (xy 184.15 91.44)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "c62adb8b-b306-48da-b0ae-f6a287e54f62")
-	)
-	(wire
-		(pts
 			(xy 148.59 48.26) (xy 148.59 55.88)
 		)
 		(stroke
@@ -14558,16 +14452,6 @@
 			(type solid)
 		)
 		(uuid "eaf985b1-5782-4377-a70d-9e09fdc876a3")
-	)
-	(wire
-		(pts
-			(xy 148.59 127) (xy 148.59 134.62)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "ee9a2826-2513-480e-a552-3d07af5bf8a5")
 	)
 	(wire
 		(pts
@@ -15229,6 +15113,16 @@
 		)
 		(uuid "1c92f382-4ec3-478f-a1ca-afadd3087787")
 	)
+	(label "VBUS"
+		(at 274.32 35.56 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "1c986afd-f245-4d6e-b679-b9e07c265164")
+	)
 	(label "USBC_RX2_N"
 		(at 382.27 62.23 0)
 		(effects
@@ -15429,16 +15323,6 @@
 		)
 		(uuid "2e4e0176-6f87-4253-a213-1469f6be8013")
 	)
-	(label "ID_SC"
-		(at 183.515 88.9 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "2f4c659c-2ccb-4fb1-808e-7868af588a89")
-	)
 	(label "+3.3v"
 		(at 363.22 114.3 180)
 		(effects
@@ -15568,16 +15452,6 @@
 			(justify left bottom)
 		)
 		(uuid "3768cce7-1e64-480e-bb38-0c6794a852ac")
-	)
-	(label "ID_SD"
-		(at 183.515 91.44 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "37f8ba3f-cca4-4b16-b699-07a704844fc9")
 	)
 	(label "DP_1V2"
 		(at 308.61 72.39 0)
@@ -18462,17 +18336,6 @@
 		)
 		(uuid "5923a95e-8e4f-4714-9bee-b721a4131e21")
 	)
-	(hierarchical_label "ID_SC"
-		(shape input)
-		(at 177.8 88.9 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5b04e20f-8575-4362-b040-2e2133d670c8")
-	)
 	(hierarchical_label "PCIE_RX_P"
 		(shape input)
 		(at 31.75 43.18 180)
@@ -18549,17 +18412,6 @@
 			(justify right)
 		)
 		(uuid "811f5389-c208-4640-ab1a-b454491bb330")
-	)
-	(hierarchical_label "ID_SD"
-		(shape input)
-		(at 177.8 91.44 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "8e715b73-353f-4cfc-aa33-1eac54b89b6c")
 	)
 	(hierarchical_label "PD_I2C_SCL"
 		(shape bidirectional)
@@ -18659,6 +18511,17 @@
 			(justify right)
 		)
 		(uuid "d68589fa-205b-4356-a20d-821c85f5f45e")
+	)
+	(hierarchical_label "VBUS"
+		(shape input)
+		(at 281.94 35.56 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d9003646-f6c2-4e6d-9e71-1bbebf1d944c")
 	)
 	(hierarchical_label "USB3-0-TX_P"
 		(shape bidirectional)
@@ -19122,6 +18985,28 @@
 				)
 			)
 		)
+		(property "MPN" "RT0402FRE072K2L"
+			(at 199.39 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 199.39 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "eca8c1f1-6751-4304-8a65-b05952048507")
 		)
@@ -19269,6 +19154,28 @@
 				)
 			)
 		)
+		(property "MPN" "RT0402FRE072K2L"
+			(at 207.01 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 207.01 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "56dc9d1a-d125-4218-be7e-afbadad9f13c")
 		)
@@ -19395,6 +19302,28 @@
 			)
 		)
 		(property "Part Description" "22 Position FFC, FPC Connector Contacts, Bottom 0.020\" (0.50mm) Surface Mount, Right Angle"
+			(at 156.21 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "FH12-22S-0.5SH(55)"
+			(at 156.21 50.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Hirose"
 			(at 156.21 50.8 0)
 			(hide yes)
 			(show_name no)
@@ -19587,6 +19516,39 @@
 			)
 		)
 		(property "Part Description" "	100 Position Connector Receptacle, Center Strip Contacts Surface Mount Gold"
+			(at -71.12 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CM5008032"
+			(at -71.12 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Raspberry Pi Ltd"
+			(at -71.12 86.36 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Procurement Note" "CM5 8GB LPDDR4X / 32GB eMMC per CONTEXT.md"
 			(at -71.12 86.36 0)
 			(hide yes)
 			(show_name no)
@@ -20207,157 +20169,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_02x02_Odd_Even")
-		(at 189.23 88.9 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "00000000-0000-0000-0000-00005e67855b")
-		(property "Reference" "J6"
-			(at 186.563 83.693 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "THD-02-R"
-			(at 190.5 85.6996 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x02_P2.54mm_Vertical"
-			(at 189.23 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 189.23 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Generic connector, double row, 02x02, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 189.23 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Field4" "Toby"
-			(at 189.23 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Field5" "THD-02-R"
-			(at 189.23 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Field6" "151-604-425-761"
-			(at 189.23 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Field7" "EDAC"
-			(at 189.23 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Field8" "UCON00791"
-			(at 189.23 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Part Description" "PinHeader_2x02_P2.54mm_Vertical"
-			(at 189.23 88.9 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "a6187c22-3622-4a1a-a49a-b21e96986f96")
-		)
-		(pin "2"
-			(uuid "504cb9e4-5572-4208-bc9d-30a7efff8b9a")
-		)
-		(pin "3"
-			(uuid "fda94f0a-876e-4bf0-ad10-35819851e3e9")
-		)
-		(pin "4"
-			(uuid "f0e6fae4-0008-43ed-8719-bf62839f601f")
-		)
-		(instances
-			(project "Minerva-Carrier"
-				(path "/e63e39d7-6ac0-4ffd-8aa3-1841a4541b55/00000000-0000-0000-0000-00005cff70b1"
-					(reference "J6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Connector:HDMI_D_1.4")
 		(at 223.52 46.99 0)
 		(unit 1)
@@ -20414,6 +20225,28 @@
 			)
 		)
 		(property "Description" "HDMI 1.4+ type D connector"
+			(at 223.52 46.99 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "2-1734839-0"
+			(at 223.52 46.99 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "TE Connectivity"
 			(at 223.52 46.99 0)
 			(hide yes)
 			(show_name no)
@@ -20556,6 +20389,28 @@
 				)
 			)
 		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 44.45 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 44.45 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "accec046-d195-4ecb-8267-f7d41dd0ce57")
 		)
@@ -20634,6 +20489,28 @@
 				)
 			)
 		)
+		(property "MPN" "CC0402KRX5R6BB105"
+			(at 24.13 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 24.13 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "4246bea8-ab9d-480f-9f67-7a0458f86bae")
 		)
@@ -20704,6 +20581,28 @@
 		)
 		(property "Description" ""
 			(at 95.25 233.68 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 95.25 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 95.25 233.68 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -20801,6 +20700,28 @@
 				)
 			)
 		)
+		(property "MPN" "AP2112K-1.8TRG1"
+			(at 377.19 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Diodes Incorporated"
+			(at 377.19 114.3 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "ac8b615e-0585-440b-a904-8299722ff41d")
 		)
@@ -20888,6 +20809,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 54.61 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 54.61 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "a352ca4e-aa94-4527-925b-9c65c92ec8c1")
 		)
@@ -20958,6 +20901,28 @@
 		)
 		(property "Description" ""
 			(at 54.61 251.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 54.61 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 54.61 251.46 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -21044,6 +21009,28 @@
 				)
 			)
 		)
+		(property "MPN" "GRM1555C1H391JA01D"
+			(at 115.57 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
+			(at 115.57 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "245f9d23-5eaf-45bd-8595-5115a0c2389c")
 		)
@@ -21114,6 +21101,28 @@
 		)
 		(property "Description" ""
 			(at 44.45 269.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 44.45 269.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 44.45 269.24 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -21200,6 +21209,28 @@
 				)
 			)
 		)
+		(property "MPN" "CC0402KRX5R6BB105"
+			(at 85.09 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 85.09 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "83a6db9f-1298-4a5b-b1d0-2ab273651610")
 		)
@@ -21270,6 +21301,28 @@
 		)
 		(property "Description" ""
 			(at 34.29 233.68 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-07100KL"
+			(at 34.29 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 34.29 233.68 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -21433,6 +21486,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-071ML"
+			(at 95.25 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 95.25 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "847aeadf-74ab-40bf-b75f-ed873f1ce8bd")
 		)
@@ -21503,6 +21578,28 @@
 		)
 		(property "Description" ""
 			(at 24.13 215.9 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 24.13 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 24.13 215.9 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -21589,6 +21686,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 64.77 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 64.77 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "164e0bf3-bb0a-4b59-98f1-ca94aff8eb03")
 		)
@@ -21659,6 +21778,28 @@
 		)
 		(property "Description" ""
 			(at 105.41 251.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "GRM1555C1H391JA01D"
+			(at 105.41 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Murata"
+			(at 105.41 251.46 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -21745,6 +21886,28 @@
 				)
 			)
 		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 85.09 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 85.09 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "8628e07c-6f1f-45a2-b7f6-6032f4a29ca3")
 		)
@@ -21815,6 +21978,28 @@
 		)
 		(property "Description" ""
 			(at 105.41 233.68 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 105.41 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 105.41 233.68 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -21901,6 +22086,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-07100KL"
+			(at 44.45 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 44.45 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "8bd929af-ec83-4056-90e2-0ab3ee37de14")
 		)
@@ -21971,6 +22178,28 @@
 		)
 		(property "Description" ""
 			(at 95.25 251.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CC0402KRX5R6BB105"
+			(at 95.25 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 95.25 251.46 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22126,6 +22355,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL21A106KPFNNNE"
+			(at 100.33 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 100.33 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "15d5296c-f8fc-493c-bbc5-3b2dab8930e1")
 		)
@@ -22204,6 +22455,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 74.93 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 74.93 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "89e71320-b96d-4f00-a529-78cf39de20c9")
 		)
@@ -22274,6 +22547,28 @@
 		)
 		(property "Description" ""
 			(at 13.97 269.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 13.97 269.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 13.97 269.24 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22371,6 +22666,28 @@
 				)
 			)
 		)
+		(property "MPN" "W25Q32JVSSIQ"
+			(at 355.6 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Winbond"
+			(at 355.6 190.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "96c93615-0317-44a0-a6d6-2fadb8602622")
 		)
@@ -22435,7 +22752,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 125.73 233.68 0)
 			(hide yes)
 			(show_name no)
@@ -22459,6 +22776,28 @@
 		)
 		(property "Description" ""
 			(at 125.73 233.68 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 125.73 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 125.73 233.68 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22513,7 +22852,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 74.93 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -22537,6 +22876,28 @@
 		)
 		(property "Description" ""
 			(at 74.93 251.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 74.93 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 74.93 251.46 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22623,6 +22984,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-07100KL"
+			(at 54.61 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 54.61 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "2c5cc899-ecc7-41b6-8507-aeb3e91ae872")
 		)
@@ -22693,6 +23076,28 @@
 		)
 		(property "Description" ""
 			(at 13.97 233.68 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 13.97 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 13.97 233.68 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22779,6 +23184,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0751KL"
+			(at 13.97 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 13.97 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "9806933c-3d17-4210-9ae3-c3711c889714")
 		)
@@ -22849,6 +23276,28 @@
 		)
 		(property "Description" ""
 			(at 13.97 251.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CC0402KRX5R6BB105"
+			(at 13.97 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 13.97 251.46 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -22972,6 +23421,28 @@
 			)
 		)
 		(property "Field7" "Panasonic"
+			(at 87.63 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "T491D107K010AT"
+			(at 87.63 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "KEMET"
 			(at 87.63 181.61 0)
 			(hide yes)
 			(show_name no)
@@ -23206,6 +23677,28 @@
 				)
 			)
 		)
+		(property "MPN" "CRCW040215K0FKED"
+			(at 78.74 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Vishay"
+			(at 78.74 177.8 90)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "20b7d8a7-7f0d-4cf0-9ca6-dc04f34b16c8")
 		)
@@ -23361,6 +23854,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 105.41 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 105.41 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "1948a3d1-81f4-4429-821a-acb51dda8c8a")
 		)
@@ -23440,6 +23955,28 @@
 			)
 		)
 		(property "Part Description" "1.2V LDO for SN65DSI86 VCC/VCCA"
+			(at 372.11 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "AP2112K-1.2TRG1"
+			(at 372.11 140.97 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Diodes Incorporated"
 			(at 372.11 140.97 0)
 			(hide yes)
 			(show_name no)
@@ -23582,7 +24119,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 64.77 251.46 0)
 			(hide yes)
 			(show_name no)
@@ -23606,6 +24143,28 @@
 		)
 		(property "Description" ""
 			(at 64.77 251.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 64.77 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 64.77 251.46 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -23693,6 +24252,28 @@
 			)
 		)
 		(property "Part Description" "USB-C PD3.0 controller w/ DP alt mode, LCSC C2156396"
+			(at 280.67 195.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "TPS65987DDJRSHR"
+			(at 280.67 195.58 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
 			(at 280.67 195.58 0)
 			(hide yes)
 			(show_name no)
@@ -24021,6 +24602,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL21A106KPFNNNE"
+			(at 110.49 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 110.49 181.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5cccaafe-7218-4c61-bcd5-123669d22dea")
 		)
@@ -24091,6 +24694,28 @@
 		)
 		(property "Description" ""
 			(at 34.29 269.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 34.29 269.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 34.29 269.24 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -24177,6 +24802,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 44.45 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 44.45 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "0dd1ed12-ccd7-4727-919d-72b315428bb1")
 		)
@@ -24247,6 +24894,28 @@
 		)
 		(property "Description" ""
 			(at 54.61 269.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 54.61 269.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 54.61 269.24 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -24333,6 +25002,28 @@
 				)
 			)
 		)
+		(property "MPN" "CC0402KRX5R6BB105"
+			(at 24.13 269.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 24.13 269.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5ce4f43e-7eb8-46e5-b3e3-591c15a0f052")
 		)
@@ -24411,6 +25102,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 115.57 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 115.57 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "040fa392-9d44-45d7-a94d-776d4a2b13c9")
 		)
@@ -24481,6 +25194,28 @@
 		)
 		(property "Description" ""
 			(at 24.13 233.68 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-07100KL"
+			(at 24.13 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 24.13 233.68 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -24623,6 +25358,28 @@
 				)
 			)
 		)
+		(property "MPN" "AP22653W6-7"
+			(at 59.69 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Diodes Incorporated"
+			(at 59.69 177.8 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "6e9965ec-da2e-4a0c-8d06-3f2e1255a520")
 		)
@@ -24713,6 +25470,28 @@
 				)
 			)
 		)
+		(property "MPN" "CC0402KRX5R6BB105"
+			(at 34.29 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 34.29 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "3d17c17d-93c1-472b-a240-7b6ea1532407")
 		)
@@ -24783,6 +25562,28 @@
 		)
 		(property "Description" ""
 			(at 125.73 251.46 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 125.73 251.46 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 125.73 251.46 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -24869,6 +25670,28 @@
 				)
 			)
 		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 64.77 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 64.77 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "97c5d2a4-2df9-4e03-93f2-29548eca3c53")
 		)
@@ -24915,7 +25738,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 115.57 233.68 0)
 			(hide yes)
 			(show_name no)
@@ -24939,6 +25762,28 @@
 		)
 		(property "Description" ""
 			(at 115.57 233.68 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CL10A106KP8NNNC"
+			(at 115.57 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 115.57 233.68 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -25179,6 +26024,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-07100KL"
+			(at 85.09 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 85.09 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "f96f5aeb-f7ea-43e2-9f7f-41524cac7448")
 		)
@@ -25249,6 +26116,28 @@
 		)
 		(property "Description" ""
 			(at 64.77 269.24 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 64.77 269.24 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 64.77 269.24 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -25336,6 +26225,28 @@
 			)
 		)
 		(property "Part Description" "MIPI DSI to DP1.2 bridge, LCSC C575556"
+			(at 280.67 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "SN65DSI86ZQER"
+			(at 280.67 80.01 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
 			(at 280.67 80.01 0)
 			(hide yes)
 			(show_name no)
@@ -25679,6 +26590,28 @@
 				)
 			)
 		)
+		(property "MPN" "CL21A106KPFNNNE"
+			(at 29.21 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Samsung Electro-Mechanics"
+			(at 29.21 180.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "e9d4c57f-e092-4a24-81a8-18efa9bc1ffc")
 		)
@@ -25757,6 +26690,28 @@
 				)
 			)
 		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 34.29 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 34.29 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "ec4c27d2-0faf-4603-8ff9-9fc7fa1ff06d")
 		)
@@ -25827,6 +26782,28 @@
 		)
 		(property "Description" ""
 			(at 125.73 215.9 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 125.73 215.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Yageo"
+			(at 125.73 215.9 0)
+			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -25914,6 +26891,28 @@
 			)
 		)
 		(property "Part Description" "USB3/DP alt-mode passive mux, LCSC C2150882"
+			(at 356.87 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "HD3SS460RHRT"
+			(at 356.87 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Texas Instruments"
 			(at 356.87 66.04 0)
 			(hide yes)
 			(show_name no)
@@ -26083,6 +27082,28 @@
 				)
 			)
 		)
+		(property "MPN" "EMK105B7104KV-F"
+			(at 74.93 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "Taiyo Yuden"
+			(at 74.93 233.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "d076b060-cdc3-4f08-991e-b8e2a838886c")
 		)
@@ -26175,47 +27196,5 @@
 				)
 			)
 		)
-	)
-(label "VBUS"
-		(at 274.32 35.56 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "1c986afd-f245-4d6e-b679-b9e07c265164")
-	)
-(wire
-		(pts
-			(xy 274.32 35.56) (xy 281.94 35.56)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6753eec0-648c-484c-b685-67d73a71b0fc")
-	)
-(hierarchical_label "VBUS"
-		(shape input)
-		(at 281.94 35.56 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "d9003646-f6c2-4e6d-9e71-1bbebf1d944c")
-	)
-(text "Upper display: HDMI0 over FFC ribbon = J1 (HDMI_D_1.4). DSI1 is dedicated to U20 SN65DSI86 (USB-C DP out).\nLower display: J5 = DSI0 + I2C0 touch (SPI alternative available on 40-pin header J8)."
-		(exclude_from_sim no)
-		(at 126.21 86.92 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "03e75358-081b-499f-8ec4-f304ca65a490")
 	)
 )
