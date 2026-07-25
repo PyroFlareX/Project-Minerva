@@ -250,7 +250,7 @@ The input system mirrors a 3DS-style layout with key modifications: the left ana
 | Left trackpad | Cirque GlidePoint circular capacitive | SPI0 to CM5 | 35–40mm diameter. Replaces left analog stick. Emulates joystick axes via uinput daemon. |
 | Right stick | Hall effect analog | I2C (TLV493D or AS5600) via input MCU | Full analog range. No mechanical wear or drift. |
 | D-pad | 4-way digital | Input MCU GPIO | Spatial navigation in UI |
-| A, B, X, Y | Digital face buttons | Input MCU GPIO | 14mm diameter caps, 14.5mm pitch center-to-center |
+| A, B, X, Y | Digital face buttons | Input MCU GPIO | 8mm diameter caps, 14.5mm adjacent center-to-center pitch; fits beside the 3.5" lower display within the 142mm shell |
 | L1, R1 | Digital shoulder buttons | Input MCU GPIO | Primary shoulders |
 | L2, R2 | Analog (preferred) or digital triggers | Input MCU ADC | Radial menu layer activators. Analog preferred for gaming. |
 | Start | Digital | Input MCU GPIO | App switcher |

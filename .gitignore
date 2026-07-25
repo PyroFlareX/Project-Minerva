@@ -161,6 +161,9 @@ dist/
 # ---------------------------------------------------------------------------
 # Project-specific
 # ---------------------------------------------------------------------------
+.manufacturability
+*.dxf
+*Gerbers.zip
 
 # Personal scratch notes
 Notes/scratchpad.txt
