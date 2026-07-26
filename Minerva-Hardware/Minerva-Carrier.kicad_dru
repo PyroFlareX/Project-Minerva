@@ -21,12 +21,12 @@
   (constraint skew (max 0.15mm) (within_diff_pairs)))
 
 (rule "J23 manufacturer-defined shell geometry"
-  (condition "A.memberOfFootprint('J23') || B.memberOfFootprint('J23')")
+  (condition "A.memberOfFootprint('J23') && B.memberOfFootprint('J23')")
   (constraint hole_clearance)
   (severity ignore))
 
 (rule "J23 manufacturer-defined physical hole geometry"
-  (condition "A.memberOfFootprint('J23') || B.memberOfFootprint('J23')")
+  (condition "A.memberOfFootprint('J23') && B.memberOfFootprint('J23')")
   (constraint physical_hole_clearance)
   (severity ignore))
 
