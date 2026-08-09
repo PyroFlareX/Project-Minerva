@@ -23,6 +23,26 @@
       ]
     },
     {
+      "id": "launchers",
+      "description": "Discover a user-local executable and launch it from the controller palette/home grid.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
+        {"id": "select-conan", "actions": ["key:DOWN", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "conan"}},
+        {"id": "back-home", "actions": ["key:ESC"], "expect": {"screen": "home"}}
+      ]
+    },
+    {
+      "id": "palette-launcher",
+      "description": "Launch the first discovered local executable through the command palette.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
+        {"id": "open-palette", "actions": ["key:X"], "expect": {"palette": true}},
+        {"id": "focus-first-launcher", "actions": ["key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN"], "expect": {"palette": true, "paletteFocus": 13}},
+        {"id": "select-conan", "actions": ["key:A"], "expect": {"screen": "app", "app": "conan", "palette": false}},
+        {"id": "back-home", "actions": ["key:ESC"], "expect": {"screen": "home"}}
+      ]
+    },
+    {
       "id": "panels",
       "description": "Open and dismiss quick settings and notifications from the shell.",
       "steps": [
@@ -48,7 +68,7 @@
       "description": "Open the built-in file browser, list a real directory, and move focus.",
       "steps": [
         {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "homeFocus": 0}},
-        {"id": "select-files", "actions": ["key:DOWN", "key:DOWN", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "Files", "filesReady": true}},
+        {"id": "select-files", "actions": ["key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "Files", "filesReady": true}},
         {"id": "files-next", "actions": ["key:DOWN"], "expect": {"screen": "app", "app": "Files", "fileFocus": 1}}
       ]
     },
@@ -57,7 +77,7 @@
       "description": "Open the script-backed terminal command runner and execute a harmless command.",
       "steps": [
         {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "homeFocus": 0}},
-        {"id": "select-terminal", "actions": ["key:DOWN", "key:DOWN", "key:A"], "expect": {"screen": "app", "app": "Terminal"}},
+        {"id": "select-terminal", "actions": ["key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:A"], "expect": {"screen": "app", "app": "Terminal"}},
         {"id": "run-command", "actions": ["text:printf TORCHFORM_TERMINAL_OK", "key:A"], "expect": {"terminalLastContains": "TORCHFORM_TERMINAL_OK"}}
       ]
     },
@@ -75,7 +95,7 @@
       "description": "Verify configured radial, quick-settings, notifications, and switcher focus handoffs.",
       "steps": [
         {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "focusOwner": "home", "focusCaptured": false, "overlayLayoutVersion": 2}},
-        {"id": "open-terminal", "actions": ["key:DOWN", "key:DOWN", "key:A"], "expect": {"screen": "app", "app": "Terminal", "focusOwner": "app", "focusCaptured": false}},
+        {"id": "open-terminal", "actions": ["key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:A"], "expect": {"screen": "app", "app": "Terminal", "focusOwner": "app", "focusCaptured": false}},
         {"id": "open-quick-settings", "actions": ["key:Z"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "focusCaptured": true, "quickSettingsFocus": 0}},
         {"id": "quick-settings-next", "actions": ["key:DOWN"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "quickSettingsFocus": 1}},
         {"id": "quick-settings-adjust", "actions": ["key:RIGHT"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "quickSettingsFocus": 1, "quickSettingsSliderValues": [72, 90]}},

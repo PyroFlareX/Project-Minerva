@@ -78,6 +78,8 @@ Reference images and button inventories:
 - [ ] Empty/error directory handling has not been separately exercised.
 - [x] System monitor refreshes `/proc`, memory, root-disk, temperature, uptime, and battery state without blocking the UI.
 - [x] Quick commands are data-driven and return a visible palette/command surface.
+- [x] The launcher helper discovers user-local executables and `.desktop` applications without QML recompilation; discovered entries are available on the home grid and in the command palette.
+- [x] The command palette scrolls its results viewport with controller focus so discovered entries remain visible; the `conan` discovery/launch path passed on Minerva.
 - [ ] Unavailable external-app error handling has not been separately exercised.
 
 ### Power and low-battery behavior
@@ -151,6 +153,9 @@ The helper requires a running virtual-gamepad session. Start one with the smoke 
 | 2026-08-09 | Terminal smoke scenario | A/confirm runs the entered command and displays `TORCHFORM_TERMINAL_OK`; Select remains App Switcher. |
 | 2026-08-09 | Post-run `free -m`, `df -h /`, `uptime`, and process inventory | 7.8 GiB RAM total / 7.1 GiB available, root filesystem 38% used, one Sway + one QuickShell session. |
 | 2026-08-09 | `device-smoke-test.py --restart --scenario panels` after main-branch geometry pass | Quick Settings and Notifications controller assertions passed; live screenshots under `/tmp/torchform-main-layout-final` show expanded responsive panels and readable notification text. |
+| 2026-08-09 | `device-smoke-test.py --restart --artifact-dir /tmp/torchform-final-regression3` | 52 controller/state assertions passed across navigation, palette, discovered launchers, panels, radial, Files, Terminal, Sysmon, and overlay focus; touch-controls skipped because no touch-capable input was enumerated. |
+| 2026-08-09 | `/tmp/torchform-palette-scroll-final/palette-launcher-03-focus-first-launcher-upper.png` | Focused `conan` launcher is visible after palette auto-scroll; grid and palette launch scenarios passed. |
+| 2026-08-09 | `free -h`, `df -h /`, `uptime`, and process inventory after final smoke run | 7.8 GiB RAM total / 7.2 GiB available, no swap, root filesystem 38% used, one Sway + one QuickShell session. |
 | 2026-08-09 | `torchform-control.sh launch terminal` on Minerva | User-local Foot launched under Wayland with `LD_LIBRARY_PATH`, remained alive after startup, and replaced the failing Kitty-only path. |
 
 Update this log after every on-device smoke run. Do not call DRC/fabrication or touchscreen behavior verified from this checklist; those require direct evidence.

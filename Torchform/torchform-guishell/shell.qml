@@ -143,6 +143,70 @@ ShellRoot {
             }
         }
     }
+    Process {
+        id: applicationsProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var dynamicApps = []
+                var dynamicCommands = []
+                var seen = {}
+                Data.gridApps.concat(Data.dockApps).forEach(function(app) {
+                    seen[app.name.toLowerCase()] = true
+                })
+                var raw = text.trim()
+                if (raw.length > 0) {
+                    raw.split("\n").forEach(function(line) {
+                        var parts = line.split("\t")
+                        if (parts[0] !== "app" || parts.length < 5) return
+                        var name = parts[1].trim()
+                        var key = name.toLowerCase()
+                        var exec = parts.slice(3, parts.length - 1).join("\t").trim()
+                        if (!name || !exec || seen[key]) return
+                        seen[key] = true
+                        var icon = parts[2] || "🚀"
+                        var kind = parts[parts.length - 1] || "executable"
+                        var app = {
+                            name: name,
+                            icon: icon,
+                            bg: "#151a2a",
+                            exec: exec,
+                            external: true
+                        }
+                        dynamicApps.push(app)
+                        dynamicCommands.push({
+                            id: "launcher:" + dynamicApps.length,
+                            label: name,
+                            category: kind === "desktop" ? "Applications" : "Local Commands",
+                            icon: icon,
+                            bg: "#151a2a",
+                            shortcut: "",
+                            exec: exec,
+                            external: true
+                        })
+                    })
+                }
+                var nextGrid = Data.gridApps.slice()
+                dynamicApps.forEach(function(app, index) {
+                    app.idx = nextGrid.length
+                    nextGrid.push(app)
+                })
+                var nextDock = []
+                Data.dockApps.forEach(function(app, index) {
+                    var copy = {}
+                    for (var key in app) copy[key] = app[key]
+                    copy.idx = nextGrid.length + index
+                    nextDock.push(copy)
+                })
+                shell.gridApps = nextGrid
+                shell.dockApps = nextDock
+                shell.paletteCommands = Data.paletteCommands.concat(dynamicCommands)
+                var total = nextGrid.length + nextDock.length
+                shell.homeFocus = Math.min(shell.homeFocus, Math.max(0, total - 1))
+                shell.writeState()
+            }
+        }
+    }
+
 
     Timer {
         id: bannerTimer
@@ -353,15 +417,34 @@ ShellRoot {
         ]
         launcherProc.running = true
     }
+
+    function launchExternalExec(command) {
+        launcherProc.command = [
+            "sh", "-lc",
+            "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh launch-exec \"$1\"",
+            "torchform-launch-exec", command
+        ]
+        launcherProc.running = true
+    }
+
+    function refreshApplications() {
+        applicationsProc.command = [
+            "sh", "-lc",
+            "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh applications-list",
+            "torchform-applications"
+        ]
+        applicationsProc.running = true
+    }
+
     // ─── Data-driven UI registry (edit data.js; no QML rebuild required) ─────
     readonly property var overlayConfig:       Data.overlayConfig
     readonly property var radialConfig:        overlayConfig.radial
     readonly property var quickSettingsConfig:  overlayConfig.quickSettings
     readonly property var notificationsConfig:  overlayConfig.notifications
     readonly property var switcherConfig:      overlayConfig.switcher
-    readonly property var gridApps:             Data.gridApps
-    readonly property var dockApps:             Data.dockApps
-    readonly property var paletteCommands:      Data.paletteCommands
+    property var gridApps:                     Data.gridApps
+    property var dockApps:                     Data.dockApps
+    property var paletteCommands:              Data.paletteCommands
     readonly property var switcherApps:         switcherConfig.apps
 
     function resetOverlayRuntime() {
@@ -381,7 +464,10 @@ ShellRoot {
         notifCount = (notificationsConfig.items || []).length
     }
 
-    Component.onCompleted: resetOverlayRuntime()
+    Component.onCompleted: {
+        resetOverlayRuntime()
+        refreshApplications()
+    }
 
 
     // ─── Hint bar content ────────────────────────────────────────────────────
@@ -466,6 +552,8 @@ ShellRoot {
             sampleSysmon()
         } else if (app.name === "Terminal") {
             appWindow.focusTerminalInput()
+        } else if (app.external && app.exec) {
+            launchExternalExec(app.exec)
         }
         writeState()
     }
@@ -938,6 +1026,19 @@ ShellRoot {
             runControl(launcherProc, [helper, direction])
             return
         }
+        if (id.startsWith("launcher:")) {
+            var launcherIndex = Number(id.slice("launcher:".length)) - 1
+            var discovered = gridApps.filter(function(candidate) {
+                return candidate.external && candidate.exec
+            })
+            var launcher = discovered[launcherIndex]
+            if (launcher) {
+                paletteOpen = false
+                openApp(launcher)
+            }
+            return
+        }
+
         if (id.startsWith("app.")) {
             var name = id.slice(4)
             var all = gridApps.concat(dockApps)

@@ -156,6 +156,67 @@ case "$cmd" in
   state-write)
     state_write "$@"
     ;;
+  applications-list)
+    list_file="${TMPDIR:-/tmp}/torchform-launchers.$$"
+    trap 'rm -f "$list_file"' EXIT HUP INT TERM
+
+    emit_application() {
+      app_name=$1
+      app_icon=$2
+      app_exec=$3
+      app_kind=$4
+      [ -n "$app_name" ] && [ -n "$app_exec" ] || return 0
+      printf 'app\t%s\t%s\t%s\t%s\n' "$app_name" "$app_icon" "$app_exec" "$app_kind" >>"$list_file"
+    }
+
+    desktop_value() {
+      key=$1
+      file=$2
+      awk -F= -v key="$key" '
+        $0 == "[Desktop Entry]" { in_entry = 1; next }
+        /^\[/ { in_entry = 0 }
+        in_entry && $1 == key { print substr($0, index($0, "=") + 1); exit }
+      ' "$file"
+    }
+
+    icon_for_name() {
+      case "$1" in
+        *[Tt]erminal*|*[Cc]onsole*|*[Ss]hell*) printf '⬛' ;;
+        *[Bb]rowser*|*[Ww]eb*) printf '🌐' ;;
+        *[Ff]ile*|*[Dd]olphin*|*[Tt]hunar*) printf '🗂️' ;;
+        *[Mm]usic*|*[Mm]edia*) printf '🎵' ;;
+        *) printf '🚀' ;;
+      esac
+    }
+
+    app_dir="$HOME/.local/share/applications"
+    for desktop in "$app_dir"/*.desktop; do
+      [ -f "$desktop" ] || continue
+      type=$(desktop_value Type "$desktop")
+      hidden=$(desktop_value Hidden "$desktop")
+      no_display=$(desktop_value NoDisplay "$desktop")
+      [ "${type:-Application}" = "Application" ] || continue
+      [ "${hidden:-false}" = "true" ] && continue
+      [ "${no_display:-false}" = "true" ] && continue
+      name=$(desktop_value Name "$desktop")
+      exec_command=$(desktop_value Exec "$desktop")
+      exec_command=$(printf '%s\n' "$exec_command" | sed -E 's/ %[fFuUdDnNickvm]//g; s/%%/%/g')
+      emit_application "$name" "$(icon_for_name "$name")" "$exec_command" desktop
+    done
+
+    bin_dir="$HOME/.local/bin"
+    for executable in "$bin_dir"/*; do
+      [ -f "$executable" ] && [ -x "$executable" ] || continue
+      name=${executable##*/}
+      emit_application "$name" "$(icon_for_name "$name")" "$executable" executable
+    done
+
+    if [ -f "$list_file" ]; then
+      sort -t '	' -k2,2f "$list_file"
+    fi
+    exit 0
+    ;;
+
   files-list)
     requested=$(expand_path "${2:-~}")
     if ! cd "$requested" 2>/dev/null; then
@@ -187,6 +248,24 @@ case "$cmd" in
     sh -lc "$command" 2>&1 || status=$?
     printf '\n[exit %s]\n' "$status"
     ;;
+  launch-exec)
+    command=${2:-}
+    if [ -z "$command" ]; then
+      echo 'error|External command is empty.'
+      exit 0
+    fi
+    launch_log="${XDG_CACHE_HOME:-$HOME/.cache}/torchform-external.log"
+    mkdir -p "${launch_log%/*}"
+    nohup sh -lc "$command" >"$launch_log" 2>&1 </dev/null &
+    child=$!
+    sleep 0.25
+    if kill -0 "$child" 2>/dev/null; then
+      printf 'ok|Launching %s\n' "${command%% *}"
+    else
+      printf 'error|%s failed to start; see %s\n' "${command%% *}" "$launch_log"
+    fi
+    ;;
+
   sysmon)
     sample_sysmon
     ;;

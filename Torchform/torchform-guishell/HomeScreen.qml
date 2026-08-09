@@ -69,7 +69,7 @@ Rectangle {
         // App grid (4 columns)
         Item {
             width: parent.width
-            height: 250
+            height: Math.min(600, Math.max(250, Math.ceil(root.gridApps.length / 4) * 127))
 
             property real gap: 12
             property real cellW: (width - 3 * gap) / 4
