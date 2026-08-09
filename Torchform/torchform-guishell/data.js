@@ -44,7 +44,9 @@ var overlayConfig = {
     },
     quickSettings: {
         side: "right",
-        width: 280,
+        widthRatio: 0.22,
+        minWidth: 280,
+        maxWidth: 420,
         title: "Quick Settings",
         closeGlyph: "›",
         columns: 2,
@@ -64,7 +66,9 @@ var overlayConfig = {
     },
     notifications: {
         side: "left",
-        width: 300,
+        widthRatio: 0.22,
+        minWidth: 300,
+        maxWidth: 420,
         title: "Notifications",
         closeGlyph: "‹",
         initialFocus: 0,

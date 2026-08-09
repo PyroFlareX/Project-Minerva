@@ -35,7 +35,11 @@ Item {
             top: parent.top
             bottom: parent.bottom
         }
-        width: root.config.width || 280
+        width: root.config.widthRatio
+               ? Math.min(root.config.maxWidth || 420,
+                          Math.max(root.config.minWidth || 280,
+                                   parent.width * root.config.widthRatio))
+               : (root.config.width || 280)
         x: root.open
            ? (root.config.side === "left" ? 0 : parent.width - width)
            : (root.config.side === "left" ? -width : parent.width)

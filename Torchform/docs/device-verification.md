@@ -65,6 +65,7 @@ Reference images and button inventories:
 - [x] Overlay focus is explicit: opening radial, Quick Settings/Wi-Fi, Notifications, or Switcher captures controller/keyboard focus for that overlay.
 - [x] Closing a nested overlay restores the previously focused app or shell owner; state export records `focusOwner`, `focusCaptured`, and `focusEpoch`.
 - [x] Overlay content, geometry, initial focus, and tile states are registry-driven in `torchform-guishell/data.js`; changes do not require QML recompilation.
+- [x] Quick Settings and Notifications use geometry-scaled widths (`22%`, minimum 280/300px, maximum 420px) and responsive notification text; verified on the live `1920×1080` upper layout.
 - [ ] D-pad repeat has not yet been validated with a held physical direction and release.
 - [x] Lower screen mirrors time and active-app state; battery/palette/radial bindings are present.
 - [ ] Touch targets exist in QML but touch behavior is not hardware-verified.
@@ -149,5 +150,6 @@ The helper requires a running virtual-gamepad session. Start one with the smoke 
 | 2026-08-09 | `/tmp/torchform-overlay-final` and `/tmp/torchform-final-smoke` | Visual evidence shows focused overlay borders and controller hints on both displays; Quick Settings, Notifications, Radial, and Switcher render without obscuring the lower companion screen. |
 | 2026-08-09 | Terminal smoke scenario | A/confirm runs the entered command and displays `TORCHFORM_TERMINAL_OK`; Select remains App Switcher. |
 | 2026-08-09 | Post-run `free -m`, `df -h /`, `uptime`, and process inventory | 7.8 GiB RAM total / 7.1 GiB available, root filesystem 38% used, one Sway + one QuickShell session. |
+| 2026-08-09 | `device-smoke-test.py --restart --scenario panels` after main-branch geometry pass | Quick Settings and Notifications controller assertions passed; live screenshots under `/tmp/torchform-main-layout-final` show expanded responsive panels and readable notification text. |
 
 Update this log after every on-device smoke run. Do not call DRC/fabrication or touchscreen behavior verified from this checklist; those require direct evidence.

@@ -29,7 +29,11 @@ Item {
             top: parent.top
             bottom: parent.bottom
         }
-        width: root.config.width || 300
+        width: root.config.widthRatio
+               ? Math.min(root.config.maxWidth || 420,
+                          Math.max(root.config.minWidth || 300,
+                                   parent.width * root.config.widthRatio))
+               : (root.config.width || 300)
         x: root.open
            ? (root.config.side === "right" ? parent.width - width : 0)
            : (root.config.side === "right" ? parent.width : -width)
@@ -101,8 +105,10 @@ Item {
                     Row {
                         anchors {
                             left: parent.left
+                            right: parent.right
                             verticalCenter: parent.verticalCenter
                             leftMargin: 12
+                            rightMargin: 12
                         }
                         spacing: 10
 
@@ -113,6 +119,7 @@ Item {
                         }
 
                         Column {
+                            width: parent.width - 42
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 3
                             Row {
@@ -142,7 +149,7 @@ Item {
                                 font.family: Tokens.fontSans
                                 color: Tokens.textSecondary
                                 elide: Text.ElideRight
-                                width: 200
+                                width: parent.width
                             }
                         }
                     }
