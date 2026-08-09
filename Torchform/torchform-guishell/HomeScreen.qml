@@ -15,11 +15,8 @@ Rectangle {
     // Ambient radial wash
     Rectangle {
         anchors.fill: parent
-        gradient: Gradient {
-            orientation: Gradient.Radial
-            GradientStop { position: 0.0; color: "#112a64c8" }
-            GradientStop { position: 0.55; color: "transparent" }
-        }
+        color: "#112a64"
+        opacity: 0.18
     }
 
     Column {
@@ -52,12 +49,20 @@ Rectangle {
                     verticalAlignment: Text.AlignVCenter
                 }
             }
-            Text {
+            Row {
                 anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 14 }
-                text: "[X]"
-                font.pixelSize: 9
-                font.family: Tokens.fontMono
-                color: Tokens.textDisabled
+                spacing: 4
+                GamepadGlyph {
+                    button: "X"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Text {
+                    text: "Palette"
+                    font.pixelSize: 9
+                    font.family: Tokens.fontSans
+                    color: Tokens.textDisabled
+                    anchors.verticalCenter: parent.verticalCenter
+                }
             }
         }
 

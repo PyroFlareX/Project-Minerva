@@ -8,8 +8,14 @@ Rectangle {
     required property string timeStr
     property string activeApp:   ""
     property int    batteryPct:  100
+    property bool   batteryKnown: false
+    property string batteryStatus: "unknown"
+    property bool   lowBattery: false
     property bool   paletteOpen: false
     property bool   radialOpen:  false
+    property var    actions: []
+
+    signal actionTriggered(string id)
 
     // Status bar (top 28px)
     Rectangle {
@@ -46,10 +52,25 @@ Rectangle {
 
         Text {
             anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 10 }
-            text: "🔋 " + root.batteryPct + "%"
+            text: root.batteryKnown ? "🔋 " + root.batteryPct + "%" : "🔋 —"
             font.pixelSize: 10
             font.family: Tokens.fontMono
-            color: Tokens.textSecondary
+            color: root.lowBattery ? Tokens.error : Tokens.textSecondary
+        }
+    }
+
+    Rectangle {
+        visible: root.lowBattery
+        anchors { top: lowerBar.bottom; left: parent.left; right: parent.right }
+        height: 22
+        color: "#40131a"
+        border.color: Tokens.error
+        Text {
+            anchors.centerIn: parent
+            text: "LOW BATTERY · " + root.batteryPct + "%"
+            font.pixelSize: 9
+            font.family: Tokens.fontMono
+            color: Tokens.error
         }
     }
 
@@ -83,7 +104,7 @@ Rectangle {
                     text: root.activeApp !== "" ? root.activeApp : "Home"
                     font.pixelSize: 14
                     font.family: Tokens.fontDisplay
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Tokens.textPrimary
                 }
                 Text {
@@ -102,14 +123,7 @@ Rectangle {
                 spacing: 8
 
                 Repeater {
-                    model: [
-                        { key: "Space", label: "Home"    },
-                        { key: "X",     label: "Search"  },
-                        { key: "Tab",   label: "Radial"  },
-                        { key: "Z",     label: "QS"      },
-                        { key: "C",     label: "Notifs"  },
-                        { key: "Enter", label: "Apps"    },
-                    ]
+                    model: root.actions
                     delegate: Rectangle {
                         width: 72; height: 26
                         radius: Tokens.rSm
@@ -120,12 +134,9 @@ Rectangle {
                         Row {
                             anchors.centerIn: parent
                             spacing: 4
-                            Text {
-                                text: modelData.key
-                                font.pixelSize: 8
-                                font.family: Tokens.fontMono
-                                color: Tokens.accent
-                                verticalAlignment: Text.AlignVCenter
+                            GamepadGlyph {
+                                button: modelData.key
+                                anchors.verticalCenter: parent.verticalCenter
                             }
                             Text {
                                 text: modelData.label
@@ -134,6 +145,10 @@ Rectangle {
                                 color: Tokens.textDisabled
                                 verticalAlignment: Text.AlignVCenter
                             }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.actionTriggered(modelData.id)
                         }
                     }
                 }
@@ -158,12 +173,14 @@ Rectangle {
                 font.family: Tokens.fontDisplay
                 color: Tokens.textPrimary
             }
-            Text {
+            ControlHints {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "↑↓ navigate  ·  A select  ·  B close"
-                font.pixelSize: 10
-                font.family: Tokens.fontMono
-                color: Tokens.textDisabled
+                hints: [
+                    {button: "D-PAD", label: "Navigate"},
+                    {button: "A", label: "Select"},
+                    {button: "B", label: "Close"}
+                ]
+                spacing: 8
             }
         }
 
@@ -190,12 +207,14 @@ Rectangle {
                 font.family: Tokens.fontDisplay
                 color: Tokens.accent
             }
-            Text {
+            ControlHints {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "← → ↑ ↓ navigate  ·  A activate"
-                font.pixelSize: 10
-                font.family: Tokens.fontMono
-                color: Tokens.textDisabled
+                hints: [
+                    {button: "D-PAD", label: "Navigate"},
+                    {button: "A", label: "Activate"},
+                    {button: "B", label: "Close"}
+                ]
+                spacing: 8
             }
         }
     }

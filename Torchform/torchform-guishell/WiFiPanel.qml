@@ -57,8 +57,7 @@ Item {
                     }
                 }
                 root.wifiNetworks = rows
-                root.focusIndex = Math.max(0, Math.min(root.focusIndex, Math.max(0, rows.length - 1)))
-                root.statusText = rows.length > 0 ? "A: connect  •  ↑↓: choose  •  Scan refreshes automatically" : status
+                root.statusText = rows.length > 0 ? "A connect  •  D-PAD choose  •  Scan refreshes" : status
                 root.scanning = false
             }
         }
@@ -108,7 +107,7 @@ Item {
                     text: "Wi-Fi"
                     font.pixelSize: 15
                     font.family: Tokens.fontDisplay
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Tokens.textPrimary
                 }
                 Rectangle {

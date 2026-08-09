@@ -3,49 +3,79 @@ import "."
 
 Item {
     id: root
-    property bool open:       false
-    property int  notifCount: 0
+
+    property bool open: false
+    property var config: ({ side: "left", width: 300, title: "Notifications",
+                            closeGlyph: "‹", items: [] })
+    property int focusIndex: -1
+    property int notifCount: (root.config.items || []).length
 
     signal closed()
+    signal itemActivated(int index)
 
-    // Slide in from left
+    visible: open
+    opacity: open ? 1.0 : 0.0
+    Behavior on opacity { NumberAnimation { duration: Tokens.animNormal } }
+
+    MouseArea {
+        anchors.fill: parent
+        enabled: root.open
+        onClicked: root.closed()
+    }
+
     Rectangle {
         id: panel
-        anchors { top: parent.top; bottom: parent.bottom }
-        width: 300
-        x: root.open ? 0 : -width
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+        }
+        width: root.config.width || 300
+        x: root.open
+           ? (root.config.side === "right" ? parent.width - width : 0)
+           : (root.config.side === "right" ? parent.width : -width)
         color: Tokens.bgSurface
         border.color: Tokens.border
         border.width: 1
 
         Behavior on x { NumberAnimation { duration: Tokens.animNormal; easing.type: Easing.OutCubic } }
 
-        // Accent strip (right side)
         Rectangle {
-            anchors { top: parent.top; right: parent.right; bottom: parent.bottom }
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: root.config.side === "right" ? parent.left : undefined
+                right: root.config.side === "right" ? undefined : parent.right
+            }
             width: 2
             color: Tokens.primary
         }
 
         Column {
-            anchors { top: parent.top; left: parent.left; right: parent.right; topMargin: 16 }
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+                topMargin: 16
+            }
             leftPadding: 16
             rightPadding: 16
-            spacing: 0
+            spacing: 8
 
             Row {
                 spacing: 8
                 Text {
-                    text: "Notifications"
+                    text: root.config.title || "Notifications"
                     font.pixelSize: 15
                     font.family: Tokens.fontDisplay
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Tokens.textPrimary
                     bottomPadding: 14
                 }
                 Rectangle {
                     visible: root.notifCount > 0
-                    width: 18; height: 18; radius: 9
+                    width: 18
+                    height: 18
+                    radius: 9
                     color: Tokens.error
                     anchors.verticalCenter: parent.verticalCenter
                     Text {
@@ -58,21 +88,29 @@ Item {
             }
 
             Repeater {
-                model: notifItems
+                model: root.config.items || []
 
                 delegate: Rectangle {
                     width: parent.width - 32
                     height: 70
                     radius: Tokens.rMd
                     color: Tokens.bgElevated
-                    border.color: Tokens.borderSubtle
-                    border.width: 1
+                    border.color: root.focusIndex === index ? Tokens.accent : Tokens.borderSubtle
+                    border.width: root.focusIndex === index ? 2 : 1
 
                     Row {
-                        anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 12 }
+                        anchors {
+                            left: parent.left
+                            verticalCenter: parent.verticalCenter
+                            leftMargin: 12
+                        }
                         spacing: 10
 
-                        Text { text: modelData.icon; font.pixelSize: 22; anchors.verticalCenter: parent.verticalCenter }
+                        Text {
+                            text: modelData.icon
+                            font.pixelSize: 22
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
 
                         Column {
                             anchors.verticalCenter: parent.verticalCenter
@@ -109,17 +147,21 @@ Item {
                         }
                     }
 
-                    // Bottom divider
                     Rectangle {
                         anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
-                        height: 1; color: Tokens.borderSubtle
+                        height: 1
+                        color: Tokens.borderSubtle
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.itemActivated(index)
                     }
                 }
             }
 
-            // Empty state
             Text {
-                visible: notifItems.length === 0
+                visible: (root.config.items || []).length === 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: "No notifications"
                 font.pixelSize: 12
@@ -129,32 +171,25 @@ Item {
             }
         }
 
-        // Close handle
         Rectangle {
-            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-            width: 20; height: 60
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: root.config.side === "right" ? parent.right : undefined
+                right: root.config.side === "right" ? undefined : parent.left
+            }
+            width: 20
+            height: 60
             color: Tokens.bgElevated
             border.color: Tokens.border
             border.width: 1
             radius: 4
             Text {
                 anchors.centerIn: parent
-                text: "‹"
+                text: root.config.closeGlyph || "‹"
                 font.pixelSize: 14
                 color: Tokens.textSecondary
             }
             MouseArea { anchors.fill: parent; onClicked: root.closed() }
         }
     }
-
-    MouseArea {
-        anchors { left: panel.right; top: parent.top; bottom: parent.bottom; right: parent.right }
-        enabled: root.open
-        onClicked: root.closed()
-    }
-
-    property var notifItems: [
-        { icon: "📧", app: "Email",   time: "2m ago", title: "New message from Alice",   body: "Hey, did you see the latest Minerva prototype?" },
-        { icon: "⚙️", app: "System",  time: "5m ago", title: "Update available",         body: "torchform-shell 0.9.2 is ready to install."    },
-    ]
 }

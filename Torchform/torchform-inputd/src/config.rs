@@ -76,10 +76,13 @@ pub struct DeviceProfile {
     /// (e.g. "0810:0001"). Whichever the daemon can match against the device.
     #[serde(rename = "match")]
     pub match_spec: String,
-    /// raw evdev key name (e.g. "BTN_TRIGGER") → logical button name ("south").
+    /// Raw evdev key name (e.g. "BTN_TRIGGER") → logical button name ("south").
     /// Codes not listed fall back to the standard evdev→logical mapping.
     #[serde(default)]
     pub remap: BTreeMap<String, String>,
+    /// Treat legacy ABS_X/Y 0..255 values as digital d-pad axes.
+    #[serde(default)]
+    pub dpad_axes: bool,
 }
 
 impl Config {
@@ -144,6 +147,7 @@ mod tests {
 
             [[devices]]
             match = "DragonRise"
+            dpad_axes = true
             [devices.remap]
             BTN_TRIGGER = "south"
             BTN_THUMB = "east"
@@ -154,6 +158,7 @@ mod tests {
         assert_eq!(c.chords[0].action, "switcher");
         assert_eq!(c.multiclicks[0].count, 2);
         assert_eq!(c.devices[0].match_spec, "DragonRise");
+        assert!(c.devices[0].dpad_axes);
         assert_eq!(c.devices[0].remap.get("BTN_TRIGGER").unwrap(), "south");
     }
 

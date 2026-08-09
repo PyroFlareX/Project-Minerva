@@ -139,14 +139,11 @@ Item {
                         }
                     }
 
-                    // Shortcut hint
-                    Text {
+                    // Gamepad shortcut hint
+                    GamepadGlyph {
                         visible: modelData.shortcut !== ""
+                        button: modelData.shortcut
                         anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 16 }
-                        text: modelData.shortcut
-                        font.pixelSize: 10
-                        font.family: Tokens.fontMono
-                        color: Tokens.textDisabled
                     }
 
                     // Bottom divider

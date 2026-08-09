@@ -64,7 +64,7 @@ Item {
                 }
                 root.btDevices = rows
                 root.focusIndex = Math.max(0, Math.min(root.focusIndex, Math.max(0, rows.length - 1)))
-                root.statusText = rows.length > 0 ? "A: pair/connect  •  Scan: discover nearby devices" : status
+                root.statusText = rows.length > 0 ? "A pair/connect  •  D-PAD choose  •  Scan refreshes" : status
             }
         }
     }
@@ -126,7 +126,7 @@ Item {
                     text: "Bluetooth"
                     font.pixelSize: 15
                     font.family: Tokens.fontDisplay
-                    font.weight: Font.SemiBold
+                    font.weight: Font.DemiBold
                     color: Tokens.textPrimary
                 }
                 Rectangle {

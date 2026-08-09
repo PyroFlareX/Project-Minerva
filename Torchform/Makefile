@@ -10,7 +10,7 @@
 #   make build              Cargo build (debug) all crates
 #   make dev                Enter the Docker dev container interactively
 #   make dev-build          Build the Docker image
-#   make send-input         Run the mock input sender (gamepad events via socket)
+#   make send-input         Run the legacy inputd socket sender
 # =============================================================================
 
 DOCKER_IMAGE  := torchform-dev
@@ -31,7 +31,8 @@ DOCKER_RUN    := docker run --rm -it \
 CARGO := $(shell command -v cargo 2>/dev/null || echo "$(DOCKER_RUN) cargo")
 
 .PHONY: all check build run-emulator run-shell run-shell-radial run-shell-switcher \
-        run-shell-idle run-compositor dev dev-build send-input clean help
+        run-shell-idle run-compositor dev dev-build send-input device-smoke \
+        device-controller device-status capture-device-screens clean help
 
 all: build
 
@@ -49,9 +50,13 @@ help:
 	@echo "    make run-shell-idle      Emulator — lower screen in idle/status mode"
 	@echo "    make run-standalone      Two separate windows (mirrors physical layout)"
 	@echo "    make run-compositor      Wayland compositor (Winit, nested window)"
-	@echo "    make send-input          Mock gamepad event sender"
-	@echo ""
-	@echo "  Build (shell only — no hardware libs required):"
+	@echo "    make send-input          Legacy inputd socket sender"
+	@echo "    make device-smoke        SSH virtual-pad scenarios + screenshots"
+	@echo "                              (DEVICE_SMOKE_ARGS='--scenario terminal')"
+	@echo "    make device-controller   Send ad-hoc virtual controller actions"
+	@echo "                              (CONTROLLER_ARGS='sequence A UP RIGHT')"
+	@echo "    make device-status       Print live Minerva output roles and geometry"
+	@echo "    make capture-device-screens  Capture geometry-selected upper/lower PNGs"
 	@echo "    make check               cargo check torchform-shell"
 	@echo "    make build               cargo build torchform-shell (debug)"
 	@echo "    make build-release       cargo build torchform-shell (release)"
@@ -157,10 +162,22 @@ dev-run-compositor: dev-build xhost-allow
 	    TORCHFORM_BACKEND=winit RUST_LOG=debug cargo run -p torchform-compositor"
 
 # ---------------------------------------------------------------------------
-# Mock input sender — sends fake gamepad events to the inputd socket
+# Input diagnostics and live Minerva verification
 # ---------------------------------------------------------------------------
 send-input:
 	python3 scripts/send-input.py
+
+device-smoke:
+	python3 scripts/device-smoke-test.py --host $(MINERVA_HOST) $(DEVICE_SMOKE_ARGS)
+
+device-controller:
+	python3 scripts/emulate-controller.py --host $(MINERVA_HOST) $(CONTROLLER_ARGS)
+device-status:
+	ssh -T -o ForwardX11=no $(MINERVA_HOST) \
+	    "python3 \$$HOME/projects/torchform-guishell/configure-outputs.py --status"
+
+capture-device-screens:
+	python3 scripts/capture-device-screens.py --host $(MINERVA_HOST) $(CAPTURE_ARGS)
 
 # ---------------------------------------------------------------------------
 # Clean
@@ -252,45 +269,46 @@ remote-vnc-kill:
 	-ssh $(MINERVA_HOST) "pkill -f wayvnc; pkill -f cage" 2>/dev/null; true
 	-pkill -f "ssh -L $(VNC_PORT)" 2>/dev/null; true
 
-# ── QuickShell demo ───────────────────────────────────────────────────────────
+# ── QuickShell device console ────────────────────────────────────────────────
 .PHONY: deploy-hdmi hdmi-restart remote-vnc-qs remote-vnc-qs-kill
 
-# Sync QML + C source to Minerva, compile gamepad-map there, restart on HDMI.
+# Sync the script-driven active device shell.  QML/data/helper edits need no
+# Rust rebuild; hdmi-restart applies them in one deterministic cycle.
 deploy-hdmi:
-	@echo ">> Syncing demo-quickshell to $(MINERVA_HOST)..."
-	ssh $(MINERVA_HOST) "mkdir -p ~/projects/demo-quickshell"
-	rsync -avz --exclude='*.o' --exclude=gamepad-map demo-quickshell/. \
-	    $(MINERVA_HOST):~/projects/demo-quickshell/
-	@echo ">> Compiling gamepad-map on $(MINERVA_HOST)..."
-	ssh $(MINERVA_HOST) "gcc -O2 -o ~/projects/demo-quickshell/gamepad-map \
-	    ~/projects/demo-quickshell/gamepad-map.c && echo '   gamepad-map OK'"
+	@echo ">> Syncing torchform-guishell to $(MINERVA_HOST)..."
+	ssh -T -o ForwardX11=no $(MINERVA_HOST) "mkdir -p ~/projects/torchform-guishell"
+	tar czf /tmp/torchform-guishell.tar.gz --exclude='*.o' --exclude='__pycache__' -C torchform-guishell .
+	scp -T -o ForwardX11=no /tmp/torchform-guishell.tar.gz \
+	    $(MINERVA_HOST):/tmp/torchform-guishell.tar.gz
+	ssh -T -o ForwardX11=no $(MINERVA_HOST) \
+	    "tar xzf /tmp/torchform-guishell.tar.gz -C ~/projects/torchform-guishell && rm -f /tmp/torchform-guishell.tar.gz"
+	rm -f /tmp/torchform-guishell.tar.gz
 
 hdmi-restart: deploy-hdmi
-	@echo ">> Restarting demo on HDMI..."
-	-ssh $(MINERVA_HOST) "pkill -9 -x quickshell; pkill -9 -x sway; \
-	    pkill -9 -f demo-quickshell/gamepad-map" 2>/dev/null; true
-	ssh $(MINERVA_HOST) \
-	    "nohup setsid bash ~/projects/demo-quickshell/start-hdmi.sh \
+	@echo ">> Restarting Torchform QuickShell on HDMI..."
+	-ssh -T -o ForwardX11=no $(MINERVA_HOST) \
+	    "pkill -9 -x quickshell; pkill -9 -x sway; pkill -9 -x torchform-input" 2>/dev/null; true
+	ssh -T -o ForwardX11=no $(MINERVA_HOST) \
+	    "nohup setsid sh ~/projects/torchform-guishell/start-hdmi.sh \
 	     </dev/null >/tmp/start-hdmi.log 2>&1 &"
-	@echo ">> Running — tail logs: ssh $(MINERVA_HOST) tail -f /tmp/quickshell-hdmi.log"
+	@echo ">> Running — logs: ssh -T $(MINERVA_HOST) 'cat /tmp/quickshell-hdmi.log'"
 
 remote-vnc-qs:
 	@echo ">> Killing stale quickshell/wayvnc on $(MINERVA_HOST)..."
-	-ssh $(MINERVA_HOST) "pkill -9 -f wayvnc; pkill -9 -f quickshell; pkill -9 -f 'sway.*torchform'; rm -rf /tmp/xdg-qs-vnc" 2>/dev/null; true
+	-ssh -T -o ForwardX11=no $(MINERVA_HOST) "pkill -9 -x wayvnc; pkill -9 -x quickshell; pkill -9 -x sway; rm -rf /tmp/xdg-qs-vnc" 2>/dev/null; true
 	-pkill -f "ssh -L $(VNC_PORT)" 2>/dev/null; true
 	@sleep 1
-	@echo ">> Syncing demo files to $(MINERVA_HOST)..."
-	ssh $(MINERVA_HOST) "mkdir -p ~/projects/demo-quickshell"
-	scp -r demo-quickshell/. $(MINERVA_HOST):~/projects/demo-quickshell/
-	@echo ">> Starting QuickShell demo on $(MINERVA_HOST)..."
-	ssh $(MINERVA_HOST) "VNC_PORT=$(VNC_PORT) bash ~/projects/demo-quickshell/start.sh" &
+	@echo ">> Syncing torchform-guishell to $(MINERVA_HOST)..."
+	$(MAKE) deploy-hdmi MINERVA_HOST=$(MINERVA_HOST)
+	@echo ">> Starting QuickShell headless session on $(MINERVA_HOST)..."
+	ssh -T -o ForwardX11=no $(MINERVA_HOST) "VNC_PORT=$(VNC_PORT) sh ~/projects/torchform-guishell/start.sh" &
 	@echo ">> Waiting for wayvnc to start..."
 	@sleep 10
 	@echo ">> Opening SSH tunnel and viewer..."
-	ssh -L $(VNC_PORT):localhost:$(VNC_PORT) $(MINERVA_HOST) -N &
+	ssh -T -L $(VNC_PORT):localhost:$(VNC_PORT) $(MINERVA_HOST) -N &
 	@sleep 1
 	gvncviewer localhost::$(VNC_PORT)
 
 remote-vnc-qs-kill:
-	-ssh $(MINERVA_HOST) "pkill -f wayvnc; pkill -f quickshell; pkill -f 'sway.*torchform'" 2>/dev/null; true
+	-ssh -T -o ForwardX11=no $(MINERVA_HOST) "pkill -9 -x wayvnc; pkill -9 -x quickshell; pkill -9 -x sway" 2>/dev/null; true
 	-pkill -f "ssh -L $(VNC_PORT)" 2>/dev/null; true

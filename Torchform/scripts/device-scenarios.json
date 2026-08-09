@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "input_backend": "virtual gamepad button/D-pad injection; wtype only for terminal text",
+  "scenarios": [
+    {
+      "id": "navigation",
+      "description": "Unlock, move through the home grid, launch an app, and return home.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "panel": "", "homeFocus": 0}},
+        {"id": "grid-down", "actions": ["key:RIGHT", "key:DOWN"], "expect": {"screen": "home", "homeFocus": 5}},
+        {"id": "launch-email", "actions": ["key:LEFT", "key:UP", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "Email"}},
+        {"id": "back-home", "actions": ["key:ESC"], "expect": {"screen": "home"}}
+      ]
+    },
+    {
+      "id": "quick-commands",
+      "description": "Open the command palette, navigate a command, and close it safely.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
+        {"id": "open-palette", "actions": ["key:X"], "expect": {"palette": true}},
+        {"id": "palette-next", "actions": ["key:DOWN"], "expect": {"palette": true, "paletteFocus": 1}},
+        {"id": "close-palette", "actions": ["key:ESC"], "expect": {"palette": false, "screen": "home"}}
+      ]
+    },
+    {
+      "id": "panels",
+      "description": "Open and dismiss quick settings and notifications from the shell.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
+        {"id": "quick-settings", "actions": ["key:Z"], "expect": {"panel": "qs"}},
+        {"id": "close-quick-settings", "actions": ["key:ESC"], "expect": {"panel": ""}},
+        {"id": "notifications", "actions": ["key:C"], "expect": {"panel": "notif"}},
+        {"id": "close-notifications", "actions": ["key:ESC"], "expect": {"panel": ""}}
+      ]
+    },
+    {
+      "id": "radial",
+      "description": "Open, navigate, and dismiss the radial quick-action menu.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
+        {"id": "open-radial", "actions": ["key:TAB"], "expect": {"radial": true}},
+        {"id": "radial-next", "actions": ["key:RIGHT"], "expect": {"radial": true, "radialFocus": 1}},
+        {"id": "close-radial", "actions": ["key:ESC"], "expect": {"radial": false}}
+      ]
+    },
+    {
+      "id": "files",
+      "description": "Open the built-in file browser, list a real directory, and move focus.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "homeFocus": 0}},
+        {"id": "select-files", "actions": ["key:DOWN", "key:DOWN", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "Files", "filesReady": true}},
+        {"id": "files-next", "actions": ["key:DOWN"], "expect": {"screen": "app", "app": "Files", "fileFocus": 1}}
+      ]
+    },
+    {
+      "id": "terminal",
+      "description": "Open the script-backed terminal command runner and execute a harmless command.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "homeFocus": 0}},
+        {"id": "select-terminal", "actions": ["key:DOWN", "key:DOWN", "key:A"], "expect": {"screen": "app", "app": "Terminal"}},
+        {"id": "run-command", "actions": ["text:printf TORCHFORM_TERMINAL_OK", "key:A"], "expect": {"terminalLastContains": "TORCHFORM_TERMINAL_OK"}}
+      ]
+    },
+    {
+      "id": "sysmon",
+      "description": "Open the live /proc-backed system monitor and verify sampled data.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "homeFocus": 0}},
+        {"id": "select-sysmon", "actions": ["key:RIGHT", "key:RIGHT", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "Sysmon", "sysmonReady": true}},
+        {"id": "refresh-sysmon", "actions": ["sleep:2.5"], "expect": {"sysmonReady": true}}
+      ]
+    },
+    {
+      "id": "overlay-focus",
+      "description": "Verify configured radial, quick-settings, notifications, and switcher focus handoffs.",
+      "steps": [
+        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "focusOwner": "home", "focusCaptured": false, "overlayLayoutVersion": 2}},
+        {"id": "open-terminal", "actions": ["key:DOWN", "key:DOWN", "key:A"], "expect": {"screen": "app", "app": "Terminal", "focusOwner": "app", "focusCaptured": false}},
+        {"id": "open-quick-settings", "actions": ["key:Z"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "focusCaptured": true, "quickSettingsFocus": 0}},
+        {"id": "quick-settings-next", "actions": ["key:DOWN"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "quickSettingsFocus": 1}},
+        {"id": "quick-settings-adjust", "actions": ["key:RIGHT"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "quickSettingsFocus": 1, "quickSettingsSliderValues": [72, 90]}},
+        {"id": "open-wifi-subpanel", "actions": ["key:DOWN", "key:A"], "expect": {"panel": "qs", "focusOwner": "wifi", "focusCaptured": true}},
+        {"id": "return-to-quick-settings", "actions": ["key:ESC"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "focusCaptured": true}},
+        {"id": "close-quick-settings", "actions": ["key:ESC"], "expect": {"panel": "", "focusOwner": "app", "focusCaptured": false}},
+        {"id": "open-notifications", "actions": ["key:C"], "expect": {"panel": "notif", "focusOwner": "notifications", "focusCaptured": true, "notificationsFocus": 0}},
+        {"id": "notifications-next", "actions": ["key:DOWN"], "expect": {"panel": "notif", "focusOwner": "notifications", "notificationsFocus": 1}},
+        {"id": "close-notifications", "actions": ["key:ESC"], "expect": {"panel": "", "focusOwner": "app", "focusCaptured": false}},
+        {"id": "open-radial", "actions": ["key:TAB"], "expect": {"radial": true, "focusOwner": "radial", "focusCaptured": true, "radialFocus": 0}},
+        {"id": "radial-down", "actions": ["key:DOWN"], "expect": {"radial": true, "focusOwner": "radial", "radialFocus": 2}},
+        {"id": "radial-up", "actions": ["key:UP"], "expect": {"radial": true, "focusOwner": "radial", "radialFocus": 0}},
+        {"id": "close-radial", "actions": ["key:ESC"], "expect": {"radial": false, "focusOwner": "app", "focusCaptured": false}},
+        {"id": "open-switcher", "actions": ["key:ENTER"], "expect": {"panel": "switcher", "focusOwner": "switcher", "focusCaptured": true, "switcherFocus": 0}},
+        {"id": "switcher-next", "actions": ["key:RIGHT"], "expect": {"panel": "switcher", "focusOwner": "switcher", "switcherFocus": 1}},
+        {"id": "close-switcher", "actions": ["key:ESC"], "expect": {"panel": "", "focusOwner": "app", "focusCaptured": false}}
+      ]
+    },
+    {
+      "id": "touch-controls",
+      "description": "Exercise QML MouseArea targets when a touchscreen or injected pointer is available.",
+      "touch_required": true,
+      "steps": [
+        {"id": "touch-home-tile", "actions": ["touch:home-first-tile"], "expect": {"screen": "app"}},
+        {"id": "touch-back", "actions": ["touch:app-back"], "expect": {"screen": "home"}}
+      ]
+    }
+  ]
+}

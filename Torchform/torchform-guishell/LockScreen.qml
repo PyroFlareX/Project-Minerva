@@ -12,11 +12,8 @@ Rectangle {
     // Ambient radial wash
     Rectangle {
         anchors.fill: parent
-        gradient: Gradient {
-            orientation: Gradient.Radial
-            GradientStop { position: 0.0; color: "#142a64c8" }
-            GradientStop { position: 0.55; color: "transparent" }
-        }
+        color: "#142a64"
+        opacity: 0.18
     }
 
     Column {
@@ -62,14 +59,10 @@ Rectangle {
             }
         }
 
-        // Hint text
-        Text {
+        ControlHints {
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "Press A to unlock  ·  ↑↑↓↓←→←→BA for Konami"
-            font.pixelSize: 10
-            font.family: Tokens.fontMono
-            color: Tokens.textDisabled
-            topPadding: 14
+            hints: [{button: "A", label: "Unlock"}]
+            y: 14
         }
     }
 }

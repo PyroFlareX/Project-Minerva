@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="180" viewBox="0 0 640 180">
+  <title>Minerva gamepad controls, Torchform teal variant</title>
+  <rect width="640" height="180" rx="24" fill="#0d0f14"/>
+  <g fill="#00d4ff" stroke="#00d4ff" stroke-width="3" font-family="DejaVu Sans, sans-serif" text-anchor="middle">
+    <circle cx="480" cy="70" r="28"/><circle cx="540" cy="120" r="28"/><circle cx="420" cy="120" r="28"/><circle cx="480" cy="170" r="28"/>
+    <text x="480" y="78" font-size="24" fill="#000000">Y</text><text x="540" y="128" font-size="24" fill="#000000">A</text><text x="420" y="128" font-size="24" fill="#000000">X</text><text x="480" y="178" font-size="24" fill="#000000">B</text>
+    <path d="M115 46h26v35h35v26h-35v35h-26v-35H80V81h35z"/>
+    <rect x="220" y="72" width="76" height="36" rx="18"/><rect x="332" y="72" width="76" height="36" rx="18"/>
+    <text x="258" y="96" font-size="15" fill="#000000">L1</text><text x="370" y="96" font-size="15" fill="#000000">R1</text>
+    <text x="125" y="164" font-size="14" fill="#00d4ff">D-PAD</text><text x="258" y="132" font-size="13" fill="#00d4ff">SELECT</text><text x="370" y="132" font-size="13" fill="#00d4ff">START</text>
+  </g>
+</svg>

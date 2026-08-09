@@ -1,5 +1,5 @@
 #!/bin/sh
-# start-hdmi.sh — Launch Torchform QuickShell demo on the physical HDMI output.
+# start-hdmi.sh — Launch Torchform QuickShell on the physical HDMI outputs.
 #
 # Unlike start.sh (headless + wayvnc), this drives the real DRM/KMS display via
 # sway's auto-detected DRM backend. Requires:
@@ -7,7 +7,7 @@
 #   - seatd running and the invoking user in the `seat` group
 #
 # Usage (over SSH or on the device):
-#   ~/projects/demo-quickshell/start-hdmi.sh
+#   ~/projects/torchform-guishell/start-hdmi.sh
 set -e
 
 DEMO_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -29,47 +29,74 @@ fi
 
 # ── Clean up any stale session ───────────────────────────────────────────────
 # NOTE: match by process NAME (no -f). Using `-f quickshell` would match this
-# script's own command line, since it lives under the project dir, and SIGKILL
-# itself before doing anything.
+# script's own command line and SIGKILL itself before doing anything.
+if [ -f /tmp/torchform-virtual-gamepad.pid ]; then
+    TEST_PAD_PID=$(cat /tmp/torchform-virtual-gamepad.pid 2>/dev/null || true)
+    [ -z "$TEST_PAD_PID" ] || kill "$TEST_PAD_PID" 2>/dev/null || true
+    rm -f /tmp/torchform-virtual-gamepad.pid
+fi
 pkill -9 -x quickshell 2>/dev/null || true
 pkill -9 -x sway 2>/dev/null || true
-pkill -9 -f torchform-inputd 2>/dev/null || true
+pkill -9 -x torchform-input 2>/dev/null || true
 sleep 1
 rm -rf "$XDG_RUNTIME_DIR"
 
 # ── Runtime dir (shared by the daemon + plugin via the action manifest) ───────
 # torchform-inputd writes $XDG_RUNTIME_DIR/torchform/inputd-actions.json and the
-# Torchform.Gamepad plugin reads it, so both must see the SAME XDG_RUNTIME_DIR —
-# export it before starting the daemon.
+# Torchform.Gamepad plugin reads it, so both must see the SAME XDG_RUNTIME_DIR.
 mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
 export XDG_RUNTIME_DIR
+mkdir -p "$XDG_RUNTIME_DIR/torchform"
 
-# ── Input daemon FIRST ────────────────────────────────────────────────────────
-# torchform-inputd owns the physical controller(s) and emits the normalized
-# "torchform-virtpad" uinput device. sway only enumerates input present at
-# startup (udev hotplug does not reliably deliver uinput devices created later),
-# so the virtual pad must exist before sway launches.
-#
-# Install the default config on first run (chords/multiclick live here; the
-# daemon falls back to built-in defaults if it is missing entirely).
-if [ ! -f "$INPUT_CONFIG" ] && [ -f "$INPUTD_DIR/config/input.toml" ]; then
-    mkdir -p "$(dirname "$INPUT_CONFIG")"
-    cp "$INPUTD_DIR/config/input.toml" "$INPUT_CONFIG"
-    echo ">> Installed default input config to $INPUT_CONFIG"
-fi
-# Build the daemon if the release binary is missing.
-if [ ! -x "$INPUTD_BIN" ] && [ -d "$INPUTD_DIR" ]; then
-    echo ">> Building torchform-inputd (release)..."
-    ( cd "$INPUTD_DIR" && cargo build --release ) \
-        || echo "   WARNING: cargo build failed — controller will not work"
-fi
-if [ -x "$INPUTD_BIN" ]; then
-    echo ">> Starting input daemon..."
-    setsid "$INPUTD_BIN" </dev/null >/tmp/torchform-inputd.log 2>&1 &
-    INPUTD_PID=$!
-    sleep 1
+VIRTUAL_GAMEPAD_SOCKET="$XDG_RUNTIME_DIR/torchform/virtual-gamepad.sock"
+VIRTUAL_GAMEPAD_READY="$XDG_RUNTIME_DIR/torchform/virtual-gamepad.ready"
+VIRTUAL_GAMEPAD_PID=""
+INPUTD_PID=""
+
+# ── Input backend FIRST ──────────────────────────────────────────────────────
+# Production: torchform-inputd owns the physical controller(s) and emits the
+# normalized "torchform-virtpad" uinput device.  Smoke mode: replace only that
+# backend with the standard-library virtual gamepad driver.  The QuickShell
+# Gamepad plugin therefore sees the same device name and event codes.
+if [ "${TORCHFORM_VIRTUAL_GAMEPAD:-0}" = "1" ]; then
+    echo ">> Starting virtual gamepad test backend..."
+    setsid python3 "$DEMO_DIR/virtual-gamepad.py" --daemon \
+        --socket "$VIRTUAL_GAMEPAD_SOCKET" \
+        --ready "$VIRTUAL_GAMEPAD_READY" \
+        --pid-file /tmp/torchform-virtual-gamepad.pid \
+        </dev/null >/tmp/torchform-virtual-gamepad.log 2>&1 &
+    VIRTUAL_GAMEPAD_PID=$!
+    for i in $(seq 1 40); do
+        [ -f "$VIRTUAL_GAMEPAD_READY" ] && break
+        sleep 0.05
+    done
+    if [ ! -f "$VIRTUAL_GAMEPAD_READY" ]; then
+        echo "ERROR: virtual gamepad did not become ready."
+        cat /tmp/torchform-virtual-gamepad.log 2>/dev/null || true
+        kill "$VIRTUAL_GAMEPAD_PID" 2>/dev/null || true
+        exit 1
+    fi
 else
-    echo "   WARNING: $INPUTD_BIN not found — no controller input"
+    # Install the default config on first run (chords/multiclick live here; the
+    # daemon falls back to built-in defaults if it is missing entirely).
+    if [ ! -f "$INPUT_CONFIG" ] && [ -f "$INPUTD_DIR/config/input.toml" ]; then
+        mkdir -p "$(dirname "$INPUT_CONFIG")"
+        cp "$INPUTD_DIR/config/input.toml" "$INPUT_CONFIG"
+        echo ">> Installed default input config to $INPUT_CONFIG"
+    fi
+    if [ ! -x "$INPUTD_BIN" ] && [ -d "$INPUTD_DIR" ]; then
+        echo ">> Building torchform-inputd (release)..."
+        ( cd "$INPUTD_DIR" && cargo build --release ) \
+            || echo "   WARNING: cargo build failed — controller will not work"
+    fi
+    if [ -x "$INPUTD_BIN" ]; then
+        echo ">> Starting input daemon..."
+        setsid "$INPUTD_BIN" </dev/null >/tmp/torchform-inputd.log 2>&1 &
+        INPUTD_PID=$!
+        sleep 1
+    else
+        echo "   WARNING: $INPUTD_BIN not found — no controller input"
+    fi
 fi
 
 # ── Wayland env (DRM backend — NO headless) ───────────────────────────────────
@@ -102,6 +129,16 @@ fi
 
 export WAYLAND_DISPLAY="$(basename "$SOCK")"
 echo ">> Wayland socket: $WAYLAND_DISPLAY"
+
+# ── Configure provisional display roles ───────────────────────────────────────
+# The largest active output is upper; the smallest is lower.  This keeps the
+# UI correct while the IO-board connector mapping and final panel modes move.
+echo ">> Configuring display roles from live output geometry..."
+if ! python3 "$DEMO_DIR/configure-outputs.py"; then
+    echo "ERROR: display-role configuration failed."
+    kill "$SWAY_PID" 2>/dev/null || true
+    exit 1
+fi
 sleep 1
 
 # ── Start QuickShell ─────────────────────────────────────────────────────────
@@ -124,11 +161,16 @@ echo "  Keyboard (dev): Space=Home A=Confirm Esc=Back X=Palette Z=QS C=Notifs"
 echo "                  Tab=Radial Enter=Switcher Arrows=Nav"
 echo "  Emergency exit: Mod4+Escape"
 echo "  Logs: /tmp/quickshell-hdmi.log  /tmp/torchform-inputd.log  /tmp/sway-hdmi.log"
+if [ "${TORCHFORM_VIRTUAL_GAMEPAD:-0}" = "1" ]; then
+    echo "  Input: virtual gamepad test backend ($VIRTUAL_GAMEPAD_SOCKET)"
+fi
 echo "  Stop: kill $SWAY_PID"
 echo ""
 
 wait $SWAY_PID
 echo "Sway exited. Cleaning up."
 kill $QS_PID 2>/dev/null || true
-[ -n "$INPUTD_PID" ] && kill $INPUTD_PID 2>/dev/null || true
+kill "$INPUTD_PID" 2>/dev/null || true
+kill "$VIRTUAL_GAMEPAD_PID" 2>/dev/null || true
+rm -f /tmp/torchform-virtual-gamepad.pid
 rm -rf "$XDG_RUNTIME_DIR"

@@ -17,8 +17,15 @@ use crate::virtpad::VIRTPAD_NAME;
 
 /// A message from a device reader thread to the engine loop.
 pub enum InMsg {
-    Button { btn: LogicalButton, pressed: bool, at: Instant },
-    Axis { axis: LogicalAxis, value: i32 },
+    Button {
+        btn: LogicalButton,
+        pressed: bool,
+        at: Instant,
+    },
+    Axis {
+        axis: LogicalAxis,
+        value: i32,
+    },
 }
 
 /// True if a device looks like a gamepad: reports the modern South face button
@@ -115,7 +122,10 @@ impl KeyMap {
         let mut map = HashMap::new();
         if let Some(p) = profile {
             for (raw_name, logical_name) in &p.remap {
-                match (key_from_name(raw_name), logical_name.parse::<LogicalButton>()) {
+                match (
+                    key_from_name(raw_name),
+                    logical_name.parse::<LogicalButton>(),
+                ) {
                     (Some(k), Ok(b)) => {
                         map.insert(k, b);
                     }
@@ -141,7 +151,11 @@ pub fn discover_gamepads() -> Vec<PathBuf> {
             continue;
         }
         if is_gamepad(&dev) {
-            log::info!("controller: {} ({})", dev.name().unwrap_or("?"), path.display());
+            log::info!(
+                "controller: {} ({})",
+                dev.name().unwrap_or("?"),
+                path.display()
+            );
             found.push(path);
         }
     }
@@ -150,13 +164,19 @@ pub fn discover_gamepads() -> Vec<PathBuf> {
 
 /// Open one controller, grab it, and read forever, forwarding logical events to
 /// `tx`. Returns when the device disappears or errors (so the caller can respawn
-/// on the next hotplug rescan). Hat axes (ABS_HAT0X/Y) become d-pad buttons.
+/// on the next hotplug rescan). Hat axes (ABS_HAT0X/Y) and configured legacy
+/// axes become d-pad buttons.
 pub fn run_reader(path: &Path, cfg: &Config, tx: Sender<InMsg>) -> Result<()> {
     let mut dev = Device::open(path)?;
-    let keymap = KeyMap::build(profile_for(&dev, cfg));
+    let profile = profile_for(&dev, cfg);
+    let keymap = KeyMap::build(profile);
+    let dpad_axes = profile.map_or(false, |p| p.dpad_axes);
     // Grab so the raw device's events don't reach apps — only our virtual pad does.
     if let Err(e) = dev.grab() {
-        log::warn!("could not grab {}: {e} (raw events may leak)", path.display());
+        log::warn!(
+            "could not grab {}: {e} (raw events may leak)",
+            path.display()
+        );
     }
 
     // Track hat state to synthesize d-pad press/release edges.
@@ -173,15 +193,39 @@ pub fn run_reader(path: &Path, cfg: &Config, tx: Sender<InMsg>) -> Result<()> {
                         if ev.value() == 2 {
                             continue;
                         }
-                        let _ = tx.send(InMsg::Button { btn, pressed: ev.value() == 1, at: now });
+                        let _ = tx.send(InMsg::Button {
+                            btn,
+                            pressed: ev.value() == 1,
+                            at: now,
+                        });
                     }
                 }
                 InputEventKind::AbsAxis(axis) => {
-                    handle_abs(axis, ev.value(), &mut hat_x, &mut hat_y, now, &tx);
+                    handle_abs(
+                        axis,
+                        ev.value(),
+                        &mut hat_x,
+                        &mut hat_y,
+                        dpad_axes,
+                        now,
+                        &tx,
+                    );
                 }
                 _ => {}
             }
         }
+    }
+}
+
+/// Convert a legacy 8-bit axis used as a digital d-pad into -1/0/1.
+/// The DragonRise 0810:0001 reports 0/255 at the extremes and 127 at rest.
+fn legacy_axis_direction(value: i32) -> i32 {
+    if value <= 64 {
+        -1
+    } else if value >= 192 {
+        1
+    } else {
+        0
     }
 }
 
@@ -191,34 +235,135 @@ fn handle_abs(
     value: i32,
     hat_x: &mut i32,
     hat_y: &mut i32,
+    dpad_axes: bool,
     now: Instant,
     tx: &Sender<InMsg>,
 ) {
     let send = |b: LogicalButton, pressed: bool| {
-        let _ = tx.send(InMsg::Button { btn: b, pressed, at: now });
+        let _ = tx.send(InMsg::Button {
+            btn: b,
+            pressed,
+            at: now,
+        });
     };
     match axis {
         AbsoluteAxisType::ABS_HAT0X => {
             // Release the previous direction, press the new one.
-            if *hat_x < 0 { send(LogicalButton::DpadLeft, false); }
-            if *hat_x > 0 { send(LogicalButton::DpadRight, false); }
-            if value < 0 { send(LogicalButton::DpadLeft, true); }
-            if value > 0 { send(LogicalButton::DpadRight, true); }
+            if *hat_x < 0 {
+                send(LogicalButton::DpadLeft, false);
+            }
+            if *hat_x > 0 {
+                send(LogicalButton::DpadRight, false);
+            }
+            if value < 0 {
+                send(LogicalButton::DpadLeft, true);
+            }
+            if value > 0 {
+                send(LogicalButton::DpadRight, true);
+            }
             *hat_x = value;
         }
         AbsoluteAxisType::ABS_HAT0Y => {
-            if *hat_y < 0 { send(LogicalButton::DpadUp, false); }
-            if *hat_y > 0 { send(LogicalButton::DpadDown, false); }
-            if value < 0 { send(LogicalButton::DpadUp, true); }
-            if value > 0 { send(LogicalButton::DpadDown, true); }
+            if *hat_y < 0 {
+                send(LogicalButton::DpadUp, false);
+            }
+            if *hat_y > 0 {
+                send(LogicalButton::DpadDown, false);
+            }
+            if value < 0 {
+                send(LogicalButton::DpadUp, true);
+            }
+            if value > 0 {
+                send(LogicalButton::DpadDown, true);
+            }
             *hat_y = value;
         }
-        AbsoluteAxisType::ABS_X => { let _ = tx.send(InMsg::Axis { axis: LogicalAxis::LeftX, value }); }
-        AbsoluteAxisType::ABS_Y => { let _ = tx.send(InMsg::Axis { axis: LogicalAxis::LeftY, value }); }
-        AbsoluteAxisType::ABS_RX => { let _ = tx.send(InMsg::Axis { axis: LogicalAxis::RightX, value }); }
-        AbsoluteAxisType::ABS_RY => { let _ = tx.send(InMsg::Axis { axis: LogicalAxis::RightY, value }); }
-        AbsoluteAxisType::ABS_Z => { let _ = tx.send(InMsg::Axis { axis: LogicalAxis::L2Analog, value }); }
-        AbsoluteAxisType::ABS_RZ => { let _ = tx.send(InMsg::Axis { axis: LogicalAxis::R2Analog, value }); }
+        AbsoluteAxisType::ABS_X if dpad_axes => {
+            let direction = legacy_axis_direction(value);
+            if *hat_x != direction {
+                if *hat_x < 0 {
+                    send(LogicalButton::DpadLeft, false);
+                }
+                if *hat_x > 0 {
+                    send(LogicalButton::DpadRight, false);
+                }
+                if direction < 0 {
+                    send(LogicalButton::DpadLeft, true);
+                }
+                if direction > 0 {
+                    send(LogicalButton::DpadRight, true);
+                }
+                *hat_x = direction;
+            }
+        }
+        AbsoluteAxisType::ABS_Y if dpad_axes => {
+            let direction = legacy_axis_direction(value);
+            if *hat_y != direction {
+                if *hat_y < 0 {
+                    send(LogicalButton::DpadUp, false);
+                }
+                if *hat_y > 0 {
+                    send(LogicalButton::DpadDown, false);
+                }
+                if direction < 0 {
+                    send(LogicalButton::DpadUp, true);
+                }
+                if direction > 0 {
+                    send(LogicalButton::DpadDown, true);
+                }
+                *hat_y = direction;
+            }
+        }
+        AbsoluteAxisType::ABS_X => {
+            let _ = tx.send(InMsg::Axis {
+                axis: LogicalAxis::LeftX,
+                value,
+            });
+        }
+        AbsoluteAxisType::ABS_Y => {
+            let _ = tx.send(InMsg::Axis {
+                axis: LogicalAxis::LeftY,
+                value,
+            });
+        }
+        AbsoluteAxisType::ABS_RX => {
+            let _ = tx.send(InMsg::Axis {
+                axis: LogicalAxis::RightX,
+                value,
+            });
+        }
+        AbsoluteAxisType::ABS_RY => {
+            let _ = tx.send(InMsg::Axis {
+                axis: LogicalAxis::RightY,
+                value,
+            });
+        }
+        AbsoluteAxisType::ABS_Z => {
+            let _ = tx.send(InMsg::Axis {
+                axis: LogicalAxis::L2Analog,
+                value,
+            });
+        }
+        AbsoluteAxisType::ABS_RZ => {
+            let _ = tx.send(InMsg::Axis {
+                axis: LogicalAxis::R2Analog,
+                value,
+            });
+        }
         _ => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::legacy_axis_direction;
+
+    #[test]
+    fn legacy_axis_maps_extremes_and_center() {
+        assert_eq!(legacy_axis_direction(0), -1);
+        assert_eq!(legacy_axis_direction(64), -1);
+        assert_eq!(legacy_axis_direction(127), 0);
+        assert_eq!(legacy_axis_direction(192), 1);
+        assert_eq!(legacy_axis_direction(255), 1);
     }
 }

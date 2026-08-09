@@ -40,13 +40,20 @@ action = "home"
 # ── Per-device remaps ──────────────────────────────────────────────────────────
 # Oddball pads that don't report standard BTN_SOUTH/EAST/… codes. Match by a
 # case-insensitive substring of the device name, or a "vid:pid" hex pair.
-# Example: the DragonRise USB pad reports legacy joystick button codes.
-# [[devices]]
-# match = "0810:0001"          # or match = "DragonRise"
-# [devices.remap]
-# BTN_TRIGGER = "south"
-# BTN_THUMB   = "east"
-# BTN_THUMB2  = "west"
-# BTN_TOP     = "north"
-# BTN_TL      = "l1"
-# BTN_TR      = "r1"
+# The DragonRise 0810:0001 also reports its digital d-pad on ABS_X/Y.
+[[devices]]
+match = "0810:0001"
+dpad_axes = true
+[devices.remap]
+BTN_TRIGGER = "west"     # left face (X/Square)
+BTN_THUMB   = "east"     # right face (B/Circle)
+BTN_THUMB2  = "south"    # bottom face (A/Cross) on this pad
+BTN_TOP     = "north"    # top face (Y/Triangle)
+BTN_TOP2    = "l1"
+BTN_PINKIE  = "r1"
+BTN_BASE    = "l2"
+BTN_BASE2   = "r2"
+BTN_BASE3   = "select"
+BTN_BASE4   = "start"
+BTN_BASE5   = "thumbl"
+BTN_BASE6   = "thumbr"

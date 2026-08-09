@@ -16,6 +16,8 @@ Rectangle {
     property bool   dnd:            false
     property int    notifCount:     0
     property int    batteryPct:     87
+    property bool   batteryKnown:   false
+    property bool   lowBattery:     false
 
     color: "#cc07070f"
 
@@ -101,10 +103,10 @@ Rectangle {
             color: Tokens.error
         }
         Text {
-            text: "🔋 " + root.batteryPct + "%"
+            text: root.batteryKnown ? "🔋 " + root.batteryPct + "%" : "🔋 —"
             font.pixelSize: 12
             font.family: Tokens.fontMono
-            color: root.batteryPct > 20 ? Tokens.textSecondary : Tokens.error
+            color: root.lowBattery ? Tokens.error : Tokens.textSecondary
             verticalAlignment: Text.AlignVCenter
         }
     }

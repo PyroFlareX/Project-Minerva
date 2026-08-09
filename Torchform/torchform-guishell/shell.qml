@@ -3,11 +3,11 @@ import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
 import Torchform.Gamepad
+import "data.js" as Data
 import "."
-
-// Torchform QuickShell Demo
-// Upper display: 1920×1080  (Quickshell.screens[0])
-// Lower display:  640×480   (Quickshell.screens[1], if present)
+// Active outputs are assigned by geometry: largest area → upper display,
+// smallest area → lower companion.  The launcher may rotate/scale them.
+// QML sizes are designed for the configured logical role geometry.
 //
 // Primary input is the controller, via the Torchform.Gamepad plugin which reads
 // the torchform-inputd virtual pad (no faked keypresses). A real keyboard still
@@ -36,10 +36,17 @@ ShellRoot {
     property bool   radialOpen:   false
     property string radialLayer:  "system"
 
+    // Input focus is explicit: every modal overlay owns the controller and
+    // keyboard focus until it closes.  "app"/"home" are the return targets.
+    property string focusOwner: "lock"
+    property string focusReturnOwner: ""
+    property int    focusEpoch: 0
     property int    radialFocus:  0
+    property int    quickSettingsFocus: 0
+    property int    notificationsFocus: 0
     property int    homeFocus:    0
     property int    pinLen:       0
-    property int    notifCount:   2
+    property int    notifCount:   0
     property int    batteryPct:   78
     property bool   wifiOn:       true
     property bool   btOn:         true
@@ -52,11 +59,53 @@ ShellRoot {
     property bool   bannerVisible: false
     property int    switcherFocus: 0
 
-    // WiFi / Bluetooth panels (sub-panels inside the qs panel)
-    property bool   wifiPanelOpen: false
-    property int    wifiFocus:     0
-    property bool   btPanelOpen:   false
-    property int    btFocus:       0
+    // WiFi / Bluetooth panels (nested overlays inside quick settings).
+    property bool wifiPanelOpen: false
+    property int  wifiFocus:     0
+    property bool btPanelOpen:   false
+    property int  btFocus:       0
+
+    // Runtime values are separate from the data-only layout registry.
+    property var quickSettingsSliderValues: []
+    property var quickSettingsTileStates:   []
+
+    // Device-backed app state.  These values are intentionally plain QML data
+    // so the shell can be restarted after editing scripts or data.js.
+    property string batteryStatus: "unknown"
+    property bool   batteryKnown: false
+    property bool   lowBattery: false
+    property string cpuLoad: "—"
+    property string memoryUse: "—"
+    property string diskUse: "—"
+    property string temperature: "—"
+    property string uptime: "—"
+    property string sysmonUpdated: "waiting"
+    property var    sysmonMetrics: ({})
+    property var    fileEntries: []
+    property string filePath: "~"
+    property int    fileFocus: 0
+    property bool   filesLoading: false
+    property string filesStatus: ""
+    property var    terminalLines: [
+        "Torchform command runner",
+        "Type a shell command and press Enter.",
+        ""
+    ]
+    property bool terminalRunning: false
+    property string terminalLast: ""
+
+    readonly property var upperScreen: findScreen(true)
+    readonly property var lowerScreen: findScreen(false)
+
+    function findScreen(largest) {
+        var chosen = null
+        for (var i = 0; i < Quickshell.screens.length; ++i) {
+            var candidate = Quickshell.screens[i]
+            if (!chosen || (candidate.width * candidate.height > chosen.width * chosen.height) === largest)
+                chosen = candidate
+        }
+        return chosen || Quickshell.screens[0]
+    }
 
     // Palette state
     property string paletteQuery:  ""
@@ -102,87 +151,326 @@ ShellRoot {
     }
 
     function showBanner(text) {
-        bannerText    = text
-        bannerVisible = true
+        shell.bannerText = text
+        shell.bannerVisible = true
         bannerTimer.restart()
     }
 
-    // ─── App data ────────────────────────────────────────────────────────────
-    readonly property var gridApps: [
-        { name: "Media",    icon: "🎵", bg: "#1a1535", idx: 0 },
-        { name: "Email",    icon: "📧", bg: "#14221a", idx: 1 },
-        { name: "Settings", icon: "⚙️", bg: "#1a1a1a", idx: 2 },
-        { name: "Sysmon",   icon: "📊", bg: "#0f1a1a", idx: 3 },
-        { name: "Pkgman",   icon: "📦", bg: "#1a1520", idx: 4 },
-        { name: "Logview",  icon: "📋", bg: "#1a1200", idx: 5 },
-        { name: "Notes",    icon: "📝", bg: "#0a1a14", idx: 6 },
-    ]
+    function runControl(proc, args) {
+        proc.command = [
+            "sh", "-lc",
+            "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh \"$@\"",
+            "torchform-control"
+        ].concat(args)
+        proc.running = true
+    }
 
-    readonly property var dockApps: [
-        { name: "Terminal", icon: "⬛", bg: "#0d1117", idx: 7,  running: true  },
-        { name: "Browser",  icon: "🌐", bg: "#0f1535", idx: 8,  running: false },
-        { name: "SMS",      icon: "💬", bg: "#0a1a0a", idx: 9,  running: false },
-        { name: "Phone",    icon: "📞", bg: "#1a0a0a", idx: 10, running: false },
-        { name: "Files",    icon: "🗂️", bg: "#1a1520", idx: 11, running: false },
-    ]
+    Process {
+        id: filesProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var rows = []
+                var status = ""
+                var currentPath = shell.filePath
+                var raw = text.trim()
+                if (raw.length > 0) {
+                    raw.split("\n").forEach(function(line) {
+                        var parts = line.split("\t")
+                        if (parts[0] === "path") {
+                            currentPath = parts.slice(1).join("\t")
+                        } else if (parts[0] === "status") {
+                            status = parts.slice(1).join("\t")
+                        } else if (parts[0] === "entry" && parts.length >= 5) {
+                            rows.push({
+                                name: parts[1],
+                                kind: parts[2],
+                                size: parts[3] === "0" ? "" : parts[3] + " B",
+                                path: parts.slice(4).join("\t")
+                            })
+                        }
+                    })
+                }
+                shell.filePath = currentPath
+                shell.fileEntries = rows
+                shell.fileFocus = Math.max(0, Math.min(shell.fileFocus, Math.max(0, rows.length - 1)))
+                shell.filesStatus = status
+                shell.filesLoading = false
+                shell.writeState()
+            }
+        }
+    }
 
-    readonly property var systemRadial: [
-        { icon: "🔆", label: "Bright+", enabled: true },
-        { icon: "🔉", label: "Vol+",    enabled: true },
-        { icon: "📶", label: "Wi-Fi",   enabled: true },
-        { icon: "💤", label: "Sleep",   enabled: true },
-        { icon: "🔅", label: "Bright-", enabled: true },
-        { icon: "🔈", label: "Vol-",    enabled: true },
-        { icon: "🔕", label: "DND",     enabled: true },
-        { icon: "🔌", label: "Power",   enabled: true },
-    ]
+    Process {
+        id: sysmonProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var metrics = {}
+                var raw = text.trim()
+                var line = raw.split("\n")[0] || ""
+                line.split("|").forEach(function(part) {
+                    var at = part.indexOf("=")
+                    if (at > 0)
+                        metrics[part.slice(0, at)] = part.slice(at + 1)
+                })
+                var battery = Number(metrics.battery)
+                shell.sysmonMetrics = metrics
+                shell.cpuLoad = metrics.load || "—"
+                shell.memoryUse = metrics.memory || "—"
+                shell.diskUse = metrics.disk || "—"
+                shell.temperature = metrics.temperature || "—"
+                shell.uptime = metrics.uptime || "—"
+                shell.batteryKnown = Number.isFinite(battery) && battery >= 0
+                if (shell.batteryKnown) shell.batteryPct = battery
+                shell.batteryStatus = metrics.battery_status || "unknown"
+                shell.lowBattery = shell.batteryKnown && shell.batteryPct <= 20 &&
+                                   shell.batteryStatus.toLowerCase().indexOf("discharg") >= 0
+                metrics.batteryLow = shell.lowBattery
+                shell.sysmonMetrics = metrics
+                shell.sysmonUpdated = Qt.formatTime(new Date(), "hh:mm:ss")
+                shell.writeState()
+            }
+        }
+    }
 
-    readonly property var paletteCommands: [
-        { id: "app.terminal",   label: "Open Terminal",  category: "Apps",   icon: "⬛", shortcut: "D → ⬛" },
-        { id: "app.browser",    label: "Open Browser",   category: "Apps",   icon: "🌐", shortcut: ""        },
-        { id: "app.settings",   label: "Settings",       category: "Apps",   icon: "⚙️", shortcut: ""        },
-        { id: "app.files",      label: "Files",          category: "Apps",   icon: "🗂️", shortcut: ""        },
-        { id: "app.media",      label: "Media Player",   category: "Apps",   icon: "🎵", shortcut: ""        },
-        { id: "sys.wifi",       label: "Wi-Fi Networks", category: "System", icon: "📶", shortcut: ""        },
-        { id: "sys.bluetooth",  label: "Bluetooth",      category: "System", icon: "🔵", shortcut: ""        },
-        { id: "sys.brightness", label: "Brightness",     category: "System", icon: "🔆", shortcut: ""        },
-        { id: "sys.sleep",      label: "Sleep",          category: "System", icon: "💤", shortcut: ""        },
-        { id: "sys.volume",     label: "Volume",         category: "System", icon: "🔉", shortcut: ""        },
-        { id: "nav.home",       label: "Go Home",        category: "Nav",    icon: "🏠", shortcut: "Space"    },
-        { id: "nav.lock",       label: "Lock Screen",    category: "Nav",    icon: "🔒", shortcut: ""        },
-    ]
+    Process {
+        id: terminalProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var output = text.replace(/\r/g, "").split("\n")
+                var lines = shell.terminalLines.concat(output)
+                while (lines.length > 200) lines.shift()
+                shell.terminalLines = lines
+                shell.terminalLast = ""
+                for (var i = output.length - 1; i >= 0; --i) {
+                    var candidate = output[i].trim()
+                    if (candidate !== "" && candidate.indexOf("[exit ") !== 0) {
+                        shell.terminalLast = candidate
+                        break
+                    }
+                }
+                shell.terminalRunning = false
+                shell.writeState()
+            }
+        }
+    }
 
-    readonly property var switcherApps: [
-        { name: "Terminal", icon: "⬛", bg: "#0d1117" },
-        { name: "Browser",  icon: "🌐", bg: "#0f1535" },
-    ]
+    Process { id: stateProc }
+
+    Timer {
+        id: sysmonTimer
+        interval: shell.launchedApp === "Sysmon" ? 2000 : 30000
+        running: true
+        repeat: true
+        onTriggered: shell.sampleSysmon()
+    }
+
+    Timer {
+        id: stateTimer
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: shell.writeState()
+    }
+
+    function sampleSysmon() {
+        if (!sysmonProc.running) shell.runControl(sysmonProc, ["sysmon"])
+    }
+
+    function writeState() {
+        if (stateProc.running) return
+        var state = {
+            screen: activeScreen,
+            panel: activePanel,
+            palette: paletteOpen,
+            paletteFocus: paletteFocus,
+            radial: radialOpen,
+            radialFocus: radialFocus,
+            app: launchedApp,
+            homeFocus: homeFocus,
+            fileFocus: fileFocus,
+            filesReady: fileEntries.length > 0,
+            terminalLast: terminalLast,
+            sysmonReady: sysmonMetrics.load !== undefined,
+            batteryKnown: batteryKnown,
+            batteryPct: batteryPct,
+            batteryStatus: batteryStatus,
+            lowBattery: lowBattery,
+            focusOwner: focusOwner,
+            focusCaptured: anyOverlayOpen,
+            focusEpoch: focusEpoch,
+            overlayLayoutVersion: overlayConfig.version,
+            quickSettingsFocus: quickSettingsFocus,
+            quickSettingsSliderValues: quickSettingsSliderValues,
+            quickSettingsTileStates: quickSettingsTileStates,
+            notificationsFocus: notificationsFocus,
+            switcherFocus: switcherFocus,
+            upper: upperScreen ? upperScreen.name : "",
+            lower: lowerScreen ? lowerScreen.name : ""
+        }
+        shell.runControl(stateProc, ["state-write", JSON.stringify(state)])
+    }
+
+    function refreshFiles(path) {
+        if (path !== undefined && path !== "") filePath = path
+        filesLoading = true
+        filesStatus = ""
+        runControl(filesProc, ["files-list", filePath])
+    }
+
+    function openFileEntry(index) {
+        var entry = fileEntries[index]
+        if (!entry) return
+        if (entry.kind === "dir") {
+            filePath = entry.path
+            fileFocus = 0
+            refreshFiles()
+        } else {
+            showBanner("Selected " + entry.name)
+        }
+    }
+
+    function parentFiles() {
+        if (fileEntries.length > 0 && fileEntries[0].name === "..") {
+            openFileEntry(0)
+        } else {
+            refreshFiles("/")
+        }
+    }
+
+    function submitTerminal(command) {
+        command = command.trim()
+        if (command.length === 0 || terminalRunning) return
+        terminalLines = terminalLines.concat(["torchform@minerva:~$ " + command])
+        terminalRunning = true
+        runControl(terminalProc, ["terminal-exec", command])
+    }
+
+    function launchExternal(app) {
+        launcherProc.command = [
+            "sh", "-lc",
+            "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh launch \"$1\"",
+            "torchform-launch", app
+        ]
+        launcherProc.running = true
+    }
+    // ─── Data-driven UI registry (edit data.js; no QML rebuild required) ─────
+    readonly property var overlayConfig:       Data.overlayConfig
+    readonly property var radialConfig:        overlayConfig.radial
+    readonly property var quickSettingsConfig:  overlayConfig.quickSettings
+    readonly property var notificationsConfig:  overlayConfig.notifications
+    readonly property var switcherConfig:      overlayConfig.switcher
+    readonly property var gridApps:             Data.gridApps
+    readonly property var dockApps:             Data.dockApps
+    readonly property var paletteCommands:      Data.paletteCommands
+    readonly property var switcherApps:         switcherConfig.apps
+
+    function resetOverlayRuntime() {
+        var sliders = []
+        ;(quickSettingsConfig.sliders || []).forEach(function(slider) {
+            sliders.push(Number(slider.value) || 0)
+        })
+        var tiles = []
+        ;(quickSettingsConfig.tiles || []).forEach(function(tile) {
+            tiles.push(!!tile.initialOn)
+        })
+        quickSettingsSliderValues = sliders
+        quickSettingsTileStates = tiles
+        quickSettingsFocus = quickSettingsConfig.initialFocus || 0
+        notificationsFocus = notificationsConfig.initialFocus || 0
+        switcherFocus = switcherConfig.initialFocus || 0
+        notifCount = (notificationsConfig.items || []).length
+    }
+
+    Component.onCompleted: resetOverlayRuntime()
+
 
     // ─── Hint bar content ────────────────────────────────────────────────────
     property var currentHints: {
         if (activeScreen === "lock")
-            return [{key:"A", label:"Unlock"}]
+            return [{button:"A", label:"Unlock"}]
         if (wifiPanelOpen)
-            return [{key:"↑↓", label:"Nav"}, {key:"A", label:"Connect"}, {key:"Esc", label:"Close"}]
+            return [{button:"D-PAD", label:"Navigate"}, {button:"A", label:"Connect"}, {button:"B", label:"Close"}]
         if (btPanelOpen)
-            return [{key:"↑↓", label:"Nav"}, {key:"A", label:"Pair"}, {key:"Esc", label:"Close"}]
+            return [{button:"D-PAD", label:"Navigate"}, {button:"A", label:"Pair"}, {button:"B", label:"Close"}]
         if (radialOpen)
-            return [{key:"↑↓←→", label:"Select"}, {key:"A", label:"Activate"}, {key:"Esc", label:"Close"}]
+            return [{button:"D-PAD", label:"Select"}, {button:"A", label:"Activate"}, {button:"B", label:"Close"}]
         if (paletteOpen)
-            return [{key:"↑↓←→", label:"Type"}, {key:"A", label:"Key"}, {key:"✓", label:"Launch"}, {key:"Esc", label:"Close"}]
+            return [{button:"D-PAD", label:"Navigate"}, {button:"A", label:"Type / Launch"}, {button:"B", label:"Close"}]
         if (activePanel === "switcher")
-            return [{key:"←→", label:"Select"}, {key:"A", label:"Switch"}, {key:"Esc", label:"Close"}]
+            return [{button:"D-PAD", label:"Select"}, {button:"A", label:"Switch"}, {button:"B", label:"Close"}]
         if (activePanel !== "")
-            return [{key:"↑↓", label:"Nav"}, {key:"Esc", label:"Close"}]
+            return [{button:"D-PAD", label:"Navigate"}, {button:"B", label:"Close"}]
         if (activeScreen === "home")
-            return [{key:"↑↓←→", label:"Nav"}, {key:"A", label:"Launch"}, {key:"X", label:"Search"}, {key:"Enter", label:"Apps"}]
+            return [{button:"D-PAD", label:"Navigate"}, {button:"A", label:"Launch"}, {button:"X", label:"Palette"}, {button:"SELECT", label:"Apps"}]
         if (activeScreen === "app")
-            return [{key:"Space", label:"Home"}, {key:"X", label:"Search"}, {key:"C", label:"Notifs"}, {key:"Z", label:"QS"}]
+            return [{button:"START", label:"Home"}, {button:"X", label:"Palette"}, {button:"L1", label:"Notifications"}, {button:"R1", label:"Quick Settings"}]
         return []
     }
 
+    // ─── Focus ownership ────────────────────────────────────────────────────
+    function baseFocusOwner() {
+        if (activeScreen === "app") return "app"
+        return activeScreen
+    }
+
+    function claimInputFocus(owner) {
+        focusOwner = owner
+        focusEpoch += 1
+        upperInput.focus = true
+        upperInput.forceActiveFocus()
+    }
+
+    function releaseOverlayFocus() {
+        var owner = baseFocusOwner()
+        claimInputFocus(owner)
+        if (owner === "app" && launchedApp === "Terminal")
+            appWindow.focusTerminalInput()
+    }
+
+    function closeAllOverlays() {
+        radialOpen = false
+        paletteOpen = false
+        activePanel = ""
+        wifiPanelOpen = false
+        btPanelOpen = false
+        focusReturnOwner = ""
+    }
+
+    function openExclusiveOverlay(owner) {
+        closeAllOverlays()
+        claimInputFocus(owner)
+    }
+
+    function closeNestedOverlay() {
+        wifiPanelOpen = false
+        btPanelOpen = false
+        var owner = focusReturnOwner || baseFocusOwner()
+        focusReturnOwner = ""
+        claimInputFocus(owner)
+        writeState()
+    }
+
     // ─── Action functions ─────────────────────────────────────────────────────
+    function openApp(app) {
+        if (!app) return
+        launchedApp  = app.name
+        launchedIcon = app.icon
+        launchedBg   = app.bg
+        activeScreen = "app"
+        claimInputFocus("app")
+        fileFocus = 0
+        if (app.name === "Files") {
+            filePath = "~"
+            refreshFiles()
+        } else if (app.name === "Sysmon") {
+            sampleSysmon()
+        } else if (app.name === "Terminal") {
+            appWindow.focusTerminalInput()
+        }
+        writeState()
+    }
+
     function handleConfirm() {
-        if (oskOpen)      { osk.activateKey(); return }
         if (wifiPanelOpen) {
             wifiPanel.activateFocused()
             return
@@ -192,106 +480,299 @@ ShellRoot {
             return
         }
         if (radialOpen) {
-            var item = systemRadial[radialFocus]
-            showBanner(item.label + " activated")
+            var radialItem = radialConfig.items[radialFocus]
             radialOpen = false
+            claimInputFocus(baseFocusOwner())
+            if (radialItem && radialItem.id) launchCommand(radialItem.id)
+            else if (radialItem) showBanner(radialItem.label + " activated")
+            writeState()
             return
         }
         if (paletteOpen) {
-            if (paletteFiltered.length > 0)
-                launchCommand(paletteFiltered[paletteFocus].id)
-            paletteOpen  = false
+            var command = paletteFiltered.length > 0 ? paletteFiltered[paletteFocus] : null
+            paletteOpen = false
             paletteQuery = ""
+            osk.reset()
+            claimInputFocus(baseFocusOwner())
+            if (command) launchCommand(command.id)
+            writeState()
+            return
+        }
+        if (activePanel === "qs") {
+            activateQuickSettings()
+            return
+        }
+        if (activePanel === "notif") {
+            activateNotification()
             return
         }
         if (activePanel === "switcher") {
-            var app = switcherApps[switcherFocus]
-            launchedApp  = app.name
-            launchedIcon = app.icon
-            launchedBg   = app.bg
-            activeScreen = "app"
-            activePanel  = ""
+            var switcherApp = switcherApps[switcherFocus]
+            var allApps = gridApps.concat(dockApps)
+            var chosen = allApps.find(function(candidate) {
+                return switcherApp && candidate.name === switcherApp.name
+            })
+            closeAllOverlays()
+            openApp(chosen)
+            releaseOverlayFocus()
+            writeState()
             return
         }
-        if (activePanel !== "") return
         if (activeScreen === "lock") {
             pinLen++
-            if (pinLen >= 4) { activeScreen = "home"; pinLen = 0 }
+            if (pinLen >= 4) {
+                activeScreen = "home"
+                pinLen = 0
+                homeFocus = 0
+                claimInputFocus("home")
+            }
+            writeState()
             return
         }
         if (activeScreen === "home") {
-            var all = gridApps.concat(dockApps)
-            var chosen = all[homeFocus]
-            if (chosen) {
-                launchedApp  = chosen.name
-                launchedIcon = chosen.icon
-                launchedBg   = chosen.bg
-                activeScreen = "app"
-            }
+            openApp(gridApps.concat(dockApps)[homeFocus])
+            return
+        }
+        if (activeScreen === "app" && launchedApp === "Files") {
+            openFileEntry(fileFocus)
+        } else if (activeScreen === "app" && launchedApp === "Sysmon") {
+            sampleSysmon()
+        } else if (activeScreen === "app" && launchedApp === "Terminal") {
+            appWindow.submitTerminalInput()
         }
     }
 
+    function activateQuickSettings() {
+        var sliderCount = quickSettingsConfig.sliders.length
+        if (quickSettingsFocus < sliderCount) {
+            showBanner(quickSettingsConfig.sliders[quickSettingsFocus].label + " " +
+                       quickSettingsSliderValues[quickSettingsFocus] + "%")
+            return
+        }
+        var tileIndex = quickSettingsFocus - sliderCount
+        var tile = quickSettingsConfig.tiles[tileIndex]
+        if (!tile) return
+        if (tile.action === "sys.wifi") {
+            handleWifi()
+            return
+        }
+        if (tile.action === "sys.bluetooth") {
+            handleBluetooth()
+            return
+        }
+        var states = quickSettingsTileStates.slice()
+        states[tileIndex] = !states[tileIndex]
+        quickSettingsTileStates = states
+        launchCommand(tile.action)
+        writeState()
+    }
+
+    function activateNotification() {
+        var item = notificationsConfig.items[notificationsFocus]
+        if (item) showBanner(item.app + ": " + item.title)
+        writeState()
+    }
+
+    function adjustQuickSettings(delta) {
+        var index = quickSettingsFocus
+        var slider = quickSettingsConfig.sliders[index]
+        if (!slider) return
+        var values = quickSettingsSliderValues.slice()
+        var step = Number(slider.step) || 1
+        var next = (Number(values[index]) || 0) + delta * step
+        next = Math.max(Number(slider.min) || 0, Math.min(Number(slider.max) || 100, next))
+        values[index] = next
+        quickSettingsSliderValues = values
+        showBanner(slider.label + " " + next + "%")
+        writeState()
+    }
+
+    function navQuickSettings(direction) {
+        var sliders = quickSettingsConfig.sliders || []
+        var tiles = quickSettingsConfig.tiles || []
+        var sliderCount = sliders.length
+        var columns = Math.max(1, Number(quickSettingsConfig.columns) || 2)
+        var total = sliderCount + tiles.length
+        if (total === 0) return
+        var focus = Math.max(0, Math.min(total - 1, quickSettingsFocus))
+        if (focus < sliderCount) {
+            if (direction === "up") focus = Math.max(0, focus - 1)
+            if (direction === "down") focus = Math.min(sliderCount, focus + 1)
+            if (direction === "left" || direction === "right") return
+            quickSettingsFocus = focus
+            return
+        }
+        var tileIndex = focus - sliderCount
+        var row = Math.floor(tileIndex / columns)
+        var column = tileIndex % columns
+        var rows = Math.ceil(tiles.length / columns)
+        if (direction === "left") column = Math.max(0, column - 1)
+        if (direction === "right") column = Math.min(columns - 1, column + 1)
+        if (direction === "up") {
+            if (row === 0) {
+                quickSettingsFocus = Math.max(0, sliderCount - 1)
+                return
+            }
+            row -= 1
+        }
+        if (direction === "down") row = Math.min(rows - 1, row + 1)
+        var nextTile = Math.min(tiles.length - 1, row * columns + column)
+        quickSettingsFocus = sliderCount + Math.max(0, nextTile)
+    }
+
+    function navNotifications(direction) {
+        var count = (notificationsConfig.items || []).length
+        if (count === 0) {
+            notificationsFocus = 0
+            return
+        }
+        if (direction === "up")
+            notificationsFocus = Math.max(0, notificationsFocus - 1)
+        else if (direction === "down")
+            notificationsFocus = Math.min(count - 1, notificationsFocus + 1)
+    }
+
     function handleBack() {
-        if (wifiPanelOpen)    { wifiPanelOpen = false; return }
-        if (btPanelOpen)      { btPanelOpen = false; return }
-        if (radialOpen)       { radialOpen = false; return }
-        if (paletteOpen)      { paletteOpen = false; paletteQuery = ""; return }
-        if (activePanel !== "") { activePanel = ""; return }
-        if (activeScreen === "app") { activeScreen = "home" }
+        if (wifiPanelOpen || btPanelOpen) {
+            closeNestedOverlay()
+            return
+        }
+        if (radialOpen) {
+            radialOpen = false
+            releaseOverlayFocus()
+            writeState()
+            return
+        }
+        if (paletteOpen) {
+            paletteOpen = false
+            paletteQuery = ""
+            osk.reset()
+            releaseOverlayFocus()
+            writeState()
+            return
+        }
+        if (activePanel !== "") {
+            closeAllOverlays()
+            releaseOverlayFocus()
+            writeState()
+            return
+        }
+        if (activeScreen === "app" && launchedApp === "Files" &&
+            fileEntries.length > 0 && fileEntries[0].name === "..") {
+            parentFiles()
+            return
+        }
+        if (activeScreen === "app") {
+            activeScreen = "home"
+            releaseOverlayFocus()
+            writeState()
+        }
     }
 
     function handleHome() {
         if (activeScreen === "lock") return
-        radialOpen   = false
-        paletteOpen  = false
-        activePanel  = ""
+        closeAllOverlays()
         activeScreen = "home"
+        homeFocus = 0
+        releaseOverlayFocus()
+        writeState()
     }
 
     function handlePalette() {
         if (activeScreen === "lock") return
-        paletteOpen = !paletteOpen
-        if (paletteOpen) { paletteQuery = ""; paletteFocus = 0; osk.reset() }
+        if (paletteOpen) {
+            paletteOpen = false
+            paletteQuery = ""
+            osk.reset()
+            releaseOverlayFocus()
+            writeState()
+            return
+        }
+        openExclusiveOverlay("palette")
+        paletteOpen = true
+        paletteQuery = ""
+        paletteFocus = 0
+        osk.reset()
+        writeState()
     }
 
     function handleSwitcher() {
         if (activeScreen === "lock") return
-        activePanel = activePanel === "switcher" ? "" : "switcher"
+        if (activePanel === "switcher") {
+            closeAllOverlays()
+            releaseOverlayFocus()
+            writeState()
+            return
+        }
+        openExclusiveOverlay("switcher")
+        switcherFocus = switcherConfig.initialFocus || 0
+        activePanel = "switcher"
+        writeState()
     }
 
     function handleQS() {
         if (activeScreen === "lock") return
-        wifiPanelOpen = false
-        btPanelOpen   = false
-        activePanel = activePanel === "qs" ? "" : "qs"
+        if (activePanel === "qs" && !wifiPanelOpen && !btPanelOpen) {
+            closeAllOverlays()
+            releaseOverlayFocus()
+            writeState()
+            return
+        }
+        openExclusiveOverlay("quick-settings")
+        activePanel = "qs"
+        quickSettingsFocus = quickSettingsConfig.initialFocus || 0
+        writeState()
     }
 
     function handleNotif() {
         if (activeScreen === "lock") return
-        activePanel = activePanel === "notif" ? "" : "notif"
+        if (activePanel === "notif") {
+            closeAllOverlays()
+            releaseOverlayFocus()
+            writeState()
+            return
+        }
+        openExclusiveOverlay("notifications")
+        activePanel = "notif"
+        notificationsFocus = notificationsConfig.initialFocus || 0
+        writeState()
     }
 
     function handleWifi() {
         if (activeScreen === "lock") return
-        btPanelOpen   = false
-        wifiPanelOpen = !wifiPanelOpen
+        if (wifiPanelOpen) {
+            closeNestedOverlay()
+            return
+        }
+        focusReturnOwner = focusOwner
+        btPanelOpen = false
+        wifiPanelOpen = true
         wifiFocus = 0
+        claimInputFocus("wifi")
+        writeState()
     }
 
     function handleBluetooth() {
         if (activeScreen === "lock") return
+        if (btPanelOpen) {
+            closeNestedOverlay()
+            return
+        }
+        focusReturnOwner = focusOwner
         wifiPanelOpen = false
-        btPanelOpen   = !btPanelOpen
+        btPanelOpen = true
         btFocus = 0
+        claimInputFocus("bluetooth")
+        writeState()
     }
 
-    // Any overlay open?  Used to decide whether to release input to the app layer.
+    // Any overlay open?  Used to keep navigation and keyboard focus in shell.
     readonly property bool anyOverlayOpen:
         radialOpen || paletteOpen || wifiPanelOpen || btPanelOpen ||
         activePanel !== ""
 
-    // In "app mode" the shell yields nav/confirm/back to the focused Wayland app
-    // (which reads the same virtual pad directly); global buttons still escape it.
+    // App surfaces are QML-rendered here, so controller navigation stays in
+    // this process instead of disappearing into an external Wayland client.
     readonly property bool appMode: activeScreen === "app" && !anyOverlayOpen
 
     // OSK is visible whenever the palette is open (extends to WiFi passphrase in Phase 3).
@@ -299,45 +780,126 @@ ShellRoot {
 
     function handleRadial() {
         if (activeScreen === "lock") return
-        radialLayer = "system"
-        radialOpen  = true
-        radialFocus = 0
+        if (radialOpen) {
+            radialOpen = false
+            releaseOverlayFocus()
+            writeState()
+            return
+        }
+        openExclusiveOverlay("radial")
+        radialLayer = radialConfig.title || "system"
+        radialOpen = true
+        radialFocus = radialConfig.initialFocus || 0
+        writeState()
+    }
+
+
+    function moveRadial(direction) {
+        var items = radialConfig.items || []
+        if (items.length === 0) return
+        var navigation = radialConfig.navigation || {}
+        var delta = Number(navigation[direction]) || 0
+        radialFocus = ((radialFocus + delta) % items.length + items.length) % items.length
     }
 
     function navUp() {
-        if (oskOpen)          { osk.navUp(); return }
-        if (radialOpen)       { radialFocus = (radialFocus + 6) % systemRadial.length; return }
+        if (paletteOpen) {
+            paletteFocus = Math.max(0, paletteFocus - 1)
+            return
+        }
+        if (radialOpen)       { moveRadial("up"); return }
         if (wifiPanelOpen)    { wifiFocus = Math.max(0, wifiFocus - 1); return }
-        if (btPanelOpen)      { btFocus   = Math.max(0, btFocus   - 1); return }
-        if (activeScreen === "home" && homeFocus >= gridApps.length)
-            { homeFocus = gridApps.length - 1; return }
-        if (activeScreen === "home" && homeFocus >= 4)
-            { homeFocus -= 4 }
+        if (btPanelOpen)      { btFocus = Math.max(0, btFocus - 1); return }
+        if (activePanel === "qs") {
+            navQuickSettings("up")
+            return
+        }
+        if (activePanel === "notif") {
+            navNotifications("up")
+            return
+        }
+        if (activePanel === "switcher") return
+        if (oskOpen)          { osk.navUp(); return }
+        if (activeScreen === "app" && launchedApp === "Files") {
+            fileFocus = Math.max(0, fileFocus - 1)
+            return
+        }
+        if (activeScreen === "home" && homeFocus >= gridApps.length) {
+            homeFocus = gridApps.length - 1
+            return
+        }
+        if (activeScreen === "home" && homeFocus >= 4) homeFocus -= 4
     }
 
     function navDown() {
-        if (oskOpen)          { osk.navDown(); return }
-        if (radialOpen)       { radialFocus = (radialFocus + 2) % systemRadial.length; return }
+        if (paletteOpen) {
+            paletteFocus = Math.min(Math.max(0, paletteFiltered.length - 1), paletteFocus + 1)
+            return
+        }
+        if (radialOpen)       { moveRadial("down"); return }
         if (wifiPanelOpen)    { wifiFocus = Math.min(Math.max(0, wifiPanel.itemCount - 1), wifiFocus + 1); return }
-        if (btPanelOpen)      { btFocus   = Math.min(Math.max(0, btPanel.itemCount - 1), btFocus   + 1); return }
+        if (btPanelOpen)      { btFocus = Math.min(Math.max(0, btPanel.itemCount - 1), btFocus + 1); return }
+        if (activePanel === "qs") {
+            navQuickSettings("down")
+            return
+        }
+        if (activePanel === "notif") {
+            navNotifications("down")
+            return
+        }
+        if (activePanel === "switcher") return
+        if (oskOpen)          { osk.navDown(); return }
+        if (activeScreen === "app" && launchedApp === "Files") {
+            fileFocus = Math.min(Math.max(0, fileEntries.length - 1), fileFocus + 1)
+            return
+        }
         if (activeScreen === "home") {
-            var total = gridApps.length + dockApps.length
-            if (homeFocus + 4 < gridApps.length)       homeFocus += 4
-            else if (homeFocus < gridApps.length)       homeFocus = gridApps.length
+            if (homeFocus + 4 < gridApps.length) homeFocus += 4
+            else if (homeFocus < gridApps.length) homeFocus = gridApps.length
         }
     }
 
     function navLeft() {
-        if (oskOpen)                 { osk.navLeft(); return }
-        if (radialOpen)              { radialFocus = (radialFocus + 7) % systemRadial.length; return }
-        if (activePanel === "switcher") { switcherFocus = Math.max(0, switcherFocus - 1); return }
-        if (activeScreen === "home") { homeFocus = Math.max(0, homeFocus - 1) }
+        if (paletteOpen) {
+            paletteFocus = Math.max(0, paletteFocus - 1)
+            return
+        }
+        if (radialOpen)       { moveRadial("left"); return }
+        if (wifiPanelOpen || btPanelOpen || activePanel === "notif") return
+        if (activePanel === "qs") {
+            if (quickSettingsFocus < quickSettingsConfig.sliders.length)
+                adjustQuickSettings(-1)
+            else
+                navQuickSettings("left")
+            return
+        }
+        if (activePanel === "switcher") {
+            switcherFocus = Math.max(0, switcherFocus - 1)
+            return
+        }
+        if (oskOpen)          { osk.navLeft(); return }
+        if (activeScreen === "home") homeFocus = Math.max(0, homeFocus - 1)
     }
 
     function navRight() {
-        if (oskOpen)                 { osk.navRight(); return }
-        if (radialOpen)              { radialFocus = (radialFocus + 1) % systemRadial.length; return }
-        if (activePanel === "switcher") { switcherFocus = Math.min(switcherApps.length - 1, switcherFocus + 1); return }
+        if (paletteOpen) {
+            paletteFocus = Math.min(Math.max(0, paletteFiltered.length - 1), paletteFocus + 1)
+            return
+        }
+        if (radialOpen)       { moveRadial("right"); return }
+        if (wifiPanelOpen || btPanelOpen || activePanel === "notif") return
+        if (activePanel === "qs") {
+            if (quickSettingsFocus < quickSettingsConfig.sliders.length)
+                adjustQuickSettings(1)
+            else
+                navQuickSettings("right")
+            return
+        }
+        if (activePanel === "switcher") {
+            switcherFocus = Math.min(switcherApps.length - 1, switcherFocus + 1)
+            return
+        }
+        if (oskOpen)          { osk.navRight(); return }
         if (activeScreen === "home") {
             var total = gridApps.length + dockApps.length
             homeFocus = Math.min(total - 1, homeFocus + 1)
@@ -345,35 +907,63 @@ ShellRoot {
     }
 
     function launchCommand(id) {
-        if (id === "nav.lock")      { activeScreen = "lock"; pinLen = 0; return }
+        if (id === "nav.lock") {
+            activeScreen = "lock"
+            pinLen = 0
+            writeState()
+            return
+        }
         if (id === "nav.home")      { handleHome(); return }
         if (id === "sys.wifi")      { paletteOpen = false; handleWifi(); return }
         if (id === "sys.bluetooth") { paletteOpen = false; handleBluetooth(); return }
+        if (id === "sys.brightness") {
+            runControl(launcherProc, ["brightness-step", "up"])
+            return
+        }
+        if (id === "sys.volume") {
+            runControl(launcherProc, ["volume-step", "up"])
+            return
+        }
+        if (id === "sys.sleep" || id === "sys.power") {
+            showBanner("Power action requires a physical confirmation")
+            return
+        }
+        if (id === "sys.dnd") {
+            showBanner("Do Not Disturb toggled")
+            return
+        }
+        if (id.startsWith("sys.brightness.") || id.startsWith("sys.volume.")) {
+            var direction = id.endsWith(".down") ? "down" : "up"
+            var helper = id.indexOf("brightness") >= 0 ? "brightness-step" : "volume-step"
+            runControl(launcherProc, [helper, direction])
+            return
+        }
         if (id.startsWith("app.")) {
             var name = id.slice(4)
-            var all  = gridApps.concat(dockApps)
-            var app  = all.find(a => a.name.toLowerCase() === name) ||
-                       all.find(a => a.name.toLowerCase().startsWith(name))
-            if (app) { launchedApp = app.name; launchedIcon = app.icon; launchedBg = app.bg; activeScreen = "app" }
-            if (name === "browser" || name === "files" || name === "terminal") {
-                launcherProc.command = ["sh", "-lc", "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh launch \"$1\"", "torchform-launch", name]
-                launcherProc.running = true
+            var all = gridApps.concat(dockApps)
+            var app = all.find(function(candidate) {
+                return candidate.name.toLowerCase() === name
+            }) || all.find(function(candidate) {
+                return candidate.name.toLowerCase().startsWith(name)
+            })
+            if (app) {
+                openApp(app)
+                if (name === "browser") launchExternal(name)
             }
-        } else {
-            showBanner("Action: " + id)
+            return
         }
+        showBanner("Unknown action: " + id)
     }
 
     // ─── Controller input (primary) ───────────────────────────────────────────
-    // Maps virtual-pad buttons to the same handlers the keyboard uses. Global
-    // buttons act even over a focused app; nav/confirm/back are suppressed in
-    // appMode so the focused app receives them directly off the virtual pad.
+    // Global buttons escape app surfaces; navigation and confirm remain in the
+    // QML app so the device works without a keyboard or external client.
     function onPadButton(name) {
-        if (activeScreen === "lock") {            // only Confirm wakes the lock screen
+        if (activeScreen === "lock") {
             if (name === "south") handleConfirm()
             return
         }
-        switch (name) {                            // always-global (escape the app)
+        switch (name) {
             case "start":  handleHome();     return
             case "mode":   handleHome();     return
             case "select": handleSwitcher(); return
@@ -382,14 +972,13 @@ ShellRoot {
             case "r1":     handleQS();       return
             case "l1":     handleNotif();    return
         }
-        if (appMode) return                        // pass nav/confirm/back to the app
         switch (name) {
             case "south":      handleConfirm(); break
             case "east":       handleBack();    break
-            case "dpad_up":    navUp();    break
-            case "dpad_down":  navDown();  break
-            case "dpad_left":  navLeft();  break
-            case "dpad_right": navRight(); break
+            case "dpad_up":    navUp();         break
+            case "dpad_down":  navDown();       break
+            case "dpad_left":  navLeft();       break
+            case "dpad_right": navRight();      break
         }
     }
 
@@ -450,39 +1039,97 @@ ShellRoot {
     // ─── Upper display — 1920×1080 ────────────────────────────────────────────
     PanelWindow {
         id: upperWin
-        screen: Quickshell.screens[0]
+        screen: shell.upperScreen
 
         WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.exclusiveZone: -1
-        WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+        WlrLayershell.keyboardFocus: shell.anyOverlayOpen
+                                  ? WlrKeyboardFocus.Exclusive
+                                  : WlrKeyboardFocus.OnDemand
         WlrLayershell.namespace: "torchform-upper"
         anchors { left: true; right: true; top: true; bottom: true }
 
         color: Tokens.bgBase
 
         Item {
+            id: upperInput
             anchors.fill: parent
             focus: true
 
             Keys.onPressed: (ev) => {
-                // --- Global shortcuts: always active (lock screen excluded) ---
-                // These open/close overlays regardless of what is on screen.
-                switch (ev.key) {
-                    case Qt.Key_Space:  ev.accepted = true; shell.handleHome();        return
-                    case Qt.Key_X:      ev.accepted = true; shell.handlePalette();     return
-                    case Qt.Key_Enter:  ev.accepted = true; shell.handleSwitcher();    return
-                    case Qt.Key_Z:      ev.accepted = true; shell.handleQS();          return
-                    case Qt.Key_C:      ev.accepted = true; shell.handleNotif();       return
-                    case Qt.Key_Tab:    ev.accepted = true; shell.handleRadial();      return
-                    default: break
+                // Command palette owns controller navigation while open.  The
+                // on-screen keyboard remains touch-driven; A/Enter activates
+                // the selected command and ordinary character keys filter it.
+                if (shell.paletteOpen) {
+                    switch (ev.key) {
+                        case Qt.Key_Escape:
+                            ev.accepted = true
+                            shell.handleBack()
+                            return
+                        case Qt.Key_A:
+                        case Qt.Key_Return:
+                        case Qt.Key_Enter:
+                            ev.accepted = true
+                            shell.handleConfirm()
+                            return
+                        case Qt.Key_Up:
+                            ev.accepted = true
+                            shell.navUp()
+                            return
+                        case Qt.Key_Down:
+                            ev.accepted = true
+                            shell.navDown()
+                            return
+                        case Qt.Key_Left:
+                            ev.accepted = true
+                            shell.navLeft()
+                            return
+                        case Qt.Key_Right:
+                            ev.accepted = true
+                            shell.navRight()
+                            return
+                        case Qt.Key_Backspace:
+                            ev.accepted = true
+                            if (shell.paletteQuery.length > 0)
+                                shell.paletteQuery = shell.paletteQuery.slice(0, -1)
+                            return
+                        default:
+                            if (ev.text && ev.text.length === 1) {
+                                ev.accepted = true
+                                shell.paletteQuery += ev.text
+                            } else {
+                                ev.accepted = false
+                            }
+                            return
+                    }
                 }
 
-                // --- Context-sensitive: only captured while NOT in plain app mode ---
-                // When in appMode (app screen, no overlay) pass nav/confirm keys
-                // through (ev.accepted = false) so the focused Wayland app gets them.
-                // Lock screen always captures everything.
-                if (shell.appMode) {
-                    ev.accepted = false
+                // Terminal text entry keeps ordinary keyboard characters,
+                // spaces, and Enter for its TextInput.  Other app surfaces use
+                // the controller-friendly global shortcuts below.  An overlay
+                // always wins, even when Terminal was active underneath it.
+                var terminalTextEntry = shell.activeScreen === "app" &&
+                                        shell.launchedApp === "Terminal" &&
+                                        !shell.anyOverlayOpen &&
+                                        shell.focusOwner === "app"
+                if (!terminalTextEntry) {
+                    switch (ev.key) {
+                        case Qt.Key_Space:  ev.accepted = true; shell.handleHome();        return
+                        case Qt.Key_X:      ev.accepted = true; shell.handlePalette();     return
+                        case Qt.Key_Enter:  ev.accepted = true; shell.handleSwitcher();    return
+                        case Qt.Key_Z:      ev.accepted = true; shell.handleQS();          return
+                        case Qt.Key_C:      ev.accepted = true; shell.handleNotif();       return
+                        case Qt.Key_Tab:    ev.accepted = true; shell.handleRadial();      return
+                        default: break
+                    }
+                }
+
+                if (terminalTextEntry) {
+                    if (ev.key === Qt.Key_Return || ev.key === Qt.Key_Enter) {
+                        ev.accepted = true
+                        appWindow.submitTerminalInput()
+                    } else {
+                        ev.accepted = false
+                    }
                     return
                 }
 
@@ -508,6 +1155,8 @@ ShellRoot {
                 appName:    shell.activeScreen === "app" ? shell.launchedApp : ""
                 notifCount: shell.notifCount
                 batteryPct: shell.batteryPct
+                batteryKnown: shell.batteryKnown
+                lowBattery:   shell.lowBattery
                 wifiOn:     shell.wifiOn
                 btOn:       shell.btOn
                 nowPlaying: shell.nowPlaying
@@ -539,11 +1188,29 @@ ShellRoot {
                 }
 
                 AppWindow {
+                    id: appWindow
                     anchors.fill: parent
                     visible:  shell.activeScreen === "app"
                     appName:  shell.launchedApp
                     appIcon:  shell.launchedIcon
                     appBg:    shell.launchedBg
+                    fileEntries: shell.fileEntries
+                    filePath: shell.filePath
+                    fileFocus: shell.fileFocus
+                    filesLoading: shell.filesLoading
+                    filesStatus: shell.filesStatus
+                    terminalLines: shell.terminalLines
+                    terminalRunning: shell.terminalRunning
+                    sysmonMetrics: shell.sysmonMetrics
+                    sysmonUpdated: shell.sysmonUpdated
+                    onHomeRequested: shell.handleHome()
+                    onFileEntryActivated: (index) => shell.openFileEntry(index)
+                    onFileParentRequested: shell.parentFiles()
+                    onFileRefreshRequested: shell.refreshFiles()
+                    onFileBookmarkRequested: (path) => shell.refreshFiles(path)
+                    onTerminalCommandSubmitted: (command) => shell.submitTerminal(command)
+                    onTerminalExternalRequested: shell.launchExternal("terminal")
+                    onSysmonRefreshRequested: shell.sampleSysmon()
                 }
 
                 // Overlays (ordered back to front) ─────────────────────────
@@ -551,7 +1218,19 @@ ShellRoot {
                 QuickSettings {
                     anchors.fill: parent
                     open: shell.activePanel === "qs"
-                    onClosed: shell.activePanel = ""
+                    config: shell.quickSettingsConfig
+                    sliderValues: shell.quickSettingsSliderValues
+                    tileStates: shell.quickSettingsTileStates
+                    focusIndex: shell.quickSettingsFocus
+                    onClosed: shell.handleBack()
+                    onItemActivated: (idx) => {
+                        shell.quickSettingsFocus = idx
+                        shell.handleConfirm()
+                    }
+                    onSliderAdjusted: (idx, delta) => {
+                        shell.quickSettingsFocus = idx
+                        shell.adjustQuickSettings(delta)
+                    }
                 }
 
                 WiFiPanel {
@@ -559,7 +1238,7 @@ ShellRoot {
                     anchors.fill: parent
                     open:        shell.wifiPanelOpen
                     focusIndex:  shell.wifiFocus
-                    onClosed:    shell.wifiPanelOpen = false
+                    onClosed:    shell.handleBack()
                     onNotice: (msg) => shell.showBanner(msg)
                 }
 
@@ -568,24 +1247,32 @@ ShellRoot {
                     anchors.fill: parent
                     open:        shell.btPanelOpen
                     focusIndex:  shell.btFocus
-                    onClosed:    shell.btPanelOpen = false
+                    onClosed:    shell.handleBack()
                     onNotice: (msg) => shell.showBanner(msg)
                 }
 
                 Notifications {
                     anchors.fill: parent
                     open: shell.activePanel === "notif"
-                    notifCount: shell.notifCount
-                    onClosed: shell.activePanel = ""
+                    config: shell.notificationsConfig
+                    focusIndex: shell.notificationsFocus
+                    onClosed: shell.handleBack()
+                    onItemActivated: (idx) => {
+                        shell.notificationsFocus = idx
+                        shell.handleConfirm()
+                    }
                 }
 
                 AppSwitcher {
                     anchors.fill: parent
                     open: shell.activePanel === "switcher"
-                    apps: shell.switcherApps
+                    config: shell.switcherConfig
                     focusIndex: shell.switcherFocus
-                    onAppSelected: (idx) => { shell.switcherFocus = idx; shell.handleConfirm() }
-                    onClosed: shell.activePanel = ""
+                    onAppSelected: (idx) => {
+                        shell.switcherFocus = idx
+                        shell.handleConfirm()
+                    }
+                    onClosed: shell.handleBack()
                 }
 
                 CommandPalette {
@@ -594,18 +1281,24 @@ ShellRoot {
                     query:      shell.paletteQuery
                     commands:   shell.paletteFiltered
                     focusIndex: shell.paletteFocus
-                    onCommandSelected: (idx) => { shell.paletteFocus = idx; shell.handleConfirm() }
-                    onClosed: { shell.paletteOpen = false; shell.paletteQuery = "" }
+                    onCommandSelected: (idx) => {
+                        shell.paletteFocus = idx
+                        shell.handleConfirm()
+                    }
+                    onClosed: shell.handleBack()
                 }
 
                 RadialMenu {
                     anchors.fill: parent
-                    open:       shell.radialOpen
+                    open: shell.radialOpen
+                    config: shell.radialConfig
                     activeLayer: shell.radialLayer
-                    items:      shell.systemRadial
                     focusIndex: shell.radialFocus
-                    onItemActivated: (idx) => { shell.radialFocus = idx; shell.handleConfirm() }
-                    onDismissed: shell.radialOpen = false
+                    onItemActivated: (idx) => {
+                        shell.radialFocus = idx
+                        shell.handleConfirm()
+                    }
+                    onDismissed: shell.handleBack()
                 }
 
                 // OSK — sits at the bottom, visible when palette is open.
@@ -621,12 +1314,7 @@ ShellRoot {
                             shell.paletteQuery += key
                         }
                     }
-                    onCloseRequested: {
-                        if (shell.paletteFiltered.length > 0)
-                            shell.launchCommand(shell.paletteFiltered[shell.paletteFocus].id)
-                        shell.paletteOpen = false
-                        shell.paletteQuery = ""
-                    }
+                    onCloseRequested: shell.handleConfirm()
                 }
 
                 // Banner toast
@@ -668,7 +1356,7 @@ ShellRoot {
     // ─── Lower display — 640×480 ──────────────────────────────────────────────
     PanelWindow {
         visible: Quickshell.screens.length > 1
-        screen:  Quickshell.screens.length > 1 ? Quickshell.screens[1] : Quickshell.screens[0]
+        screen:  shell.lowerScreen
 
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.exclusiveZone: -1
@@ -676,12 +1364,18 @@ ShellRoot {
         anchors { left: true; right: true; top: true; bottom: true }
 
         LowerPanel {
+            id: lowerPanel
             anchors.fill: parent
-            timeStr:     shell.timeStr
-            activeApp:   shell.launchedApp
-            batteryPct:  shell.batteryPct
-            paletteOpen: shell.paletteOpen
-            radialOpen:  shell.radialOpen
+            timeStr:       shell.timeStr
+            activeApp:     shell.launchedApp
+            batteryPct:    shell.batteryPct
+            batteryKnown:  shell.batteryKnown
+            batteryStatus: shell.batteryStatus
+            lowBattery:    shell.lowBattery
+            paletteOpen:   shell.paletteOpen
+            radialOpen:    shell.radialOpen
+            actions:       Data.lowerActions
+            onActionTriggered: (id) => shell.launchCommand(id)
         }
     }
 }

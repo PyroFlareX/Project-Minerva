@@ -3,67 +3,120 @@ import "."
 
 Item {
     id: root
+
     property bool open: false
+    property var config: ({ side: "right", width: 280, title: "Quick Settings",
+                            closeGlyph: "›", columns: 2, sliders: [], tiles: [] })
+    property var sliderValues: []
+    property var tileStates: []
+    property int focusIndex: -1
+
+    readonly property int sliderCount: (root.config.sliders || []).length
+    readonly property int tileCount: (root.config.tiles || []).length
 
     signal closed()
+    signal itemActivated(int index)
+    signal sliderAdjusted(int index, int delta)
 
-    // Slide in from right
+    visible: open
+    opacity: open ? 1.0 : 0.0
+    Behavior on opacity { NumberAnimation { duration: Tokens.animNormal } }
+
+    // The full-screen backdrop consumes pointer focus outside the panel.
+    MouseArea {
+        anchors.fill: parent
+        enabled: root.open
+        onClicked: root.closed()
+    }
+
     Rectangle {
         id: panel
-        anchors { top: parent.top; bottom: parent.bottom }
-        width: 280
-        x: root.open ? parent.width - width : parent.width
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+        }
+        width: root.config.width || 280
+        x: root.open
+           ? (root.config.side === "left" ? 0 : parent.width - width)
+           : (root.config.side === "left" ? -width : parent.width)
         color: Tokens.bgSurface
         border.color: Tokens.border
         border.width: 1
 
         Behavior on x { NumberAnimation { duration: Tokens.animNormal; easing.type: Easing.OutCubic } }
 
-        // Accent strip
         Rectangle {
-            anchors { top: parent.top; left: parent.left; bottom: parent.bottom }
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: root.config.side === "left" ? parent.left : undefined
+                right: root.config.side === "left" ? undefined : parent.right
+            }
             width: 2
             color: Tokens.accent
         }
 
         Column {
-            anchors { top: parent.top; left: parent.left; right: parent.right; topMargin: 16 }
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+                topMargin: 16
+            }
             leftPadding: 16
             rightPadding: 16
             spacing: 0
 
-            // Header
             Text {
-                text: "Quick Settings"
+                text: root.config.title || "Quick Settings"
                 font.pixelSize: 15
                 font.family: Tokens.fontDisplay
-                font.weight: Font.SemiBold
+                font.weight: Font.DemiBold
                 color: Tokens.textPrimary
                 bottomPadding: 14
                 leftPadding: 2
             }
 
-            // Sliders
-            SliderRow { label: "Volume";     icon: "🔉"; value: 72 }
-            Item { width: 1; height: 10 }
-            SliderRow { label: "Brightness"; icon: "🔆"; value: 85 }
-            Item { width: 1; height: 16 }
+            Repeater {
+                model: root.config.sliders || []
 
-            // Tile grid (2 cols)
+                delegate: Item {
+                    width: parent.width
+                    height: 48
+
+                    SliderRow {
+                        anchors.fill: parent
+                        label: modelData.label
+                        icon: modelData.icon
+                        value: root.sliderValues[index] !== undefined
+                               ? root.sliderValues[index] : modelData.value
+                        focused: root.open && root.focusIndex === index
+                        onActivated: root.itemActivated(index)
+                        onAdjustRequested: (delta) => root.sliderAdjusted(index, delta)
+                    }
+                }
+            }
+
+            Item { width: 1; height: 12 }
+
             Grid {
                 width: parent.width - 32
-                columns: 2
+                columns: root.config.columns || 2
                 spacing: 8
 
                 Repeater {
-                    model: qsTiles
+                    model: root.config.tiles || []
+
                     delegate: Rectangle {
-                        width: (parent.width - 8) / 2
+                        width: (parent.width - (root.config.columns - 1) * 8) /
+                               (root.config.columns || 2)
                         height: 60
                         radius: Tokens.rMd
-                        color: modelData.on ? Tokens.accentGlow : Tokens.bgElevated
-                        border.color: modelData.on ? Tokens.accent : Tokens.border
-                        border.width: 1
+                        color: root.tileStates[index] ? Tokens.accentGlow : Tokens.bgElevated
+                        border.color: root.focusIndex === root.sliderCount + index
+                                     ? Tokens.accent
+                                     : (root.tileStates[index] ? Tokens.accent : Tokens.border)
+                        border.width: root.focusIndex === root.sliderCount + index ? 2 : 1
 
                         Column {
                             anchors.centerIn: parent
@@ -78,16 +131,13 @@ Item {
                                 text: modelData.name
                                 font.pixelSize: 10
                                 font.family: Tokens.fontSans
-                                color: modelData.on ? Tokens.accent : Tokens.textSecondary
+                                color: root.tileStates[index] ? Tokens.accent : Tokens.textSecondary
                             }
                         }
 
                         MouseArea {
                             anchors.fill: parent
-                            onClicked: {
-                                qsTiles[index].on = !qsTiles[index].on
-                                qsTilesChanged()
-                            }
+                            onClicked: root.itemActivated(root.sliderCount + index)
                         }
                     }
                 }
@@ -96,15 +146,20 @@ Item {
 
         // Close handle
         Rectangle {
-            anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-            width: 20; height: 60
+            anchors {
+                verticalCenter: parent.verticalCenter
+                left: root.config.side === "left" ? parent.right : undefined
+                right: root.config.side === "left" ? undefined : parent.left
+            }
+            width: 20
+            height: 60
             color: Tokens.bgElevated
             border.color: Tokens.border
             border.width: 1
             radius: 4
             Text {
                 anchors.centerIn: parent
-                text: "›"
+                text: root.config.closeGlyph || "›"
                 font.pixelSize: 14
                 color: Tokens.textSecondary
             }
@@ -112,31 +167,30 @@ Item {
         }
     }
 
-    // Backdrop click-through
-    MouseArea {
-        anchors { left: parent.left; top: parent.top; bottom: parent.bottom; right: panel.left }
-        enabled: root.open
-        onClicked: root.closed()
-    }
-
-    property var qsTiles: [
-        { icon: "📶", name: "Wi-Fi",       on: true  },
-        { icon: "📡", name: "Bluetooth",   on: true  },
-        { icon: "✈", name: "Airplane",    on: false },
-        { icon: "🔕", name: "DND",         on: false },
-        { icon: "🌙", name: "Dark Mode",   on: true  },
-        { icon: "🔄", name: "Auto-rotate", on: false },
-    ]
-
     component SliderRow: Item {
-        width: parent.width - 32
-        height: 40
+        id: slider
         property string label: ""
         property string icon: ""
         property int value: 50
+        property bool focused: false
+
+        signal activated()
+        signal adjustRequested(int delta)
+
+        Rectangle {
+            anchors.fill: parent
+            radius: Tokens.rSm
+            color: slider.focused ? Tokens.accentGlow : "transparent"
+            border.color: slider.focused ? Tokens.accent : "transparent"
+            border.width: slider.focused ? 1 : 0
+        }
 
         Column {
-            anchors.fill: parent
+            anchors {
+                fill: parent
+                leftMargin: 6
+                rightMargin: 6
+            }
             spacing: 4
             Item {
                 anchors { left: parent.left; right: parent.right }
@@ -144,27 +198,37 @@ Item {
                 Text {
                     id: labelText
                     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-                    text: icon + " " + label
+                    text: slider.icon + " " + slider.label
                     font.pixelSize: 11
                     font.family: Tokens.fontSans
-                    color: Tokens.textSecondary
+                    color: slider.focused ? Tokens.accent : Tokens.textSecondary
                 }
                 Text {
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-                    text: value + "%"
+                    text: slider.value + "%"
                     font.pixelSize: 11
                     font.family: Tokens.fontMono
                     color: Tokens.textSecondary
                 }
             }
             Rectangle {
-                width: parent.width; height: 4; radius: 2
+                width: parent.width
+                height: 4
+                radius: 2
                 color: Tokens.bgElevated
                 Rectangle {
-                    width: parent.width * (value / 100); height: 4; radius: 2
+                    width: parent.width * Math.max(0, Math.min(100, slider.value)) / 100
+                    height: 4
+                    radius: 2
                     color: Tokens.accent
                 }
             }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: slider.activated()
+            onPressAndHold: slider.adjustRequested(5)
         }
     }
 }

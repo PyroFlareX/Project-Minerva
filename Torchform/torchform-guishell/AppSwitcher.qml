@@ -4,10 +4,11 @@ import "."
 Item {
     id: root
 
-    // apps: array of { name, icon, bg }
-    property var apps:       []
+    property var config: ({ title: "App Switcher", cardWidth: 200, cardHeight: 140,
+                            spacing: 20, apps: [] })
+    property var apps: root.config.apps || []
     property int focusIndex: 0
-    property bool open:      false
+    property bool open: false
 
     signal appSelected(int idx)
     signal closed()
@@ -22,34 +23,36 @@ Item {
         MouseArea { anchors.fill: parent; onClicked: root.closed() }
     }
 
-    // Header label
     Text {
-        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter; topMargin: 60 }
-        text: "App Switcher"
+        anchors {
+            top: parent.top
+            horizontalCenter: parent.horizontalCenter
+            topMargin: 60
+        }
+        text: root.config.title || "App Switcher"
         font.pixelSize: 18
         font.family: Tokens.fontDisplay
-        font.weight: Font.SemiBold
+        font.weight: Font.DemiBold
         color: Tokens.textSecondary
     }
 
-    // Card row
     Row {
         anchors.centerIn: parent
-        spacing: 20
+        spacing: root.config.spacing || 20
 
         Repeater {
             model: root.apps
 
             delegate: Rectangle {
                 property bool focused: index === root.focusIndex
-                width: 200; height: 140
+                width: root.config.cardWidth || 200
+                height: root.config.cardHeight || 140
                 radius: Tokens.rLg
                 color: modelData.bg
                 border.color: focused ? Tokens.accent : Tokens.border
                 border.width: focused ? 2 : 1
                 Behavior on border.color { ColorAnimation { duration: Tokens.animFast } }
 
-                // Drop shadow glow
                 layer.enabled: focused
                 layer.effect: null
 
@@ -71,11 +74,9 @@ Item {
                     }
                 }
 
-                // Bottom title bar
                 Rectangle {
                     anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
                     height: 32
-                    radius: 0
                     color: "#66000000"
                     Text {
                         anchors.centerIn: parent
@@ -94,12 +95,17 @@ Item {
         }
     }
 
-    // Hint
-    Text {
-        anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter; bottomMargin: 40 }
-        text: "← → Navigate   A Launch   B Close"
-        font.pixelSize: 11
-        font.family: Tokens.fontMono
-        color: Tokens.textDisabled
+    ControlHints {
+        anchors {
+            bottom: parent.bottom
+            horizontalCenter: parent.horizontalCenter
+            bottomMargin: 40
+        }
+        hints: [
+            {button: "D-PAD", label: "Select"},
+            {button: "A", label: "Switch"},
+            {button: "B", label: "Close"}
+        ]
+        spacing: 16
     }
 }

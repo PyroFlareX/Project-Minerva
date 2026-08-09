@@ -1,5 +1,7 @@
 module TorchformDemo
 singleton Tokens 1.0 Tokens.qml
+GamepadGlyph 1.0 GamepadGlyph.qml
+ControlHints 1.0 ControlHints.qml
 StatusBar 1.0 StatusBar.qml
 HintBar 1.0 HintBar.qml
 LockScreen 1.0 LockScreen.qml
@@ -14,3 +16,7 @@ WiFiPanel 1.0 WiFiPanel.qml
 BluetoothPanel 1.0 BluetoothPanel.qml
 LowerPanel 1.0 LowerPanel.qml
 OnScreenKeyboard 1.0 OnScreenKeyboard.qml
+
+TerminalView 1.0 TerminalView.qml
+FilesView 1.0 FilesView.qml
+SysmonView 1.0 SysmonView.qml
