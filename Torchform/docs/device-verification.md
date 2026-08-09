@@ -73,7 +73,7 @@ Reference images and button inventories:
 ### App access
 
 - [x] Terminal mode runs `printf TORCHFORM_TERMINAL_OK` and displays captured output.
-- [ ] The control helper finds Kitty and the user-local `kitty-wayland` backend now creates a Wayland surface, but Kitty exits before a stable external-window smoke; its log reports missing `libsystemd.so` and no render frame.
+- [x] The control helper launches the user-local Foot Wayland terminal with the required library path and confirms the child survives startup; Kitty remains an optional fallback and is still unavailable on this Alpine image.
 - [x] File browser lists the real home directory and distinguishes directory/file entries.
 - [ ] Empty/error directory handling has not been separately exercised.
 - [x] System monitor refreshes `/proc`, memory, root-disk, temperature, uptime, and battery state without blocking the UI.
@@ -151,5 +151,6 @@ The helper requires a running virtual-gamepad session. Start one with the smoke 
 | 2026-08-09 | Terminal smoke scenario | A/confirm runs the entered command and displays `TORCHFORM_TERMINAL_OK`; Select remains App Switcher. |
 | 2026-08-09 | Post-run `free -m`, `df -h /`, `uptime`, and process inventory | 7.8 GiB RAM total / 7.1 GiB available, root filesystem 38% used, one Sway + one QuickShell session. |
 | 2026-08-09 | `device-smoke-test.py --restart --scenario panels` after main-branch geometry pass | Quick Settings and Notifications controller assertions passed; live screenshots under `/tmp/torchform-main-layout-final` show expanded responsive panels and readable notification text. |
+| 2026-08-09 | `torchform-control.sh launch terminal` on Minerva | User-local Foot launched under Wayland with `LD_LIBRARY_PATH`, remained alive after startup, and replaced the failing Kitty-only path. |
 
 Update this log after every on-device smoke run. Do not call DRC/fabrication or touchscreen behavior verified from this checklist; those require direct evidence.

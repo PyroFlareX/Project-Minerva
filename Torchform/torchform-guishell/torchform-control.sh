@@ -253,14 +253,19 @@ case "$cmd" in
         echo 'error|No Wayland file manager installed.'
         ;;
       terminal)
-        for c in kitty foot alacritty; do
-          if command -v "$c" >/dev/null 2>&1; then
-            nohup "$c" >/tmp/torchform-$c.log 2>&1 &
-            pid=$!
-            sleep 0.75
-            if kill -0 "$pid" 2>/dev/null; then echo "ok|Launching $c"; else echo "error|$c exited during launch"; fi
+        for c in "$HOME/userpkgs/usr/bin/foot" kitty alacritty; do
+          if [ ! -x "$c" ]; then c=$(command -v "$c" 2>/dev/null || true); fi
+          [ -x "$c" ] || continue
+          name=${c##*/}
+          nohup env "LD_LIBRARY_PATH=$HOME/userpkgs/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+            "$c" >/tmp/torchform-$name.log 2>&1 &
+          pid=$!
+          sleep 0.75
+          if kill -0 "$pid" 2>/dev/null; then
+            echo "ok|Launching $name"
             exit 0
           fi
+          wait "$pid" 2>/dev/null || true
         done
         echo 'error|No Wayland terminal installed.'
         ;;
