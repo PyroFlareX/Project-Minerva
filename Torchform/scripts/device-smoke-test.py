@@ -103,6 +103,7 @@ def restart_device(host: str) -> None:
         "kill \"$(cat /tmp/torchform-virtual-gamepad.pid)\" 2>/dev/null || true; "
         "fi; "
         f"rm -f {REMOTE_STATE}; "
+        "rm -rf $HOME/.cache/quickshell $HOME/.cache/qmlcache; "
         "sleep 1; "
         f"TORCHFORM_VIRTUAL_GAMEPAD=1 nohup setsid sh {REMOTE_DIR}/start-hdmi.sh "
         ">/tmp/start-hdmi.log 2>&1 </dev/null &"
