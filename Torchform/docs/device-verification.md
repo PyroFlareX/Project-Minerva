@@ -41,7 +41,7 @@ Reference images and button inventories:
 
 - [x] SSH host alias `Minerva` reaches the CM5 without requiring X11 forwarding.
 - [x] Active source path is identified as `~/projects/torchform-guishell`.
-- [x] `make hdmi-restart` performs the sync, restart, live-output query, and launcher-log collection without compiling QML.
+- [x] `make hdmi-restart` syncs the tree, clears stale QuickShell/QML caches, restarts the session, and collects launcher output without compiling QML.
 - [x] `make deploy-hdmi` syncs `Torchform/torchform-guishell`, not the obsolete `demo-quickshell` path.
 - [x] Local and device OMP runtimes are present; the device model cache and auth metadata were synchronized without exposing credentials in logs.
 

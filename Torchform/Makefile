@@ -287,7 +287,7 @@ deploy-hdmi:
 hdmi-restart: deploy-hdmi
 	@echo ">> Restarting Torchform QuickShell on HDMI..."
 	-ssh -T -o ForwardX11=no $(MINERVA_HOST) \
-	    "pkill -9 -x quickshell; pkill -9 -x sway; pkill -9 -x torchform-input" 2>/dev/null; true
+	    "pkill -9 -x quickshell; pkill -9 -x sway; pkill -9 -x torchform-input; rm -rf ~/.cache/quickshell ~/.cache/qmlcache" 2>/dev/null; true
 	ssh -T -o ForwardX11=no $(MINERVA_HOST) \
 	    "nohup setsid sh ~/projects/torchform-guishell/start-hdmi.sh \
 	     </dev/null >/tmp/start-hdmi.log 2>&1 &"
