@@ -8,7 +8,8 @@ Item {
     property var config: ({ side: "left", width: 300, title: "Notifications",
                             closeGlyph: "‹", items: [] })
     property int focusIndex: -1
-    property int notifCount: (root.config.items || []).length
+    property bool suppressed: false
+    property int notifCount: root.suppressed ? 0 : (root.config.items || []).length
 
     signal closed()
     signal itemActivated(int index)
@@ -90,9 +91,8 @@ Item {
                     }
                 }
             }
-
             Repeater {
-                model: root.config.items || []
+                model: root.suppressed ? [] : (root.config.items || [])
 
                 delegate: Rectangle {
                     width: parent.width - 32
@@ -168,9 +168,9 @@ Item {
             }
 
             Text {
-                visible: (root.config.items || []).length === 0
+                visible: root.suppressed || (root.config.items || []).length === 0
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "No notifications"
+                text: root.suppressed ? "Do Not Disturb enabled" : "No notifications"
                 font.pixelSize: 12
                 font.family: Tokens.fontMono
                 color: Tokens.textDisabled

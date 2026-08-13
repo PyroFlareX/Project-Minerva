@@ -72,6 +72,7 @@ Item {
             spacing: 0
 
             Text {
+                width: parent.width - 32
                 text: root.config.title || "Quick Settings"
                 font.pixelSize: 15
                 font.family: Tokens.fontDisplay
@@ -79,13 +80,15 @@ Item {
                 color: Tokens.textPrimary
                 bottomPadding: 14
                 leftPadding: 2
+                elide: Text.ElideRight
+                maximumLineCount: 1
             }
 
             Repeater {
                 model: root.config.sliders || []
 
                 delegate: Item {
-                    width: parent.width
+                    width: parent.width - 32
                     height: 48
 
                     SliderRow {
@@ -131,11 +134,15 @@ Item {
                                 font.pixelSize: 20
                             }
                             Text {
+                                width: parent.parent.width - 12
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 text: modelData.name
                                 font.pixelSize: 10
                                 font.family: Tokens.fontSans
                                 color: root.tileStates[index] ? Tokens.accent : Tokens.textSecondary
+                                horizontalAlignment: Text.AlignHCenter
+                                elide: Text.ElideRight
+                                maximumLineCount: 1
                             }
                         }
 
@@ -201,13 +208,21 @@ Item {
                 height: labelText.implicitHeight
                 Text {
                     id: labelText
-                    anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                    anchors {
+                        left: parent.left
+                        right: valueText.left
+                        rightMargin: 8
+                        verticalCenter: parent.verticalCenter
+                    }
                     text: slider.icon + " " + slider.label
                     font.pixelSize: 11
                     font.family: Tokens.fontSans
                     color: slider.focused ? Tokens.accent : Tokens.textSecondary
+                    elide: Text.ElideRight
+                    maximumLineCount: 1
                 }
                 Text {
+                    id: valueText
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
                     text: slider.value + "%"
                     font.pixelSize: 11

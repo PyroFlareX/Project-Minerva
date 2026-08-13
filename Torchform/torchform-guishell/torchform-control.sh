@@ -79,6 +79,82 @@ sample_sysmon() {
     "$load" "$memory" "$disk" "$temperature" "$battery" "$battery_status" "$uptime"
 }
 
+quick_state_dir() {
+  printf '%s/torchform\n' "${XDG_STATE_HOME:-$HOME/.local/state}"
+}
+
+quick_state_file() {
+  printf '%s/quick-settings-%s\n' "$(quick_state_dir)" "$1"
+}
+
+quick_state_set() {
+  state_name=$1
+  state_value=$2
+  state_dir=$(quick_state_dir)
+  mkdir -p "$state_dir"
+  printf '%s\n' "$state_value" >"$(quick_state_file "$state_name")"
+}
+
+quick_action() {
+  action=$1
+  target=$2
+  case "$action" in
+    sys.airplane)
+      if ! command -v rfkill >/dev/null 2>&1; then
+        echo 'error|Airplane mode unavailable: rfkill is not installed.'
+        return 0
+      fi
+      if [ "$target" = "on" ]; then
+        if ! rfkill block all >/tmp/torchform-rfkill.log 2>&1; then
+          msg=$(tail -1 /tmp/torchform-rfkill.log 2>/dev/null || true)
+          echo "error|Airplane mode failed: ${msg:-permission denied}"
+          return 0
+        fi
+        quick_state_set airplane on
+        echo 'state|on|Airplane mode enabled.'
+      else
+        if ! rfkill unblock all >/tmp/torchform-rfkill.log 2>&1; then
+          msg=$(tail -1 /tmp/torchform-rfkill.log 2>/dev/null || true)
+          echo "error|Airplane mode failed: ${msg:-permission denied}"
+          return 0
+        fi
+        quick_state_set airplane off
+        echo 'state|off|Airplane mode disabled.'
+      fi
+      ;;
+    sys.dnd)
+      quick_state_set dnd "$target"
+      if [ "$target" = "on" ]; then
+        echo 'state|on|Do Not Disturb enabled for Torchform notifications.'
+      else
+        echo 'state|off|Do Not Disturb disabled.'
+      fi
+      ;;
+    sys.dark-mode)
+      echo 'error|Dark mode is unavailable: the current theme backend is fixed dark.'
+      ;;
+    sys.rotate)
+      echo 'error|Auto-rotate is unavailable: no orientation sensor is present.'
+      ;;
+    *)
+      echo "error|Unsupported Quick Settings action: $action"
+      ;;
+  esac
+}
+
+quick_slider() {
+  slider=$1
+  direction=$2
+  case "$slider" in
+    brightness|volume)
+      "$0" "${slider}-step" "$direction"
+      ;;
+    *)
+      echo "error|Unsupported Quick Settings slider: $slider"
+      ;;
+  esac
+}
+
 case "$cmd" in
   wifi-list)
     if ! command -v iwctl >/dev/null 2>&1; then
@@ -153,6 +229,23 @@ case "$cmd" in
       echo "error|${msg:-Failed to connect to $addr}"
     fi
     ;;
+  quick-action)
+    quick_action "${2:-}" "${3:-off}"
+    ;;
+  quick-slider)
+    quick_slider "${2:-}" "${3:-up}"
+    ;;
+  quick-state)
+    state_name=${2:-}
+    state_value=off
+    state_file=$(quick_state_file "$state_name")
+    if [ -r "$state_file" ]; then
+      state_value=$(cat "$state_file")
+    fi
+    printf 'state|%s|%s\n' "$state_name" "$state_value"
+    ;;
+
+
   state-write)
     state_write "$@"
     ;;

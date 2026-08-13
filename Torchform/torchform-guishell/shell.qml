@@ -68,6 +68,10 @@ ShellRoot {
     // Runtime values are separate from the data-only layout registry.
     property var quickSettingsSliderValues: []
     property var quickSettingsTileStates:   []
+    property bool dndEnabled: false
+    property int quickActionPendingIndex: -1
+    property int quickSliderPendingIndex: -1
+    property int quickSliderPendingPrevious: 0
 
     // Device-backed app state.  These values are intentionally plain QML data
     // so the shell can be restarted after editing scripts or data.js.
@@ -143,6 +147,62 @@ ShellRoot {
             }
         }
     }
+    Process {
+        id: quickActionProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var raw = text.trim()
+                if (raw.length === 0) return
+                var parts = raw.split("|")
+                var kind = parts[0]
+                var message = parts.slice(kind === "state" ? 2 : 1).join("|")
+                if (kind === "state" && shell.quickActionPendingIndex >= 0) {
+                    var states = shell.quickSettingsTileStates.slice()
+                    states[shell.quickActionPendingIndex] = parts[1] === "on"
+                    shell.quickSettingsTileStates = states
+                    if (shell.quickSettingsConfig.tiles[shell.quickActionPendingIndex].action === "sys.dnd")
+                        shell.dndEnabled = parts[1] === "on"
+                } else if (kind === "error" && shell.quickSliderPendingIndex >= 0) {
+                    var values = shell.quickSettingsSliderValues.slice()
+                    values[shell.quickSliderPendingIndex] = shell.quickSliderPendingPrevious
+                    shell.quickSettingsSliderValues = values
+                }
+                shell.quickActionPendingIndex = -1
+                shell.quickSliderPendingIndex = -1
+                shell.showBanner(message || raw)
+                shell.writeState()
+            }
+        }
+    }
+    Process {
+        id: quickStateProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var parts = text.trim().split("|")
+                if (parts[0] !== "state" || parts.length < 3) return
+                if (parts[1] === "dnd") {
+                    shell.dndEnabled = parts[2] === "on"
+                    var tiles = shell.quickSettingsTileStates.slice()
+                    var dndIndex = -1
+                    var configuredTiles = shell.quickSettingsConfig.tiles || []
+                    for (var i = 0; i < configuredTiles.length; i++) {
+                        if (configuredTiles[i].action === "sys.dnd") {
+                            dndIndex = i
+                            break
+                        }
+                    }
+                    if (dndIndex >= 0) {
+                        tiles[dndIndex] = shell.dndEnabled
+                        shell.quickSettingsTileStates = tiles
+                    }
+                    shell.writeState()
+                }
+            }
+        }
+    }
+
+
+
     Process {
         id: applicationsProc
         stdout: StdioCollector {
@@ -366,6 +426,7 @@ ShellRoot {
             quickSettingsFocus: quickSettingsFocus,
             quickSettingsSliderValues: quickSettingsSliderValues,
             quickSettingsTileStates: quickSettingsTileStates,
+            dndEnabled: dndEnabled,
             notificationsFocus: notificationsFocus,
             switcherFocus: switcherFocus,
             upper: upperScreen ? upperScreen.name : "",
@@ -435,6 +496,10 @@ ShellRoot {
         ]
         applicationsProc.running = true
     }
+    function refreshQuickSettingsState() {
+        runControl(quickStateProc, ["quick-state", "dnd"])
+    }
+
 
     // ─── Data-driven UI registry (edit data.js; no QML rebuild required) ─────
     readonly property var overlayConfig:       Data.overlayConfig
@@ -458,6 +523,10 @@ ShellRoot {
         })
         quickSettingsSliderValues = sliders
         quickSettingsTileStates = tiles
+        var dndTile = (quickSettingsConfig.tiles || []).find(function(tile) {
+            return tile.action === "sys.dnd"
+        })
+        dndEnabled = !!(dndTile && dndTile.initialOn)
         quickSettingsFocus = quickSettingsConfig.initialFocus || 0
         notificationsFocus = notificationsConfig.initialFocus || 0
         switcherFocus = switcherConfig.initialFocus || 0
@@ -467,8 +536,8 @@ ShellRoot {
     Component.onCompleted: {
         resetOverlayRuntime()
         refreshApplications()
+        refreshQuickSettingsState()
     }
-
 
     // ─── Hint bar content ────────────────────────────────────────────────────
     property var currentHints: {
@@ -648,14 +717,17 @@ ShellRoot {
             handleBluetooth()
             return
         }
-        var states = quickSettingsTileStates.slice()
-        states[tileIndex] = !states[tileIndex]
-        quickSettingsTileStates = states
-        launchCommand(tile.action)
+        var target = quickSettingsTileStates[tileIndex] ? "off" : "on"
+        quickActionPendingIndex = tileIndex
+        runControl(quickActionProc, ["quick-action", tile.action, target])
         writeState()
     }
 
     function activateNotification() {
+        if (dndEnabled) {
+            showBanner("Do Not Disturb is enabled")
+            return
+        }
         var item = notificationsConfig.items[notificationsFocus]
         if (item) showBanner(item.app + ": " + item.title)
         writeState()
@@ -667,12 +739,16 @@ ShellRoot {
         if (!slider) return
         var values = quickSettingsSliderValues.slice()
         var step = Number(slider.step) || 1
-        var next = (Number(values[index]) || 0) + delta * step
+        var previous = Number(values[index]) || 0
+        var next = previous + delta * step
         next = Math.max(Number(slider.min) || 0, Math.min(Number(slider.max) || 100, next))
         values[index] = next
         quickSettingsSliderValues = values
-        showBanner(slider.label + " " + next + "%")
+        quickSliderPendingIndex = index
+        quickSliderPendingPrevious = previous
+        runControl(quickActionProc, ["quick-slider", slider.id, delta < 0 ? "down" : "up"])
         writeState()
+
     }
 
     function navQuickSettings(direction) {
@@ -709,7 +785,7 @@ ShellRoot {
     }
 
     function navNotifications(direction) {
-        var count = (notificationsConfig.items || []).length
+        var count = dndEnabled ? 0 : (notificationsConfig.items || []).length
         if (count === 0) {
             notificationsFocus = 0
             return
@@ -1356,6 +1432,7 @@ ShellRoot {
                     anchors.fill: parent
                     open: shell.activePanel === "notif"
                     config: shell.notificationsConfig
+                    suppressed: shell.dndEnabled
                     focusIndex: shell.notificationsFocus
                     onClosed: shell.handleBack()
                     onItemActivated: (idx) => {
