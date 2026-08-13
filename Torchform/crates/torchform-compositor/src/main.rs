@@ -177,8 +177,8 @@ fn handle_winit_input(
         InputEvent::PointerMotionAbsolute { event } => {
             use smithay::backend::input::AbsolutePositionEvent;
             let size = state.upper_output.size();
-            let x = event.x_transformed(size.w) as f64;
-            let y = event.y_transformed(size.h) as f64;
+            let x = event.x_transformed(size.w);
+            let y = event.y_transformed(size.h);
             state.pointer_location = (x, y).into();
         }
         InputEvent::PointerButton { .. } => {

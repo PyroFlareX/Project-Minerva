@@ -1,0 +1,13 @@
+[buttons]
+south      = { keys = "ctrl+shift+t", label = "New tab" }
+north      = { keys = "ctrl+shift+F11", label = "Fullscreen" }
+west       = { keys = "ctrl+shift+q", label = "Close tab" }
+l1         = { keys = "ctrl+shift+Left", label = "Prev tab" }
+r1         = { keys = "ctrl+shift+Right", label = "Next tab" }
+l2         = { keys = "ctrl+shift+bracketleft", label = "Prev window" }
+r2         = { keys = "ctrl+shift+bracketright", label = "Next window" }
+thumbl     = { keys = "ctrl+shift+w", label = "Close window" }
+thumbr     = { keys = "ctrl+shift+F3", label = "Command menu" }
+select     = { keys = "ctrl+shift+F1", label = "Help" }
+dpad_left = { keys = "ctrl+shift+Left", label = "Prev tab" }
+dpad_right = { keys = "ctrl+shift+Right", label = "Next tab" }

@@ -15,12 +15,16 @@ Item {
 
     signal closed()
     signal notice(string message)
-
+    signal connectRequested(string ssid, bool secured)
     onOpenChanged: if (open) refresh()
 
     function refresh() {
         scanning = true
         wifiListProc.running = true
+    }
+    function scan() {
+        scanning = true
+        wifiScanProc.running = true
     }
 
     function activateFocused() {
@@ -29,9 +33,36 @@ Item {
             return
         }
         var net = wifiNetworks[Math.max(0, Math.min(focusIndex, wifiNetworks.length - 1))]
-        statusText = "Connecting to " + net.ssid + "…"
-        wifiConnectProc.command = ["sh", "-lc", "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh wifi-connect \"$1\"", "torchform-wifi", net.ssid]
+        if (net.connected) {
+            statusText = net.ssid + " is already connected."
+            return
+        }
+        connectRequested(net.ssid, net.secured)
+    }
+
+    function connect(ssid, passphrase) {
+        statusText = "Connecting to " + ssid + "…"
+        wifiConnectProc.command = [
+            "sh", "-lc",
+            "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh wifi-connect \"$1\" \"$2\"",
+            "torchform-wifi", ssid, passphrase || ""
+        ]
         wifiConnectProc.running = true
+    }
+
+    Process {
+        id: wifiScanProc
+        command: ["sh", "-lc", "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh wifi-scan"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var msg = text.trim().split("|").slice(1).join("|")
+                if (msg.length === 0) msg = text.trim()
+                root.statusText = msg
+                root.scanning = false
+                root.notice(msg)
+                root.refresh()
+            }
+        }
     }
 
     Process {
@@ -57,7 +88,7 @@ Item {
                     }
                 }
                 root.wifiNetworks = rows
-                root.statusText = rows.length > 0 ? "A connect  •  D-PAD choose  •  Scan refreshes" : status
+                root.statusText = rows.length > 0 ? "Y scan  •  D-PAD choose  •  A connect  •  B close" : status
                 root.scanning = false
             }
         }
@@ -122,7 +153,7 @@ Item {
                         font.family: Tokens.fontMono
                         color: Tokens.accent
                     }
-                    MouseArea { anchors.fill: parent; onClicked: root.refresh() }
+                    MouseArea { anchors.fill: parent; onClicked: root.scan() }
                 }
             }
 

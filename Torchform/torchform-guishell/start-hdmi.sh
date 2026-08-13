@@ -35,10 +35,50 @@ if [ -f /tmp/torchform-virtual-gamepad.pid ]; then
     [ -z "$TEST_PAD_PID" ] || kill "$TEST_PAD_PID" 2>/dev/null || true
     rm -f /tmp/torchform-virtual-gamepad.pid
 fi
-pkill -9 -x quickshell 2>/dev/null || true
-pkill -9 -x sway 2>/dev/null || true
-pkill -9 -x torchform-input 2>/dev/null || true
+if [ -f "$XDG_RUNTIME_DIR/torchform/session-dbus.pid" ]; then
+    SESSION_DBUS_PID=$(cat "$XDG_RUNTIME_DIR/torchform/session-dbus.pid" 2>/dev/null || true)
+    [ -z "$SESSION_DBUS_PID" ] || kill "$SESSION_DBUS_PID" 2>/dev/null || true
+fi
+/bin/busybox pkill -9 -x quickshell 2>/dev/null || true
+/bin/busybox pkill -9 -x sway 2>/dev/null || true
+/bin/busybox pkill -9 -x torchform-input 2>/dev/null || true
+# These services own sockets inside XDG_RUNTIME_DIR. Leaving them alive while
+# deleting that directory produces a process that passes pgrep but cannot serve
+# a single client. Use Alpine's BusyBox explicitly: inherited developer-tool
+# PATH entries have supplied a different pkill with incompatible behavior.
+/bin/busybox pkill -9 -x wireplumber 2>/dev/null || true
+/bin/busybox pkill -9 -x pipewire 2>/dev/null || true
 sleep 1
+
+# Process-name matching is not authoritative for the pad. A daemon that was
+# reparented to init keeps its uinput device alive, so a SECOND
+# "torchform-virtpad" appears and the Gamepad plugin may bind the dead one —
+# silently disabling every controller input for the whole session. Reap by who
+# actually holds /dev/uinput, which is the only reliable signal.
+release_stale_virtpad() {
+    grep -q torchform-virtpad /proc/bus/input/devices 2>/dev/null || return 0
+    for pid in /proc/[0-9]*; do
+        pid=${pid#/proc/}
+        [ "$pid" = "$$" ] && continue
+        for fd in /proc/"$pid"/fd/*; do
+            [ "$(readlink "$fd" 2>/dev/null)" = /dev/uinput ] || continue
+            kill -9 "$pid" 2>/dev/null || true
+            break
+        done
+    done
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+        grep -q torchform-virtpad /proc/bus/input/devices 2>/dev/null || return 0
+        sleep 0.2
+    done
+    return 1
+}
+
+if ! release_stale_virtpad; then
+    echo "ERROR: a stale torchform-virtpad device is still present:" >&2
+    grep -c torchform-virtpad /proc/bus/input/devices >&2
+    echo "Controller input would bind unpredictably. Refusing to start." >&2
+    exit 1
+fi
 rm -rf "$XDG_RUNTIME_DIR"
 
 # ── Runtime dir (shared by the daemon + plugin via the action manifest) ───────
@@ -47,6 +87,20 @@ rm -rf "$XDG_RUNTIME_DIR"
 mkdir -p "$XDG_RUNTIME_DIR" && chmod 700 "$XDG_RUNTIME_DIR"
 export XDG_RUNTIME_DIR
 mkdir -p "$XDG_RUNTIME_DIR/torchform"
+
+# PipeWire/WirePlumber require a session bus. SSH-launched HDMI sessions do not
+# inherit one, so create it explicitly inside this session's runtime directory.
+if DBUS_INFO=$(/usr/bin/dbus-daemon --session --fork \
+        --address="unix:path=$XDG_RUNTIME_DIR/bus" \
+        --print-address=1 --print-pid=1 2>/dev/null); then
+    set -- $DBUS_INFO
+    DBUS_SESSION_BUS_ADDRESS=$1
+    DBUS_SESSION_BUS_PID=$2
+    export DBUS_SESSION_BUS_ADDRESS DBUS_SESSION_BUS_PID
+    printf '%s\n' "$DBUS_SESSION_BUS_PID" >"$XDG_RUNTIME_DIR/torchform/session-dbus.pid"
+else
+    echo "WARNING: unable to start the session D-Bus; audio services may fail." >&2
+fi
 
 VIRTUAL_GAMEPAD_SOCKET="$XDG_RUNTIME_DIR/torchform/virtual-gamepad.sock"
 VIRTUAL_GAMEPAD_READY="$XDG_RUNTIME_DIR/torchform/virtual-gamepad.ready"

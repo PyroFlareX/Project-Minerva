@@ -26,6 +26,7 @@ fn main() -> Result<()> {
     info!("torchform-settings starting");
 
     let config_rc = Rc::new(RefCell::new(cfg::TorchformConfig::load()));
+    let schema_rc = Rc::new(cfg::SettingsSchema::load());
 
     let win = SettingsWindow::new()?;
 
@@ -33,10 +34,11 @@ fn main() -> Result<()> {
     let refresh = {
         let win2 = win.as_weak();
         let cfg2 = config_rc.clone();
+        let schema2 = schema_rc.clone();
         move || {
             if let Some(w) = win2.upgrade() {
                 let c = cfg2.borrow();
-                let rows = cfg::make_settings_entries(&c);
+                let rows = cfg::make_settings_entries(schema2.as_ref(), &c);
                 w.set_entries(rows_to_slint(&rows));
             }
         }
@@ -47,7 +49,7 @@ fn main() -> Result<()> {
     // Prime focused row to first non-header
     let focused = Rc::new(RefCell::new({
         let c = config_rc.borrow();
-        let rows = cfg::make_settings_entries(&c);
+        let rows = cfg::make_settings_entries(schema_rc.as_ref(), &c);
         cfg::focus_down(0, &rows)
     }));
     win.set_focused_row(*focused.borrow() as i32);
@@ -56,13 +58,14 @@ fn main() -> Result<()> {
 
     win.on_setting_activated({
         let win2 = win.as_weak(); let cfg2 = config_rc.clone();
+        let schema2 = schema_rc.clone();
         let focused2 = focused.clone();
         move |key| {
             if let Some(w) = win2.upgrade() {
                 let mut c = cfg2.borrow_mut();
                 let changed = cfg::apply_activation(key.as_str(), &mut c);
                 if changed { let _ = c.save(&cfg::user_config_path()); }
-                let rows = cfg::make_settings_entries(&c);
+                let rows = cfg::make_settings_entries(schema2.as_ref(), &c);
                 w.set_entries(rows_to_slint(&rows));
                 w.set_focused_row(*focused2.borrow() as i32);
             }
@@ -71,13 +74,14 @@ fn main() -> Result<()> {
 
     win.on_setting_adjusted({
         let win2 = win.as_weak(); let cfg2 = config_rc.clone();
+        let schema2 = schema_rc.clone();
         let focused2 = focused.clone();
         move |key, delta| {
             if let Some(w) = win2.upgrade() {
                 let mut c = cfg2.borrow_mut();
-                let changed = cfg::apply_adjustment(key.as_str(), delta, &mut c);
+                let changed = cfg::apply_adjustment(key.as_str(), delta, &mut c, schema2.as_ref());
                 if changed { let _ = c.save(&cfg::user_config_path()); }
-                let rows = cfg::make_settings_entries(&c);
+                let rows = cfg::make_settings_entries(schema2.as_ref(), &c);
                 w.set_entries(rows_to_slint(&rows));
                 w.set_focused_row(*focused2.borrow() as i32);
             }
@@ -91,11 +95,12 @@ fn main() -> Result<()> {
 
     win.on_action_nav_up({
         let win2 = win.as_weak(); let cfg2 = config_rc.clone();
+        let schema2 = schema_rc.clone();
         let focused2 = focused.clone();
         move || {
             if let Some(w) = win2.upgrade() {
                 let c = cfg2.borrow();
-                let rows = cfg::make_settings_entries(&c);
+                let rows = cfg::make_settings_entries(schema2.as_ref(), &c);
                 let next = cfg::focus_up(*focused2.borrow(), &rows);
                 *focused2.borrow_mut() = next;
                 w.set_focused_row(next as i32);
@@ -105,11 +110,12 @@ fn main() -> Result<()> {
 
     win.on_action_nav_down({
         let win2 = win.as_weak(); let cfg2 = config_rc.clone();
+        let schema2 = schema_rc.clone();
         let focused2 = focused.clone();
         move || {
             if let Some(w) = win2.upgrade() {
                 let c = cfg2.borrow();
-                let rows = cfg::make_settings_entries(&c);
+                let rows = cfg::make_settings_entries(schema2.as_ref(), &c);
                 let next = cfg::focus_down(*focused2.borrow(), &rows);
                 *focused2.borrow_mut() = next;
                 w.set_focused_row(next as i32);
@@ -119,16 +125,17 @@ fn main() -> Result<()> {
 
     win.on_action_nav_left({
         let win2 = win.as_weak(); let cfg2 = config_rc.clone();
+        let schema2 = schema_rc.clone();
         let focused2 = focused.clone();
         move || {
             let idx = *focused2.borrow();
-            let rows = cfg::make_settings_entries(&cfg2.borrow());
+            let rows = cfg::make_settings_entries(schema2.as_ref(), &cfg2.borrow());
             if let Some(entry) = rows.get(idx) {
                 let key = entry.key.clone();
-                let changed = cfg::apply_adjustment(&key, -1, &mut cfg2.borrow_mut());
+                let changed = cfg::apply_adjustment(&key, -1, &mut cfg2.borrow_mut(), schema2.as_ref());
                 if changed { let _ = cfg2.borrow().save(&cfg::user_config_path()); }
                 if let Some(w) = win2.upgrade() {
-                    w.set_entries(rows_to_slint(&cfg::make_settings_entries(&cfg2.borrow())));
+                    w.set_entries(rows_to_slint(&cfg::make_settings_entries(schema2.as_ref(), &cfg2.borrow())));
                     w.set_focused_row(idx as i32);
                 }
             }
@@ -137,16 +144,17 @@ fn main() -> Result<()> {
 
     win.on_action_nav_right({
         let win2 = win.as_weak(); let cfg2 = config_rc.clone();
+        let schema2 = schema_rc.clone();
         let focused2 = focused.clone();
         move || {
             let idx = *focused2.borrow();
-            let rows = cfg::make_settings_entries(&cfg2.borrow());
+            let rows = cfg::make_settings_entries(schema2.as_ref(), &cfg2.borrow());
             if let Some(entry) = rows.get(idx) {
                 let key = entry.key.clone();
-                let changed = cfg::apply_adjustment(&key, 1, &mut cfg2.borrow_mut());
+                let changed = cfg::apply_adjustment(&key, 1, &mut cfg2.borrow_mut(), schema2.as_ref());
                 if changed { let _ = cfg2.borrow().save(&cfg::user_config_path()); }
                 if let Some(w) = win2.upgrade() {
-                    w.set_entries(rows_to_slint(&cfg::make_settings_entries(&cfg2.borrow())));
+                    w.set_entries(rows_to_slint(&cfg::make_settings_entries(schema2.as_ref(), &cfg2.borrow())));
                     w.set_focused_row(idx as i32);
                 }
             }
@@ -155,16 +163,17 @@ fn main() -> Result<()> {
 
     win.on_action_confirm({
         let win2 = win.as_weak(); let cfg2 = config_rc.clone();
+        let schema2 = schema_rc.clone();
         let focused2 = focused.clone();
         move || {
             let idx = *focused2.borrow();
-            let rows = cfg::make_settings_entries(&cfg2.borrow());
+            let rows = cfg::make_settings_entries(schema2.as_ref(), &cfg2.borrow());
             if let Some(entry) = rows.get(idx) {
                 let key = entry.key.clone();
                 let changed = cfg::apply_activation(&key, &mut cfg2.borrow_mut());
                 if changed { let _ = cfg2.borrow().save(&cfg::user_config_path()); }
                 if let Some(w) = win2.upgrade() {
-                    w.set_entries(rows_to_slint(&cfg::make_settings_entries(&cfg2.borrow())));
+                    w.set_entries(rows_to_slint(&cfg::make_settings_entries(schema2.as_ref(), &cfg2.borrow())));
                     w.set_focused_row(idx as i32);
                 }
             }

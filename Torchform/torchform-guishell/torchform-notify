@@ -1,0 +1,23 @@
+#!/bin/sh
+# Post a notification to the Torchform shell.
+#
+# This build of QuickShell has no notification-server module, so Torchform does
+# not own org.freedesktop.Notifications. Local programs use this CLI instead;
+# the shell polls the same file and shows a banner plus a panel entry.
+#
+# Usage: torchform-notify [APP] TITLE [BODY]
+set -eu
+
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+
+case $# in
+  0)
+    echo 'usage: torchform-notify [APP] TITLE [BODY]' >&2
+    exit 2
+    ;;
+  1) app="System"; title=$1; body="" ;;
+  2) app=$1;       title=$2; body="" ;;
+  *) app=$1;       title=$2; body=$3 ;;
+esac
+
+sh "$script_dir/torchform-control.sh" notify-add "$app" "$title" "$body"

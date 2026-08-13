@@ -53,7 +53,7 @@ FocusScope {
                 width: 84; height: 28; radius: Tokens.rSm
                 color: Tokens.accentGlow
                 border.color: Tokens.accent
-                Text { anchors.centerIn: parent; text: "Open Kitty"; font.pixelSize: 9; font.family: Tokens.fontMono; color: Tokens.accent }
+                Text { anchors.centerIn: parent; text: "Terminal App"; font.pixelSize: 9; font.family: Tokens.fontMono; color: Tokens.accent }
                 MouseArea { anchors.fill: parent; onClicked: root.externalRequested() }
             }
         }

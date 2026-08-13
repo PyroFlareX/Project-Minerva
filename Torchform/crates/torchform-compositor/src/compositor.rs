@@ -57,6 +57,8 @@ use crate::{
 // Window model
 // ---------------------------------------------------------------------------
 
+// Tile variants are consumed by Smithay's generated XDG lifecycle callbacks.
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TileAssignment {
     Fullscreen,
@@ -64,12 +66,16 @@ pub enum TileAssignment {
     Right,
 }
 
+// Window fields are consumed by Smithay's generated XDG lifecycle callbacks.
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct TorchWindow {
     pub toplevel: ToplevelSurface,
     pub tile:     TileAssignment,
 }
 
+// Geometry is used by the XDG map/unmap lifecycle callbacks.
+#[allow(dead_code)]
 impl TorchWindow {
     pub fn geometry(&self, output_size: Size<i32, Logical>) -> Rectangle<i32, Logical> {
         match self.tile {
@@ -174,6 +180,8 @@ impl TorchState {
     // Tiling helpers
     // -----------------------------------------------------------------------
 
+    // Smithay invokes window mapping through the XDG delegate macro.
+    #[allow(dead_code)]
     pub fn map_window(&mut self, toplevel: ToplevelSurface) {
         let size = self.upper_output.size();
 
@@ -200,6 +208,8 @@ impl TorchState {
         tracing::info!("Window mapped. tile={:?}  total={}", tile, self.windows.len());
     }
 
+    // Smithay invokes window unmapping through the XDG delegate macro.
+    #[allow(dead_code)]
     pub fn unmap_window(&mut self, surface: &WlSurface) {
         self.windows.retain(|w| w.toplevel.wl_surface() != surface);
 
@@ -330,6 +340,8 @@ delegate_data_device!(TorchState);
 // Per-connection client state
 // ---------------------------------------------------------------------------
 
+// Smithay reads this state through generated protocol delegate code.
+#[allow(dead_code)]
 #[derive(Default)]
 pub struct ClientState {
     pub compositor_state: CompositorClientState,

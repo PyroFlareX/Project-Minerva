@@ -3,9 +3,6 @@
 // =============================================================================
 
 pub use torchform_config::{
-    WidgetDef,
-    RowDef,
-    SectionDef,
     SettingsSchema,
     SettingsRowData,
     make_settings_entries,

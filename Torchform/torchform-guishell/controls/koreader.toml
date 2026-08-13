@@ -1,0 +1,15 @@
+[buttons]
+south      = { keys = "Page_Down", label = "Next page" }
+north      = { keys = "Page_Up", label = "Prev page" }
+west       = { keys = "T", label = "Contents" }
+l1         = { keys = "Right", label = "Next page" }
+r1         = { keys = "Left", label = "Prev page" }
+l2         = { keys = "shift+Page_Down", label = "Font+" }
+r2         = { keys = "F1", label = "Menu" }
+thumbl     = { keys = "shift+Page_Up", label = "Font-" }
+thumbr     = { keys = "Escape", label = "Back" }
+select     = { keys = "Down", label = "Scroll down" }
+dpad_up   = { keys = "Up", label = "Scroll up" }
+dpad_down = { keys = "Down", label = "Scroll down" }
+dpad_left = { keys = "Left", label = "Prev page" }
+dpad_right = { keys = "Right", label = "Next page" }

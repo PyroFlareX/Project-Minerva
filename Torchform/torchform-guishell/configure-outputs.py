@@ -178,12 +178,31 @@ def configure() -> dict[str, Any]:
     return result
 
 
+def role_name(role: str) -> str:
+    outputs = _outputs()
+    if len(outputs) < 2:
+        raise RuntimeError(f"Torchform needs two active outputs, found {len(outputs)}")
+    upper = _pick(outputs, "upper", largest=True)
+    if role == "upper":
+        return str(upper["name"])
+    remaining = [output for output in outputs if output.get("name") != upper.get("name")]
+    return str(_pick(remaining, "lower", largest=False)["name"])
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--status", action="store_true", help="print current active outputs")
+    parser.add_argument(
+        "--role",
+        choices=("upper", "lower"),
+        help="print the output name for a display role and exit",
+    )
     args = parser.parse_args()
 
     try:
+        if args.role:
+            print(role_name(args.role))
+            return 0
         result = status() if args.status else configure()
     except (OSError, RuntimeError, StopIteration, ValueError) as exc:
         print(f"configure-outputs: {exc}", file=sys.stderr)

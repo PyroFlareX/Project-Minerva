@@ -78,22 +78,3 @@ pub fn read_battery() -> Option<i32> {
     None
 }
 
-/// Read charging status. Returns true if any supply is "Charging" or "Full".
-pub fn read_charging() -> bool {
-    #[cfg(target_os = "linux")]
-    {
-        let dir = std::path::Path::new("/sys/class/power_supply");
-        if let Ok(entries) = std::fs::read_dir(dir) {
-            for entry in entries.flatten() {
-                let status_path = entry.path().join("status");
-                if let Ok(s) = std::fs::read_to_string(&status_path) {
-                    let s = s.trim();
-                    if s == "Charging" || s == "Full" {
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-    false
-}

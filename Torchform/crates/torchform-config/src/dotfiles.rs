@@ -70,12 +70,12 @@ impl DotfileEntry {
 /// extension matches a known config format, sorted by path.
 pub fn scan_config_dir(root: &Path) -> Vec<DotfileEntry> {
     let mut entries = Vec::new();
-    walk_dir(root, root, 0, 3, &mut entries);
+    walk_dir(root, 0, 3, &mut entries);
     entries.sort_by(|a, b| a.path.cmp(&b.path));
     entries
 }
 
-fn walk_dir(root: &Path, dir: &Path, depth: usize, max_depth: usize, out: &mut Vec<DotfileEntry>) {
+fn walk_dir(dir: &Path, depth: usize, max_depth: usize, out: &mut Vec<DotfileEntry>) {
     if depth > max_depth { return; }
 
     let rd = match std::fs::read_dir(dir) {
@@ -91,7 +91,7 @@ fn walk_dir(root: &Path, dir: &Path, depth: usize, max_depth: usize, out: &mut V
         };
 
         if ft.is_dir() {
-            walk_dir(root, &path, depth + 1, max_depth, out);
+            walk_dir(&path, depth + 1, max_depth, out);
         } else if ft.is_file() {
             if let Some(entry) = classify_file(&path) {
                 out.push(entry);
@@ -100,16 +100,16 @@ fn walk_dir(root: &Path, dir: &Path, depth: usize, max_depth: usize, out: &mut V
     }
 }
 
+
 fn classify_file(path: &Path) -> Option<DotfileEntry> {
     // Match by extension or by filename (dotfiles like .bashrc)
     let format = if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
         DotfileFormat::from_extension(ext)
-    } else if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+    } else {
         // Extensionless dotfiles: .bashrc, .zshrc, .profile, etc.
+        let name = path.file_name().and_then(|n| n.to_str())?;
         let base = name.trim_start_matches('.');
         DotfileFormat::from_extension(base)
-    } else {
-        return None;
     };
 
     // Skip truly unknown binary files

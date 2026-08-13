@@ -77,7 +77,8 @@ pub fn try_launch_external(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::config::{AppsConfig, AppLaunchOverride, LaunchConfig};
+    use crate::config::{AppsConfig, LaunchConfig};
+    use torchform_config::AppLaunchOverride;
 
     fn empty_launch() -> LaunchConfig {
         LaunchConfig::default()
@@ -92,16 +93,17 @@ mod tests {
 
     #[test]
     fn returns_false_for_empty_binary() {
-        let mut apps = AppsConfig::default();
-        apps.camera = String::new(); // empty = stub only
+        let apps = AppsConfig { camera: String::new(), ..AppsConfig::default() };
         let launch = empty_launch();
         assert!(try_launch_external("app.camera", &apps, &launch).is_none());
     }
 
     #[test]
     fn returns_false_when_binary_not_found() {
-        let mut apps = AppsConfig::default();
-        apps.settings = "this-binary-definitely-does-not-exist-xyz".into();
+        let apps = AppsConfig {
+            settings: "this-binary-definitely-does-not-exist-xyz".into(),
+            ..AppsConfig::default()
+        };
         let launch = empty_launch();
         assert!(try_launch_external("app.settings", &apps, &launch).is_none());
     }
@@ -119,8 +121,7 @@ mod tests {
 
     #[test]
     fn global_env_does_not_panic() {
-        let mut apps = AppsConfig::default();
-        apps.gpio = String::new(); // empty, returns None immediately
+        let apps = AppsConfig { gpio: String::new(), ..AppsConfig::default() };
         let mut launch = empty_launch();
         launch.env.insert("TEST_VAR".into(), "1".into());
         assert!(try_launch_external("app.gpio", &apps, &launch).is_none());

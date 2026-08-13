@@ -1,0 +1,15 @@
+[buttons]
+south      = { keys = "space", label = "Play/Pause" }
+north      = { keys = "f", label = "Fullscreen" }
+west       = { keys = "numbersign", label = "Audio track" }
+l1         = { keys = "9", label = "Vol-" }
+r1         = { keys = "0", label = "Vol+" }
+l2         = { keys = "bracketleft", label = "Speed-" }
+r2         = { keys = "bracketright", label = "Speed+" }
+thumbl     = { keys = "j", label = "Sub track" }
+thumbr     = { keys = "J", label = "Sub prev" }
+select     = { keys = "o", label = "Progress" }
+dpad_up   = { keys = "Up", label = "Seek+1m" }
+dpad_down = { keys = "Down", label = "Seek-1m" }
+dpad_left = { keys = "Left", label = "Seek-5s" }
+dpad_right = { keys = "Right", label = "Seek+5s" }

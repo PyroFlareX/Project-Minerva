@@ -33,10 +33,8 @@ use crate::workspace::WorkspaceManager;
 /// Used only inside shell.rs to drive navigation logic.
 #[derive(Debug, Clone)]
 pub struct SidebarEntryData {
-    pub is_section:   bool,
-    pub section_id:   String,
-    pub group_label:  String,
-    pub sidebar_index: usize,  // original schema section index (only valid when is_section)
+    pub is_section: bool,
+    pub section_id: String,
 }
 
 /// Map a section id to its display group string.
@@ -150,24 +148,6 @@ impl AppId {
         }
     }
 
-    /// The palette / launch command id (e.g. "app.terminal").
-    pub fn command_id(self) -> &'static str {
-        match self {
-            AppId::Terminal => "app.terminal",
-            AppId::Browser  => "app.browser",
-            AppId::Files    => "app.files",
-            AppId::Media    => "app.media",
-            AppId::Phone    => "app.phone",
-            AppId::Sms      => "app.sms",
-            AppId::Email    => "app.email",
-            AppId::Settings => "app.settings",
-            AppId::Sysmon   => "app.sysmon",
-            AppId::Pkgman   => "app.pkgman",
-            AppId::Logview  => "app.logview",
-            AppId::Notes    => "app.notes",
-            AppId::Network  => "app.network",
-        }
-    }
 
     /// Resolve a palette command id (in either "app.x" or "x" form) to an app.
     pub fn from_command(id: &str) -> Option<AppId> {
@@ -269,7 +249,6 @@ pub const QS_KEYS: [&str; 8] =
 
 #[derive(Debug, Clone)]
 pub struct Notif {
-    pub id:       u32,
     pub app:      String,
     pub icon:     String,
     pub title:    String,
@@ -334,10 +313,10 @@ pub struct Banner {
 
 fn seed_notifs() -> Vec<Notif> {
     vec![
-        Notif { id: 1, app: "SMS".into(),    icon: "💬".into(), title: "Alice Chen".into(),          body: "Are you free tonight?".into(),               time: "2m".into(), src_app: Some(AppId::Sms) },
-        Notif { id: 2, app: "EMAIL".into(),  icon: "📧".into(), title: "CI: build passed".into(),     body: "main · 47 tests passed · deployed".into(),   time: "8m".into(), src_app: Some(AppId::Email) },
-        Notif { id: 3, app: "SYSTEM".into(), icon: "⚙️".into(), title: "System update ready".into(),  body: "Torchform OS 0.3.1 available".into(),         time: "1h".into(), src_app: Some(AppId::Settings) },
-        Notif { id: 4, app: "SMS".into(),    icon: "💬".into(), title: "Mom".into(),                  body: "Call me when you get a chance".into(),        time: "2h".into(), src_app: Some(AppId::Sms) },
+        Notif { app: "SMS".into(),    icon: "💬".into(), title: "Alice Chen".into(),          body: "Are you free tonight?".into(),               time: "2m".into(), src_app: Some(AppId::Sms) },
+        Notif { app: "EMAIL".into(),  icon: "📧".into(), title: "CI: build passed".into(),     body: "main · 47 tests passed · deployed".into(),   time: "8m".into(), src_app: Some(AppId::Email) },
+        Notif { app: "SYSTEM".into(), icon: "⚙️".into(), title: "System update ready".into(),  body: "Torchform OS 0.3.1 available".into(),         time: "1h".into(), src_app: Some(AppId::Settings) },
+        Notif { app: "SMS".into(),    icon: "💬".into(), title: "Mom".into(),                  body: "Call me when you get a chance".into(),        time: "2h".into(), src_app: Some(AppId::Sms) },
     ]
 }
 
@@ -585,15 +564,13 @@ impl Shell {
     pub fn sidebar_entries_flat(&self) -> Vec<SidebarEntryData> {
         let mut out = Vec::new();
         let mut last_group = String::new();
-        for (i, sec) in self.settings_schema.sections.iter().enumerate() {
+        for sec in self.settings_schema.sections.iter() {
             let group = section_group(&sec.id);
             if group != last_group {
-                out.push(SidebarEntryData { is_section: false, section_id: String::new(),
-                    group_label: group.clone(), sidebar_index: out.len() });
+                out.push(SidebarEntryData { is_section: false, section_id: String::new() });
                 last_group = group;
             }
-            out.push(SidebarEntryData { is_section: true, section_id: sec.id.clone(),
-                group_label: String::new(), sidebar_index: i });
+            out.push(SidebarEntryData { is_section: true, section_id: sec.id.clone() });
         }
         out
     }
@@ -952,7 +929,6 @@ impl Shell {
                 // Settings: B in row pane → return to sidebar
                 if self.app_id == Some(AppId::Settings) && !self.settings_sidebar_active {
                     self.settings_sidebar_active = true;
-                    return;
                 }
                 // All other apps: B does nothing — apps manage their own back navigation.
                 // Use Select (go_home) or Start (switcher) to exit an app.
@@ -1017,7 +993,7 @@ impl Shell {
                         }
                         Nav::Right => {
                             // Stay within row: only move if on the left column and slot exists.
-                            if self.qs_focus % 2 == 0 && self.qs_focus + 1 < n {
+                            if self.qs_focus.is_multiple_of(2) && self.qs_focus + 1 < n {
                                 self.qs_focus += 1;
                             }
                         }

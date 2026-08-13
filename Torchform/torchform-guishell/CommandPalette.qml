@@ -83,107 +83,101 @@ Item {
                 }
             }
 
-            // Results scroll with controller focus when the command registry exceeds the panel.
-            Flickable {
-                id: resultsViewport
-                width: parent.width
-                height: Math.min(430, Math.max(0, root.commands.length * 52))
-                contentWidth: width
-                contentHeight: resultsColumn.implicitHeight
-                clip: true
+            // Results
+            Repeater {
+                model: root.commands
 
-                function ensureFocusVisible() {
-                    var top = root.focusIndex * 52
-                    var bottom = top + 52
-                    if (top < contentY)
-                        contentY = top
-                    else if (bottom > contentY + height)
-                        contentY = bottom - height
-                }
+                delegate: Rectangle {
+                    property bool focused: index === root.focusIndex
+                    width: parent.width
+                    height: 52
+                    color: focused ? Qt.rgba(
+                        parseInt(Tokens.accent.toString().slice(1,3), 16)/255,
+                        parseInt(Tokens.accent.toString().slice(3,5), 16)/255,
+                        parseInt(Tokens.accent.toString().slice(5,7), 16)/255,
+                        0.13) : "transparent"
+                    Behavior on color { ColorAnimation { duration: Tokens.animFast } }
 
-                Connections {
-                    target: root
-                    function onFocusIndexChanged() {
-                        resultsViewport.ensureFocusVisible()
+                    // Focus accent bar
+                    Rectangle {
+                        visible: parent.focused
+                        width: 3
+                        height: parent.height - 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        x: 0
+                        radius: 2
+                        color: Tokens.accent
                     }
-                }
 
-                Column {
-                    id: resultsColumn
-                    width: resultsViewport.width
+                    Row {
+                        anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 16 }
+                        spacing: 12
 
-                    Repeater {
-                        model: root.commands
+                        // Icon badge
+                        Rectangle {
+                            width: 32; height: 32; radius: 8
+                            anchors.verticalCenter: parent.verticalCenter
+                            color: Tokens.bgElevated
+                            Text { anchors.centerIn: parent; text: modelData.icon; font.pixelSize: 16 }
+                        }
 
-                        delegate: Rectangle {
-                            property bool focused: index === root.focusIndex
-                            width: parent.width
-                            height: 52
-                            color: focused ? Qt.rgba(
-                                parseInt(Tokens.accent.toString().slice(1,3), 16)/255,
-                                parseInt(Tokens.accent.toString().slice(3,5), 16)/255,
-                                parseInt(Tokens.accent.toString().slice(5,7), 16)/255,
-                                0.13) : "transparent"
-                            Behavior on color { ColorAnimation { duration: Tokens.animFast } }
-
-                            Rectangle {
-                                visible: parent.focused
-                                width: 3
-                                height: parent.height - 12
-                                anchors.verticalCenter: parent.verticalCenter
-                                x: 0
-                                radius: 2
-                                color: Tokens.accent
+                        Column {
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 2
+                            Text {
+                                text: modelData.label
+                                font.pixelSize: 13
+                                font.family: Tokens.fontSans
+                                color: Tokens.textPrimary
                             }
-
-                            Row {
-                                anchors { left: parent.left; verticalCenter: parent.verticalCenter; leftMargin: 16 }
-                                spacing: 12
-
-                                Rectangle {
-                                    width: 32; height: 32; radius: 8
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    color: Tokens.bgElevated
-                                    Text { anchors.centerIn: parent; text: modelData.icon; font.pixelSize: 16 }
-                                }
-
-                                Column {
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    spacing: 2
-                                    Text {
-                                        text: modelData.label
-                                        font.pixelSize: 13
-                                        font.family: Tokens.fontSans
-                                        color: Tokens.textPrimary
-                                    }
-                                    Text {
-                                        text: modelData.category
-                                        font.pixelSize: 10
-                                        font.family: Tokens.fontMono
-                                        color: Tokens.textDisabled
-                                    }
-                                }
+                            Text {
+                                text: modelData.description || modelData.category
+                                font.pixelSize: 10
+                                font.family: Tokens.fontSans
+                                color: Tokens.textSecondary
+                                elide: Text.ElideRight
                             }
-
-                            GamepadGlyph {
-                                visible: modelData.shortcut !== ""
-                                button: modelData.shortcut
-                                anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 16 }
-                            }
-
-                            Rectangle {
-                                anchors { bottom: parent.bottom; left: parent.left; right: parent.right; leftMargin: 16; rightMargin: 16 }
-                                height: 1
-                                color: Tokens.borderSubtle
-                                visible: index < root.commands.length - 1
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: root.commandSelected(index)
+                            Text {
+                                text: modelData.category
+                                font.pixelSize: 8
+                                font.family: Tokens.fontMono
+                                color: Tokens.textDisabled
                             }
                         }
                     }
+
+                    // Gamepad shortcut hint
+                    GamepadGlyph {
+                        visible: modelData.shortcut !== ""
+                        button: modelData.shortcut
+                        anchors { right: parent.right; verticalCenter: parent.verticalCenter; rightMargin: 16 }
+                    }
+
+                    // Bottom divider
+                    Rectangle {
+                        anchors { bottom: parent.bottom; left: parent.left; right: parent.right; leftMargin: 16; rightMargin: 16 }
+                        height: 1
+                        color: Tokens.borderSubtle
+                        visible: index < root.commands.length - 1
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.commandSelected(index)
+                    }
+                }
+            }
+            Rectangle {
+                visible: root.commands.length === 0
+                width: parent.width
+                height: 54
+                color: "transparent"
+                Text {
+                    anchors.centerIn: parent
+                    text: root.query === "" ? "No commands configured" : "No matching commands"
+                    font.pixelSize: 11
+                    font.family: Tokens.fontMono
+                    color: Tokens.textDisabled
                 }
             }
         }

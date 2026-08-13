@@ -6,112 +6,1045 @@
       "id": "navigation",
       "description": "Unlock, move through the home grid, launch an app, and return home.",
       "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "panel": "", "homeFocus": 0}},
-        {"id": "grid-down", "actions": ["key:RIGHT", "key:DOWN"], "expect": {"screen": "home", "homeFocus": 5}},
-        {"id": "launch-email", "actions": ["key:LEFT", "key:UP", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "Email"}},
-        {"id": "back-home", "actions": ["key:ESC"], "expect": {"screen": "home"}}
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "panel": "",
+            "homeFocus": 0
+          }
+        },
+        {
+          "id": "grid-down",
+          "actions": [
+            "key:RIGHT",
+            "key:DOWN"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 5
+          }
+        },
+        {
+          "id": "launch-email",
+          "actions": [
+            "key:LEFT",
+            "key:UP",
+            "key:RIGHT",
+            "key:A"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Email"
+          }
+        },
+        {
+          "id": "back-home",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "screen": "home"
+          }
+        }
       ]
     },
     {
       "id": "quick-commands",
       "description": "Open the command palette, navigate a command, and close it safely.",
       "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
-        {"id": "open-palette", "actions": ["key:X"], "expect": {"palette": true}},
-        {"id": "palette-next", "actions": ["key:DOWN"], "expect": {"palette": true, "paletteFocus": 1}},
-        {"id": "close-palette", "actions": ["key:ESC"], "expect": {"palette": false, "screen": "home"}}
-      ]
-    },
-    {
-      "id": "launchers",
-      "description": "Discover a user-local executable and launch it from the controller palette/home grid.",
-      "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
-        {"id": "select-conan", "actions": ["key:DOWN", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "conan"}},
-        {"id": "back-home", "actions": ["key:ESC"], "expect": {"screen": "home"}}
-      ]
-    },
-    {
-      "id": "palette-launcher",
-      "description": "Launch the first discovered local executable through the command palette.",
-      "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
-        {"id": "open-palette", "actions": ["key:X"], "expect": {"palette": true}},
-        {"id": "focus-first-launcher", "actions": ["key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN"], "expect": {"palette": true, "paletteFocus": 13}},
-        {"id": "select-conan", "actions": ["key:A"], "expect": {"screen": "app", "app": "conan", "palette": false}},
-        {"id": "back-home", "actions": ["key:ESC"], "expect": {"screen": "home"}}
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home"
+          }
+        },
+        {
+          "id": "open-palette",
+          "actions": [
+            "key:X"
+          ],
+          "expect": {
+            "palette": true
+          }
+        },
+        {
+          "id": "palette-next",
+          "actions": [
+            "key:DOWN"
+          ],
+          "expect": {
+            "palette": true,
+            "paletteFocus": 1
+          }
+        },
+        {
+          "id": "close-palette",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "palette": false,
+            "screen": "home"
+          }
+        }
       ]
     },
     {
       "id": "panels",
       "description": "Open and dismiss quick settings and notifications from the shell.",
       "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
-        {"id": "quick-settings", "actions": ["key:Z"], "expect": {"panel": "qs"}},
-        {"id": "close-quick-settings", "actions": ["key:ESC"], "expect": {"panel": ""}},
-        {"id": "notifications", "actions": ["key:C"], "expect": {"panel": "notif"}},
-        {"id": "close-notifications", "actions": ["key:ESC"], "expect": {"panel": ""}}
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home"
+          }
+        },
+        {
+          "id": "quick-settings",
+          "actions": [
+            "key:Z"
+          ],
+          "expect": {
+            "panel": "qs"
+          }
+        },
+        {
+          "id": "close-quick-settings",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "panel": ""
+          }
+        },
+        {
+          "id": "notifications",
+          "actions": [
+            "key:C"
+          ],
+          "expect": {
+            "panel": "notif"
+          }
+        },
+        {
+          "id": "close-notifications",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "panel": ""
+          }
+        }
       ]
     },
     {
       "id": "radial",
       "description": "Open, navigate, and dismiss the radial quick-action menu.",
       "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home"}},
-        {"id": "open-radial", "actions": ["key:TAB"], "expect": {"radial": true}},
-        {"id": "radial-next", "actions": ["key:RIGHT"], "expect": {"radial": true, "radialFocus": 1}},
-        {"id": "close-radial", "actions": ["key:ESC"], "expect": {"radial": false}}
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home"
+          }
+        },
+        {
+          "id": "open-radial",
+          "actions": [
+            "key:TAB"
+          ],
+          "expect": {
+            "radial": true
+          }
+        },
+        {
+          "id": "radial-next",
+          "actions": [
+            "key:RIGHT"
+          ],
+          "expect": {
+            "radial": true,
+            "radialFocus": 1
+          }
+        },
+        {
+          "id": "close-radial",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "radial": false
+          }
+        }
       ]
     },
     {
       "id": "files",
       "description": "Open the built-in file browser, list a real directory, and move focus.",
       "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "homeFocus": 0}},
-        {"id": "select-files", "actions": ["key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "Files", "filesReady": true}},
-        {"id": "files-next", "actions": ["key:DOWN"], "expect": {"screen": "app", "app": "Files", "fileFocus": 1}}
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0
+          }
+        },
+        {
+          "id": "select-files",
+          "actions": [
+            "key:DOWN",
+            "key:DOWN",
+            "key:RIGHT",
+            "key:RIGHT",
+            "key:RIGHT",
+            "key:RIGHT",
+            "key:A"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Files",
+            "filesReady": true
+          }
+        },
+        {
+          "id": "files-next",
+          "actions": [
+            "key:DOWN"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Files",
+            "fileFocus": 1
+          }
+        },
+        {
+          "id": "files-stick-next",
+          "actions": [
+            "axis:left_y:1",
+            "axis:neutral"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Files",
+            "fileFocusAtLeast": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "media-routing",
+      "description": "Open the Media Center, route controller focus to Files, and leave media selection ready.",
+      "steps": [
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0
+          }
+        },
+        {
+          "id": "open-media",
+          "actions": [
+            "key:A"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Media",
+            "mediaFocus": 0
+          }
+        },
+        {
+          "id": "choose-file",
+          "actions": [
+            "key:DOWN",
+            "key:A"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Files",
+            "filesReady": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "media-open",
+      "description": "Open a real media file from Files and confirm the external player owns the upper display until it is closed.",
+      "steps": [
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0,
+            "externalRunning": false
+          }
+        },
+        {
+          "id": "open-media-center",
+          "actions": [
+            "key:A"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Media"
+          }
+        },
+        {
+          "id": "choose-media-file",
+          "actions": [
+            "key:DOWN",
+            "key:A"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Files",
+            "filesReady": true
+          }
+        },
+        {
+          "id": "enter-media-dir",
+          "actions": [
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:A",
+            "sleep:1"
+          ],
+          "expect": {
+            "app": "Files",
+            "fileFocus": 0
+          }
+        },
+        {
+          "id": "enter-pictures-dir",
+          "actions": [
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:A",
+            "sleep:1"
+          ],
+          "expect": {
+            "app": "Files",
+            "fileFocus": 0
+          }
+        },
+        {
+          "id": "open-picture",
+          "actions": [
+            "key:DOWN",
+            "key:A",
+            "sleep:4"
+          ],
+          "expect": {
+            "externalRunning": true,
+            "externalAppContains": ".png"
+          }
+        },
+        {
+          "id": "close-picture",
+          "actions": [
+            "key:B",
+            "sleep:3"
+          ],
+          "expect": {
+            "externalRunning": false,
+            "externalApp": "",
+            "screen": "app",
+            "app": "Files"
+          }
+        },
+        {
+          "id": "return-home",
+          "actions": [
+            "key:SPACE"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0,
+            "externalRunning": false
+          }
+        }
       ]
     },
     {
       "id": "terminal",
       "description": "Open the script-backed terminal command runner and execute a harmless command.",
       "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "homeFocus": 0}},
-        {"id": "select-terminal", "actions": ["key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:A"], "expect": {"screen": "app", "app": "Terminal"}},
-        {"id": "run-command", "actions": ["text:printf TORCHFORM_TERMINAL_OK", "key:A"], "expect": {"terminalLastContains": "TORCHFORM_TERMINAL_OK"}}
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0
+          }
+        },
+        {
+          "id": "select-terminal",
+          "actions": [
+            "key:DOWN",
+            "key:DOWN",
+            "key:A"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Terminal"
+          }
+        },
+        {
+          "id": "run-command",
+          "actions": [
+            "text:printf TORCHFORM_TERMINAL_OK",
+            "key:A"
+          ],
+          "expect": {
+            "terminalLastContains": "TORCHFORM_TERMINAL_OK"
+          }
+        }
       ]
     },
     {
       "id": "sysmon",
       "description": "Open the live /proc-backed system monitor and verify sampled data.",
       "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "homeFocus": 0}},
-        {"id": "select-sysmon", "actions": ["key:RIGHT", "key:RIGHT", "key:RIGHT", "key:A"], "expect": {"screen": "app", "app": "Sysmon", "sysmonReady": true}},
-        {"id": "refresh-sysmon", "actions": ["sleep:2.5"], "expect": {"sysmonReady": true}}
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0
+          }
+        },
+        {
+          "id": "select-sysmon",
+          "actions": [
+            "key:RIGHT",
+            "key:RIGHT",
+            "key:RIGHT",
+            "key:A"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Sysmon",
+            "sysmonReady": true
+          }
+        },
+        {
+          "id": "refresh-sysmon",
+          "actions": [
+            "sleep:2.5"
+          ],
+          "expect": {
+            "sysmonReady": true
+          }
+        }
       ]
     },
     {
       "id": "overlay-focus",
       "description": "Verify configured radial, quick-settings, notifications, and switcher focus handoffs.",
       "steps": [
-        {"id": "home", "actions": ["key:A", "key:A", "key:A", "key:A", "key:SPACE"], "expect": {"screen": "home", "focusOwner": "home", "focusCaptured": false, "overlayLayoutVersion": 2}},
-        {"id": "open-terminal", "actions": ["key:DOWN", "key:DOWN", "key:DOWN", "key:DOWN", "key:A"], "expect": {"screen": "app", "app": "Terminal", "focusOwner": "app", "focusCaptured": false}},
-        {"id": "open-quick-settings", "actions": ["key:Z"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "focusCaptured": true, "quickSettingsFocus": 0}},
-        {"id": "quick-settings-next", "actions": ["key:DOWN"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "quickSettingsFocus": 1}},
-        {"id": "quick-settings-adjust", "actions": ["key:RIGHT"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "quickSettingsFocus": 1, "quickSettingsSliderValues": [72, 90]}},
-        {"id": "open-wifi-subpanel", "actions": ["key:DOWN", "key:A"], "expect": {"panel": "qs", "focusOwner": "wifi", "focusCaptured": true}},
-        {"id": "return-to-quick-settings", "actions": ["key:ESC"], "expect": {"panel": "qs", "focusOwner": "quick-settings", "focusCaptured": true}},
-        {"id": "close-quick-settings", "actions": ["key:ESC"], "expect": {"panel": "", "focusOwner": "app", "focusCaptured": false}},
-        {"id": "open-notifications", "actions": ["key:C"], "expect": {"panel": "notif", "focusOwner": "notifications", "focusCaptured": true, "notificationsFocus": 0}},
-        {"id": "notifications-next", "actions": ["key:DOWN"], "expect": {"panel": "notif", "focusOwner": "notifications", "notificationsFocus": 1}},
-        {"id": "close-notifications", "actions": ["key:ESC"], "expect": {"panel": "", "focusOwner": "app", "focusCaptured": false}},
-        {"id": "open-radial", "actions": ["key:TAB"], "expect": {"radial": true, "focusOwner": "radial", "focusCaptured": true, "radialFocus": 0}},
-        {"id": "radial-down", "actions": ["key:DOWN"], "expect": {"radial": true, "focusOwner": "radial", "radialFocus": 2}},
-        {"id": "radial-up", "actions": ["key:UP"], "expect": {"radial": true, "focusOwner": "radial", "radialFocus": 0}},
-        {"id": "close-radial", "actions": ["key:ESC"], "expect": {"radial": false, "focusOwner": "app", "focusCaptured": false}},
-        {"id": "open-switcher", "actions": ["key:ENTER"], "expect": {"panel": "switcher", "focusOwner": "switcher", "focusCaptured": true, "switcherFocus": 0}},
-        {"id": "switcher-next", "actions": ["key:RIGHT"], "expect": {"panel": "switcher", "focusOwner": "switcher", "switcherFocus": 1}},
-        {"id": "close-switcher", "actions": ["key:ESC"], "expect": {"panel": "", "focusOwner": "app", "focusCaptured": false}}
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "focusOwner": "home",
+            "focusCaptured": false,
+            "overlayLayoutVersion": 2
+          }
+        },
+        {
+          "id": "open-terminal",
+          "actions": [
+            "key:DOWN",
+            "key:DOWN",
+            "key:A"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Terminal",
+            "focusOwner": "app",
+            "focusCaptured": false
+          }
+        },
+        {
+          "id": "open-quick-settings",
+          "actions": [
+            "key:Z"
+          ],
+          "expect": {
+            "panel": "qs",
+            "focusOwner": "quick-settings",
+            "focusCaptured": true,
+            "quickSettingsFocus": 0
+          }
+        },
+        {
+          "id": "quick-settings-next",
+          "actions": [
+            "key:DOWN"
+          ],
+          "expect": {
+            "panel": "qs",
+            "focusOwner": "quick-settings",
+            "quickSettingsFocus": 1
+          }
+        },
+        {
+          "id": "quick-settings-adjust",
+          "actions": [
+            "key:RIGHT"
+          ],
+          "expect": {
+            "panel": "qs",
+            "focusOwner": "quick-settings",
+            "quickSettingsFocus": 1,
+            "quickSettingsSliderValues": [
+              72,
+              90
+            ]
+          }
+        },
+        {
+          "id": "open-wifi-subpanel",
+          "actions": [
+            "key:DOWN",
+            "key:A"
+          ],
+          "expect": {
+            "panel": "qs",
+            "focusOwner": "wifi",
+            "focusCaptured": true
+          }
+        },
+        {
+          "id": "return-to-quick-settings",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "panel": "qs",
+            "focusOwner": "quick-settings",
+            "focusCaptured": true
+          }
+        },
+        {
+          "id": "close-quick-settings",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "panel": "",
+            "focusOwner": "app",
+            "focusCaptured": false
+          }
+        },
+        {
+          "id": "open-notifications",
+          "actions": [
+            "key:C"
+          ],
+          "expect": {
+            "panel": "notif",
+            "focusOwner": "notifications",
+            "focusCaptured": true,
+            "notificationsFocus": 0
+          }
+        },
+        {
+          "id": "notifications-next",
+          "actions": [
+            "key:DOWN"
+          ],
+          "expect": {
+            "panel": "notif",
+            "focusOwner": "notifications",
+            "notificationsFocus": 1
+          }
+        },
+        {
+          "id": "close-notifications",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "panel": "",
+            "focusOwner": "app",
+            "focusCaptured": false
+          }
+        },
+        {
+          "id": "open-radial",
+          "actions": [
+            "key:TAB"
+          ],
+          "expect": {
+            "radial": true,
+            "focusOwner": "radial",
+            "focusCaptured": true,
+            "radialFocus": 0
+          }
+        },
+        {
+          "id": "radial-down",
+          "actions": [
+            "key:DOWN"
+          ],
+          "expect": {
+            "radial": true,
+            "focusOwner": "radial",
+            "radialFocus": 2
+          }
+        },
+        {
+          "id": "radial-up",
+          "actions": [
+            "key:UP"
+          ],
+          "expect": {
+            "radial": true,
+            "focusOwner": "radial",
+            "radialFocus": 0
+          }
+        },
+        {
+          "id": "close-radial",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "radial": false,
+            "focusOwner": "app",
+            "focusCaptured": false
+          }
+        },
+        {
+          "id": "open-switcher",
+          "actions": [
+            "key:ENTER"
+          ],
+          "expect": {
+            "panel": "switcher",
+            "focusOwner": "switcher",
+            "focusCaptured": true,
+            "switcherFocus": 0
+          }
+        },
+        {
+          "id": "switcher-next",
+          "actions": [
+            "key:RIGHT"
+          ],
+          "expect": {
+            "panel": "switcher",
+            "focusOwner": "switcher",
+            "switcherFocus": 1
+          }
+        },
+        {
+          "id": "close-switcher",
+          "actions": [
+            "key:ESC"
+          ],
+          "expect": {
+            "panel": "",
+            "focusOwner": "app",
+            "focusCaptured": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "notes",
+      "description": "Open the Notes app, read a note from disk, and return to the list.",
+      "steps": [
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0
+          }
+        },
+        {
+          "id": "open-notes",
+          "actions": [
+            "key:DOWN",
+            "key:RIGHT",
+            "key:RIGHT",
+            "key:A",
+            "sleep:1.5"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Notes",
+            "notesReady": true,
+            "notesEditing": false
+          }
+        },
+        {
+          "id": "open-note",
+          "actions": [
+            "key:A",
+            "sleep:1.5"
+          ],
+          "expect": {
+            "app": "Notes",
+            "notesEditing": true,
+            "textTarget": "note"
+          }
+        },
+        {
+          "id": "close-note",
+          "actions": [
+            "key:B",
+            "sleep:1.5"
+          ],
+          "expect": {
+            "app": "Notes",
+            "notesEditing": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "logview",
+      "description": "Open Logview and switch log source with the shoulder buttons.",
+      "steps": [
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0
+          }
+        },
+        {
+          "id": "open-logs",
+          "actions": [
+            "key:DOWN",
+            "key:RIGHT",
+            "key:A",
+            "sleep:2"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Logview",
+            "logSource": "system",
+            "logLinesAtLeast": 1
+          }
+        },
+        {
+          "id": "next-source",
+          "actions": [
+            "key:Z",
+            "sleep:2"
+          ],
+          "expect": {
+            "app": "Logview",
+            "logSource": "kernel",
+            "logLinesAtLeast": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "pkgman",
+      "description": "List installed apk packages and open package details.",
+      "steps": [
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0
+          }
+        },
+        {
+          "id": "open-packages",
+          "actions": [
+            "key:DOWN",
+            "key:A",
+            "sleep:3"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Pkgman",
+            "packageCountAtLeast": 10,
+            "packageDetail": false
+          }
+        },
+        {
+          "id": "package-details",
+          "actions": [
+            "key:DOWN",
+            "key:A",
+            "sleep:2.5"
+          ],
+          "expect": {
+            "app": "Pkgman",
+            "packageDetail": true,
+            "packageFocus": 1
+          }
+        },
+        {
+          "id": "back-to-list",
+          "actions": [
+            "key:B",
+            "sleep:1"
+          ],
+          "expect": {
+            "app": "Pkgman",
+            "packageDetail": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "description": "Drive the schema-backed settings editor: sections, rows, and a persisted toggle.",
+      "steps": [
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "homeFocus": 0
+          }
+        },
+        {
+          "id": "open-settings",
+          "actions": [
+            "key:RIGHT",
+            "key:RIGHT",
+            "key:A",
+            "sleep:2.5"
+          ],
+          "expect": {
+            "screen": "app",
+            "app": "Settings",
+            "settingsSectionsAtLeast": 10,
+            "settingsPane": "sidebar"
+          }
+        },
+        {
+          "id": "enter-rows",
+          "actions": [
+            "key:A",
+            "sleep:1"
+          ],
+          "expect": {
+            "app": "Settings",
+            "settingsPane": "rows",
+            "settingsRow": 0,
+            "settingsRowsAtLeast": 1
+          }
+        },
+        {
+          "id": "toggle-row",
+          "actions": [
+            "key:DOWN",
+            "key:A",
+            "sleep:2"
+          ],
+          "expect": {
+            "app": "Settings",
+            "settingsPane": "rows",
+            "settingsRow": 1
+          }
+        },
+        {
+          "id": "restore-row",
+          "actions": [
+            "key:A",
+            "sleep:2"
+          ],
+          "expect": {
+            "app": "Settings",
+            "settingsRow": 1
+          }
+        },
+        {
+          "id": "back-to-sections",
+          "actions": [
+            "key:B",
+            "sleep:1"
+          ],
+          "expect": {
+            "app": "Settings",
+            "settingsPane": "sidebar"
+          }
+        }
+      ]
+    },
+    {
+      "id": "quick-menu",
+      "description": "Open the power menu from the command palette and close it without acting.",
+      "steps": [
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home",
+            "quickMenu": false
+          }
+        },
+        {
+          "id": "open-palette",
+          "actions": [
+            "key:X",
+            "sleep:1"
+          ],
+          "expect": {
+            "palette": true
+          }
+        },
+        {
+          "id": "select-power",
+          "actions": [
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:DOWN",
+            "key:A",
+            "sleep:1.5"
+          ],
+          "expect": {
+            "quickMenu": true,
+            "quickMenuFocus": 0,
+            "quickMenuConfirming": false
+          }
+        },
+        {
+          "id": "arm-confirm",
+          "actions": [
+            "key:DOWN",
+            "key:DOWN",
+            "key:A",
+            "sleep:1"
+          ],
+          "expect": {
+            "quickMenu": true,
+            "quickMenuFocus": 2,
+            "quickMenuConfirming": true
+          }
+        },
+        {
+          "id": "close-menu",
+          "actions": [
+            "key:B",
+            "sleep:1"
+          ],
+          "expect": {
+            "quickMenu": false,
+            "screen": "home"
+          }
+        }
+      ]
+    },
+    {
+      "id": "notifications",
+      "description": "Post a notification through torchform-notify and dismiss it from the panel.",
+      "steps": [
+        {
+          "id": "home",
+          "actions": [
+            "home:"
+          ],
+          "expect": {
+            "screen": "home"
+          }
+        },
+        {
+          "id": "post",
+          "actions": [
+            "notify:Smoke|Device smoke test|posted by device-smoke-test.py",
+            "sleep:6"
+          ],
+          "expect": {
+            "liveNotificationsAtLeast": 1
+          }
+        },
+        {
+          "id": "open-panel",
+          "actions": [
+            "key:C",
+            "sleep:1"
+          ],
+          "expect": {
+            "panel": "notif",
+            "notificationsFocus": 0
+          }
+        },
+        {
+          "id": "dismiss",
+          "actions": [
+            "key:X",
+            "sleep:2.5"
+          ],
+          "expect": {
+            "panel": "notif"
+          }
+        },
+        {
+          "id": "close-panel",
+          "actions": [
+            "key:ESC",
+            "sleep:1"
+          ],
+          "expect": {
+            "panel": "",
+            "screen": "home"
+          }
+        }
       ]
     },
     {
@@ -119,8 +1052,24 @@
       "description": "Exercise QML MouseArea targets when a touchscreen or injected pointer is available.",
       "touch_required": true,
       "steps": [
-        {"id": "touch-home-tile", "actions": ["touch:home-first-tile"], "expect": {"screen": "app"}},
-        {"id": "touch-back", "actions": ["touch:app-back"], "expect": {"screen": "home"}}
+        {
+          "id": "touch-home-tile",
+          "actions": [
+            "touch:home-first-tile"
+          ],
+          "expect": {
+            "screen": "app"
+          }
+        },
+        {
+          "id": "touch-back",
+          "actions": [
+            "touch:app-back"
+          ],
+          "expect": {
+            "screen": "home"
+          }
+        }
       ]
     }
   ]

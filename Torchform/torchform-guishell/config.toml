@@ -1,0 +1,79 @@
+# External programs launched by Torchform.
+# Paths beginning with ~ are expanded relative to the launching user's HOME.
+
+[apps.video]
+label      = "Video player"
+command    = "mpv"
+args       = ["--force-window=immediate"]
+config_dir = "~/.config/mpv"
+config_env = "MPV_HOME"
+controls   = "mpv"
+directory  = "~/media/Videos"
+extensions = ["mp3", "m4a", "aac", "flac", "ogg", "opus", "wav", "avi", "mkv", "mp4", "m4v", "webm", "mov", "wmv", "mpeg", "mpg", "ts", "m2ts", "flv"]
+
+[apps.image]
+label      = "Image viewer"
+command    = "~/userpkgs/usr/libexec/imv-wayland"
+# imv searches $XDG_CONFIG_HOME/imv/config, but changing XDG_CONFIG_HOME for
+# this child would also redirect unrelated XDG data. Keep the default HOME
+# lookup and expose the requested directory through TORCHFORM_APP_CONFIG_DIR.
+config_dir = "~/.config/imv"
+controls   = "imv"
+directory  = "~/media/Pictures"
+extensions = ["jpg", "jpeg", "png", "gif", "webp", "bmp", "tif", "tiff", "svg", "avif", "heic"]
+
+[apps.ebook]
+label      = "Ebook reader"
+command    = "koreader"
+config_dir = "~/.config/koreader"
+env        = { KO_MULTIUSER = "1" }
+controls   = "koreader"
+directory  = "~/media/EBooks"
+extensions = ["pdf", "epub", "mobi", "azw", "azw3", "djvu", "fb2", "cbz", "cbr", "xps"]
+
+[apps.browser]
+label      = "Web browser"
+command    = "chromium"
+args       = ["--user-data-dir={config_dir}", "--ozone-platform=wayland", "--enable-features=UseOzonePlatform", "--no-first-run", "--no-default-browser-check"]
+config_dir = "~/.config/chromium"
+controls   = "chromium"
+extensions = ["html", "htm", "xhtml", "url"]
+
+[apps.terminal]
+label      = "Terminal"
+command    = "~/userpkgs/usr/bin/kitty"
+config_dir = "~/.config/kitty"
+config_env = "KITTY_CONFIG_DIRECTORY"
+controls   = "kitty"
+
+# ─── Background services ─────────────────────────────────────────────────────
+# Started asynchronously when the shell comes up, so Quick Settings reflects a
+# live system instead of whatever happened to be running at boot.  A service is
+# only started when `check` reports it is not already up; Torchform never
+# double-starts one and never blocks startup waiting for it.
+#
+#   command / args  what to run (same {config_dir} substitution as [apps])
+#   check           command whose exit status 0 means "already running"
+#   provides        Quick Settings controls this service backs, for reporting
+#   requires        packages that must be installed for this service to work
+
+[services.pipewire]
+label    = "Audio"
+command  = "pipewire"
+check    = "pgrep -x pipewire"
+provides = ["volume"]
+
+[services.wireplumber]
+label    = "Audio session"
+command  = "wireplumber"
+check    = "pgrep -x wireplumber"
+provides = ["volume"]
+requires = ["wireplumber"]
+
+[services.bluetooth]
+label    = "Bluetooth"
+command  = "/usr/lib/bluetooth/bluetoothd"
+args     = ["--nodetach"]
+check    = "pgrep -x bluetoothd"
+provides = ["bluetooth"]
+requires = ["bluez"]

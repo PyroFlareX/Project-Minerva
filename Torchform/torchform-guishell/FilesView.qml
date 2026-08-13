@@ -11,6 +11,7 @@ Item {
     property string statusText: ""
 
     signal entryActivated(int index)
+    signal focusRequested(int index)
     signal parentRequested()
     signal refreshRequested()
     signal bookmarkRequested(string path)
@@ -21,7 +22,17 @@ Item {
         return "□"
     }
 
-    onEntriesChanged: focusIndex = Math.max(0, Math.min(focusIndex, Math.max(0, entries.length - 1)))
+    onEntriesChanged: {
+        var clamped = Math.max(0, Math.min(focusIndex, Math.max(0, entries.length - 1)))
+        if (clamped !== focusIndex)
+            focusRequested(clamped)
+    }
+    onFocusIndexChanged: {
+        if (list.currentIndex !== focusIndex)
+            list.currentIndex = focusIndex
+        if (list.count > 0)
+            list.positionViewAtIndex(focusIndex, ListView.Contain)
+    }
 
     Column {
         anchors.fill: parent
@@ -99,10 +110,15 @@ Item {
             width: parent.width
             height: parent.height - 104
             clip: true
+            focus: true
+
+            interactive: true
+            boundsBehavior: Flickable.StopAtBounds
+            highlightMoveDuration: 0
+
             model: root.entries
             spacing: Tokens.sp1
             currentIndex: root.focusIndex
-            onCurrentIndexChanged: if (root.focusIndex !== currentIndex) root.focusIndex = currentIndex
 
             delegate: Rectangle {
                 width: list.width
@@ -153,7 +169,11 @@ Item {
                         color: index === root.focusIndex ? Tokens.accent : Tokens.textDisabled
                     }
                 }
-                MouseArea { anchors.fill: parent; onClicked: root.entryActivated(index) }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: root.focusRequested(index)
+                    onClicked: root.entryActivated(index)
+                }
             }
 
             Text {

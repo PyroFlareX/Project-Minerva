@@ -1,0 +1,13 @@
+[buttons]
+south      = { keys = "space", label = "Play GIF" }
+north      = { keys = "f", label = "Fullscreen" }
+west       = { keys = "ctrl+r", label = "Rotate" }
+l1         = { keys = "Left", label = "Previous" }
+r1         = { keys = "Right", label = "Next" }
+l2         = { keys = "Up", label = "Zoom+" }
+r2         = { keys = "Down", label = "Zoom-" }
+thumbl     = { keys = "r", label = "Reset view" }
+thumbr     = { keys = "c", label = "Center" }
+select     = { keys = "a", label = "Actual size" }
+dpad_left = { keys = "bracketleft", label = "Previous" }
+dpad_right = { keys = "bracketright", label = "Next" }

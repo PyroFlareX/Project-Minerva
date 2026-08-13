@@ -153,7 +153,7 @@ fn list_dir(path: &str) -> Vec<(String, bool)> {
             let mut items: Vec<(bool, String)> = rd
                 .filter_map(|e| e.ok())
                 .map(|e| {
-                    let is_dir = e.metadata().map_or(false, |m| m.is_dir());
+                    let is_dir = e.metadata().is_ok_and(|m| m.is_dir());
                     (is_dir, e.file_name().to_string_lossy().into_owned())
                 })
                 .collect();

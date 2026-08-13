@@ -143,6 +143,35 @@ def send_key(host: str, key: str) -> None:
     )
     remote(host, command)
 
+def send_axis(host: str, name: str, value: str | None = None) -> None:
+    if name != "neutral" and value is None:
+        raise DeviceError(f"axis action requires a value for {name!r}")
+    axis_command = f"axis {shlex.quote(name)}"
+    if value is not None:
+        axis_command += f" {shlex.quote(value)}"
+    command = (
+        f"python3 {REMOTE_VGAMEPAD} --socket {REMOTE_VGAMEPAD_SOCKET} "
+        f"{axis_command}"
+    )
+    remote(host, command)
+
+def go_home(host: str, delay: float) -> None:
+    """Return the shell to a known Home state through real controller input.
+
+    Sending a blind PIN sequence is only correct on the lock screen; when the
+    shell is already unlocked those confirms activate whatever is focused and
+    can even launch an external app, so the unlock taps are conditional.
+    """
+    state = read_state(host)
+    if state.get("externalRunning"):
+        send_key(host, "SPACE")
+        time.sleep(max(delay, 1.0))
+        state = read_state(host)
+    if state.get("screen") == "lock":
+        for _ in range(4):
+            send_key(host, "A")
+            time.sleep(delay)
+    send_key(host, "SPACE")
 
 
 def send_text(host: str, text: str) -> None:
@@ -205,20 +234,45 @@ def assert_state(state: dict[str, Any], expected: dict[str, Any]) -> list[str]:
             if str(value) not in actual:
                 failures.append(f"{field}={actual!r} does not contain {value!r}")
             continue
+        if key.endswith("AtLeast"):
+            field = key[: -len("AtLeast")]
+            actual = state.get(field)
+            if not isinstance(actual, (int, float)) or actual < value:
+                failures.append(f"{field}={actual!r}, expected at least {value!r}")
+            continue
         actual = state.get(key)
         if actual != value:
             failures.append(f"{key}={actual!r}, expected {value!r}")
     return failures
 
 
-def device_has_touch(host: str) -> bool:
-    devices = remote(host, "cat /proc/bus/input/devices", check=False).lower()
-    return "touchscreen" in devices or "touch screen" in devices or "touchpad" in devices
+def post_notification(host: str, payload: str) -> None:
+    parts = payload.split("|")
+    app = parts[0] if parts else "Smoke"
+    title = parts[1] if len(parts) > 1 else "Smoke test"
+    body = parts[2] if len(parts) > 2 else ""
+    command = (
+        f"cd {REMOTE_DIR} && sh ./torchform-notify "
+        f"{shlex.quote(app)} {shlex.quote(title)} {shlex.quote(body)}"
+    )
+    remote(host, command)
 
 
-def run_action(host: str, action: str) -> None:
-    if action.startswith("key:"):
+def run_action(host: str, action: str, delay: float) -> None:
+    if action == "home:":
+        go_home(host, delay)
+    elif action.startswith("notify:"):
+        post_notification(host, action.split(":", 1)[1])
+    elif action.startswith("key:"):
         send_key(host, action.split(":", 1)[1])
+    elif action.startswith("axis:"):
+        parts = action.split(":", 2)
+        if len(parts) == 2 and parts[1] == "neutral":
+            send_axis(host, "neutral")
+        elif len(parts) == 3:
+            send_axis(host, parts[1], parts[2])
+        else:
+            raise DeviceError(f"invalid axis action {action!r}")
     elif action.startswith("text:"):
         send_text(host, action.split(":", 1)[1])
     elif action.startswith("sleep:"):
@@ -228,6 +282,10 @@ def run_action(host: str, action: str) -> None:
     else:
         raise DeviceError(f"unknown action {action!r}")
 
+
+def device_has_touch(host: str) -> bool:
+    devices = remote(host, "cat /proc/bus/input/devices", check=False).lower()
+    return "touchscreen" in devices or "touch screen" in devices or "touchpad" in devices
 
 def device_resources(host: str) -> str:
     return remote(host, "free -m; printf '\n'; df -h /; printf '\n'; uptime", check=False)
@@ -252,7 +310,7 @@ def run(args: argparse.Namespace) -> int:
         f"# Torchform device smoke test — {timestamp}",
         "",
         f"- Host: `{args.host}`",
-        "- Input path: `virtual gamepad` button/D-pad taps through `/dev/uinput`; `text:` actions use `wtype` only for terminal command payloads.",
+        "- Input path: `virtual gamepad` button/D-pad/analogue-axis events through `/dev/uinput`; `text:` actions use `wtype` only for terminal command payloads.",
         f"- Artifact directory: `{artifact_dir}`",
         "",
         "## Outputs",
@@ -285,7 +343,7 @@ def run(args: argparse.Namespace) -> int:
         for step_index, step in enumerate(scenario["steps"], start=1):
             step_id = step["id"]
             for action in step.get("actions", []):
-                run_action(args.host, action)
+                run_action(args.host, action, args.delay)
                 if not action.startswith("sleep:"):
                     time.sleep(args.delay)
             time.sleep(args.settle)

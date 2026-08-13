@@ -534,7 +534,7 @@ mod tests {
     #[test]
     fn all_default_binds_have_valid_names() {
         let map = InputMap::from_defaults();
-        for (_, action) in &map.binds {
+        for action in map.binds.values() {
             // Just ensure we can round-trip through the name
             let name = shell_action_to_name(action);
             assert!(!name.is_empty());

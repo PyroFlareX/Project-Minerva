@@ -188,6 +188,28 @@ clean:
 clean-docker:
 	docker rmi $(DOCKER_IMAGE) 2>/dev/null || true
 	docker volume rm torchform-cargo-registry torchform-cargo-git 2>/dev/null || true
+# ---------------------------------------------------------------------------
+# Packaging and device font provisioning
+# ---------------------------------------------------------------------------
+.PHONY: install-fonts check-fonts remote-install-fonts packaging-check
+
+install-fonts:
+	sh packaging/install-fonts.sh
+
+check-fonts:
+	sh packaging/install-fonts.sh --check
+
+remote-install-fonts:
+	scp -T -o ForwardX11=no packaging/install-fonts.sh \
+	    $(MINERVA_HOST):/tmp/torchform-install-fonts.sh
+	ssh -T -o ForwardX11=no $(MINERVA_HOST) \
+	    "sh /tmp/torchform-install-fonts.sh; rc=\$$?; rm -f /tmp/torchform-install-fonts.sh; exit \$$rc"
+
+packaging-check:
+	sh -n packaging/install-fonts.sh \
+	    packaging/openrc/torchform-inputd \
+	    packaging/openrc/torchform-session
+
 
 # ---------------------------------------------------------------------------
 # Minerva device streaming
@@ -202,7 +224,6 @@ stream-dev:
 	@bash scripts/stream-dev-local.sh
 
 # Run the capture+stream pipeline on the device (SSH).
-# Useful for testing the device side without the local emulator.
 stream-dev-remote:
 	@rsync -avz scripts/stream-dev-remote.sh $(MINERVA_HOST):~/stream-dev-remote.sh
 	@ssh $(MINERVA_HOST) "sh ~/stream-dev-remote.sh"
@@ -277,7 +298,8 @@ remote-vnc-kill:
 deploy-hdmi:
 	@echo ">> Syncing torchform-guishell to $(MINERVA_HOST)..."
 	ssh -T -o ForwardX11=no $(MINERVA_HOST) "mkdir -p ~/projects/torchform-guishell"
-	tar czf /tmp/torchform-guishell.tar.gz --exclude='*.o' --exclude='__pycache__' -C torchform-guishell .
+	tar czf /tmp/torchform-guishell.tar.gz --exclude='*.o' --exclude='__pycache__' \
+	    -C torchform-guishell . -C ../config settings-schema.toml
 	scp -T -o ForwardX11=no /tmp/torchform-guishell.tar.gz \
 	    $(MINERVA_HOST):/tmp/torchform-guishell.tar.gz
 	ssh -T -o ForwardX11=no $(MINERVA_HOST) \

@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-"""Create a named Linux virtual gamepad and serve deterministic button taps.
+"""Create a named Linux virtual gamepad and serve deterministic button/axis input.
 
 This is a device-side smoke-test backend. It talks to ``/dev/uinput`` using
 only Python's standard library, so tests exercise QuickShell's real Gamepad
-plugin rather than keyboard or pointer injection. The daemon owns a
+plugin rather than keyboard or pointer events. The daemon owns a
 ``torchform-virtpad`` device and accepts one command per line on a private
 Unix socket::
 
@@ -11,8 +10,11 @@ Unix socket::
     tap dpad_down
     press l2
     release l2
+    axis left_y -1
+    axis left_y 0
 
-The normal Torchform input daemon is disabled by the smoke harness while this
+Axis values are normalized to the Gamepad plugin's ``[-1, 1]`` range. The
+normal Torchform input daemon is disabled by the smoke harness while this
 backend is active; both devices intentionally use the same public gamepad
 name so the existing plugin discovers the test pad without a rebuild.
 """
@@ -82,6 +84,13 @@ BUTTONS = {
     "dpad_down": BTN_DPAD_DOWN,
     "dpad_left": BTN_DPAD_LEFT,
     "dpad_right": BTN_DPAD_RIGHT,
+}
+
+AXES = {
+    "left_x": ABS_X,
+    "left_y": ABS_Y,
+    "right_x": ABS_RX,
+    "right_y": ABS_RY,
 }
 
 
@@ -161,6 +170,32 @@ class VirtualPad:
         payload += _event(0, 0, EV_SYN, SYN_REPORT, 0)
         os.write(self.fd, payload)
 
+    def write_axis(self, name: str, value: float | None = None) -> None:
+        if name == "neutral":
+            axis_values = [(code, 0) for code in AXES.values()]
+        else:
+            if value is None:
+                raise ValueError("axis value is required")
+            try:
+                code = AXES[name]
+            except KeyError as exc:
+                raise ValueError(f"unknown virtual gamepad axis {name!r}") from exc
+            normalized = max(-1.0, min(1.0, float(value)))
+            axis_values = [(code, round(normalized * 32767))]
+        now = time.time_ns()
+        payload = b"".join(
+            _event(
+                now // 1_000_000_000,
+                (now // 1_000) % 1_000_000,
+                EV_ABS,
+                code,
+                raw_value,
+            )
+            for code, raw_value in axis_values
+        )
+        payload += _event(0, 0, EV_SYN, SYN_REPORT, 0)
+        os.write(self.fd, payload)
+
     def tap(self, name: str, duration: float = 0.04) -> None:
         self.write_button(name, True)
         time.sleep(duration)
@@ -208,36 +243,49 @@ def serve(args: argparse.Namespace) -> int:
                 conn, _ = server.accept()
             except socket.timeout:
                 continue
-            with conn:
-                stream = conn.makefile("r", encoding="utf-8")
-                for raw in stream:
-                    command = raw.strip().split()
-                    if not command:
-                        continue
-                    try:
-                        op = command[0].lower()
-                        if op == "tap" and len(command) == 2:
-                            pad.tap(command[1])
-                            response = "ok"
-                        elif op == "press" and len(command) == 2:
-                            pad.write_button(command[1], True)
-                            response = "ok"
-                        elif op == "release" and len(command) == 2:
-                            pad.write_button(command[1], False)
-                            response = "ok"
-                        elif op == "sleep" and len(command) == 2:
-                            time.sleep(float(command[1]))
-                            response = "ok"
-                        elif op == "quit" and len(command) == 1:
-                            stopping = True
-                            response = "ok"
-                        else:
-                            raise ValueError("expected tap|press|release|sleep|quit")
-                    except (OSError, ValueError) as exc:
-                        response = f"error {exc}"
-                    conn.sendall((response + "\n").encode())
-                    if stopping:
-                        break
+            # A client that sends commands and closes without reading the reply
+            # makes sendall() raise ConnectionResetError/BrokenPipeError.  That
+            # must end the connection, never the daemon: losing the pad here
+            # would silently disable input for the rest of the smoke session.
+            try:
+                with conn:
+                    stream = conn.makefile("r", encoding="utf-8")
+                    for raw in stream:
+                        command = raw.strip().split()
+                        if not command:
+                            continue
+                        try:
+                            op = command[0].lower()
+                            if op == "tap" and len(command) == 2:
+                                pad.tap(command[1])
+                                response = "ok"
+                            elif op == "press" and len(command) == 2:
+                                pad.write_button(command[1], True)
+                                response = "ok"
+                            elif op == "release" and len(command) == 2:
+                                pad.write_button(command[1], False)
+                                response = "ok"
+                            elif op == "axis" and len(command) == 3:
+                                pad.write_axis(command[1], float(command[2]))
+                                response = "ok"
+                            elif op == "axis" and len(command) == 2 and command[1] == "neutral":
+                                pad.write_axis("neutral")
+                                response = "ok"
+                            elif op == "sleep" and len(command) == 2:
+                                time.sleep(float(command[1]))
+                                response = "ok"
+                            elif op == "quit" and len(command) == 1:
+                                stopping = True
+                                response = "ok"
+                            else:
+                                raise ValueError("expected tap|press|release|axis|sleep|quit")
+                        except (OSError, ValueError) as exc:
+                            response = f"error {exc}"
+                        conn.sendall((response + "\n").encode())
+                        if stopping:
+                            break
+            except OSError as exc:
+                print(f"client disconnected: {exc}", flush=True)
     finally:
         server.close()
         socket_path.unlink(missing_ok=True)

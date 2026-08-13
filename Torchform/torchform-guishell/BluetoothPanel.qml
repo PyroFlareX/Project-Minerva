@@ -15,6 +15,7 @@ Item {
 
     signal closed()
     signal notice(string message)
+    signal pairingRequested(string address, string name)
 
     onOpenChanged: if (open) refresh()
 
@@ -34,8 +35,32 @@ Item {
             return
         }
         var dev = btDevices[Math.max(0, Math.min(focusIndex, btDevices.length - 1))]
-        statusText = (dev.paired ? "Connecting to " : "Pairing ") + dev.name + "…"
-        btConnectProc.command = ["sh", "-lc", "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh bluetooth-connect \"$1\"", "torchform-bt", dev.address]
+        if (dev.connected) {
+            statusText = dev.name + " is already connected."
+        } else if (dev.paired) {
+            connect(dev.address)
+        } else {
+            pairingRequested(dev.address, dev.name)
+        }
+    }
+
+    function connect(address) {
+        statusText = "Connecting…"
+        btConnectProc.command = [
+            "sh", "-lc",
+            "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh bluetooth-connect \"$1\"",
+            "torchform-bt", address
+        ]
+        btConnectProc.running = true
+    }
+
+    function pair(address, pin) {
+        statusText = "Pairing…"
+        btConnectProc.command = [
+            "sh", "-lc",
+            "cd \"$HOME/projects/torchform-guishell\" && sh ./torchform-control.sh bluetooth-pair \"$1\" \"$2\"",
+            "torchform-bt", address, pin || ""
+        ]
         btConnectProc.running = true
     }
 
@@ -64,7 +89,7 @@ Item {
                 }
                 root.btDevices = rows
                 root.focusIndex = Math.max(0, Math.min(root.focusIndex, Math.max(0, rows.length - 1)))
-                root.statusText = rows.length > 0 ? "A pair/connect  •  D-PAD choose  •  Scan refreshes" : status
+                root.statusText = rows.length > 0 ? "Y scan/stop  •  D-PAD choose  •  A pair/connect  •  B close" : status
             }
         }
     }

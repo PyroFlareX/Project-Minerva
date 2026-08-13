@@ -20,3 +20,9 @@ OnScreenKeyboard 1.0 OnScreenKeyboard.qml
 TerminalView 1.0 TerminalView.qml
 FilesView 1.0 FilesView.qml
 SysmonView 1.0 SysmonView.qml
+MediaView 1.0 MediaView.qml
+NotesView 1.0 NotesView.qml
+LogView 1.0 LogView.qml
+PkgmanView 1.0 PkgmanView.qml
+QuickMenu 1.0 QuickMenu.qml
+SettingsView 1.0 SettingsView.qml

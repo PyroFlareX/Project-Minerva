@@ -41,7 +41,7 @@ Reference images and button inventories:
 
 - [x] SSH host alias `Minerva` reaches the CM5 without requiring X11 forwarding.
 - [x] Active source path is identified as `~/projects/torchform-guishell`.
-- [x] `make hdmi-restart` syncs the tree, clears stale QuickShell/QML caches, restarts the session, and collects launcher output without compiling QML.
+- [x] `make hdmi-restart` performs the sync, restart, live-output query, and launcher-log collection without compiling QML.
 - [x] `make deploy-hdmi` syncs `Torchform/torchform-guishell`, not the obsolete `demo-quickshell` path.
 - [x] Local and device OMP runtimes are present; the device model cache and auth metadata were synchronized without exposing credentials in logs.
 
@@ -65,7 +65,6 @@ Reference images and button inventories:
 - [x] Overlay focus is explicit: opening radial, Quick Settings/Wi-Fi, Notifications, or Switcher captures controller/keyboard focus for that overlay.
 - [x] Closing a nested overlay restores the previously focused app or shell owner; state export records `focusOwner`, `focusCaptured`, and `focusEpoch`.
 - [x] Overlay content, geometry, initial focus, and tile states are registry-driven in `torchform-guishell/data.js`; changes do not require QML recompilation.
-- [x] Quick Settings and Notifications use geometry-scaled widths (`22%`, minimum 280/300px, maximum 420px) and responsive notification text; verified on the live `1920×1080` upper layout.
 - [ ] D-pad repeat has not yet been validated with a held physical direction and release.
 - [x] Lower screen mirrors time and active-app state; battery/palette/radial bindings are present.
 - [ ] Touch targets exist in QML but touch behavior is not hardware-verified.
@@ -73,14 +72,40 @@ Reference images and button inventories:
 ### App access
 
 - [x] Terminal mode runs `printf TORCHFORM_TERMINAL_OK` and displays captured output.
-- [x] The control helper launches the user-local Foot Wayland terminal with the required library path and confirms the child survives startup; Kitty remains an optional fallback and is still unavailable on this Alpine image.
+- [x] The Terminal app's `Terminal App` button launches the first available Wayland terminal (foot, then alacritty, then kitty) through the external runner; foot maps full-screen on the upper display and `B` closes it with a `terminal closed` banner.
+- [ ] Kitty remains unusable on this image: the user-local `kitty-wayland` backend creates a Wayland surface then exits, and its log reports missing `libsystemd.so` and no render frame. foot is the working terminal.
 - [x] File browser lists the real home directory and distinguishes directory/file entries.
 - [ ] Empty/error directory handling has not been separately exercised.
 - [x] System monitor refreshes `/proc`, memory, root-disk, temperature, uptime, and battery state without blocking the UI.
 - [x] Quick commands are data-driven and return a visible palette/command surface.
-- [x] The launcher helper discovers user-local executables and `.desktop` applications without QML recompilation; discovered entries are available on the home grid and in the command palette.
-- [x] The command palette scrolls its results viewport with controller focus so discovered entries remain visible; the `conan` discovery/launch path passed on Minerva.
-- [ ] Unavailable external-app error handling has not been separately exercised.
+- [x] Media Center is controller-navigable and data-driven: Chromium for web, the built-in Files browser for selection, mpv for video/audio, imv for images, and KOReader for ebooks/PDFs.
+- [x] File activation routes supported extensions through `torchform-control.sh media-open`; unknown extensions return an explicit visible error.
+- [x] External Wayland apps run in the foreground of `torchform-control.sh` so QuickShell owns their lifetime. While one is mapped the upper layer-shell surface drops to `WlrLayer.Bottom` and releases keyboard focus, so the app is actually visible and interactive; `B` (or Home) terminates it and restores the shell.
+- [x] The launcher focuses the upper output before exec, so a new toplevel maps on the main display instead of the small companion screen that owns the focused workspace.
+- [x] Real media content was qualified end-to-end on device: a JPEG/PNG in `imv`, an MP4 in `mpv`, and Chromium, each visible full-screen and closed from the controller.
+- [x] Unavailable handlers surface explicit errors: an unsupported extension shows `No media handler for .<ext>`, a missing file shows `Media file not found`, and an external app that dies on its own reports `exited unexpectedly (code N)`.
+
+### Notes, logs, packages, settings, and power
+
+- [x] Notes reads and writes Markdown files under `~/.local/share/torchform/notes`; the lower keyboard edits the body and `B` saves atomically through `notes-write`.
+- [x] Logview reads the sources that exist on this image — `/var/log/messages`, `dmesg`, and the Torchform session logs. There is no `journalctl` on Alpine/OpenRC.
+- [x] Pkgman lists installed `apk` packages and shows `apk info -a` details; install/remove is deliberately absent because it needs root.
+- [x] Settings is a two-pane editor generated from `settings-schema.toml` (18 sections, 87 rows). Toggles, sliders, and selects persist to `~/.config/torchform/settings.conf` through an atomic write, and the cursor survives the reload after each write.
+- [x] Brightness and volume settings apply to the device when a backlight or mixer exists and otherwise report that the value was only stored.
+- [x] The power menu is data-driven, and every destructive entry needs a second `A` to confirm. Reboot/power off report the exact `doas` command when passwordless doas is unavailable, and Sleep states plainly that this board has no suspend-to-RAM.
+- [x] The app switcher lists the apps actually opened in this session, newest first; `X` closes one and leaves the app screen if it was active.
+- [x] Local programs can post notifications with `torchform-notify`; the shell polls them, banners only genuinely new entries, and `X` dismisses one from the panel.
+- [ ] Torchform does not own `org.freedesktop.Notifications`: this QuickShell build (0.3.0) ships no `Quickshell.Services.Notifications` module, so DBus notifications from third-party apps are not received.
+- [ ] `apk` install/remove, and any settings row whose backend is missing, remain read-only.
+
+### File manager choice
+
+- [x] The active file manager is Torchform's native `FilesView`: it already routes D-pad/A/B through the shell state machine and uses QML `MouseArea`/`ListView` interaction for touch.
+- [x] Each file row gives the tapped item focus before activation; the list is touch-scrollable and stops cleanly at its bounds.
+- [x] MauiKit Index was reviewed as a visual candidate. Its official source documents desktop/mobile support and Qt key forwarding, but Alpine has no `index-fm`/MauiKit package and its documented Qt 5/KDE build stack is not a low-risk CM5 deployment.
+- [x] CoreFM was tested from the Alpine package repository. It is lightweight and Qt 6 based, but it is a native external window with no gamepad mapping; QuickShell's full-screen layer hides it, so it is not the active choice.
+- [ ] Hardware touch behavior remains unverified until a touchscreen input device is enumerated.
+
 
 ### Power and low-battery behavior
 
@@ -98,6 +123,15 @@ Reference images and button inventories:
 - [ ] Touch home/app/panel/lower-screen actions remain unverified.
 - [x] Touch absence is reported as a skipped hardware check, never falsely marked pass.
 
+### GTK/Qt application input
+
+- [x] A temporary bridge read `torchform-virtpad` with `evdev` and emitted ordinary keyboard events through a separate `/dev/uinput` device.
+- [x] GTK 4 Demo accepted D-pad keyboard events: `DOWN DOWN A` moved its sidebar selection and ran the selected example.
+- [x] Qt FeatherPad accepted the same bridge; `X` was mapped to `KEY_A` and inserted `a` into the editor.
+- [ ] Production routing must be focus-aware. A global bridge would otherwise deliver the same controller action to both Torchform and the focused application.
+- [ ] The external-window visibility/focus policy must be solved separately; QuickShell currently covers native external windows.
+
+
 ### Resource headroom
 
 - [x] The full smoke report records `free -m`, root filesystem usage, and uptime.
@@ -114,6 +148,7 @@ Run from `Torchform/`:
 make deploy-hdmi MINERVA_HOST=Minerva
 make hdmi-restart MINERVA_HOST=Minerva
 python3 scripts/device-smoke-test.py --host Minerva --restart
+python3 scripts/device-smoke-test.py --host Minerva --restart --scenario media-routing
 python3 scripts/capture-device-screens.py --host Minerva --output-dir /tmp/torchform-captures --label manual
 ```
 
@@ -146,16 +181,45 @@ The helper requires a running virtual-gamepad session. Start one with the smoke 
 | 2026-08-08 | `configure-outputs.py` + live Sway status | Largest output selected as upper, portrait output transformed 90°, upper scaled 1.3333, lower placed below at logical y=1080. |
 | 2026-08-09 | `configure-outputs.py --status` after `make hdmi-restart` | Upper YDK output transformed 270° (the requested 180° flip from its prior 90° landscape orientation), scaled 1.3333; lower remains at logical y=1080. |
 | 2026-08-09 | USB Gamepad 0810:0001 raw capture + `torchform-inputd` output trace | Legacy ABS_X/Y d-pad events are normalized to d-pad buttons; the physical bottom face button is remapped to South/Confirm and unlocked Torchform. |
+| 2026-08-09 | Temporary evdev/uinput keyboard bridge + GTK 4 Demo | `DOWN DOWN A` moved the GTK sidebar selection and ran the selected example through the normal Wayland keyboard path. |
+| 2026-08-09 | Temporary evdev/uinput keyboard bridge + Qt FeatherPad | A controller `X` mapped to `KEY_A` inserted `a` into the focused Qt editor. |
+| 2026-08-09 | Remapping cleanup and `make hdmi-restart MINERVA_HOST=Minerva` | Temporary packages, bridge, test apps, and test virtual pad were removed; production Torchform inputd, Sway, and QuickShell were restored. |
 | 2026-08-09 | `make deploy-hdmi MINERVA_HOST=Minerva` | Synced the active `torchform-guishell` tree to `~/projects/torchform-guishell` without compiling QML. |
 | 2026-08-09 | `device-smoke-test.py --restart --scenario overlay-focus` | Radial, Quick Settings/Wi-Fi, Notifications, and Switcher focus capture, navigation, close, and owner restoration passed; screenshots stored under `/tmp/torchform-overlay-final`. |
 | 2026-08-09 | `device-smoke-test.py --restart --artifact-dir /tmp/torchform-final-smoke` | 44 controller/state assertions passed; touch-controls skipped because no touch-capable input was enumerated. |
 | 2026-08-09 | `/tmp/torchform-overlay-final` and `/tmp/torchform-final-smoke` | Visual evidence shows focused overlay borders and controller hints on both displays; Quick Settings, Notifications, Radial, and Switcher render without obscuring the lower companion screen. |
 | 2026-08-09 | Terminal smoke scenario | A/confirm runs the entered command and displays `TORCHFORM_TERMINAL_OK`; Select remains App Switcher. |
+| 2026-08-09 | `device-smoke-test.py --restart --scenario media-routing` | Media Center focus and Files handoff passed; state export recorded `mediaFocus: 0`; handler smoke checks launched Chromium, imv, mpv, and KOReader with user-local libraries. |
+| 2026-08-09 | Media handler process inventory and cleanup | Browser/image/ebook subprocesses were started and terminated cleanly; extracted user-local media runtime is approximately 1.0 GiB and redundant APK archives were removed. |
+| 2026-08-09 | CoreFM Alpine package smoke launch | External Qt window was hidden behind the full-screen QuickShell layer; package removed after the test. Native FilesView remains the controller/touch integration point. |
+| 2026-08-09 | `device-smoke-test.py --restart --scenario files` after FilesView touch update | Home → Files → first-row focus and next-row navigation passed; screenshot shows full-width selectable file rows and controller hints. |
 | 2026-08-09 | Post-run `free -m`, `df -h /`, `uptime`, and process inventory | 7.8 GiB RAM total / 7.1 GiB available, root filesystem 38% used, one Sway + one QuickShell session. |
-| 2026-08-09 | `device-smoke-test.py --restart --scenario panels` after main-branch geometry pass | Quick Settings and Notifications controller assertions passed; live screenshots under `/tmp/torchform-main-layout-final` show expanded responsive panels and readable notification text. |
-| 2026-08-09 | `device-smoke-test.py --restart --artifact-dir /tmp/torchform-final-regression3` | 52 controller/state assertions passed across navigation, palette, discovered launchers, panels, radial, Files, Terminal, Sysmon, and overlay focus; touch-controls skipped because no touch-capable input was enumerated. |
-| 2026-08-09 | `/tmp/torchform-palette-scroll-final/palette-launcher-03-focus-first-launcher-upper.png` | Focused `conan` launcher is visible after palette auto-scroll; grid and palette launch scenarios passed. |
-| 2026-08-09 | `free -h`, `df -h /`, `uptime`, and process inventory after final smoke run | 7.8 GiB RAM total / 7.2 GiB available, no swap, root filesystem 38% used, one Sway + one QuickShell session. |
-| 2026-08-09 | `torchform-control.sh launch terminal` on Minerva | User-local Foot launched under Wayland with `LD_LIBRARY_PATH`, remained alive after startup, and replaced the failing Kitty-only path. |
+
+| 2026-08-09 | `make hdmi-restart MINERVA_HOST=Minerva` after the lower-screen OSK and radio-panel changes | Production QuickShell loaded the synchronized QML tree; geometry classified HDMI-A-1 YDK WS-55-2K as upper (logical 1920×1080) and HDMI-A-2 Mediatrix MPI5008 as lower (800×480). |
+| 2026-08-09 | Synthetic Wayland pointer click on the lower display OSK button and key | Lower OSK opened on the 800×480 companion screen, accepted a tapped `q`, and updated the upper command-palette query; this is not physical touchscreen evidence. |
+| 2026-08-09 | Controller smoke path: Quick Settings → Wi-Fi | Wi-Fi panel opened through D-pad/A; the `iw` fallback reported the active network and signal data without recording its SSID. |
+| 2026-08-09 | Controller smoke path: Quick Settings → Bluetooth | Bluetooth panel opened and reported the actionable unavailable-service state because BlueZ is not running; no pairing claim was made. |
+| 2026-08-09 | Final production `free -m`, `df -h /`, `uptime`, and process inventory | 7.8 GiB RAM total / 7.1 GiB available, root filesystem 38% used, and one production Sway + QuickShell + inputd session with no virtual test backend. |
+| 2026-08-09 | Controller smoke path: Wi-Fi scan (`Y`) | Wi-Fi scan action reached the panel and reported that `iw`/`wpa_supplicant`/elevated `iw` access is unavailable; the active network remained visible. |
+| 2026-08-09 | Controller smoke path: Bluetooth scan (`Y`) | Bluetooth scan action reached the panel and displayed the explicit scan-start state; pairing/device discovery still requires the BlueZ service. |
+| 2026-08-09 | Controller smoke path: Search and radial | Search opened with the lower-display OSK and D-pad focus moved across command results; radial opened with descriptive destination text and navigated across system actions. |
+| 2026-08-09 | Files controller regression reproduction | D-pad taps changed the shell focus state but the Files delegate remained visually stuck on the first row; held D-pad repeat was also disabled by the `appMode` guard, and analogue axes had no QML navigation handler. |
+| 2026-08-09 | `device-smoke-test.py --restart --scenario files` after controller-navigation fix | D-pad and left-stick navigation passed; final screenshots show the second row highlighted after D-pad input and the fifth row highlighted after analogue input. Held D-pad repeat advanced through multiple file rows. |
+| 2026-08-09 | Media launch regression reproduction | Selecting a media file started `imv`/`mpv` (visible in the Sway tree) but nothing appeared: the client mapped on the small companion output and the shell's full-screen `WlrLayer.Overlay` surface covered both displays. |
+| 2026-08-09 | Controller path: Media → Choose Media File → image | `imv` filled the upper display, the companion screen showed `RUNNING GOOD_HEADSHOT.JPG · B CLOSES IT`, and `B` terminated it and restored the Files view with focus intact. |
+| 2026-08-09 | Controller path: Files → LOGH episode 001 (`.mp4`) | `mpv` played full-screen on the upper display and `B` closed it; state export recorded `externalRunning` true then false. |
+| 2026-08-09 | Controller path: Media → Web Browser | Chromium mapped full-screen on the upper display through the same external runner and closed cleanly from the controller. |
+| 2026-08-09 | Controller path: unsupported file (`sway-headless.conf`) | Banner reported `No media handler for .conf`, no external process started, and Files focus stayed on the selected row. |
+| 2026-08-09 | Keyboard-focus reclaim after external exit | Before the fix, `wtype` text no longer reached the shell once an external app had run (Sway kept focus on the dead toplevel's workspace); the shell now claims exclusive keyboard focus for 400 ms on exit and the terminal scenario passes again. |
+| 2026-08-09 | `device-smoke-test.py --restart` (full suite) | 0 assertion failures across navigation, quick-commands, panels, radial, files, media-routing, media-open, terminal, sysmon, and overlay-focus; touch-controls skipped because no touch-capable input is enumerated. |
+| 2026-08-09 | Terminal app external launch (synthetic pointer click on `Terminal App`) | foot mapped full-screen on the upper display through the external runner; `B` terminated it, the shell returned to the Terminal view, and the banner read `terminal closed`. |
+| 2026-08-12 | Notes app on device | `Scratch.md` opened from disk, the lower keyboard appended characters through the shared text-target router, and `B` wrote the file back: `hello from torchformqw`. |
+| 2026-08-12 | Logview on device | `system` source returned 200 lines from `/var/log/messages`; `R1` switched to `kernel` and returned 200 lines of `dmesg`. |
+| 2026-08-12 | Pkgman on device | 581 installed apk packages listed; `A` showed `apk info -a alpine-baselayout` details and `B` returned to the list. |
+| 2026-08-12 | Settings editor on device | 18 sections and the DISPLAY rows rendered from `settings-schema.toml`; a toggle and a select persisted to `~/.config/torchform/settings.conf` (`display.refresh_rate=120 Hz`) and the row cursor stayed put across the reload. |
+| 2026-08-12 | Power menu on device | Opened from the command palette, `A` on Reboot armed the confirm state without acting, and `B` closed it. |
+| 2026-08-12 | Notification intake on device | `torchform-notify "Sysmon" "Disk check finished" …` appeared in the panel within one poll, the banner announced it once, and `X` dismissed it (4 entries → 3). |
+| 2026-08-12 | Companion-screen app context | Lower display showed `Files` with the live path represented as `$HOME` while the Files app was active. |
+| 2026-08-12 | `device-smoke-test.py --restart` (full suite, 16 scenarios) | 0 assertion failures including the new notes, logview, pkgman, settings, quick-menu, and notifications scenarios; touch-controls skipped because no touch-capable input is enumerated. |
 
 Update this log after every on-device smoke run. Do not call DRC/fabrication or touchscreen behavior verified from this checklist; those require direct evidence.

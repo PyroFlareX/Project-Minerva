@@ -278,7 +278,6 @@ fn chord_action_to_shell_with_chords(action: &Action, map: &InputMap, chord_map:
         }
         // Analog axes — constructed directly (bypass InputMap)
         Action::RightStickMoved { x, y } => Some(ShellAction::StickMoved { x: *x, y: *y }),
-        Action::LeftPadMoved { x, y }    => Some(ShellAction::PadMoved   { x: *x, y: *y }),
     }
 }
 

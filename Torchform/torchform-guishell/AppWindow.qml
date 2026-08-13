@@ -18,6 +18,40 @@ Rectangle {
     property bool terminalRunning: false
     property var sysmonMetrics: ({})
     property string sysmonUpdated: "waiting"
+    property int sysmonFocus: 0
+    property var sysmonHistory: []
+    property int mediaFocus: 0
+
+    property var    notes: []
+    property int    notesFocus: 0
+    property bool   notesLoading: false
+    property string notesStatus: ""
+    property bool   notesEditing: false
+    property string notesTitle: ""
+    property string notesBody: ""
+
+    property var    logSources: []
+    property int    logSourceIndex: 0
+    property var    logLines: []
+    property int    logFocus: 0
+    property bool   logsLoading: false
+    property string logsStatus: ""
+
+    property var    packages: []
+    property int    packageFocus: 0
+    property string packageQuery: ""
+    property bool   packagesLoading: false
+    property string packagesStatus: ""
+    property var    packageDetails: []
+    property bool   packageDetailOpen: false
+
+    property var    settingsSections: []
+    property var    settingsRows: []
+    property int    settingsSection: 0
+    property int    settingsRow: 0
+    property string settingsPane: "sidebar"
+    property bool   settingsLoading: false
+    property string settingsStatus: ""
 
     signal homeRequested()
     signal fileEntryActivated(int index)
@@ -27,6 +61,28 @@ Rectangle {
     signal terminalCommandSubmitted(string command)
     signal terminalExternalRequested()
     signal sysmonRefreshRequested()
+    signal mediaActionRequested(string action)
+    signal noteFocusRequested(int index)
+    signal noteActivated(int index)
+    signal noteCreateRequested()
+    signal noteDeleteRequested(int index)
+    signal noteEditRequested()
+    signal logSourceRequested(int index)
+    signal logRefreshRequested()
+    signal logFocusRequested(int index)
+    signal packageFocusRequested(int index)
+    signal packageActivated(int index)
+    signal packageSearchRequested()
+    signal packageRefreshRequested()
+    signal settingsSectionRequested(int index)
+    signal settingsRowRequested(int index)
+    signal settingsRowActivated(int index)
+    signal settingsRowAdjusted(int index, int delta)
+
+    function activateMedia() {
+        var item = mediaView.actions[root.mediaFocus]
+        if (item) root.mediaActionRequested(item.action)
+    }
 
     Rectangle {
         id: titleBar
@@ -64,7 +120,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
             }
             Text {
-                text: "Home"
+                text: root.mode === "files" ? "Back" : "Home"
                 font.pixelSize: 9
                 font.family: Tokens.fontSans
                 color: Tokens.textDisabled
@@ -101,6 +157,7 @@ Rectangle {
         loading: root.filesLoading
         statusText: root.filesStatus
         onEntryActivated: root.fileEntryActivated(index)
+        onFocusRequested: root.fileFocus = index
         onParentRequested: root.fileParentRequested()
         onRefreshRequested: root.fileRefreshRequested()
         onBookmarkRequested: root.fileBookmarkRequested(path)
@@ -110,13 +167,86 @@ Rectangle {
         anchors { top: titleBar.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
         visible: root.mode === "sysmon"
         metrics: root.sysmonMetrics
+        history: root.sysmonHistory
+        focusIndex: root.sysmonFocus
         updated: root.sysmonUpdated
         onRefreshRequested: root.sysmonRefreshRequested()
     }
 
+    MediaView {
+        id: mediaView
+        anchors { top: titleBar.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
+        visible: root.mode === "media"
+        focusIndex: root.mediaFocus
+        onActionRequested: root.mediaActionRequested(action)
+    }
+
+    NotesView {
+        anchors { top: titleBar.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
+        visible: root.mode === "notes"
+        notes: root.notes
+        focusIndex: root.notesFocus
+        loading: root.notesLoading
+        statusText: root.notesStatus
+        editing: root.notesEditing
+        title: root.notesTitle
+        body: root.notesBody
+        onFocusRequested: (index) => root.noteFocusRequested(index)
+        onNoteActivated: (index) => root.noteActivated(index)
+        onCreateRequested: root.noteCreateRequested()
+        onDeleteRequested: (index) => root.noteDeleteRequested(index)
+        onEditRequested: root.noteEditRequested()
+    }
+
+    LogView {
+        anchors { top: titleBar.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
+        visible: root.mode === "logview"
+        sources: root.logSources
+        sourceIndex: root.logSourceIndex
+        lines: root.logLines
+        focusIndex: root.logFocus
+        loading: root.logsLoading
+        statusText: root.logsStatus
+        onSourceRequested: (index) => root.logSourceRequested(index)
+        onRefreshRequested: root.logRefreshRequested()
+        onFocusRequested: (index) => root.logFocusRequested(index)
+    }
+
+    PkgmanView {
+        anchors { top: titleBar.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
+        visible: root.mode === "pkgman"
+        packages: root.packages
+        focusIndex: root.packageFocus
+        query: root.packageQuery
+        loading: root.packagesLoading
+        statusText: root.packagesStatus
+        details: root.packageDetails
+        detailOpen: root.packageDetailOpen
+        onFocusRequested: (index) => root.packageFocusRequested(index)
+        onPackageActivated: (index) => root.packageActivated(index)
+        onSearchRequested: root.packageSearchRequested()
+        onRefreshRequested: root.packageRefreshRequested()
+    }
+
+    SettingsView {
+        anchors { top: titleBar.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
+        visible: root.mode === "settings"
+        sections: root.settingsSections
+        rows: root.settingsRows
+        sectionIndex: root.settingsSection
+        rowIndex: root.settingsRow
+        pane: root.settingsPane
+        loading: root.settingsLoading
+        statusText: root.settingsStatus
+        onSectionRequested: (index) => root.settingsSectionRequested(index)
+        onRowRequested: (index) => root.settingsRowRequested(index)
+        onRowActivated: (index) => root.settingsRowActivated(index)
+        onRowAdjusted: (index, delta) => root.settingsRowAdjusted(index, delta)
+    }
+
     Rectangle {
         anchors { top: titleBar.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
-        visible: root.mode !== "terminal" && root.mode !== "files" && root.mode !== "sysmon"
+        visible: ["terminal", "files", "sysmon", "media", "notes", "logview", "pkgman", "settings"].indexOf(root.mode) < 0
         color: root.appBg
 
         Column {

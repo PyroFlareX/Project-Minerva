@@ -13,19 +13,10 @@
 // the rest of torchform-shell doesn't need to change its use paths.
 pub use torchform_config::{
     TorchformConfig,
-    GeneralConfig,
-    ThemeConfig,
-    ThemeColors,
-    ThemeTypography,
     ResolvedTheme,
     AppsConfig,
-    AppLaunchOverride,
     LaunchConfig,
-    InputConfig,
-    RadialConfig,
-    RadialLayerConfig,
     RadialSlotConfig,
-    expand_tilde,
     user_config_path,
 };
 

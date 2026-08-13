@@ -1,0 +1,14 @@
+[buttons]
+south      = { keys = "ctrl+Tab", label = "Next tab" }
+north      = { keys = "ctrl+shift+Tab", label = "Prev tab" }
+west       = { keys = "ctrl+f", label = "Find" }
+l1         = { keys = "Page_Up", label = "Scroll up" }
+r1         = { keys = "Page_Down", label = "Scroll down" }
+l2         = { keys = "ctrl+r", label = "Reload" }
+r2         = { keys = "ctrl+w", label = "Close tab" }
+thumbr     = { keys = "Home", label = "Top" }
+select     = { keys = "End", label = "Bottom" }
+dpad_up   = { keys = "Up", label = "Scroll up" }
+dpad_down = { keys = "Down", label = "Scroll down" }
+dpad_left = { keys = "alt+Left", label = "Back" }
+dpad_right = { keys = "alt+Right", label = "Forward" }

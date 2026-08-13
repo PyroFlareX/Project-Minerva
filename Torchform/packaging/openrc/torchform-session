@@ -1,0 +1,27 @@
+#!/sbin/openrc-run
+
+name="torchform-session"
+description="Torchform DRM/Wayland graphical session"
+torchform_user="${torchform_user:-minerva}"
+torchform_home="${torchform_home:-/home/$torchform_user}"
+command="$torchform_home/projects/torchform-guishell/start-hdmi.sh"
+command_user="$torchform_user"
+command_background=true
+pidfile="/run/torchform/torchform-session.pid"
+output_log="/var/log/torchform-session.log"
+error_log="/var/log/torchform-session.log"
+stopgroup=true
+
+depend() {
+    need torchform-inputd
+    after dbus
+}
+
+start_pre() {
+    # Keep the daemon and QuickShell on the same private runtime directory.
+    checkpath -d -m 0700 -o "$torchform_user:$torchform_user" /run/torchform
+    checkpath -d -m 0700 -o "$torchform_user:$torchform_user" /tmp/xdg-hdmi
+    export XDG_RUNTIME_DIR="/tmp/xdg-hdmi"
+    # Production sessions must never select the smoke-test virtual pad.
+    export TORCHFORM_VIRTUAL_GAMEPAD=0
+}

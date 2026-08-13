@@ -1,0 +1,30 @@
+#!/sbin/openrc-run
+
+name="torchform-inputd"
+description="Torchform physical controller input daemon"
+supervisor="supervise-daemon"
+torchform_user="${torchform_user:-minerva}"
+torchform_home="${torchform_home:-/home/$torchform_user}"
+command="$torchform_home/projects/torchform-inputd/target/release/torchform-inputd"
+command_user="$torchform_user"
+pidfile="/run/torchform/torchform-inputd.pid"
+output_log="/var/log/torchform-inputd.log"
+error_log="/var/log/torchform-inputd.log"
+
+# Do not restart a daemon that is repeatedly failing during boot.
+respawn_delay=2
+respawn_max=5
+respawn_period=60
+
+# The daemon and the Gamepad plugin must share this runtime directory.
+XDG_RUNTIME_DIR="/tmp/xdg-hdmi"
+export XDG_RUNTIME_DIR
+
+depend() {
+    need localmount
+}
+
+start_pre() {
+    checkpath -d -m 0700 -o "$torchform_user:$torchform_user" /run/torchform
+    checkpath -d -m 0700 -o "$torchform_user:$torchform_user" /tmp/xdg-hdmi
+}

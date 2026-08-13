@@ -13,8 +13,16 @@ Rectangle {
     property bool   lowBattery: false
     property bool   paletteOpen: false
     property bool   radialOpen:  false
+    property bool   oskOpen:      false
     property var    actions: []
+    property string externalApp: ""
+    property bool   externalRunning: false
+    property var    externalControls: []
+    // One line of app-supplied context, e.g. the Files path or the last
+    // terminal command. The shell computes it; the panel only renders it.
+    property string appContext: ""
 
+    signal oskRequested()
     signal actionTriggered(string id)
 
     // Status bar (top 28px)
@@ -74,13 +82,35 @@ Rectangle {
         }
     }
 
+    // An external Wayland client owns the upper display; the companion screen
+    // keeps the only visible way back.
+    Rectangle {
+        id: externalBar
+        visible: root.externalRunning
+        anchors { top: root.lowBattery ? undefined : lowerBar.bottom; left: parent.left; right: parent.right }
+        y: root.lowBattery ? lowerBar.height + 22 : lowerBar.height
+        height: 26
+        color: "#101a24"
+        border.color: Tokens.accent
+        Text {
+            anchors.centerIn: parent
+            text: "RUNNING " + root.externalApp.toUpperCase() + " · B CLOSES IT"
+            font.pixelSize: 9
+            font.family: Tokens.fontMono
+            color: Tokens.accent
+            elide: Text.ElideMiddle
+            width: parent.width - 16
+            horizontalAlignment: Text.AlignHCenter
+        }
+    }
+
     // Main content area
     Item {
         anchors { top: lowerBar.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
 
         // Default: idle status
         Column {
-            visible: !root.paletteOpen && !root.radialOpen
+            visible: !root.paletteOpen && !root.radialOpen && !root.oskOpen
             anchors.centerIn: parent
             spacing: 16
 
@@ -106,6 +136,17 @@ Rectangle {
                     font.family: Tokens.fontDisplay
                     font.weight: Font.DemiBold
                     color: Tokens.textPrimary
+                }
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    visible: root.appContext.length > 0
+                    width: root.width - 40
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideMiddle
+                    text: root.appContext
+                    font.pixelSize: 10
+                    font.family: Tokens.fontMono
+                    color: Tokens.accent
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -153,8 +194,218 @@ Rectangle {
                     }
                 }
             }
+
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 96
+                height: 30
+                radius: Tokens.rSm
+                color: Tokens.lowerSurface
+                border.color: Tokens.accent
+                border.width: 1
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 6
+                    Text { text: "⌨"; font.pixelSize: 14; color: Tokens.accent }
+                    Text { text: "OSK"; font.pixelSize: 10; font.family: Tokens.fontMono; color: Tokens.textPrimary }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.oskRequested()
+                }
+            }
         }
 
+        // Locked mode: controller-only unlock; no touch targets.
+        Column {
+            visible: root.locked
+            anchors.centerIn: parent
+            spacing: 12
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "🔒"
+                font.pixelSize: 32
+                color: Tokens.accent
+            }
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Locked"
+                font.pixelSize: 13
+                font.family: Tokens.fontDisplay
+                color: Tokens.textPrimary
+            }
+            ControlHints {
+                anchors.horizontalCenter: parent.horizontalCenter
+                hints: [{button: "A", label: "Unlock"}]
+                spacing: 8
+            }
+        }
+
+        // External client mode: show the app context, its controller map, and
+        // the exits owned by Torchform. The lower screen is informational
+        // while an external client owns the upper display.
+        Column {
+            visible: root.externalRunning && !root.locked
+            anchors.centerIn: parent
+            spacing: 8
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "↗"
+                font.pixelSize: 32
+                color: Tokens.accent
+            }
+            Column {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 4
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.externalApp
+                    font.pixelSize: 13
+                    font.family: Tokens.fontDisplay
+                    font.weight: Font.DemiBold
+                    color: Tokens.textPrimary
+                }
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    visible: root.appContext.length > 0
+                    width: root.width - 40
+                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideMiddle
+                    text: root.appContext
+                    font.pixelSize: 10
+                    font.family: Tokens.fontMono
+                    color: Tokens.accent
+                }
+            }
+
+            Text {
+                visible: root.externalControls.length > 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "APP CONTROLS"
+                font.pixelSize: 8
+                font.family: Tokens.fontMono
+                font.weight: Font.DemiBold
+                color: Tokens.textSecondary
+            }
+
+            Grid {
+                id: externalControlsGrid
+                visible: root.externalControls.length > 0
+                width: root.width - 24
+                columns: 3
+                columnSpacing: 8
+                rowSpacing: 4
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Repeater {
+                    model: root.externalControls
+                    delegate: Rectangle {
+                        id: controlCard
+                        required property var modelData
+                        property var controlData: modelData
+                        property string buttonName: controlData.button || ""
+                        // no directional d-pad variants. Use compact arrows
+                        // so every logical d-pad binding remains readable.
+                        property string glyphButton: {
+                            var name = buttonName.toLowerCase()
+                            if (name === "dpad_up") return "↑"
+                            if (name === "dpad_down") return "↓"
+                            if (name === "dpad_left") return "←"
+                            if (name === "dpad_right") return "→"
+                            return buttonName
+                        }
+
+                        width: 250
+                        height: 24
+                        radius: Tokens.rSm
+                        color: Tokens.lowerSurface
+                        border.color: Tokens.borderSubtle
+                        border.width: 1
+                        clip: true
+
+                        Row {
+                            anchors {
+                                fill: parent
+                                leftMargin: 7
+                                rightMargin: 5
+                            }
+                            spacing: 5
+
+                            GamepadGlyph {
+                                button: controlCard.glyphButton
+                                anchors.verticalCenter: parent.verticalCenter
+                            }
+                            Text {
+                                width: Math.max(0, parent.width - 35)
+                                text: controlCard.controlData.label || controlCard.buttonName
+                                font.pixelSize: 8
+                                font.family: Tokens.fontSans
+                                color: Tokens.textPrimary
+                                elide: Text.ElideRight
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                    }
+                }
+            }
+
+            // These exits are always Torchform-owned and visually separate
+            // from the external program's controller map.
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 270
+                height: 40
+                radius: Tokens.rSm
+                color: Tokens.lowerSurface
+                border.color: Tokens.accent
+                border.width: 1
+
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 2
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: "TORCHFORM"
+                        font.pixelSize: 7
+                        font.family: Tokens.fontMono
+                        font.weight: Font.DemiBold
+                        color: Tokens.accent
+                    }
+                    ControlHints {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        hints: [
+                            {button: "B", label: "Close"},
+                            {button: "START", label: "Home"}
+                        ]
+                        spacing: 8
+                    }
+                }
+            }
+        }
+
+        // Generic overlay mode: keep context and hints visible; no touch targets.
+        Column {
+            visible: root.overlayOpen && !root.locked && !root.externalRunning &&
+                     !root.paletteOpen && !root.radialOpen
+            anchors.centerIn: parent
+            spacing: 12
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: root.overlayLabel
+                font.pixelSize: 13
+                font.family: Tokens.fontDisplay
+                color: Tokens.textPrimary
+            }
+            ControlHints {
+                anchors.horizontalCenter: parent.horizontalCenter
+                hints: root.hints
+                spacing: 8
+            }
+        }
         // Palette mode indicator
         Column {
             visible: root.paletteOpen

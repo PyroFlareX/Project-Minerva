@@ -84,10 +84,6 @@ impl RadialMenuState {
         };
     }
 
-    /// Returns the item at the currently focused slot, if any.
-    pub fn focused_item(&self) -> Option<&MenuItem> {
-        self.items.get(self.focused_index)
-    }
 
     /// Update the focused slot from an analog stick position.
     /// `x` and `y` are normalised [-1.0, 1.0]; Y is screen-coords (up = negative).

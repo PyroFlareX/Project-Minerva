@@ -40,17 +40,44 @@ Item {
 
         Rectangle {
             anchors.centerIn: parent
-            width: 48
-            height: 48
-            radius: 24
+            width: 150
+            height: 84
+            radius: 42
             color: Tokens.bgElevated
             border.color: root.activeLayer === "system" ? Tokens.accent : Tokens.border
             border.width: 2
-            Text {
+
+            Column {
                 anchors.centerIn: parent
-                text: root.activeLayer === "system" ? "⊕" : "◉"
-                font.pixelSize: 18
-                color: root.activeLayer === "system" ? Tokens.accent : Tokens.textSecondary
+                width: parent.width - 16
+                spacing: 2
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.activeLayer === "system" ? "SYSTEM ACTION" : root.activeLayer.toUpperCase()
+                    font.pixelSize: 8
+                    font.family: Tokens.fontMono
+                    color: root.activeLayer === "system" ? Tokens.accent : Tokens.textSecondary
+                }
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.items[root.focusIndex] ? root.items[root.focusIndex].label : "Select an action"
+                    font.pixelSize: 12
+                    font.family: Tokens.fontSans
+                    font.weight: Font.DemiBold
+                    color: Tokens.textPrimary
+                    elide: Text.ElideRight
+                }
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.items[root.focusIndex] ?
+                          root.items[root.focusIndex].description + " → " + root.items[root.focusIndex].destination : ""
+                    font.pixelSize: 8
+                    font.family: Tokens.fontSans
+                    color: Tokens.textSecondary
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                    maximumLineCount: 2
+                }
             }
         }
 

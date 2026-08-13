@@ -30,7 +30,6 @@ pub enum Action {
     ButtonReleased(Button),
 
     // Analog axes (normalised -1.0..1.0)
-    LeftPadMoved { x: f32, y: f32 },
     RightStickMoved { x: f32, y: f32 },
 
     // Legacy L2/R2 chord state signals (kept for radial visual state)
@@ -213,6 +212,8 @@ impl ChordDetector {
 
     /// Load chord and hold patterns from external config.
     /// This ADDS to the built-in patterns (doesn't replace them).
+    // Retained for the pending keybind pattern loader.
+    #[allow(dead_code)]
     pub fn with_patterns(mut self, chords: Vec<ChordPattern>, holds: Vec<HoldPattern>) -> Self {
         for c in chords {
             if !self.chord_patterns.iter().any(|p| p.name == c.name) {
@@ -350,7 +351,7 @@ impl ChordDetector {
                         let was_chord = self.was_system_chord();
                         self.held.remove(&btn);
                         self.chord_fired.remove(&canonical_chord_name(
-                            &self.chord_patterns.iter()
+                            self.chord_patterns.iter()
                                 .find(|p| p.buttons.contains(&btn))
                                 .map(|p| p.buttons.as_slice())
                                 .unwrap_or(&[])
@@ -520,6 +521,8 @@ impl ChordDetector {
 // ---------------------------------------------------------------------------
 
 /// Parse a button name string (as used in keybinds.toml) to a `Button`.
+// Retained for the pending keybind pattern loader.
+#[allow(dead_code)]
 pub fn button_from_name(name: &str) -> Option<Button> {
     match name {
         "button_a"     => Some(Button::A),
@@ -557,7 +560,6 @@ mod tests {
     }
 
     const BTN_A:  u16 = 0x130;
-    const BTN_B:  u16 = 0x131;
     const BTN_L1: u16 = 0x136;
     const BTN_R1: u16 = 0x137;
     const BTN_L2: u16 = 0x138;

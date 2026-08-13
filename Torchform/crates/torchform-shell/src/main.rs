@@ -745,7 +745,7 @@ fn fs_read_dir(path: &str) -> slint::ModelRc<FileEntry> {
     let mut items: Vec<(bool, String, u64)> = match std::fs::read_dir(path) {
         Ok(rd) => rd.filter_map(|e| e.ok()).map(|e| {
             let meta   = e.metadata().ok();
-            let is_dir = meta.as_ref().map_or(false, |m| m.is_dir());
+            let is_dir = meta.as_ref().is_some_and(|m| m.is_dir());
             let size   = meta.as_ref().map_or(0u64, |m| m.len());
             (is_dir, e.file_name().to_string_lossy().into_owned(), size)
         }).collect(),

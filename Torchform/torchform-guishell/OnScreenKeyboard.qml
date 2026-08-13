@@ -11,6 +11,8 @@ Item {
     id: root
 
     property bool open: false
+    property bool compact: false
+
 
     signal keyEmitted(string key)
     signal closeRequested()
@@ -97,7 +99,7 @@ Item {
     // ── Visual ────────────────────────────────────────────────────────────────
     Rectangle {
         anchors { bottom: parent.bottom; left: parent.left; right: parent.right }
-        height: oskRows.implicitHeight + Tokens.sp3 * 2 + 1
+        height: oskRows.implicitHeight + (root.compact ? 12 : Tokens.sp3 * 2) + 1
         color: Qt.rgba(0.051, 0.059, 0.078, 0.97)  // bgBase near-opaque
 
         Rectangle {
@@ -110,10 +112,10 @@ Item {
             id: oskRows
             anchors {
                 top: parent.top
-                topMargin: Tokens.sp3
+                topMargin: root.compact ? 5 : Tokens.sp3
                 horizontalCenter: parent.horizontalCenter
             }
-            spacing: 8
+            spacing: root.compact ? 4 : 8
 
             Repeater {
                 model: root.activeRows
@@ -140,9 +142,9 @@ Item {
                                                    keyRect.modelData === "⌫" ||
                                                    keyRect.modelData === "✓"
 
-                            width:  keyRect.modelData === " " ? 240 :
-                                    isSpec                    ?  88 : 68
-                            height: 52
+                            width:  keyRect.modelData === " " ? (root.compact ? 100 : 240) :
+                                    isSpec                    ? (root.compact ? 58 : 88) : (root.compact ? 48 : 68)
+                            height: root.compact ? 34 : 52
                             radius: Tokens.rMd
 
                             color: isFocused                       ? Tokens.accent :
@@ -157,11 +159,19 @@ Item {
                             Text {
                                 anchors.centerIn: parent
                                 text: keyRect.modelData === " " ? "SPACE" : keyRect.modelData
-                                font.pixelSize: keyRect.modelData === " " ? 11 :
-                                                keyRect.isSpec            ? 14 : 19
+                                font.pixelSize: keyRect.modelData === " " ? (root.compact ? 8 : 11) :
+                                                keyRect.isSpec            ? (root.compact ? 10 : 14) : (root.compact ? 13 : 19)
                                 font.family:    keyRect.isSpec ? Tokens.fontSans : Tokens.fontMono
                                 font.bold:      keyRect.isSpec
                                 color: keyRect.isFocused ? Tokens.bgBase : Tokens.textPrimary
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onPressed: {
+                                    root.focusRow = keyRow.index
+                                    root.focusCol = keyRect.index
+                                }
+                                onClicked: root.activateKey()
                             }
                         }
                     }

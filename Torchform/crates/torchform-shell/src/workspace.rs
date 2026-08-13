@@ -63,6 +63,8 @@ impl Workspace {
     }
 
     /// Cycle focus between tiles (L1 / R1).
+    // Tile focus is reserved for compositor/input integration.
+    #[allow(dead_code)]
     pub fn cycle_focus(&mut self) {
         if self.config.layout == LayoutMode::HorizontalSplit {
             self.focused_tile = 1 - self.focused_tile;
@@ -115,6 +117,8 @@ impl WorkspaceManager {
         };
     }
 
+    // Active workspace accessors are reserved for compositor integration.
+    #[allow(dead_code)]
     pub fn active_name(&self) -> &str {
         &self.workspaces[self.active_index].config.name
     }
@@ -124,6 +128,8 @@ impl WorkspaceManager {
         &self.workspaces[self.active_index]
     }
 
+    // Active workspace accessors are reserved for compositor integration.
+    #[allow(dead_code)]
     pub fn active_mut(&mut self) -> &mut Workspace {
         &mut self.workspaces[self.active_index]
     }
